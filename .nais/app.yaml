@@ -8,7 +8,7 @@ metadata:
   namespace: helsearbeidsgiver
 spec:
   ingresses:
-    - https://sykepenger-im-lps-api.dev.nav.cloud.nais.io
+    - https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io
   image: {{image}}
   port: 8080
   ttl: 3h
