@@ -12,6 +12,15 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Test and build
+        run: ./gradlew :test :build
+
+      - uses: actions/checkout@v4
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
