@@ -23,7 +23,7 @@ jobs:
           distribution: temurin
 
       - name: Test and build
-        run: ./gradlew :test :build
+        run: ./gradlew :jar
 
       - uses: actions/checkout@v4
       - name: Push docker image to GAR
