@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
 
       - name: Test and build
-        run: ./gradlew build -d
+        run: ./gradlew build
 
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
