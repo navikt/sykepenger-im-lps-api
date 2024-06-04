@@ -1,7 +1,4 @@
-# Hello NAIS
-
-This is a bare bone repository containing a simple web server.
-The repository is used by the hello nais tutorial in the nais documentation.
+# Sykepenger IM LPS API
 
 ## Local Development
 
@@ -26,3 +23,11 @@ The repository is used by the hello nais tutorial in the nais documentation.
     ```shell
     docker run -p 8080:8080 hello-nais
     ```
+
+Alternatively, just start Application.main() from your IDE and go to
+
+http://localhost:8080/swagger
+
+You can also visit the dev environment:
+
+https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io/swagger
