@@ -15,7 +15,7 @@ fun Application.configureRouting() {
             call.respondText("Hello World!")
         }
         get("/forespoersler") {
-            call.respondText(forespoerselService .hentForespoersler().toString())
+            call.respond(forespoerselService.hentForespoersler())
         }
     }
 }
