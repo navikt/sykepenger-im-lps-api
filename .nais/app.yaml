@@ -9,8 +9,21 @@ metadata:
 spec:
   ingresses:
     - https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io
+    - https://sykepenger-im-lps-api.ekstern.dev.nav.no
   image: {{image}}
   port: 8080
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: oppfolgingsplan
+          separator: "/"
+          name: lps.write
+      consumes:
+        - name: "nav:oppfolgingsplan/lps.write"
   replicas:
     max: 1
     min: 1

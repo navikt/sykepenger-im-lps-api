@@ -8,6 +8,8 @@ servers:
     description: Localhost
   - url: https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io
     description: Dev
+  - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
+    description: Dev Ekstern
 paths:
   /forespoersler:
     get:
