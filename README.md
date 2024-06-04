@@ -31,3 +31,15 @@ http://localhost:8080/swagger
 You can also visit the dev environment:
 
 https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io/swagger
+
+### Authentication
+
+For local dev, start local moch oauth-server:
+```
+    cd docker/local
+    docker-compose up -d --remove-orphans
+    
+```
+It will be available on: http://localhost:33445/.well-known/openid-configuration
+
+
