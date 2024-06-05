@@ -27,7 +27,21 @@ fun Application.module() {
     }
     install(Authentication) {
         //tokenValidationSupport(config = TokenSupportConfig(IssuerConfig("iss-localhost", "http://localhost:33445/.well-known/openid-configuration", listOf("aud-localhost", "anotherAudience"))), resourceRetriever = DefaultResourceRetriever(DEFAULT_HTTP_CONNECT_TIMEOUT, DEFAULT_HTTP_READ_TIMEOUT, DEFAULT_HTTP_SIZE_LIMIT))
-        tokenValidationSupport(config = TokenSupportConfig(IssuerConfig(System.getenv("MASKINPORTEN_ISSUER"), System.getenv("MASKINPORTEN_WELL_KNOWN_URL"), listOf(System.getenv("MASKINPORTEN_SCOPES")))), resourceRetriever = DefaultResourceRetriever(DEFAULT_HTTP_CONNECT_TIMEOUT, DEFAULT_HTTP_READ_TIMEOUT, DEFAULT_HTTP_SIZE_LIMIT))
+        tokenValidationSupport(
+            "validToken",
+            config = TokenSupportConfig(
+                IssuerConfig(
+                    System.getenv("MASKINPORTEN_ISSUER"),
+                    System.getenv("MASKINPORTEN_WELL_KNOWN_URL"),
+                    listOf(System.getenv("MASKINPORTEN_SCOPES"))
+                )
+            ),
+            resourceRetriever = DefaultResourceRetriever(
+                DEFAULT_HTTP_CONNECT_TIMEOUT,
+                DEFAULT_HTTP_READ_TIMEOUT,
+                DEFAULT_HTTP_SIZE_LIMIT
+            )
+        )
         // Configure authentication
     }
     configureRouting()
