@@ -2,6 +2,7 @@ package helsearbeidsgiver.nav.no.plugins
 
 import helsearbeidsgiver.nav.no.forespoersel.ForespoerselService
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -14,8 +15,10 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
-        get("/forespoersler") {
-            call.respond(forespoerselService.hentForespoersler())
+        authenticate("validToken")  {
+            get("/forespoersler") {
+                call.respond(forespoerselService.hentForespoersler())
+            }
         }
     }
 }
