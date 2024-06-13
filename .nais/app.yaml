@@ -14,6 +14,16 @@ spec:
   port: 8080
   maskinporten:
     enabled: true
+    scopes:
+      exposes:
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: sykepenger
+          separator: ":"
+          name: inntektsmelding.lps.read
+      consumes:
+        - name: "nav:sykepenger:inntektsmelding.lps.read"
   replicas:
     max: 1
     min: 1
