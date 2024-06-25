@@ -19,11 +19,11 @@ spec:
         - accessibleForAll: true
           delegationSource: altinn
           enabled: true
-          product: sykepenger
+          product: inntektsmelding
           separator: "/"
-          name: inntektsmelding.lps.read
+          name: lps.write
       consumes:
-        - name: "nav:sykepenger/inntektsmelding.lps.read"
+        - name: "nav:inntektsmelding/lps.write"
   replicas:
     max: 1
     min: 1
