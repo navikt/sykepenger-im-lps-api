@@ -31,11 +31,22 @@ fun Application.module() {
             "validToken",
             config = TokenSupportConfig(
                 IssuerConfig(
-                    System.getenv("MASKINPORTEN_ISSUER"),
+                    "maskinporten",
                     System.getenv("MASKINPORTEN_WELL_KNOWN_URL"),
-                    listOf(System.getenv("MASKINPORTEN_SCOPES"))
+                    listOf(System.getenv("MASKINPORTEN_SCOPES")),
+                    listOf("aud", "sub")
                 )
             ),
+            //local:
+//            config = TokenSupportConfig(
+//                IssuerConfig(
+//                    "maskinporten",
+//                   "https://test.maskinporten.no/.well-known/oauth-authorization-server",
+//                    listOf("nav:sykepenger/inntektsmelding.lps.read"),
+//                    listOf("aud", "sub")
+//
+//                )
+//            ),
             resourceRetriever = DefaultResourceRetriever(
                 DEFAULT_HTTP_CONNECT_TIMEOUT,
                 DEFAULT_HTTP_READ_TIMEOUT,
