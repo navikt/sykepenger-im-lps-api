@@ -26,7 +26,7 @@
 
 ### Authentication
 
-For local dev, start local moch oauth-server:
+For local dev, start local mock oauth-server:
 ```
     cd docker/local
     docker-compose up -d --remove-orphans
@@ -58,6 +58,7 @@ curl -v -H "Authorization: Bearer $ACCESSTOKEN" http://localhost:8080/forespoers
 You can also visit the dev environment:
 
 https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io/swagger
+
 
 
 
