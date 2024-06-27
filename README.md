@@ -40,13 +40,18 @@ It will be available on: http://localhost:33445/.well-known/openid-configuration
 Add these env variables to your IDE run setup:
 
 ```
-MASKINPORTEN_ISSUER=iss-localhost;MASKINPORTEN_SCOPES=aud-localhost;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/default/.well-known/openid-configuration
+MASKINPORTEN_SCOPES=aud-localhost;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/default/.well-known/openid-configuration
+```
+
+Or, alternatively, use maskinporten test directly: 
+```
+MASKINPORTEN_SCOPES=nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=https://test.maskinporten.no/.well-known/oauth-authorization-server
 ```
 and start Application.main() from your IDE and go to
 
 http://localhost:8080/swagger
 
-Get a token:
+Get a token from mock server (or use postman towards test.maskinporten.no):
 ```
 ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=aud-localhost&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/default/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
 ```
