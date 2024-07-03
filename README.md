@@ -34,7 +34,7 @@ For local dev, start local mock oauth-server:
 ```
 It will be available on: http://localhost:33445/.well-known/openid-configuration
 
-### Testing
+### Testing locally
 
 
 Add these env variables to your IDE run setup:
@@ -43,7 +43,7 @@ Add these env variables to your IDE run setup:
 MASKINPORTEN_SCOPES=aud-localhost;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/default/.well-known/openid-configuration
 ```
 
-Or, alternatively, use maskinporten test directly: 
+Or, alternatively, use maskinporten test directly: (no need for local mock oauth-server in this case)
 ```
 MASKINPORTEN_SCOPES=nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=https://test.maskinporten.no/.well-known/oauth-authorization-server
 ```
@@ -55,6 +55,10 @@ Get a token from mock server (or use postman towards test.maskinporten.no):
 ```
 ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=aud-localhost&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/default/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
 ```
+
+Or use postman and get a token from test.maskinporten.no - to set up postman, follow this guide:
+https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api/teste-delegerbart-api.md
+
 Make a call:
 ```
 curl -v -H "Authorization: Bearer $ACCESSTOKEN" http://localhost:8080/forespoersler
@@ -62,8 +66,6 @@ curl -v -H "Authorization: Bearer $ACCESSTOKEN" http://localhost:8080/forespoers
 
 You can also visit the dev environment:
 
-https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io/swagger
-
-
+https://sykepenger-im-lps-api.ekstern.dev.nav.no/swagger
 
 
