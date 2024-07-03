@@ -10,6 +10,14 @@ servers:
     description: Dev
   - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
     description: Dev Ekstern
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
 paths:
   /forespoersler:
     get:
