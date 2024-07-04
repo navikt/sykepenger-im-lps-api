@@ -5,7 +5,7 @@ val tokenSupportVersion: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.11"
+    id("io.ktor.plugin") version "2.3.12"
 }
 
 group = "helsearbeidsgiver.nav.no"
