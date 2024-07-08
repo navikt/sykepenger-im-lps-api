@@ -1,13 +1,22 @@
 
+
 package helsearbeidsgiver.nav.no.forespoersel
 
-import kotlinx.serialization.Serializable
 import java.util.UUID
 
 class ForespoerselService {
     fun hentForespoersler() : List<Forespoersel> {
-        return listOf(Forespoersel(UUID.randomUUID().toString(), "ny"), Forespoersel(UUID.randomUUID().toString(), "besvart"))
+        return listOf(
+            Forespoersel(ForespoerselType.KOMPLETT, "orgnr", "fnr", UUID.randomUUID(), emptyList(), emptyList(), emptyMap(),
+                ForespurtData(ForespurtData.Arbeidsgiverperiode(true), ForespurtData.Inntekt(true, ForslagInntekt.Grunnlag(null)), ForespurtData.Refusjon(true, ForslagRefusjon(emptyList(), null))), false),
+            Forespoersel(ForespoerselType.BEGRENSET, "orgnr", "fnr", UUID.randomUUID(), emptyList(), emptyList(), emptyMap(),
+                ForespurtData(ForespurtData.Arbeidsgiverperiode(true), ForespurtData.Inntekt(true, ForslagInntekt.Grunnlag(null)), ForespurtData.Refusjon(true, ForslagRefusjon(emptyList(), null))), false),
+            Forespoersel(ForespoerselType.POTENSIELL, "orgnr", "fnr", UUID.randomUUID(), emptyList(), emptyList(), emptyMap(),
+                ForespurtData(ForespurtData.Arbeidsgiverperiode(true), ForespurtData.Inntekt(true, ForslagInntekt.Grunnlag(null)), ForespurtData.Refusjon(true, ForslagRefusjon(emptyList(), null))), false),
+            Forespoersel(ForespoerselType.KOMPLETT, "orgnr", "fnr", UUID.randomUUID(), emptyList(), emptyList(), emptyMap(),
+                ForespurtData(ForespurtData.Arbeidsgiverperiode(true), ForespurtData.Inntekt(true, ForslagInntekt.Grunnlag(null)), ForespurtData.Refusjon(true, ForslagRefusjon(emptyList(), null))), true),
+        )
     }
 }
-@Serializable
-data class Forespoersel(val forespoerselId: String, val status: String)
+
+

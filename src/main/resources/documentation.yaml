@@ -16,6 +16,109 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Periode:
+      type: "object"
+      properties:
+        fom:
+          type: "string"
+          format: "date"
+        tom:
+          type: "string"
+          format: "date"
+      required:
+        - "fom"
+        - "tom"
+    Arbeidsgiverperiode:
+      type: "object"
+      properties:
+        paakrevd:
+          type: "boolean"
+    ForslagInntekt:
+      type: "object"
+      properties: { }
+    Inntekt:
+      type: "object"
+      properties:
+        paakrevd:
+          type: "boolean"
+        forslag:
+          $ref: "#/components/schemas/ForslagInntekt"
+      required:
+        - "forslag"
+    ForslagRefusjon:
+      type: "object"
+      properties:
+        perioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        opphoersdato:
+          type: "string"
+          format: "date"
+      required:
+        - "perioder"
+    Refusjon:
+      type: "object"
+      properties:
+        paakrevd:
+          type: "boolean"
+        forslag:
+          $ref: "#/components/schemas/ForslagRefusjon"
+      required:
+        - "forslag"
+    ForespurtData:
+      type: "object"
+      properties:
+        arbeidsgiverperiode:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+      required:
+        - "arbeidsgiverperiode"
+        - "inntekt"
+        - "refusjon"
+    Forespoersel:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "KOMPLETT"
+            - "BEGRENSET"
+            - "POTENSIELL"
+        orgnr:
+          type: "string"
+        fnr:
+          type: "string"
+        vedtaksperiodeId:
+          type: "string"
+          format: "uuid"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        bestemmendeFravaersdager:
+          type: "string"
+        forespurtData:
+          $ref: "#/components/schemas/ForespurtData"
+        erBesvart:
+          type: "boolean"
+      required:
+        - "type"
+        - "orgnr"
+        - "fnr"
+        - "vedtaksperiodeId"
+        - "sykmeldingsperioder"
+        - "egenmeldingsperioder"
+        - "bestemmendeFravaersdager"
+        - "forespurtData"
 security:
   - bearerAuth: []
 paths:
@@ -31,4 +134,6 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: "#/components/schemas/Forespoersel"
+
+
