@@ -1,6 +1,7 @@
 package helsearbeidsgiver.nav.no.plugins
 
 import helsearbeidsgiver.nav.no.forespoersel.ForespoerselService
+import helsearbeidsgiver.nav.no.inntektsmelding.ImService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
@@ -12,6 +13,7 @@ import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 import org.slf4j.LoggerFactory
 
 private val forespoerselService = ForespoerselService()
+private val imService = ImService()
 
 private val LOG = LoggerFactory.getLogger("applikasjonslogger")
 
@@ -32,6 +34,9 @@ fun Application.configureRouting() {
                 }
                 LOG.info("$supplier har logget inn - representerer $consumer")
                 call.respond(forespoerselService.hentForespoersler())
+            }
+            get("/inntektsmeldinger") {
+                call.respond(imService.hentInntektsmeldinger())
             }
         }
     }

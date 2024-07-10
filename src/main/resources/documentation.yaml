@@ -32,20 +32,40 @@ components:
     Arbeidsgiverperiode:
       type: "object"
       properties:
-        paakrevd:
-          type: "boolean"
+        perioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldinger:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        redusertLoennIAgp:
+          $ref: "#/components/schemas/RedusertLoennIAgp"
+      required:
+        - "perioder"
+        - "egenmeldinger"
     ForslagInntekt:
       type: "object"
-      properties: { }
+      properties: {}
     Inntekt:
       type: "object"
       properties:
-        paakrevd:
-          type: "boolean"
-        forslag:
-          $ref: "#/components/schemas/ForslagInntekt"
+        beloep:
+          type: "number"
+          format: "double"
+        inntektsdato:
+          type: "string"
+          format: "date"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
+        endringAarsak:
+          $ref: "#/components/schemas/InntektEndringAarsak"
       required:
-        - "forslag"
+        - "inntektsdato"
+        - "naturalytelser"
     ForslagRefusjon:
       type: "object"
       properties:
@@ -61,12 +81,18 @@ components:
     Refusjon:
       type: "object"
       properties:
-        paakrevd:
-          type: "boolean"
-        forslag:
-          $ref: "#/components/schemas/ForslagRefusjon"
+        beloepPerMaaned:
+          type: "number"
+          format: "double"
+        endringer:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/RefusjonEndring"
+        sluttdato:
+          type: "string"
+          format: "date"
       required:
-        - "forslag"
+        - "endringer"
     ForespurtData:
       type: "object"
       properties:
@@ -119,6 +145,141 @@ components:
         - "egenmeldingsperioder"
         - "bestemmendeFravaersdager"
         - "forespurtData"
+    Type:
+      type: "object"
+      properties: {}
+    Sykmeldt:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+      required:
+        - "navn"
+    Avsender:
+      type: "object"
+      properties:
+        orgNavn:
+          type: "string"
+        navn:
+          type: "string"
+        tlf:
+          type: "string"
+      required:
+        - "orgNavn"
+        - "navn"
+        - "tlf"
+    RedusertLoennIAgp:
+      type: "object"
+      properties:
+        beloep:
+          type: "number"
+          format: "double"
+        begrunnelse:
+          type: "string"
+          enum:
+            - "ArbeidOpphoert"
+            - "BeskjedGittForSent"
+            - "BetvilerArbeidsufoerhet"
+            - "FerieEllerAvspasering"
+            - "FiskerMedHyre"
+            - "FravaerUtenGyldigGrunn"
+            - "IkkeFravaer"
+            - "IkkeFullStillingsandel"
+            - "IkkeLoenn"
+            - "LovligFravaer"
+            - "ManglerOpptjening"
+            - "Permittering"
+            - "Saerregler"
+            - "StreikEllerLockout"
+            - "TidligereVirksomhet"
+      required:
+        - "begrunnelse"
+    Naturalytelse:
+      type: "object"
+      properties:
+        naturalytelse:
+          type: "string"
+          enum:
+            - "AKSJERGRUNNFONDSBEVISTILUNDERKURS"
+            - "ANNET"
+            - "BEDRIFTSBARNEHAGEPLASS"
+            - "BESOEKSREISERHJEMMETANNET"
+            - "BIL"
+            - "BOLIG"
+            - "ELEKTRONISKKOMMUNIKASJON"
+            - "FRITRANSPORT"
+            - "INNBETALINGTILUTENLANDSKPENSJONSORDNING"
+            - "KOSTBESPARELSEIHJEMMET"
+            - "KOSTDAGER"
+            - "KOSTDOEGN"
+            - "LOSJI"
+            - "OPSJONER"
+            - "RENTEFORDELLAAN"
+            - "SKATTEPLIKTIGDELFORSIKRINGER"
+            - "TILSKUDDBARNEHAGEPLASS"
+            - "YRKEBILTJENESTLIGBEHOVKILOMETER"
+            - "YRKEBILTJENESTLIGBEHOVLISTEPRIS"
+        verdiBeloep:
+          type: "number"
+          format: "double"
+        sluttdato:
+          type: "string"
+          format: "date"
+      required:
+        - "naturalytelse"
+        - "sluttdato"
+    InntektEndringAarsak:
+      type: "object"
+      properties: {}
+    RefusjonEndring:
+      type: "object"
+      properties:
+        beloep:
+          type: "number"
+          format: "double"
+        startdato:
+          type: "string"
+          format: "date"
+      required:
+        - "startdato"
+    Inntektsmelding:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          $ref: "#/components/schemas/Type"
+        sykmeldt:
+          $ref: "#/components/schemas/Sykmeldt"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+        aarsakInnsending:
+          type: "string"
+          enum:
+            - "Ny"
+            - "Endring"
+        mottatt:
+          type: "string"
+          format: "date-time"
+      required:
+        - "id"
+        - "type"
+        - "sykmeldt"
+        - "avsender"
+        - "sykmeldingsperioder"
+        - "aarsakInnsending"
+        - "mottatt"
 security:
   - bearerAuth: []
 paths:
@@ -135,5 +296,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Forespoersel"
+  /inntektsmeldinger:
+    get:
+      summary: Returns a list of Inntektsmeldinger.
+      description: ""
+      responses:
+        "200":
+          description: A JSON array of Inntektsmelding
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inntektsmelding"
 
 
