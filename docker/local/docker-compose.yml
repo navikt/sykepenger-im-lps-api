@@ -1,5 +1,33 @@
 services:
   mock-oauth2-server:
     image: ghcr.io/navikt/mock-oauth2-server:0.5.7
+    environment:
+      JSON_CONFIG: '{
+          "tokenCallbacks": [
+              {
+                  "issuerId": "maskinporten",
+                  "tokenExpiry": 120,
+                  "requestMappings": [
+                      {
+                          "requestParam": "scope",
+                          "match": "nav:inntektsmelding/lps.write",
+                          "claims": {
+                              "supplier" : {
+                                "authority" : "iso6523-actorid-upis",
+                                "ID" : "0192:991825827"
+                              },
+                             "consumer" : {
+                                "authority" : "iso6523-actorid-upis",
+                                "ID" : "0192:910753614"
+                              },
+                              "scope": "aud-localhost, nav:inntektsmelding/lps.write",
+                              "sub": "testid",
+                              "aud": "nav:inntektsmelding/lps.write"
+                          }
+                      }
+                  ]
+              }        
+          ]
+      }'
     ports:
       - 33445:8080
