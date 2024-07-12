@@ -1,16 +1,18 @@
 package helsearbeidsgiver.nav.no
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
-import helsearbeidsgiver.nav.no.plugins.*
+import helsearbeidsgiver.nav.no.plugins.configureRouting
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
+import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
@@ -21,7 +23,7 @@ fun main() {
         .start(wait = true)
 }
 
-fun Application.module() {
+fun Application.module(env: IEnv = Env()) {
     install(ContentNegotiation) {
         json()
     }
@@ -31,11 +33,10 @@ fun Application.module() {
             config = TokenSupportConfig(
                 IssuerConfig(
                    "maskinporten",
-                   System.getenv("MASKINPORTEN_WELL_KNOWN_URL"),
-                   listOf(System.getenv("MASKINPORTEN_SCOPES")),
+                    env.wellKnownUrl,
+                    listOf(env.scopes),
                     listOf("aud", "sub")
                 ),
-//            ),
             //local:
 //                IssuerConfig(
 //                    "iss-localhost",
@@ -50,6 +51,10 @@ fun Application.module() {
 //                    listOf("aud", "sub")
 //                )
             ),
+            additionalValidation = {
+                it.gyldigSupplierOgConsumer()
+            }
+            ,
             resourceRetriever = DefaultResourceRetriever(
                 DEFAULT_HTTP_CONNECT_TIMEOUT,
                 DEFAULT_HTTP_READ_TIMEOUT,
@@ -60,3 +65,18 @@ fun Application.module() {
     }
     configureRouting()
 }
+
+private fun TokenValidationContext.gyldigSupplierOgConsumer(): Boolean {
+    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String,String>
+    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String,String>
+    val supplierOrgnr = supplier.extractOrgnummer()
+    val consumerOrgnr = consumer.extractOrgnummer()
+    return supplierOrgnr != null
+            && consumerOrgnr != null
+            && supplierOrgnr.matches(Regex("\\d{9}"))
+            && consumerOrgnr.matches(Regex("\\d{9}"))
+}
+
+private fun Map<String, String>.extractOrgnummer() : String? = get("ID")
+    ?.split(":")
+    ?.get(1)
