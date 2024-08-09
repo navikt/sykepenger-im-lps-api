@@ -40,7 +40,7 @@ It will be available on: http://localhost:33445/.well-known/openid-configuration
 Add these env variables to your IDE run setup:
 
 ```
-MASKINPORTEN_SCOPES==nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/maskinporten/.well-known/openid-configuration
+MASKINPORTEN_SCOPES=nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/maskinporten/.well-known/openid-configuration
 ```
 
 Or, alternatively, use maskinporten test directly: (no need for local mock oauth-server in this case)
