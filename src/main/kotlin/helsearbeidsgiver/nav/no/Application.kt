@@ -23,7 +23,8 @@ fun main() {
         .start(wait = true)
 }
 
-fun Application.module(env: IEnv = Env()) {
+fun Application.module(
+) {
     install(ContentNegotiation) {
         json()
     }
@@ -33,8 +34,8 @@ fun Application.module(env: IEnv = Env()) {
             config = TokenSupportConfig(
                 IssuerConfig(
                    "maskinporten",
-                    env.wellKnownUrl,
-                    listOf(env.scopes),
+                    Env.wellKnownUrl,
+                    listOf(Env.scopes),
                     listOf("aud", "sub")
                 ),
             //local:

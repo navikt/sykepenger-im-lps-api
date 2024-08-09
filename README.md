@@ -40,7 +40,7 @@ It will be available on: http://localhost:33445/.well-known/openid-configuration
 Add these env variables to your IDE run setup:
 
 ```
-MASKINPORTEN_SCOPES=aud-localhost;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/default/.well-known/openid-configuration
+MASKINPORTEN_SCOPES==nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/maskinporten/.well-known/openid-configuration
 ```
 
 Or, alternatively, use maskinporten test directly: (no need for local mock oauth-server in this case)
@@ -53,7 +53,7 @@ http://localhost:8080/swagger
 
 Get a token from mock server (or use postman towards test.maskinporten.no):
 ```
-ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=aud-localhost&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/default/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
+ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=nav:inntektsmelding/lps.write&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/maskinporten/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
 ```
 
 Or use postman and get a token from test.maskinporten.no - to set up postman, follow this guide:

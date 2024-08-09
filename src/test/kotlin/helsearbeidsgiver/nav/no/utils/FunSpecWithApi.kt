@@ -1,6 +1,5 @@
 package helsearbeidsgiver.nav.no.utils
 
-import helsearbeidsgiver.nav.no.MockEnv
 import helsearbeidsgiver.nav.no.module
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.testing.testApplication
@@ -52,7 +51,7 @@ abstract class FunSpecWithApi(
         fun testApi(block: suspend TestClient.() -> Unit): Unit =
             testApplication {
                 application {
-                    module(MockEnv())
+                    module()
                 }
                 val testClient = TestClient(this, ::mockAuthToken)
                 testClient.block()
