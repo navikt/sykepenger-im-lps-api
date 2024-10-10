@@ -5,7 +5,6 @@ object Env {
     val scopes = "MASKINPORTEN_SCOPES".fromEnv()
 }
 
-
 fun String.fromEnv(): String =
     System.getenv(this)
         ?: throw RuntimeException("Missing required environment variable \"$this\".")

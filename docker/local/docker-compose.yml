@@ -30,9 +30,18 @@ services:
           ]
       }'
     ports:
-      - 33445:8080
+      - "33445:8080"
 
   kafka:
     image: apache/kafka:latest
     ports:
-      - 9092:9092
+      - "9092:9092"
+
+  lpsapi-database:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=lpsapi
+      - POSTGRES_PASSWORD=lpsapi
+      - POSTGRES_DB=lpsapi

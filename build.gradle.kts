@@ -7,6 +7,10 @@ val mockOauth2ServerVersion: String by project
 val kotestVersion: String by project
 val mockkVersion: String by project
 val ktorVersion: String by project
+val exposedVersion: String by project
+val flywayCoreVersion: String by project
+val hikariVersion: String by project
+val postgresqlVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -50,6 +54,15 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
+    implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayCoreVersion")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
+    implementation("org.postgresql:postgresql:$postgresqlVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+
     //implementation("no.nav.security:token-client-core:$tokenSupportVersion")
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
