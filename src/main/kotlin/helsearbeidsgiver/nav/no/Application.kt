@@ -8,6 +8,8 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.db.DatabaseFactory
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -27,7 +29,9 @@ fun Application.module() {
 
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean() ?: false
     if (kafka) {
-        startKafkaConsumer()
+        launch(Dispatchers.IO) {
+            startKafkaConsumer()
+        }
     }
     install(ContentNegotiation) {
         json()

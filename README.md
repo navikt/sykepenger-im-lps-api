@@ -36,18 +36,7 @@ It will be available on: http://localhost:33445/.well-known/openid-configuration
 
 ### Testing locally
 
-
-Add these env variables to your IDE run setup:
-
-```
-MASKINPORTEN_SCOPES=nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=http://localhost:33445/maskinporten/.well-known/openid-configuration
-```
-
-Or, alternatively, use maskinporten test directly: (no need for local mock oauth-server in this case)
-```
-MASKINPORTEN_SCOPES=nav:inntektsmelding/lps.write;MASKINPORTEN_WELL_KNOWN_URL=https://test.maskinporten.no/.well-known/oauth-authorization-server
-```
-and start Application.main() from your IDE and go to
+start Application.main() from your IDE and go to
 
 http://localhost:8080/swagger
 
