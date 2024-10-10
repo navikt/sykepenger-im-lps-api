@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.jetbrains.annotations.Async.Schedule
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -15,8 +16,7 @@ fun startKafkaConsumer() {
         launch(Dispatchers.IO) {
             var running = true
             while (running) {
-                Thread.sleep(5.seconds.inWholeMilliseconds)
-                val records = consumer.poll(Duration.ofMillis(100))
+                val records = consumer.poll(Duration.ofMillis(1.seconds.inWholeMilliseconds))
                 for (record in records) {
                     println("Consumed message: ${record.value()} from partition: ${record.partition()}")
                     if (record.value() == "stop") {
