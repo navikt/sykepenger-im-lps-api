@@ -44,6 +44,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-auth")
     implementation("io.ktor:ktor-server-swagger")
+    implementation("org.apache.kafka:kafka-clients:3.0.0")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("ch.qos.logback:logback-classic:$logback_version")

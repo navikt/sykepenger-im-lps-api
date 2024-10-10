@@ -1,6 +1,7 @@
 package helsearbeidsgiver.nav.no
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
+import helsearbeidsgiver.nav.no.kafka.startKafkaConsumer
 import helsearbeidsgiver.nav.no.plugins.configureRouting
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -25,6 +26,7 @@ fun main() {
 
 fun Application.module(
 ) {
+    startKafkaConsumer()
     install(ContentNegotiation) {
         json()
     }
