@@ -1,10 +1,11 @@
 package helsearbeidsgiver.nav.no
 
+import com.typesafe.config.ConfigFactory
+import io.ktor.server.config.HoconApplicationConfig
+
+private val appConfig = HoconApplicationConfig(ConfigFactory.load())
+
 object Env {
-    val wellKnownUrl = "MASKINPORTEN_WELL_KNOWN_URL".fromEnv()
-    val scopes = "MASKINPORTEN_SCOPES".fromEnv()
+    fun getProperty(prop: String): String = appConfig.property(prop).getString()
 }
 
-fun String.fromEnv(): String =
-    System.getenv(this)
-        ?: throw RuntimeException("Missing required environment variable \"$this\".")

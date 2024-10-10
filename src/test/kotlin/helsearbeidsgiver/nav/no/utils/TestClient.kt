@@ -1,6 +1,5 @@
 package helsearbeidsgiver.nav.no.utils
 
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -13,9 +12,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonElement
-import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.security.mock.oauth2.http.json
 
 class TestClient(
     appTestBuilder: ApplicationTestBuilder,
@@ -23,9 +20,6 @@ class TestClient(
 ) {
     private val httpClient =
         appTestBuilder.createClient {
-            install(ContentNegotiation) {
-                json(jsonConfig)
-            }
         }
 
     fun get(

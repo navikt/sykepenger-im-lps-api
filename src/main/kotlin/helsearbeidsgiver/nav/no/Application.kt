@@ -21,10 +21,14 @@ fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain
         .main(args)
 
+@Suppress("unused")
 fun Application.module() {
     DatabaseFactory.init()
 
-    startKafkaConsumer()
+    val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean() ?: false
+    if (kafka) {
+        startKafkaConsumer()
+    }
     install(ContentNegotiation) {
         json()
     }
@@ -35,8 +39,8 @@ fun Application.module() {
                 TokenSupportConfig(
                     IssuerConfig(
                         "maskinporten",
-                        Env.wellKnownUrl,
-                        listOf(Env.scopes),
+                        Env.getProperty("maskinporten.wellknownUrl"),
+                        listOf(Env.getProperty("maskinporten.scopes")),
                         listOf("aud", "sub"),
                     ),
                     // local:

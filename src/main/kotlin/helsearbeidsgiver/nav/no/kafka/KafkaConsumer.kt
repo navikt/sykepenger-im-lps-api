@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.jetbrains.annotations.Async.Schedule
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 

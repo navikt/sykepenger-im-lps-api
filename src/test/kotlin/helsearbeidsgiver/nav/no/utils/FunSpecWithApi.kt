@@ -50,9 +50,6 @@ abstract class FunSpecWithApi(
 
         fun testApi(block: suspend TestClient.() -> Unit): Unit =
             testApplication {
-                application {
-                    module()
-                }
                 val testClient = TestClient(this, ::mockAuthToken)
                 testClient.block()
             }
