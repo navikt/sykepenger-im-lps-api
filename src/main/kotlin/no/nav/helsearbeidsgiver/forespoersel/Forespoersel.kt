@@ -22,30 +22,27 @@ data class Forespoersel(
     val egenmeldingsperioder: List<Periode>,
     val bestemmendeFravaersdager: Map<String, LocalDate>,
     val forespurtData: ForespurtData,
-    val erBesvart: Boolean
+    val erBesvart: Boolean,
 ) {
     fun forslagBestemmendeFravaersdag(): LocalDate =
         bestemmendeFravaersdager[orgnr]
             ?: bestemmendeFravaersdag(
                 arbeidsgiverperioder = emptyList(),
-                sykmeldingsperioder = sykmeldingsperioder
+                sykmeldingsperioder = sykmeldingsperioder,
             )
 
     fun forslagInntektsdato(): LocalDate =
         bestemmendeFravaersdager.minOfOrNull { it.value }
             ?: bestemmendeFravaersdag(
                 arbeidsgiverperioder = emptyList(),
-                sykmeldingsperioder = sykmeldingsperioder
+                sykmeldingsperioder = sykmeldingsperioder,
             )
 
-    fun eksternBestemmendeFravaersdag(): LocalDate? =
-        bestemmendeFravaersdager.minus(orgnr).minOfOrNull { it.value }
+    fun eksternBestemmendeFravaersdag(): LocalDate? = bestemmendeFravaersdager.minus(orgnr).minOfOrNull { it.value }
 }
-
 
 enum class ForespoerselType {
     KOMPLETT,
     BEGRENSET,
-    POTENSIELL
+    POTENSIELL,
 }
-

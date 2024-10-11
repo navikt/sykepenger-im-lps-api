@@ -63,4 +63,3 @@ abstract class FunSpecWithApi(
     }) {
     val mockOAuth2Server = MockOAuth2Server()
 }
-

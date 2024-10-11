@@ -9,8 +9,7 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object DatabaseFactory {
-
+object Database {
     val dbUser = Env.getProperty("database.username")
     val dbPassword = Env.getProperty("database.password")
     val dbName = Env.getProperty("database.name")

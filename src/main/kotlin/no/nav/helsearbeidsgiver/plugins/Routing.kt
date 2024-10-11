@@ -18,13 +18,12 @@ private val imService = ImService()
 private val LOG = LoggerFactory.getLogger("applikasjonslogger")
 
 fun Application.configureRouting() {
-
     routing {
         swaggerUI(path = "swagger", swaggerFile = "documentation.yaml")
         get("/") {
             call.respondText("Hello World!")
         }
-        authenticate("validToken")  {
+        authenticate("validToken") {
             get("/forespoersler") {
                 call.respond(forespoerselService.hentForespoersler())
             }
@@ -37,7 +36,3 @@ fun Application.configureRouting() {
         }
     }
 }
-
-
-
-

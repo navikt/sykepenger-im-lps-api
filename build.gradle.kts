@@ -16,6 +16,7 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version "2.3.12"
+    id("org.jmailen.kotlinter")
 }
 
 group = "no.nav.helsearbeidsgiver"
