@@ -1,6 +1,6 @@
 @file:UseSerializers(LocalDateSerializer::class, YearMonthSerializer::class, UuidSerializer::class)
 
-package helsearbeidsgiver.nav.no.forespoersel
+package no.nav.helsearbeidsgiver.forespoersel
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

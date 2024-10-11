@@ -1,8 +1,6 @@
-package helsearbeidsgiver.nav.no
+package no.nav.helsearbeidsgiver
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
-import helsearbeidsgiver.nav.no.kafka.startKafkaConsumer
-import helsearbeidsgiver.nav.no.plugins.configureRouting
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -11,6 +9,8 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.db.DatabaseFactory
+import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
+import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -27,7 +27,7 @@ fun main(args: Array<String>): Unit =
 fun Application.module() {
     DatabaseFactory.init()
 
-    val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean() ?: false
+    val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
         launch(Dispatchers.IO) {
             startKafkaConsumer()
@@ -40,14 +40,14 @@ fun Application.module() {
         tokenValidationSupport(
             "validToken",
             config =
-                TokenSupportConfig(
-                    IssuerConfig(
-                        "maskinporten",
-                        Env.getProperty("maskinporten.wellknownUrl"),
-                        listOf(Env.getProperty("maskinporten.scopes")),
-                        listOf("aud", "sub"),
-                    ),
-                    // local:
+            TokenSupportConfig(
+                IssuerConfig(
+                    "maskinporten",
+                    Env.getProperty("maskinporten.wellknownUrl"),
+                    listOf(Env.getProperty("maskinporten.scopes")),
+                    listOf("aud", "sub"),
+                ),
+                // local:
 //                IssuerConfig(
 //                    "iss-localhost",
 //                   "http://localhost:33445/default/.well-known/openid-configuration",
@@ -60,16 +60,16 @@ fun Application.module() {
 //                    listOf("nav:inntektsmelding/lps.write"),
 //                    listOf("aud", "sub")
 //                )
-                ),
+            ),
             additionalValidation = {
                 it.gyldigSupplierOgConsumer()
             },
             resourceRetriever =
-                DefaultResourceRetriever(
-                    DEFAULT_HTTP_CONNECT_TIMEOUT,
-                    DEFAULT_HTTP_READ_TIMEOUT,
-                    DEFAULT_HTTP_SIZE_LIMIT,
-                ),
+            DefaultResourceRetriever(
+                DEFAULT_HTTP_CONNECT_TIMEOUT,
+                DEFAULT_HTTP_READ_TIMEOUT,
+                DEFAULT_HTTP_SIZE_LIMIT,
+            ),
         )
         // Configure authentication
     }
@@ -82,9 +82,9 @@ private fun TokenValidationContext.gyldigSupplierOgConsumer(): Boolean {
     val supplierOrgnr = supplier.extractOrgnummer()
     val consumerOrgnr = consumer.extractOrgnummer()
     return supplierOrgnr != null &&
-        consumerOrgnr != null &&
-        supplierOrgnr.matches(Regex("\\d{9}")) &&
-        consumerOrgnr.matches(Regex("\\d{9}"))
+            consumerOrgnr != null &&
+            supplierOrgnr.matches(Regex("\\d{9}")) &&
+            consumerOrgnr.matches(Regex("\\d{9}"))
 }
 
 private fun Map<String, String>.extractOrgnummer(): String? =

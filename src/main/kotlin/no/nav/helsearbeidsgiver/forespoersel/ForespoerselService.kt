@@ -1,6 +1,4 @@
-
-
-package helsearbeidsgiver.nav.no.forespoersel
+package no.nav.helsearbeidsgiver.forespoersel
 
 import java.util.UUID
 

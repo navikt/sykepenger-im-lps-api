@@ -1,4 +1,4 @@
-package helsearbeidsgiver.nav.no.inntektsmelding
+package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize

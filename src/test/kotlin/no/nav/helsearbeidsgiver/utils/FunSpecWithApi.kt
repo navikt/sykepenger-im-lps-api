@@ -1,6 +1,5 @@
-package helsearbeidsgiver.nav.no.utils
+package no.nav.helsearbeidsgiver.utils
 
-import helsearbeidsgiver.nav.no.module
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.testing.testApplication
 import no.nav.security.mock.oauth2.MockOAuth2Server

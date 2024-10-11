@@ -1,8 +1,8 @@
-package helsearbeidsgiver.nav.no.inntektsmelding
+package no.nav.helsearbeidsgiver.inntektsmelding
 
-import helsearbeidsgiver.nav.no.utils.FunSpecWithAuthorizedApi
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.statement.bodyAsText
+import no.nav.helsearbeidsgiver.utils.FunSpecWithAuthorizedApi
 
 class HentImApiTest :
     FunSpecWithAuthorizedApi({ testApi ->

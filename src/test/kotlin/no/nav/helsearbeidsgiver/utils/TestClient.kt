@@ -1,4 +1,4 @@
-package helsearbeidsgiver.nav.no.utils
+package no.nav.helsearbeidsgiver.utils
 
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.bearerAuth

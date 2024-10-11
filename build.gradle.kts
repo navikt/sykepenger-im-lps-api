@@ -18,11 +18,11 @@ plugins {
     id("io.ktor.plugin") version "2.3.12"
 }
 
-group = "helsearbeidsgiver.nav.no"
+group = "no.nav.helsearbeidsgiver"
 version = "0.0.1"
 
 application {
-    mainClass.set("helsearbeidsgiver.nav.no.ApplicationKt")
+    mainClass.set("no.nav.helsearbeidsgiver.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")

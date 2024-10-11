@@ -1,7 +1,7 @@
-package helsearbeidsgiver.nav.no.forespoersel
+package no.nav.helsearbeidsgiver.forespoersel
 
-import helsearbeidsgiver.nav.no.utils.FunSpecWithAuthorizedApi
 import io.kotest.matchers.shouldBe
+import no.nav.helsearbeidsgiver.utils.FunSpecWithAuthorizedApi
 
 class HentForespoerslerApiTest :
     FunSpecWithAuthorizedApi({ testApi ->

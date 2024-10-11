@@ -1,7 +1,5 @@
-package helsearbeidsgiver.nav.no.plugins
+package no.nav.helsearbeidsgiver.plugins
 
-import helsearbeidsgiver.nav.no.forespoersel.ForespoerselService
-import helsearbeidsgiver.nav.no.inntektsmelding.ImService
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
@@ -10,6 +8,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.inntektsmelding.ImService
 import org.slf4j.LoggerFactory
 
 private val forespoerselService = ForespoerselService()

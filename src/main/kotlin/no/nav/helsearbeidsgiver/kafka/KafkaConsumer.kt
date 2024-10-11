@@ -1,4 +1,4 @@
-package helsearbeidsgiver.nav.no.kafka
+package no.nav.helsearbeidsgiver.kafka
 
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
