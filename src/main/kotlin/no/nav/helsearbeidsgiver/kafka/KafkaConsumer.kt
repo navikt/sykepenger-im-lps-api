@@ -1,20 +1,20 @@
 package no.nav.helsearbeidsgiver.kafka
 
+import no.nav.helsearbeidsgiver.Env
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 fun startKafkaConsumer() {
     val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
-    consumer.subscribe(listOf("im-topic"))
+    val topic = Env.getProperty("kafkaConsumer.topic")
+    consumer.subscribe(listOf(topic))
     var running = true
     while (running) {
-        val records = consumer.poll(Duration.ofMillis(1.seconds.inWholeMilliseconds))
+        val records = consumer.poll(Duration.ofMillis(10))
         for (record in records) {
             println("Consumed message: ${record.value()} from partition: ${record.partition()}")
-            if (record.value() == "stop") {
-                running = false
-            }
+            // TODO: parse og behandle melding
+            consumer.commitSync()
         }
     }
 }
