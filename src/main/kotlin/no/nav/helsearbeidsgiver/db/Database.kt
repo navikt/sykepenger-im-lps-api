@@ -1,27 +1,30 @@
 package no.nav.helsearbeidsgiver.db
 
-import com.typesafe.config.ConfigFactory
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.server.config.HoconApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import no.nav.helsearbeidsgiver.Env
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseFactory {
-    private val appConfig = HoconApplicationConfig(ConfigFactory.load())
-    val dbUser = appConfig.property("database.username").getString()
-    val dbPassword = appConfig.property("database.password").getString()
-    val dbName = appConfig.property("database.name").getString()
-    val host = appConfig.property("database.host").getString()
-    val port = appConfig.property("database.port").getString()
+
+    val dbUser = Env.getProperty("database.username")
+    val dbPassword = Env.getProperty("database.password")
+    val dbName = Env.getProperty("database.name")
+    val host = Env.getProperty("database.host")
+    val port = Env.getProperty("database.port")
 
     val dbUrl = "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
     fun init() {
         Database.connect(hikari())
+        runMigrate()
+    }
+
+    private fun runMigrate() {
         val flyway = Flyway.configure().dataSource(dbUrl, dbUser, dbPassword).load()
         flyway.migrate()
     }
