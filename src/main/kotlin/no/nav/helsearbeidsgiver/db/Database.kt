@@ -52,9 +52,7 @@ object Database {
         config.maximumPoolSize = 3
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-        config
-            .config
-            .validate()
+        config.validate()
         return HikariDataSource(config)
     }
 }
