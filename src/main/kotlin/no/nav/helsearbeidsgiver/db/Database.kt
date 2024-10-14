@@ -19,22 +19,24 @@ object Database {
 
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
-        if (embedded) {
-            val memDatabase =
-                Database.connect(
-                    url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-                    user = "root",
-                    driver = "org.h2.Driver",
-                    password = "",
-                )
-            InnteksMeldingRepositiory(memDatabase)
-        } else {
-            val pgDatabase = ExposedDatabase.connect(hikari())
-            InnteksMeldingRepositiory(pgDatabase)
+        val db = getDatabase(embedded)
+        if (!embedded) {
+            runMigrate()
         }
-
-        runMigrate()
+        InnteksMeldingRepositiory(db)
     }
+
+    private fun getDatabase(embedded: Boolean): Database =
+        if (embedded) {
+            Database.connect(
+                url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+                user = "root",
+                driver = "org.h2.Driver",
+                password = "",
+            )
+        } else {
+            ExposedDatabase.connect(hikari())
+        }
 
     private fun runMigrate() {
         val flyway = Flyway.configure().dataSource(dbUrl, dbUser, dbPassword).load()
