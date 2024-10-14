@@ -15,7 +15,7 @@ object Database {
     val host = Env.getProperty("database.host")
     val port = Env.getProperty("database.port")
 
-    val jdbcUrl = "jdbc:" + (Env.getPropertyOrNull("database.url") ?: "postgresql://%s:%s/%s".format(host, port, dbName))
+    val jdbcUrl = Env.getPropertyOrNull("database.url") ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
