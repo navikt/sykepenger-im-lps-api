@@ -15,7 +15,7 @@ object Database {
     val host = Env.getProperty("database.host")
     val port = Env.getProperty("database.port")
 
-    val dbUrl = Env.getPropertyOrNull("database.url") ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
+    val jdbcUrl = "jdbc:" + (Env.getPropertyOrNull("database.url") ?: "postgresql://%s:%s/%s".format(host, port, dbName))
 
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
@@ -39,14 +39,14 @@ object Database {
         }
 
     private fun runMigrate() {
-        val flyway = Flyway.configure().dataSource(dbUrl, dbUser, dbPassword).load()
+        val flyway = Flyway.configure().dataSource(jdbcUrl, dbUser, dbPassword).load()
         flyway.migrate()
     }
 
     private fun hikari(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
-        config.jdbcUrl = dbUrl
+        config.jdbcUrl = jdbcUrl
         config.username = dbUser
         config.password = dbPassword
         config.maximumPoolSize = 3
