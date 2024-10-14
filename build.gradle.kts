@@ -11,6 +11,7 @@ val exposedVersion: String by project
 val flywayCoreVersion: String by project
 val hikariVersion: String by project
 val postgresqlVersion: String by project
+val h2_version: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -73,6 +74,7 @@ dependencies {
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("com.h2database:h2:$h2_version")
 }
 tasks {
     withType<Test> {

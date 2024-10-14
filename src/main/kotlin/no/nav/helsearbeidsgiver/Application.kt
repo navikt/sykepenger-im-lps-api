@@ -9,6 +9,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.kafka.inntecktsmelding.InntektsmeldingKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
@@ -30,7 +31,7 @@ fun Application.module() {
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
         launch(Dispatchers.IO) {
-            startKafkaConsumer()
+            startKafkaConsumer(Env.getProperty("kafkaConsumer.inntektsmelding.topic"), InntektsmeldingKafkaConsumer())
         }
     }
     install(ContentNegotiation) {

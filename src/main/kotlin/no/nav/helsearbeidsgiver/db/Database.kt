@@ -2,12 +2,11 @@ package no.nav.helsearbeidsgiver.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.inntektsmelding.InnteksMeldingRepositiory
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 object Database {
     val dbUser = Env.getProperty("database.username")
@@ -19,7 +18,21 @@ object Database {
     val dbUrl = "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
     fun init() {
-        Database.connect(hikari())
+        val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
+        if (embedded) {
+            val memDatabase =
+                Database.connect(
+                    url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+                    user = "root",
+                    driver = "org.h2.Driver",
+                    password = "",
+                )
+            InnteksMeldingRepositiory(memDatabase)
+        } else {
+            val pgDatabase = ExposedDatabase.connect(hikari())
+            InnteksMeldingRepositiory(pgDatabase)
+        }
+
         runMigrate()
     }
 
@@ -40,9 +53,4 @@ object Database {
         config.validate()
         return HikariDataSource(config)
     }
-
-    suspend fun <T> dbQuery(block: () -> T): T =
-        withContext(Dispatchers.IO) {
-            transaction { block() }
-        }
 }
