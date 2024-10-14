@@ -15,7 +15,7 @@ object Database {
     val host = Env.getProperty("database.host")
     val port = Env.getProperty("database.port")
 
-    val dbUrl = "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
+    val dbUrl = Env.getPropertyOrNull("database.url") ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
@@ -52,7 +52,9 @@ object Database {
         config.maximumPoolSize = 3
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-        config.validate()
+        config
+            .config
+            .validate()
         return HikariDataSource(config)
     }
 }
