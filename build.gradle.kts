@@ -26,8 +26,8 @@ version = "0.0.1"
 application {
     mainClass.set("no.nav.helsearbeidsgiver.ApplicationKt")
 
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    //val isDevelopment: Boolean = project.ext.has("development")
+    applicationDefaultJvmArgs = listOf("-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp")
 }
 
 repositories {

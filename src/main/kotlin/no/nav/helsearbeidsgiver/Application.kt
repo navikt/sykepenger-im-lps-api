@@ -30,7 +30,7 @@ fun Application.module() {
 
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
-        launch(Dispatchers.IO) {
+        launch(Dispatchers.Default) {
             startKafkaConsumer(Env.getProperty("kafkaConsumer.inntektsmelding.topic"), InntektsmeldingKafkaConsumer())
         }
     }

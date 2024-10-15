@@ -1,7 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
@@ -22,12 +20,12 @@ fun startKafkaConsumer(
     }
 }
 
-fun <K, V> KafkaConsumer<K, V>.asFlow(timeout: Duration = Duration.ofMillis(10)): Flow<ConsumerRecord<K, V>> =
-    flow {
-        while (true) {
-            poll(timeout).forEach { emit(it) }
-        }
-    }
+// fun <K, V> KafkaConsumer<K, V>.asFlow(timeout: Duration = Duration.ofMillis(10)): Flow<ConsumerRecord<K, V>> =
+//    flow {
+//        while (true) {
+//            poll(timeout).forEach { emit(it) }
+//        }
+//    }
 
 interface LpsKafkaConsumer {
     fun handleRecord(record: ConsumerRecord<String, String>)
