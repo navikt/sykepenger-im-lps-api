@@ -21,14 +21,23 @@ fun createKafkaConsumerConfig(): Properties {
         put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1")
         put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "30000")
         put(ConsumerConfig.CLIENT_ID_CONFIG, "sykepenger-im-lps-api")
-        put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
-        put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
-        put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, javaKeyStore)
-        put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, pkcs12)
-        put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, Env.getPropertyOrNull("KAFKA_TRUSTSTORE_PATH"))
-        put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, Env.getPropertyOrNull("KAFKA_CREDSTORE_PASSWORD"))
-        put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, Env.getPropertyOrNull("KAFKA_KEYSTORE_PATH"))
-        put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, Env.getPropertyOrNull("KAFKA_CREDSTORE_PASSWORD"))
-        put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, Env.getPropertyOrNull("KAFKA_CREDSTORE_PASSWORD"))
+
+        Env.getPropertyOrNull("KAFKA_TRUSTSTORE_PATH")?.let {
+            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it)
+            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
+            put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
+            put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, javaKeyStore)
+            put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, pkcs12)
+        }
+
+        Env.getPropertyOrNull("KAFKA_CREDSTORE_PASSWORD")?.let {
+            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, it)
+            put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, it)
+            put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, it)
+        }
+
+        Env.getPropertyOrNull("KAFKA_KEYSTORE_PATH")?.let {
+            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, it)
+        }
     }
 }
