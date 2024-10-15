@@ -7,6 +7,8 @@ metadata:
   name: sykepenger-im-lps-api
   namespace: helsearbeidsgiver
 spec:
+  kafka:
+    pool: nav-dev
   ingresses:
     - https://sykepenger-im-lps-api.dev-gcp.nav.cloud.nais.io
     - https://sykepenger-im-lps-api.ekstern.dev.nav.no
