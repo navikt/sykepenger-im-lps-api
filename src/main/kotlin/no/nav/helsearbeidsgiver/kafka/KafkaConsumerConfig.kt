@@ -14,5 +14,7 @@ fun createKafkaConsumerConfig(): Properties {
     props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
     props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "false"
     props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG] = "1"
+    props[ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG] = "30000"
+    props[ConsumerConfig.CLIENT_ID_CONFIG] = "sykepenger-im-lps-api"
     return props
 }
