@@ -2,10 +2,12 @@ package no.nav.helsearbeidsgiver.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.inntektsmelding.InnteksMeldingRepositiory
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 object Database {
@@ -23,7 +25,7 @@ object Database {
         if (!embedded) {
             runMigrate()
         }
-        InnteksMeldingRepositiory(db)
+        InntektsMeldingRepository()
     }
 
     private fun getDatabase(embedded: Boolean): Database =
@@ -55,4 +57,6 @@ object Database {
         config.validate()
         return HikariDataSource(config)
     }
+
+    suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
 }
