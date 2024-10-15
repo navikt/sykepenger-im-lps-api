@@ -6,16 +6,19 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
-suspend fun startKafkaConsumer(
+fun startKafkaConsumer(
     topic: String,
     lpsKafkaConsumer: LpsKafkaConsumer,
 ) {
     val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
     consumer.subscribe(listOf(topic))
-
-    consumer.asFlow().collect { record ->
-        lpsKafkaConsumer.handleRecord(record)
-        consumer.commitSync()
+    var running = true
+    while (running) {
+        val records = consumer.poll(Duration.ofMillis(10))
+        for (record in records) {
+            lpsKafkaConsumer.handleRecord(record)
+            consumer.commitSync()
+        }
     }
 }
 

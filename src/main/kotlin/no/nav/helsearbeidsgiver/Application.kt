@@ -6,8 +6,8 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.kafka.inntecktsmelding.InntektsmeldingKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -30,7 +30,7 @@ fun Application.module() {
 
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
-        launch(newSingleThreadContext("kafkaConsumer")) {
+        launch(Dispatchers.IO) {
             startKafkaConsumer(Env.getProperty("kafkaConsumer.inntektsmelding.topic"), InntektsmeldingKafkaConsumer())
         }
     }

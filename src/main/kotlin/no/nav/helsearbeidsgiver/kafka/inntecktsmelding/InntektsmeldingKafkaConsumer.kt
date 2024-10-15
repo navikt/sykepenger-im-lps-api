@@ -9,6 +9,7 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
     private val logger = LoggerFactory.getLogger(KafkaInnkommendeMeldingService::class.java)
 
     override fun handleRecord(record: ConsumerRecord<String, String>) {
+        // TODO: parse og behandle melding
         logger.info("Received record: ${record.value()} from topic: ${record.topic()} with key: ${record.key()}")
     }
 }
