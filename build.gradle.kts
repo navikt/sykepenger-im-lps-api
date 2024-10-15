@@ -27,7 +27,7 @@ application {
     mainClass.set("no.nav.helsearbeidsgiver.ApplicationKt")
 
     //val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp")
+//    applicationDefaultJvmArgs = listOf("-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp")
 }
 
 repositories {
