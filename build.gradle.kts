@@ -1,4 +1,5 @@
 val kotlin_version: String by project
+val kotlinxSerializationVersion: String by project
 val logback_version: String by project
 val tokenSupportVersion: String by project
 val hagDomeneInntektsmeldingVersion: String by project
@@ -62,10 +63,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
 
-    //implementation("no.nav.security:token-client-core:$tokenSupportVersion")
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

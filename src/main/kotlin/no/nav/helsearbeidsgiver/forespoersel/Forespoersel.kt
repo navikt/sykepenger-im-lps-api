@@ -28,14 +28,14 @@ data class Forespoersel(
         bestemmendeFravaersdager[orgnr]
             ?: bestemmendeFravaersdag(
                 arbeidsgiverperioder = emptyList(),
-                sykmeldingsperioder = sykmeldingsperioder,
+                sykefravaersperioder = sykmeldingsperioder,
             )
 
     fun forslagInntektsdato(): LocalDate =
         bestemmendeFravaersdager.minOfOrNull { it.value }
             ?: bestemmendeFravaersdag(
                 arbeidsgiverperioder = emptyList(),
-                sykmeldingsperioder = sykmeldingsperioder,
+                sykefravaersperioder = sykmeldingsperioder,
             )
 
     fun eksternBestemmendeFravaersdag(): LocalDate? = bestemmendeFravaersdager.minus(orgnr).minOfOrNull { it.value }

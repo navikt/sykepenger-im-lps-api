@@ -14,7 +14,7 @@ suspend fun startKafkaConsumer(
     consumer.subscribe(listOf(topic))
 
     consumer.asFlow().collect { record ->
-        lpsKafkaConsumer.handleRecord(record)
+        lpsKafkaConsumer.handleRecord(record.value())
         consumer.commitSync()
     }
 }
@@ -27,5 +27,5 @@ fun <K, V> KafkaConsumer<K, V>.asFlow(timeout: Duration = Duration.ofMillis(10))
     }
 
 interface LpsKafkaConsumer {
-    fun handleRecord(record: ConsumerRecord<String, String>)
+    fun handleRecord(record: String)
 }

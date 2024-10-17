@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
 
 data class ExposedInntektsmelding(
-    val inntektsMelding: String,
+    val dokument: String,
     val orgnr: String,
     val fnr: String,
     val forspoerselId: String,
@@ -24,7 +24,7 @@ data class ExposedInntektsmelding(
 class InntektsMeldingRepository {
     object InntektsMeldingTable : Table() {
         val id = integer("id").autoIncrement()
-        val dokument = text("inntektsMelding")
+        val dokument = text("dokument")
         val orgnr = varchar("orgnr", length = 9)
         val fnr = varchar("fnr", length = 11)
         val forspoerselId = varchar("foresporselId", length = 40)
@@ -33,10 +33,16 @@ class InntektsMeldingRepository {
         override val primaryKey = PrimaryKey(id)
     }
 
-    suspend fun opprett(im: ExposedInntektsmelding): Int =
+    suspend fun opprett(
+        im: String,
+        org: String,
+        sykmeldtFnr: String,
+    ): Int =
         dbQuery {
             InntektsMeldingTable.insert {
-                it[dokument] = im.inntektsMelding
+                it[dokument] = im
+                it[orgnr] = org
+                it[fnr] = sykmeldtFnr
             }[InntektsMeldingTable.id]
         }
 
@@ -48,7 +54,7 @@ class InntektsMeldingRepository {
                     orgnr eq orgNr
                 }.map {
                     ExposedInntektsmelding(
-                        inntektsMelding = it[dokument],
+                        dokument = it[dokument],
                         orgnr = it[orgnr],
                         fnr = it[fnr],
                         forspoerselId = it[forspoerselId],
