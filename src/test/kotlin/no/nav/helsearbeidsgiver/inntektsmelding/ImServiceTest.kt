@@ -6,7 +6,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 class ImServiceTest :
     FunSpec({
         test("ImService returnerer liste med inntektsmeldinger") {
-            val service = ImService()
+            val service = InntektsmeldingService()
             service.hentInntektsmeldinger() shouldHaveSize 1
         }
     })

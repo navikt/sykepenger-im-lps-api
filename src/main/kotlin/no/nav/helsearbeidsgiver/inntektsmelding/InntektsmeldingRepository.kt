@@ -2,16 +2,23 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database.dbQuery
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.dokument
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.fnr
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.forspoerselId
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.innsendt
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.mottattEvent
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.orgnr
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
 
 data class ExposedInntektsmelding(
     val inntektsMelding: String,
+    val orgnr: String,
+    val fnr: String,
+    val forspoerselId: String,
+    val innsendt: String,
+    val mottattEvent: String,
 )
 
 class InntektsMeldingRepository {
@@ -33,41 +40,22 @@ class InntektsMeldingRepository {
             }[InntektsMeldingTable.id]
         }
 
-    suspend fun hent(id: Int): ExposedInntektsmelding? =
+    suspend fun hent(orgNr: String): List<ExposedInntektsmelding> =
         dbQuery {
             InntektsMeldingTable
                 .selectAll()
                 .where {
-                    InntektsMeldingTable.id eq id
+                    orgnr eq orgNr
                 }.map {
                     ExposedInntektsmelding(
                         inntektsMelding = it[dokument],
+                        orgnr = it[orgnr],
+                        fnr = it[fnr],
+                        forspoerselId = it[forspoerselId],
+                        innsendt = it[innsendt].toString(),
+                        mottattEvent = it[mottattEvent].toString(),
                     )
-                }.singleOrNull()
+                }
         }
 
-    suspend fun slett(id: Int) {
-        dbQuery {
-            InntektsMeldingTable.deleteWhere {
-                InntektsMeldingTable.id eq id
-            }
-        }
-    }
-
-    suspend fun update(
-        id: Int,
-        im: ExposedInntektsmelding,
-    ) {
-        dbQuery {
-            InntektsMeldingTable.update({ InntektsMeldingTable.id eq id }) {
-                it[dokument] = im.inntektsMelding
-            }
-        }
-    }
-
-//    init {
-//        transaction(database) {
-//            SchemaUtils.create(InntektsMeldingTable)
-//        }
-//    }
 }
