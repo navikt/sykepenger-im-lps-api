@@ -48,19 +48,6 @@ fun Application.module() {
                         listOf(Env.getProperty("maskinporten.scopes")),
                         listOf("aud", "sub"),
                     ),
-                    // local:
-//                IssuerConfig(
-//                    "iss-localhost",
-//                   "http://localhost:33445/default/.well-known/openid-configuration",
-//                    listOf("aud-localhost, nav:inntektsmelding/lps.write"),
-//                    listOf("aud", "sub")
-//                ),
-//                IssuerConfig(
-//                    "maskinporten-test",
-//                    "https://test.maskinporten.no/.well-known/oauth-authorization-server",
-//                    listOf("nav:inntektsmelding/lps.write"),
-//                    listOf("aud", "sub")
-//                )
                 ),
             additionalValidation = {
                 it.gyldigSupplierOgConsumer()
