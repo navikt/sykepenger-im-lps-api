@@ -1,11 +1,12 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database.dbQuery
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.inntektsMelding
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.dokument
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
@@ -16,15 +17,19 @@ data class ExposedInntektsmelding(
 class InntektsMeldingRepository {
     object InntektsMeldingTable : Table() {
         val id = integer("id").autoIncrement()
-        val inntektsMelding = text("inntektsMelding")
-
+        val dokument = text("inntektsMelding")
+        val orgnr = varchar("orgnr", length = 9)
+        val fnr = varchar("fnr", length = 11)
+        val forspoerselId = varchar("foresporselId", length = 40)
+        val innsendt = datetime("innsendt")
+        val mottattEvent = datetime("mottatt_event")
         override val primaryKey = PrimaryKey(id)
     }
 
     suspend fun opprett(im: ExposedInntektsmelding): Int =
         dbQuery {
             InntektsMeldingTable.insert {
-                it[inntektsMelding] = im.inntektsMelding
+                it[dokument] = im.inntektsMelding
             }[InntektsMeldingTable.id]
         }
 
@@ -36,7 +41,7 @@ class InntektsMeldingRepository {
                     InntektsMeldingTable.id eq id
                 }.map {
                     ExposedInntektsmelding(
-                        inntektsMelding = it[inntektsMelding],
+                        inntektsMelding = it[dokument],
                     )
                 }.singleOrNull()
         }
@@ -55,7 +60,7 @@ class InntektsMeldingRepository {
     ) {
         dbQuery {
             InntektsMeldingTable.update({ InntektsMeldingTable.id eq id }) {
-                it[inntektsMelding] = im.inntektsMelding
+                it[dokument] = im.inntektsMelding
             }
         }
     }
