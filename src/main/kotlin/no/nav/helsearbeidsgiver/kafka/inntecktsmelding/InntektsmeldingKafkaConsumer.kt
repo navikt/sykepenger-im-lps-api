@@ -29,7 +29,7 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
                 ImMottakRepository().opprett(ExposedMottak(record))
             }
 
-            if (obj.eventname == "INNTEKTSMELDING_MOTTATT") {
+            if (obj.eventname == "INNTEKTSMELDING_DISTRIBUERT") {
                 runBlocking {
                     InntektsMeldingRepository().opprett(
                         im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding!!),
