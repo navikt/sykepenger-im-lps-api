@@ -41,8 +41,9 @@ object Database {
         }
 
     private fun runMigrate() {
-        val flyway = Flyway.configure().dataSource(jdbcUrl, dbUser, dbPassword).load()
+        val flyway = Flyway.configure().validateMigrationNaming(true).dataSource(jdbcUrl, dbUser, dbPassword).load()
         flyway.migrate()
+        flyway.validate()
     }
 
     private fun hikari(): HikariDataSource {
