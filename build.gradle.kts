@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 val kotlin_version: String by project
 val kotlinxSerializationVersion: String by project
 val logback_version: String by project
@@ -19,6 +21,7 @@ plugins {
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version "2.3.12"
     id("org.jmailen.kotlinter")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "no.nav.helsearbeidsgiver"
@@ -78,6 +81,10 @@ dependencies {
     testImplementation("com.h2database:h2:$h2_version")
 }
 tasks {
+    named<ShadowJar>("shadowJar") {
+        mergeServiceFiles()
+        archiveBaseName.set("${project.name}-all")
+    }
     withType<Test> {
         useJUnitPlatform()
         //testLogging {
