@@ -22,19 +22,24 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
     override fun handleRecord(record: String) {
         // TODO: gjør dette i en transaksjon og gjør det skikkelig..
         logger.info("Received record: $record")
-        val obj = jsonMapper.decodeFromString<RapidMessage>(record)
-        println(obj.eventname)
-        runBlocking {
-            ImMottakRepository().opprett(ExposedMottak(record))
-        }
-        if (obj.eventname == "INNTEKTSMELDING_MOTTATT") {
+        try {
+            val obj = jsonMapper.decodeFromString<RapidMessage>(record)
+            println(obj.eventname)
             runBlocking {
-                InntektsMeldingRepository().opprett(
-                    im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding!!),
-                    org = obj.inntektsmelding.avsender.orgnr.verdi,
-                    sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
-                )
+                ImMottakRepository().opprett(ExposedMottak(record))
             }
+
+            if (obj.eventname == "INNTEKTSMELDING_MOTTATT") {
+                runBlocking {
+                    InntektsMeldingRepository().opprett(
+                        im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding!!),
+                        org = obj.inntektsmelding.avsender.orgnr.verdi,
+                        sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to handle record", e)
         }
     }
 
