@@ -85,6 +85,7 @@ tasks {
         //}
     }
     test {
+        environment("database.embedded", "true")
         environment("MASKINPORTEN_SCOPES", "nav:inntektsmelding/lps.write")
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
     }
