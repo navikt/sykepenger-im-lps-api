@@ -1,4 +1,6 @@
-CREATE TABLE IF NOT EXISTS im
+drop table if exists inntektsmelding;
+
+CREATE TABLE IF NOT EXISTS inntektsmelding
 (
     id            SERIAL PRIMARY KEY,
     orgnr         VARCHAR(9)  NOT NULL,
@@ -9,7 +11,7 @@ CREATE TABLE IF NOT EXISTS im
     mottatt_event TIMESTAMP   NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS inntektsmelding
+CREATE TABLE IF NOT EXISTS mottak
 (
     id      SERIAL PRIMARY KEY,
     melding TEXT NOT NULL
