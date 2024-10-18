@@ -18,7 +18,7 @@ services:
                               },
                              "consumer" : {
                                 "authority" : "iso6523-actorid-upis",
-                                "ID" : "0192:910753614"
+                                "ID" : "0192:810007842"
                               },
                               "scope": "nav:inntektsmelding/lps.write",
                               "sub": "testid",

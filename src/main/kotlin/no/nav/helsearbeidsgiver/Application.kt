@@ -79,3 +79,13 @@ private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")
         ?.split(":")
         ?.get(1)
+
+fun TokenValidationContext.getSupplierOrgnr(): String? {
+    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>
+    return supplier.extractOrgnummer()
+}
+
+fun TokenValidationContext.getConsumerOrgnr(): String? {
+    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
+    return consumer.extractOrgnummer()
+}
