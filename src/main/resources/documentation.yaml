@@ -93,58 +93,17 @@ components:
           format: "date"
       required:
         - "endringer"
-    ForespurtData:
-      type: "object"
-      properties:
-        arbeidsgiverperiode:
-          $ref: "#/components/schemas/Arbeidsgiverperiode"
-        inntekt:
-          $ref: "#/components/schemas/Inntekt"
-        refusjon:
-          $ref: "#/components/schemas/Refusjon"
-      required:
-        - "arbeidsgiverperiode"
-        - "inntekt"
-        - "refusjon"
     Forespoersel:
       type: "object"
       properties:
-        type:
+        forespoerselId:
           type: "string"
-          enum:
-            - "KOMPLETT"
-            - "BEGRENSET"
-            - "POTENSIELL"
         orgnr:
           type: "string"
         fnr:
           type: "string"
-        vedtaksperiodeId:
+        status:
           type: "string"
-          format: "uuid"
-        sykmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        egenmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        bestemmendeFravaersdager:
-          type: "string"
-        forespurtData:
-          $ref: "#/components/schemas/ForespurtData"
-        erBesvart:
-          type: "boolean"
-      required:
-        - "type"
-        - "orgnr"
-        - "fnr"
-        - "vedtaksperiodeId"
-        - "sykmeldingsperioder"
-        - "egenmeldingsperioder"
-        - "bestemmendeFravaersdager"
-        - "forespurtData"
     Type:
       type: "object"
       properties: {}

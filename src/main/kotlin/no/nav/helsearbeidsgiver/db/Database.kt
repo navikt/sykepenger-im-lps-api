@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
@@ -19,6 +20,8 @@ object Database {
 
     val jdbcUrl = Env.getPropertyOrNull("database.url") ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
+    private lateinit var forespoerselRepository: ForespoerselRepository
+
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
         val db = getDatabase(embedded)
@@ -26,6 +29,7 @@ object Database {
             runMigrate()
         }
         InntektsMeldingRepository()
+        forespoerselRepository = ForespoerselRepository(db)
     }
 
     private fun getDatabase(embedded: Boolean): Database =
@@ -63,6 +67,8 @@ object Database {
         config.validate()
         return HikariDataSource(config)
     }
+
+    fun getForespoerselRepo(): ForespoerselRepository = forespoerselRepository
 
     suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
 }

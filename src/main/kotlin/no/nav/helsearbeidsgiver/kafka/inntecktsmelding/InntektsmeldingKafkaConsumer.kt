@@ -4,18 +4,23 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import no.nav.helsearbeidsgiver.db.Database.getForespoerselRepo
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.ImMottakRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
+import no.nav.helsearbeidsgiver.utils.json.jsonConfig
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
     private val logger = LoggerFactory.getLogger(InntektsmeldingKafkaConsumer::class.java)
     val jsonMapper =
         Json {
+            jsonConfig
             ignoreUnknownKeys = true
         }
 
@@ -37,6 +42,12 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
                         sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
                     )
                 }
+            } else if (obj.eventname == "FORESPØRSEL_MOTTATT") {
+                getForespoerselRepo().lagreForespoersel(
+                    forespoerselId = obj.forespoerselId!!.toString(),
+                    organisasjonsnummer = obj.orgnr!!.toString(),
+                    foedselsnr = obj.fnr!!.toString(),
+                )
             }
         } catch (e: Exception) {
             logger.error("Failed to handle record", e)
@@ -48,5 +59,8 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
         @SerialName("@event_name") val eventname: String,
         val inntektsmelding: Inntektsmelding? = null,
         val forespoersel: Forespoersel? = null,
+        @Serializable(with = UuidSerializer::class) val forespoerselId: UUID? = null,
+        @SerialName("identitetsnummer") val fnr: String? = null,
+        @SerialName("orgnrUnderenhet") val orgnr: String? = null,
     )
 }
