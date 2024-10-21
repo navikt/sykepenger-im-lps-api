@@ -8,6 +8,7 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nav.helsearbeidsgiver.auth.gyldigSupplierOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.kafka.inntecktsmelding.InntektsmeldingKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -15,7 +16,6 @@ import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
-import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
@@ -62,30 +62,4 @@ fun Application.module() {
         // Configure authentication
     }
     configureRouting()
-}
-
-private fun TokenValidationContext.gyldigSupplierOgConsumer(): Boolean {
-    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>
-    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
-    val supplierOrgnr = supplier.extractOrgnummer()
-    val consumerOrgnr = consumer.extractOrgnummer()
-    return supplierOrgnr != null &&
-        consumerOrgnr != null &&
-        supplierOrgnr.matches(Regex("\\d{9}")) &&
-        consumerOrgnr.matches(Regex("\\d{9}"))
-}
-
-private fun Map<String, String>.extractOrgnummer(): String? =
-    get("ID")
-        ?.split(":")
-        ?.get(1)
-
-fun TokenValidationContext.getSupplierOrgnr(): String? {
-    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>
-    return supplier.extractOrgnummer()
-}
-
-fun TokenValidationContext.getConsumerOrgnr(): String? {
-    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
-    return consumer.extractOrgnummer()
 }
