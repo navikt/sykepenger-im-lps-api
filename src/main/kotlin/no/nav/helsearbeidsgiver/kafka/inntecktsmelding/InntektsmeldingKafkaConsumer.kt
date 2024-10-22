@@ -42,15 +42,37 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
                         sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
                     )
                 }
-            } else if (obj.eventname == "FORESPØRSEL_MOTTATT") {
+            } else if (obj.eventname == "FORESPOERSEL_MOTTATT") {
                 getForespoerselRepo().lagreForespoersel(
                     forespoerselId = obj.forespoerselId!!.toString(),
                     organisasjonsnummer = obj.orgnr!!.toString(),
                     foedselsnr = obj.fnr!!.toString(),
                 )
+            } else if (obj.eventname == "FORESPOERSEL_BESVART") {
+                settBesvart(obj.forespoerselId.toString())
+            } else if (obj.eventname == "FORESPOERSEL_FORKASTET") {
+                settForkastet(obj.forespoerselId.toString())
             }
         } catch (e: Exception) {
             logger.error("Failed to handle record", e)
+        }
+    }
+
+    private fun settForkastet(forespoerselId: String) {
+        if (forespoerselId.isEmpty()) {
+            logger.warn("ingen forespørselID")
+        } else {
+            val antall = getForespoerselRepo().settForkastet(forespoerselId)
+            logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
+        }
+    }
+
+    private fun settBesvart(forespoerselId: String) {
+        if (forespoerselId.isEmpty()) {
+            logger.warn("ingen forespørselID")
+        } else {
+            val antall = getForespoerselRepo().settBesvart(forespoerselId)
+            logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
         }
     }
 

@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
 
 class ForespoerselRepository(
@@ -57,5 +58,23 @@ class ForespoerselRepository(
                         status = it[status],
                     )
                 }
+        }
+
+    fun settBesvart(forespoerselId: String): Int = oppdaterStatus(forespoerselId, "BESVART")
+
+    fun settForkastet(forespoerselId: String): Int = oppdaterStatus(forespoerselId, "FORKASTET")
+
+    private fun oppdaterStatus(
+        forespoerselId: String,
+        status: String,
+    ): Int =
+        transaction(db) {
+            ForespoerselEntitet.update(
+                where = {
+                    (ForespoerselEntitet.forespoersel eq forespoerselId)
+                },
+            ) {
+                it[ForespoerselEntitet.status] = status
+            }
         }
 }
