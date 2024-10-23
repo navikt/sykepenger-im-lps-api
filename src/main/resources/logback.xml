@@ -1,13 +1,23 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
+    <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/secure-logs/secure.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>1</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>128MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
     <root level="info">
         <appender-ref ref="STDOUT"/>
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
-    <logger name="no.nav.helsearbeidsgiver" level="DEBUG"/>
+    <logger name="no.nav" level="DEBUG"/>
 </configuration>

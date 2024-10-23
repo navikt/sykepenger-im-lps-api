@@ -58,6 +58,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation ("net.logstash.logback:logstash-logback-encoder:8.0")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
