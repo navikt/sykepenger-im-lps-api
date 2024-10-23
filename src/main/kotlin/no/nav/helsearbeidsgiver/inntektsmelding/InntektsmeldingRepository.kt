@@ -1,6 +1,9 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import no.nav.helsearbeidsgiver.db.Database.dbQuery
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.dokument
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.fnr
@@ -8,6 +11,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.Inntek
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.innsendt
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.mottattEvent
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository.InntektsMeldingTable.orgnr
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -15,7 +19,7 @@ import org.jetbrains.exposed.sql.selectAll
 
 @Serializable
 data class ExposedInntektsmelding(
-    val dokument: String,
+    val dokument: JsonObject,
     val orgnr: String,
     val fnr: String,
     val foresporselid: String?,
@@ -47,22 +51,23 @@ class InntektsMeldingRepository {
                 it[fnr] = sykmeldtFnr
             }[InntektsMeldingTable.id]
         }
+    private fun ResultRow.toExposedInntektsmelding(): ExposedInntektsmelding {
+        return ExposedInntektsmelding(
+            dokument = Json.parseToJsonElement(this[dokument]).jsonObject,
+            orgnr = this[orgnr],
+            fnr = this[fnr],
+            foresporselid = this[foresporselid],
+            innsendt = this[innsendt].toString(),
+            mottattEvent = this[mottattEvent].toString(),
+        )
+    }
 
     suspend fun hent(orgNr: String): List<ExposedInntektsmelding> =
         dbQuery {
             InntektsMeldingTable
                 .selectAll()
-                .where {
-                    orgnr eq orgNr
-                }.map {
-                    ExposedInntektsmelding(
-                        dokument = it[dokument],
-                        orgnr = it[orgnr],
-                        fnr = it[fnr],
-                        foresporselid = it[foresporselid],
-                        innsendt = it[innsendt].toString(),
-                        mottattEvent = it[mottattEvent].toString(),
-                    )
-                }
+                .where { orgnr eq orgNr }
+                .map { it.toExposedInntektsmelding() }
         }
+
 }
