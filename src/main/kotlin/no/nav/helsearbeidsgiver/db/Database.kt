@@ -25,7 +25,9 @@ object Database {
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
         val db = getDatabase(embedded)
-        if (!embedded) {
+        if (embedded) {
+            runMigrateEmbedded()
+        } else {
             runMigrate()
         }
         InntektsMeldingRepository()
@@ -50,6 +52,18 @@ object Database {
                 .configure()
                 .validateMigrationNaming(true)
                 .dataSource(jdbcUrl, dbUser, dbPassword)
+                .load()
+        flyway.migrate()
+        flyway.validate()
+    }
+
+    private fun runMigrateEmbedded() {
+        val flyway =
+            Flyway
+                .configure()
+                .sqlMigrationSuffixes("h2")
+                .validateMigrationNaming(true)
+                .dataSource("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
                 .load()
         flyway.migrate()
         flyway.validate()

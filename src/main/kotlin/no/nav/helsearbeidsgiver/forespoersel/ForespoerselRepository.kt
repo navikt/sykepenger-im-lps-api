@@ -19,13 +19,18 @@ class ForespoerselRepository(
         organisasjonsnummer: String,
         foedselsnr: String,
     ) {
+        val f = hentForespoersel(forespoerselId)
+        if (f != null) {
+            // TODO: logg noe.. skal ikke prøve å lagre duplikater
+            return
+        }
         transaction(db) {
             ForespoerselEntitet.insert {
                 it[this.forespoersel] = forespoerselId
                 it[orgnr] = organisasjonsnummer
                 it[fnr] = foedselsnr
                 it[opprettet] = LocalDateTime.now()
-                it[status] = "ny"
+                it[status] = "NY"
             }
         }
     }

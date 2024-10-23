@@ -27,7 +27,14 @@ fun Application.configureRouting() {
         }
         authenticate("validToken") {
             get("/forespoersler") {
-                call.respond(forespoerselService.hentForespoersler())
+                val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
+                if (consumerOrgnr != null) {
+                    LOG.info("Henter forespørsler for orgnr: $consumerOrgnr")
+                    call.respond(forespoerselService.hentForespoerslerForOrgnr(consumerOrgnr))
+                } else {
+                    LOG.warn("Consumer orgnr mangler")
+                    call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+                }
             }
             get("/inntektsmeldinger") {
                 val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -37,12 +44,9 @@ fun Application.configureRouting() {
                     call.respond(inntektsmeldingService.hentInntektsmeldingerByOrgNr(consumerOrgnr))
                 } else {
                     LOG.warn("Consumer orgnr mangler")
-                    call.respond(HttpStatusCode.BadRequest, "Consumer orgnr mangler")
+                    call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
                 }
             }
-        }
-        get("/imer") {
-//            call.respond(inntektsmeldingService.hentInntektsmeldinger())
         }
     }
 }
