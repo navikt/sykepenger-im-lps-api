@@ -51,8 +51,9 @@ class InntektsMeldingRepository {
                 it[fnr] = sykmeldtFnr
             }[InntektsMeldingTable.id]
         }
-    private fun ResultRow.toExposedInntektsmelding(): ExposedInntektsmelding {
-        return ExposedInntektsmelding(
+
+    private fun ResultRow.toExposedInntektsmelding(): ExposedInntektsmelding =
+        ExposedInntektsmelding(
             dokument = Json.parseToJsonElement(this[dokument]).jsonObject,
             orgnr = this[orgnr],
             fnr = this[fnr],
@@ -60,7 +61,6 @@ class InntektsMeldingRepository {
             innsendt = this[innsendt].toString(),
             mottattEvent = this[mottattEvent].toString(),
         )
-    }
 
     suspend fun hent(orgNr: String): List<ExposedInntektsmelding> =
         dbQuery {
@@ -69,5 +69,4 @@ class InntektsMeldingRepository {
                 .where { orgnr eq orgNr }
                 .map { it.toExposedInntektsmelding() }
         }
-
 }
