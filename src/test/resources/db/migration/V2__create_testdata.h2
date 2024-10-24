@@ -1,2 +1,52 @@
 INSERT INTO forespoersel (forespoersel_id, orgnr, fnr, status) values ('67c67b2a-4921-4945-9600-069c991001f5', '810007842', '08094992665', 'NY');
 INSERT INTO forespoersel (forespoersel_id, orgnr, fnr, status) values ('67c67b2a-4921-4945-9600-069c991001f4', '991825827', '08094992665', 'NY');
+
+INSERT INTO inntektsmelding(orgnr, fnr, dokument) values ('810007843', '08094992665', '{}');
+INSERT INTO inntektsmelding(orgnr, fnr, dokument) values ('810007842', '08094992665',
+'{
+     "id": "69297657-fdbe-451b-b77e-43ae3aa90e29",
+     "type": {
+       "type": "Forespurt",
+       "id": "724fb233-2175-4b58-8f47-181f24547f30"
+     },
+     "sykmeldt": {
+       "fnr": "08094992665",
+       "navn": "OVERFØLSOM GRAVEMASKIN"
+     },
+     "avsender": {
+       "orgnr": "810007842",
+       "orgNavn": "ANSTENDIG PIGGSVIN BARNEHAGE",
+       "navn": "BERØMT FLYTTELASS",
+       "tlf": "12345678"
+     },
+     "sykmeldingsperioder": [
+       {
+         "fom": "2024-06-01",
+         "tom": "2024-06-30"
+       }
+     ],
+     "agp": {
+       "perioder": [
+         {
+           "fom": "2024-06-01",
+           "tom": "2024-06-16"
+         }
+       ],
+       "egenmeldinger": [],
+       "redusertLoennIAgp": {
+         "beloep": 1000.0,
+         "begrunnelse": "BetvilerArbeidsufoerhet"
+       }
+     },
+     "inntekt": {
+       "beloep": 60000.0,
+       "inntektsdato": "2024-06-01",
+       "naturalytelser": [],
+       "endringAarsak": null
+     },
+     "refusjon": null,
+     "aarsakInnsending": "Endring",
+     "mottatt": "2024-10-18T13:18:28.592508012+02:00",
+     "vedtaksperiodeId": "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
+   }'
+);

@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.forespoersel
+package no.nav.helsearbeidsgiver.authorization
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.utils.FunSpecWithUnauthorizedApi
@@ -16,8 +16,10 @@ class HentForespoerslerManglerSupplierApiTest :
         { testApi ->
             test("Gir 401 når supplier mangler i token") {
                 testApi {
-                    val response = get("/forespoersler")
-                    response.status.value shouldBe 401
+                    val response1 = get("/forespoersler")
+                    response1.status.value shouldBe 401
+                    val response2 = get("/inntektsmeldinger")
+                    response2.status.value shouldBe 401
                 }
             }
         },
