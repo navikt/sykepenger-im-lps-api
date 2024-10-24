@@ -1,0 +1,2 @@
+INSERT INTO forespoersel (forespoersel_id, orgnr, fnr, status) values ('67c67b2a-4921-4945-9600-069c991001f5', '810007842', '08094992665', 'NY');
+INSERT INTO forespoersel (forespoersel_id, orgnr, fnr, status) values ('67c67b2a-4921-4945-9600-069c991001f4', '991825827', '08094992665', 'NY');

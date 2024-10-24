@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.utils
 
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -8,6 +9,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.ApplicationTestBuilder
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
@@ -20,6 +22,9 @@ class TestClient(
 ) {
     private val httpClient =
         appTestBuilder.createClient {
+            install(ContentNegotiation) {
+                json()
+            }
         }
 
     fun get(

@@ -18,7 +18,7 @@ abstract class FunSpecWithAuthorizedApi(
                 "consumer" to
                     mapOf(
                         "authority" to "iso6523-actorid-upis",
-                        "ID" to "0192:910753614",
+                        "ID" to "0192:810007842",
                     ),
             ),
         block = block,

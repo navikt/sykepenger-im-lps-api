@@ -10,6 +10,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
+import no.nav.helsearbeidsgiver.auth.getSupplierOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -28,22 +29,23 @@ fun Application.configureRouting() {
         authenticate("validToken") {
             get("/forespoersler") {
                 val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
+                val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
                 if (consumerOrgnr != null) {
-                    LOG.info("Henter forespørsler for orgnr: $consumerOrgnr")
+                    LOG.info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$consumerOrgnr]")
                     call.respond(forespoerselService.hentForespoerslerForOrgnr(consumerOrgnr))
                 } else {
-                    LOG.warn("Consumer orgnr mangler")
+                    LOG.warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
                     call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
                 }
             }
             get("/inntektsmeldinger") {
                 val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
-
+                val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
                 if (consumerOrgnr != null) {
-                    LOG.info("Henter inntektsmeldinger for orgnr: $consumerOrgnr")
+                    LOG.info("LPS [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
                     call.respond(inntektsmeldingService.hentInntektsmeldingerByOrgNr(consumerOrgnr))
                 } else {
-                    LOG.warn("Consumer orgnr mangler")
+                    LOG.warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
                     call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
                 }
             }
