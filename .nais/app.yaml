@@ -7,6 +7,10 @@ metadata:
   name: sykepenger-im-lps-api
   namespace: helsearbeidsgiver
 spec:
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   kafka:
     pool: nav-dev
   ingresses:
