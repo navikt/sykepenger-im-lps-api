@@ -22,6 +22,7 @@ spec:
       runtime: java
   prometheus:
     enabled: true
+    path: /metrics
   kafka:
     pool: nav-dev
   ingresses:
