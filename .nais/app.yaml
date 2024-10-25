@@ -7,10 +7,21 @@ metadata:
   name: sykepenger-im-lps-api
   namespace: helsearbeidsgiver
 spec:
+  replicas:
+    max: 1
+    min: 1
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "768Mi"
+    limits:
+      memory: "1024Mi"
   observability:
     autoInstrumentation:
       enabled: true
       runtime: java
+  prometheus:
+    enabled: true
   kafka:
     pool: nav-dev
   ingresses:
@@ -36,12 +47,3 @@ spec:
         tier: db-f1-micro
         databases:
           - name: hag-lps
-  replicas:
-    max: 1
-    min: 1
-  resources:
-    limits:
-      memory: 1024Mi
-    requests:
-      cpu: 250m
-      memory: 768Mi
