@@ -98,6 +98,7 @@ components:
       properties:
         forespoerselId:
           type: "string"
+          format: "uuid"
         orgnr:
           type: "string"
         fnr:
