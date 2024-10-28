@@ -6,7 +6,7 @@ class InntektsmeldingService {
     suspend fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
-            InntektsMeldingRepository().hent(orgnr)
+            InntektsmeldingRepository().hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
             return it

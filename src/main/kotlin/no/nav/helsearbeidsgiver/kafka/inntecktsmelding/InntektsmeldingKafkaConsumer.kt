@@ -10,7 +10,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.ImMottakRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
@@ -41,7 +41,7 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
             if (obj.eventname == "INNTEKTSMELDING_DISTRIBUERT") {
                 if (obj.inntektsmelding != null) {
                     runBlocking {
-                        InntektsMeldingRepository().opprett(
+                        InntektsmeldingRepository().opprett(
                             im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
                             org = obj.inntektsmelding.avsender.orgnr.verdi,
                             sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,

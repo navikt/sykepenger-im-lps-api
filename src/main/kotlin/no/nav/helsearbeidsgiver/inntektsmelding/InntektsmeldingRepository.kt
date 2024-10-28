@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 
-class InntektsMeldingRepository {
+class InntektsmeldingRepository {
     suspend fun opprett(
         im: String,
         org: String,

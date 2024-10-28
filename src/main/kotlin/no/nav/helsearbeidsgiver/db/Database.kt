@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsMeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -30,7 +30,7 @@ object Database {
         } else {
             runMigrate()
         }
-        InntektsMeldingRepository()
+        InntektsmeldingRepository()
         forespoerselRepository = ForespoerselRepository(db)
     }
 
