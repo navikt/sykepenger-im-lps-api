@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 
-object InntektsmeldingEntitet : Table() {
+object InntektsmeldingEntitet : Table("inntektsmelding") {
     val id = integer("id").autoIncrement()
     val dokument = text("dokument")
     val orgnr = varchar("orgnr", length = 9)
