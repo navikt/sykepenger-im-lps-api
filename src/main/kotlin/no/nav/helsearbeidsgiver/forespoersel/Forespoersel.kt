@@ -13,5 +13,11 @@ data class Forespoersel(
     val forespoerselId: String,
     val orgnr: String,
     val fnr: String,
-    val status: String,
+    val status: Status,
 )
+
+enum class Status {
+    AKTIV,
+    MOTTATT,
+    FORKASTET,
+}

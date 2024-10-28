@@ -30,7 +30,7 @@ class ForespoerselRepository(
                 it[orgnr] = organisasjonsnummer
                 it[fnr] = foedselsnr
                 it[opprettet] = LocalDateTime.now()
-                it[status] = "NY"
+                it[status] = Status.AKTIV
             }
         }
     }
@@ -65,13 +65,13 @@ class ForespoerselRepository(
                 }
         }
 
-    fun settBesvart(forespoerselId: String): Int = oppdaterStatus(forespoerselId, "BESVART")
+    fun settBesvart(forespoerselId: String): Int = oppdaterStatus(forespoerselId, Status.MOTTATT)
 
-    fun settForkastet(forespoerselId: String): Int = oppdaterStatus(forespoerselId, "FORKASTET")
+    fun settForkastet(forespoerselId: String): Int = oppdaterStatus(forespoerselId, Status.FORKASTET)
 
     private fun oppdaterStatus(
         forespoerselId: String,
-        status: String,
+        status: Status,
     ): Int =
         transaction(db) {
             ForespoerselEntitet.update(

@@ -12,7 +12,7 @@ class HentForespoerslerApiTest :
                 response.status.value shouldBe 200
                 val forespoerselSvar = response.body<List<Forespoersel>>()
                 forespoerselSvar.size shouldBe 1
-                forespoerselSvar[0].status shouldBe "NY"
+                forespoerselSvar[0].status shouldBe Status.AKTIV
                 forespoerselSvar[0].orgnr shouldBe "810007842"
             }
         }

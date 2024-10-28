@@ -104,7 +104,13 @@ components:
         fnr:
           type: "string"
         status:
-          type: "string"
+          type: string
+          enum:
+            - AKTIV
+            - MOTTATT
+            - FORKASTET
+          description: "Status på forespørsel om inntektsmelding. AKTIV = Nav venter på inntektsmelding, MOTTATT = Nav har mottatt, FORKASTET = Nav trenger ikke lenger inntektsmelding. 
+          Merk at status ikke alltid oppdateres umiddelbart til MOTTATT etter innsending, dette kan ta inntil en time."
     Type:
       type: "object"
       properties: {}
