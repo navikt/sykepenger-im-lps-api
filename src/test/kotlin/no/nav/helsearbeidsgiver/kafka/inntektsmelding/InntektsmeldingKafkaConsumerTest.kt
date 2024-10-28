@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.kafka.inntecktsmelding
+package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database
 import org.junit.jupiter.api.Test

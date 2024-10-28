@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.auth.gyldigSupplierOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.kafka.inntecktsmelding.InntektsmeldingKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT

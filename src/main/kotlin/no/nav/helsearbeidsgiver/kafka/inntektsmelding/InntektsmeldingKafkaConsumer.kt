@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.kafka.inntecktsmelding
+package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
