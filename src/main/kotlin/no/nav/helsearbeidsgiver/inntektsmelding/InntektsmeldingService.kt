@@ -1,17 +1,19 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import no.nav.helsearbeidsgiver.kafka.inntecktsmelding.InntektsmeldingKafkaConsumer
-import org.slf4j.LoggerFactory
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService {
-    private val logger = LoggerFactory.getLogger(InntektsmeldingKafkaConsumer::class.java)
-
-    suspend fun hentInntektsmeldingerByOrgNr(orgnr: String): List<ExposedInntektsmelding> {
+    suspend fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
-            logger.info("Henter inntektsmeldinger for orgnr: $orgnr")
+            sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
             InntektsMeldingRepository().hent(orgnr)
-        }.onSuccess { return it }
-            .onFailure { return emptyList() }
+        }.onSuccess {
+            sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
+            return it
+        }.onFailure {
+            sikkerLogger().warn("Feil ved henting av inntektsmeldinger for orgnr: $orgnr", it)
+            return emptyList()
+        }
 
         return emptyList()
     }
