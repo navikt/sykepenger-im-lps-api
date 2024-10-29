@@ -1,0 +1,43 @@
+{
+  "id": "d09b2674-9f2c-439f-9a60-9fe84ca117b5",
+  "type": {
+    "type": "Forespurt",
+    "id": "%%%FORESPOERSELID%%%"
+  },
+  "sykmeldt": {
+    "fnr": "%%%SYKMELDT%%%",
+    "navn": "FANTASTISK FERSKVANN"
+  },
+  "avsender": {
+    "orgnr": "%%%ORGNR%%%",
+    "orgNavn": "ANSTENDIG PIGGSVIN BARNEHAGE",
+    "navn": "BERØMT FLYTTELASS",
+    "tlf": "99999999"
+  },
+  "sykmeldingsperioder": [
+    {
+      "fom": "2024-07-01",
+      "tom": "2024-07-31"
+    }
+  ],
+  "agp": {
+    "perioder": [
+      {
+        "fom": "2024-07-01",
+        "tom": "2024-07-16"
+      }
+    ],
+    "egenmeldinger": [],
+    "redusertLoennIAgp": null
+  },
+  "inntekt": {
+    "beloep": 20000.0,
+    "inntektsdato": "2024-07-01",
+    "naturalytelser": [],
+    "endringAarsak": null
+  },
+  "refusjon": null,
+  "aarsakInnsending": "Ny",
+  "mottatt": "2024-10-23T14:32:16.708400904+02:00",
+  "vedtaksperiodeId": "c6edb839-2fb5-4602-8f88-c70693f33015"
+}

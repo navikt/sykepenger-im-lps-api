@@ -4,10 +4,11 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import java.io.File
 import java.util.Properties
+import java.util.UUID
 
 fun main() {
-    val filePath = "inntektsmelding.json"
-    val jsonFromFile = readJsonFromResources(filePath)
+    val filePath = "inntektsmelding_distribuert.json"
+    val jsonFromFile = readJsonFromResources(filePath).replace("%%%FORESPOERSELID%%%", UUID.randomUUID().toString())
 
     val props =
         Properties().apply {
