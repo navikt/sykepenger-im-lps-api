@@ -1,12 +1,13 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.db.Database.getInntektsmeldingRepo
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService {
-    suspend fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
+    fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
-            InntektsmeldingRepository().hent(orgnr)
+            getInntektsmeldingRepo().hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
             return it

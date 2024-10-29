@@ -1,14 +1,17 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import no.nav.helsearbeidsgiver.db.Database.dbQuery
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.transactions.transaction
 
 data class ExposedMottak(
     val inntektsMelding: String,
 )
 
-class ImMottakRepository {
+class MottakRepository(
+    private val db: Database,
+) {
     object MottakTable : Table() {
         val id = integer("id").autoIncrement()
         val melding = text("melding")
@@ -16,8 +19,8 @@ class ImMottakRepository {
         override val primaryKey = PrimaryKey(id)
     }
 
-    suspend fun opprett(im: ExposedMottak): Int =
-        dbQuery {
+    fun opprett(im: ExposedMottak): Int =
+        transaction(db) {
             MottakTable.insert {
                 it[melding] = im.inntektsMelding
             }[MottakTable.id]
