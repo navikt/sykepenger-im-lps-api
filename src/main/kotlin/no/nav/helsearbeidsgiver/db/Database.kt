@@ -2,13 +2,12 @@ package no.nav.helsearbeidsgiver.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 object Database {
@@ -21,6 +20,8 @@ object Database {
     val jdbcUrl = Env.getPropertyOrNull("database.url") ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
     private lateinit var forespoerselRepository: ForespoerselRepository
+    private lateinit var inntektsmeldingRepository: InntektsmeldingRepository
+    private lateinit var mottakRepository: MottakRepository
 
     fun init() {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
@@ -30,8 +31,9 @@ object Database {
         } else {
             runMigrate()
         }
-        InntektsmeldingRepository()
+        inntektsmeldingRepository = InntektsmeldingRepository(db)
         forespoerselRepository = ForespoerselRepository(db)
+        mottakRepository = MottakRepository(db)
     }
 
     private fun getDatabase(embedded: Boolean): Database =
@@ -84,5 +86,7 @@ object Database {
 
     fun getForespoerselRepo(): ForespoerselRepository = forespoerselRepository
 
-    suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
+    fun getInntektsmeldingRepo(): InntektsmeldingRepository = inntektsmeldingRepository
+
+    fun getMottakRepository(): MottakRepository = mottakRepository
 }

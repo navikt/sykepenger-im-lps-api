@@ -17,6 +17,7 @@ val hikariVersion: String by project
 val postgresqlVersion: String by project
 val h2_version: String by project
 val kafkaVersion: String by project
+val coroutineVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -73,6 +74,8 @@ dependencies {
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
     testImplementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")

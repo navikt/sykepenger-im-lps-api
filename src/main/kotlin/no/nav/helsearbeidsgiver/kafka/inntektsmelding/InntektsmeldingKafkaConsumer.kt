@@ -1,16 +1,15 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.db.Database.getForespoerselRepo
+import no.nav.helsearbeidsgiver.db.Database.getInntektsmeldingRepo
+import no.nav.helsearbeidsgiver.db.Database.getMottakRepository
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
-import no.nav.helsearbeidsgiver.inntektsmelding.ImMottakRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
@@ -34,19 +33,15 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
             val obj = jsonMapper.decodeFromString<RapidMessage>(record)
 
             logger.info("Received event: ${obj.eventname}")
-            runBlocking {
-                ImMottakRepository().opprett(ExposedMottak(record))
-            }
+            getMottakRepository().opprett(ExposedMottak(record))
 
             if (obj.eventname == "INNTEKTSMELDING_DISTRIBUERT") {
                 if (obj.inntektsmelding != null) {
-                    runBlocking {
-                        InntektsmeldingRepository().opprett(
-                            im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
-                            org = obj.inntektsmelding.avsender.orgnr.verdi,
-                            sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
-                        )
-                    }
+                    getInntektsmeldingRepo().opprett(
+                        im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
+                        org = obj.inntektsmelding.avsender.orgnr.verdi,
+                        sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
+                    )
                 } else {
                     logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
                 }
