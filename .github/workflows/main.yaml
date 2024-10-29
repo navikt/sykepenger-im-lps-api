@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - 'dev/**'
 
 env:
   ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
