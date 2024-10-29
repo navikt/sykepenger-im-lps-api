@@ -2,7 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val kotlin_version: String by project
 val kotlinxSerializationVersion: String by project
-val logback_version: String by project
+val logbackVersion: String by project
+val logbackEncoderVersion: String by project
 val tokenSupportVersion: String by project
 val hagDomeneInntektsmeldingVersion: String by project
 val utilsVersion: String by project
@@ -15,6 +16,7 @@ val flywayCoreVersion: String by project
 val hikariVersion: String by project
 val postgresqlVersion: String by project
 val h2_version: String by project
+val kafkaVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -44,20 +46,20 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache5:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-apache5")
+    implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-auth")
     implementation("io.ktor:ktor-server-swagger")
-    implementation("org.apache.kafka:kafka-clients:3.8.0")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation ("net.logstash.logback:logstash-logback-encoder:8.0")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation ("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayCoreVersion")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
