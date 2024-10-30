@@ -46,6 +46,9 @@ class SimbaKafkaConsumer(
                             im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
                             org = obj.inntektsmelding.avsender.orgnr.verdi,
                             sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
+                            forespoerselID =
+                                obj.inntektsmelding.type.id
+                                    .toString(),
                         )
                     } else {
                         logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")

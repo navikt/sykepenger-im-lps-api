@@ -89,7 +89,7 @@ class SimbaKafkaConsumerTest {
                 .replace("%%%FORESPORSELID%%%", forespoerselID)
                 .replace("%%%ORGNR%%%", orgnr)
                 .replace("%%%SYKMELDT%%%", fnr)
-        inntektsmeldingRepository.opprett(generert, orgnr, fnr)
+        inntektsmeldingRepository.opprett(generert, orgnr, fnr, forespoerselID)
         return forespoerselID
     }
 }
