@@ -16,11 +16,12 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import org.slf4j.LoggerFactory
 
-private val forespoerselService = ForespoerselService()
-private val inntektsmeldingService = InntektsmeldingService()
 private val LOG = LoggerFactory.getLogger("applikasjonslogger")
 
-fun Application.configureRouting() {
+fun Application.configureRouting(
+    forespoerselService: ForespoerselService,
+    inntektsmeldingService: InntektsmeldingService,
+) {
     routing {
         swaggerUI(path = "swagger", swaggerFile = "documentation.yaml")
         get("/") {
