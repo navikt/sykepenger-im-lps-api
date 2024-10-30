@@ -1,22 +1,20 @@
 package no.nav.helsearbeidsgiver.utils
 
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.extension.AfterEachCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.InvocationInterceptor
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext
+import java.lang.reflect.Method
 
-class TransactionalExtension :
-    BeforeEachCallback,
-    AfterEachCallback {
-    override fun beforeEach(context: ExtensionContext) {
+class TransactionalExtension : InvocationInterceptor {
+    override fun interceptTestMethod(
+        invocation: InvocationInterceptor.Invocation<Void>?,
+        invocationContext: ReflectiveInvocationContext<Method>?,
+        extensionContext: ExtensionContext?,
+    ) {
         transaction {
-            context.getStore(ExtensionContext.Namespace.GLOBAL).put("transaction", this)
+            invocation?.proceed()
+            rollback()
         }
-    }
-
-    override fun afterEach(context: ExtensionContext) {
-        val transaction = context.getStore(ExtensionContext.Namespace.GLOBAL).get("transaction") as Transaction
-        transaction.rollback()
     }
 }

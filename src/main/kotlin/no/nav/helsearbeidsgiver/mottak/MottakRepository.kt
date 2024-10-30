@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.mottak
 
-import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository.MottakTable.melding
+import no.nav.helsearbeidsgiver.mottak.MottakRepository.MottakTable.melding
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert

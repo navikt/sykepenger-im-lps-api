@@ -7,7 +7,7 @@ import no.nav.helsearbeidsgiver.utils.FunSpecWithAuthorizedApi
 
 class HentForespoerslerApiTest :
     FunSpecWithAuthorizedApi({ testApi ->
-        xtest("Hent forespoersler fra endepunkt") {
+        test("Hent forespoersler fra endepunkt") {
             testApi {
                 val db = Database.init()
                 val forespoerselRepo = ForespoerselRepository(db)

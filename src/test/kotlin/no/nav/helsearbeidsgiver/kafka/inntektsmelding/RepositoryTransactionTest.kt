@@ -4,13 +4,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
+import no.nav.helsearbeidsgiver.mottak.ExposedMottak
+import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
+import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import readJsonFromResources
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
@@ -67,7 +68,7 @@ class RepositoryTransactionTest {
                 .replace("%%%FORESPORSELID%%%", forespoerselID)
                 .replace("%%%ORGNR%%%", orgnr)
                 .replace("%%%SYKMELDT%%%", fnr)
-        inntektsmeldingRepository.opprett(generert, orgnr, fnr, forespoerselID)
+        inntektsmeldingRepository.opprett(generert, orgnr, fnr, LocalDateTime.now(), forespoerselID)
         return forespoerselID
     }
 }
