@@ -19,8 +19,8 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
-class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
-    private val logger = LoggerFactory.getLogger(InntektsmeldingKafkaConsumer::class.java)
+class SimbaKafkaConsumer : LpsKafkaConsumer {
+    private val logger = LoggerFactory.getLogger(SimbaKafkaConsumer::class.java)
     val jsonMapper =
         Json {
             jsonConfig

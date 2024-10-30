@@ -15,7 +15,6 @@ class MottakRepository(
     object MottakTable : Table() {
         val id = integer("id").autoIncrement()
         val melding = text("melding")
-
         override val primaryKey = PrimaryKey(id)
     }
 
