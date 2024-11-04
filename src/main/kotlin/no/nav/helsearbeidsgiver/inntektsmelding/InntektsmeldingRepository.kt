@@ -25,14 +25,14 @@ class InntektsmeldingRepository(
         im: String,
         org: String,
         sykmeldtFnr: String,
-        forespoerselId: String? = null,
+        forespoerselID: String,
     ): Int =
         transaction(db) {
             InntektsmeldingEntitet.insert {
                 it[dokument] = im
                 it[orgnr] = org
                 it[fnr] = sykmeldtFnr
-                it[foresporselid] = forespoerselId
+                it[foresporselid] = forespoerselID
             }[InntektsmeldingEntitet.id]
         }
 

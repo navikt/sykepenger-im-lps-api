@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
-import no.nav.helsearbeidsgiver.db.Database.getForespoerselRepo
-
-class ForespoerselService {
-    fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> = getForespoerselRepo().hentForespoerslerForOrgnr(orgnr)
+class ForespoerselService(
+    private val forespoerselRepository: ForespoerselRepository,
+) {
+    fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> = forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
 }

@@ -6,6 +6,9 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding.Type
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
+class InntektsmeldingService(
+    private val inntektsmeldingRepository: InntektsmeldingRepository,
+) {
 class InntektsmeldingService {
     val jsonMapper =
         Json {
@@ -16,7 +19,7 @@ class InntektsmeldingService {
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
-            getInntektsmeldingRepo().hent(orgnr)
+            inntektsmeldingRepository.hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
             return it
