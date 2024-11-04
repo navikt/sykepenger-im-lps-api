@@ -3,16 +3,24 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import org.junit.jupiter.api.Test
 import readJsonFromResources
 import java.util.UUID
 import kotlin.test.assertEquals
 
-class InntektsmeldingKafkaConsumerTest {
+class SimbaKafkaConsumerTest {
+    val db = Database.init()
+    val inntektsmeldingRepository = InntektsmeldingRepository(db)
+    val forespoerselRepository = ForespoerselRepository(db)
+    val mottakRepository = MottakRepository(db)
+    val simbaKafkaConsumer = SimbaKafkaConsumer(inntektsmeldingRepository, forespoerselRepository, mottakRepository)
+
     @Test
     fun handleRecord() {
-        Database.init()
         val orgnr = "999999999"
         val fnr = "99999999999"
         // Simuler flere samtidige http-klientkall (hent/les) og diverse innkommende kafka-meldinger (opprett/skriv)
@@ -24,26 +32,26 @@ class InntektsmeldingKafkaConsumerTest {
                 ).replace("%%%FORESPORSELID%%%", UUID.randomUUID().toString())
             for (i in 1..100) {
                 launch {
-                    Database.getInntektsmeldingRepo().hent(orgnr)
-                    Database.getMottakRepository().opprett(ExposedMottak(event))
-                    Database.getForespoerselRepo().hentForespoerslerForOrgnr(orgnr)
+                    inntektsmeldingRepository.hent(orgnr)
+                    mottakRepository.opprett(ExposedMottak(event))
+                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
                 }
                 launch {
                     val forespoerselID = lagreInntektsmelding(im, orgnr, fnr)
-                    Database.getForespoerselRepo().hentForespoerslerForOrgnr(orgnr)
-                    Database.getForespoerselRepo().lagreForespoersel(forespoerselID, orgnr, fnr)
-                    Database.getForespoerselRepo().hentForespoerslerForOrgnr(orgnr)
-                    Database.getForespoerselRepo().settBesvart(forespoerselID)
-                    Database.getInntektsmeldingRepo().hent(orgnr)
+                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+                    forespoerselRepository.lagreForespoersel(forespoerselID, orgnr, fnr)
+                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+                    forespoerselRepository.settBesvart(forespoerselID)
+                    inntektsmeldingRepository.hent(orgnr)
                 }
                 launch {
-                    Database.getForespoerselRepo().hentForespoerslerForOrgnr(orgnr)
-                    Database.getInntektsmeldingRepo().hent(orgnr)
+                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+                    inntektsmeldingRepository.hent(orgnr)
                 }
             }
         }
-        assertEquals(100, Database.getForespoerselRepo().hentForespoerslerForOrgnr(orgnr).count())
-        assertEquals(100, Database.getInntektsmeldingRepo().hent(orgnr).count())
+        assertEquals(100, forespoerselRepository.hentForespoerslerForOrgnr(orgnr).count())
+        assertEquals(100, inntektsmeldingRepository.hent(orgnr).count())
 
         // Test at kjente payloads ikke kræsjer:
         val payload = """
@@ -64,10 +72,10 @@ class InntektsmeldingKafkaConsumerTest {
             """
             {"@event_name":"INNTEKTSMELDING_DISTRIBUERT","uuid":"c13943eb-e4be-47e9-9ae4-8fd9f09abf2f","journalpostId":"671159572","inntektsmelding":{"id":"6e9593cc-2a34-48fd-9eeb-ac90a68a2c1a","type":{"type":"Selvbestemt","id":"64fe55fa-6332-494c-8d82-50c09b4ea546"},"sykmeldt":{"fnr":"10107400090","navn":"BERØMT FLYTTELASS"},"avsender":{"orgnr":"810007842","orgNavn":"ANSTENDIG PIGGSVIN BARNEHAGE","navn":"BERØMT FLYTTELASS","tlf":"12345678"},"sykmeldingsperioder":[{"fom":"2024-08-16","tom":"2024-08-28"}],"agp":{"perioder":[{"fom":"2024-08-16","tom":"2024-08-28"}],"egenmeldinger":[],"redusertLoennIAgp":{"beloep":12354.0,"begrunnelse":"ManglerOpptjening"}},"inntekt":{"beloep":54000.0,"inntektsdato":"2024-08-16","naturalytelser":[],"endringAarsak":{"aarsak":"Ferie","ferier":[{"fom":"2024-06-18","tom":"2024-06-23"}]}},"refusjon":null,"aarsakInnsending":"Ny","mottatt":"2024-10-23T08:47:22.357991117+02:00","vedtaksperiodeId":"eb7a3cc1-792c-4a26-b3af-324e7545c6dd"},"bestemmende_fravaersdag":"2024-07-01","@id":"6d189fc1-79f7-4ecd-9d28-671a264df06f","@opprettet":"2024-10-23T14:32:17.596232993","system_read_count":0,"system_participating_services":[{"id":"6d189fc1-79f7-4ecd-9d28-671a264df06f","time":"2024-10-23T14:32:17.596232993","service":"im-distribusjon","instance":"im-distribusjon-798b4856fc-82qt6","image":"ghcr.io/navikt/helsearbeidsgiver-inntektsmelding/im-distribusjon:3285d5d"}],"@forårsaket_av":{"id":"48715ec3-e08c-417e-bbce-78327e136482","opprettet":"2024-10-23T14:32:17.368784914","event_name":"INNTEKTSMELDING_JOURNALFOERT"}}
             """.trimIndent()
-        InntektsmeldingKafkaConsumer().handleRecord(payload)
-        InntektsmeldingKafkaConsumer().handleRecord(payload2)
-        InntektsmeldingKafkaConsumer().handleRecord(payload3)
-        InntektsmeldingKafkaConsumer().handleRecord(payload4)
+        simbaKafkaConsumer.handleRecord(payload)
+        simbaKafkaConsumer.handleRecord(payload2)
+        simbaKafkaConsumer.handleRecord(payload3)
+        simbaKafkaConsumer.handleRecord(payload4)
     }
 
     fun lagreInntektsmelding(
@@ -81,7 +89,7 @@ class InntektsmeldingKafkaConsumerTest {
                 .replace("%%%FORESPORSELID%%%", forespoerselID)
                 .replace("%%%ORGNR%%%", orgnr)
                 .replace("%%%SYKMELDT%%%", fnr)
-        Database.getInntektsmeldingRepo().opprett(generert, orgnr, fnr)
+        inntektsmeldingRepository.opprett(generert, orgnr, fnr, forespoerselID)
         return forespoerselID
     }
 }

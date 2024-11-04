@@ -3,9 +3,6 @@ package no.nav.helsearbeidsgiver.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
@@ -19,11 +16,7 @@ object Database {
 
     val jdbcUrl = Env.getPropertyOrNull("database.url") ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
-    private lateinit var forespoerselRepository: ForespoerselRepository
-    private lateinit var inntektsmeldingRepository: InntektsmeldingRepository
-    private lateinit var mottakRepository: MottakRepository
-
-    fun init() {
+    fun init(): Database {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
         val db = getDatabase(embedded)
         if (embedded) {
@@ -31,9 +24,7 @@ object Database {
         } else {
             runMigrate()
         }
-        inntektsmeldingRepository = InntektsmeldingRepository(db)
-        forespoerselRepository = ForespoerselRepository(db)
-        mottakRepository = MottakRepository(db)
+        return db
     }
 
     private fun getDatabase(embedded: Boolean): Database =
@@ -83,10 +74,4 @@ object Database {
         config.validate()
         return HikariDataSource(config)
     }
-
-    fun getForespoerselRepo(): ForespoerselRepository = forespoerselRepository
-
-    fun getInntektsmeldingRepo(): InntektsmeldingRepository = inntektsmeldingRepository
-
-    fun getMottakRepository(): MottakRepository = mottakRepository
 }

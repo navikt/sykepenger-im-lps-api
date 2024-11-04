@@ -10,7 +10,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.auth.gyldigSupplierOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingKafkaConsumer
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
+import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
+import no.nav.helsearbeidsgiver.kafka.inntektsmelding.SimbaKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
@@ -26,12 +31,23 @@ fun main(args: Array<String>): Unit =
 
 @Suppress("unused")
 fun Application.module() {
-    Database.init()
-
+    val db = Database.init()
+    val inntektsmeldingRepository = InntektsmeldingRepository(db)
+    val forespoerselRepository = ForespoerselRepository(db)
+    val mottakRepository = MottakRepository(db)
+    val forespoerselService = ForespoerselService(forespoerselRepository)
+    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
         launch(Dispatchers.Default) {
-            startKafkaConsumer(Env.getProperty("kafkaConsumer.inntektsmelding.topic"), InntektsmeldingKafkaConsumer())
+            startKafkaConsumer(
+                Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
+                SimbaKafkaConsumer(
+                    inntektsmeldingRepository,
+                    forespoerselRepository,
+                    mottakRepository,
+                ),
+            )
         }
     }
     install(ContentNegotiation) {
@@ -59,7 +75,6 @@ fun Application.module() {
                     DEFAULT_HTTP_SIZE_LIMIT,
                 ),
         )
-        // Configure authentication
     }
-    configureRouting()
+    configureRouting(forespoerselService, inntektsmeldingService)
 }
