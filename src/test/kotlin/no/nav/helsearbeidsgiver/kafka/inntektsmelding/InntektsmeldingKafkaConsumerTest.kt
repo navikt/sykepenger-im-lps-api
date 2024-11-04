@@ -4,8 +4,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
+import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
-import readJsonFromResources
 import java.util.UUID
 import kotlin.test.assertEquals
 

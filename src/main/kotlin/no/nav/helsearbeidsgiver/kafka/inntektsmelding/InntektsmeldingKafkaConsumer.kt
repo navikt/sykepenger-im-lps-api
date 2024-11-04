@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.db.Database.getForespoerselRepo
-import no.nav.helsearbeidsgiver.db.Database.getInntektsmeldingRepo
 import no.nav.helsearbeidsgiver.db.Database.getMottakRepository
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
@@ -21,6 +21,7 @@ import java.util.UUID
 
 class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
     private val logger = LoggerFactory.getLogger(InntektsmeldingKafkaConsumer::class.java)
+    private val inntektsmeldingService = InntektsmeldingService()
     val jsonMapper =
         Json {
             jsonConfig
@@ -37,11 +38,7 @@ class InntektsmeldingKafkaConsumer : LpsKafkaConsumer {
 
             if (obj.eventname == "INNTEKTSMELDING_DISTRIBUERT") {
                 if (obj.inntektsmelding != null) {
-                    getInntektsmeldingRepo().opprett(
-                        im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
-                        org = obj.inntektsmelding.avsender.orgnr.verdi,
-                        sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
-                    )
+                    inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                 } else {
                     logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
                 }

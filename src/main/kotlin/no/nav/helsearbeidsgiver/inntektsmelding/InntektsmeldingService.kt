@@ -1,9 +1,18 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.db.Database.getInntektsmeldingRepo
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding.Type
+import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService {
+    val jsonMapper =
+        Json {
+            jsonConfig
+            ignoreUnknownKeys = true
+        }
+
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
@@ -17,5 +26,51 @@ class InntektsmeldingService {
         }
 
         return emptyList()
+    }
+
+    fun hentInntektsMeldingByRequest(
+        orgnr: String,
+        request: InntektsmeldingRequest,
+    ): InntektsmeldingResponse {
+        runCatching {
+            sikkerLogger().info("Henter inntektsmeldinger for request: $request")
+            getInntektsmeldingRepo().hent(orgNr = orgnr, request = request)
+        }.onSuccess {
+            sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
+            return InntektsmeldingResponse(it.size, it)
+        }.onFailure {
+            sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
+            return InntektsmeldingResponse(0, emptyList())
+        }
+
+        return InntektsmeldingResponse(0, emptyList())
+    }
+
+    fun opprettInntektsmelding(im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding) {
+        runCatching {
+            sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
+            getInntektsmeldingRepo().opprett(
+                im =
+                    jsonMapper.encodeToString(
+                        no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+                            .serializer(),
+                        im,
+                    ),
+                org = im.avsender.orgnr.verdi,
+                sykmeldtFnr = im.sykmeldt.fnr.verdi,
+                if (im.type.equals(
+                        Type.Forespurt,
+                    )
+                ) {
+                    im.id.toString()
+                } else {
+                    null
+                },
+            )
+        }.onSuccess {
+            sikkerLogger().info("Opprettet inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
+        }.onFailure {
+            sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
+        }
     }
 }
