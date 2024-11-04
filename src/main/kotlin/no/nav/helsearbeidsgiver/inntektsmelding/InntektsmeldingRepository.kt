@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 
 class InntektsmeldingRepository(
     private val db: Database,
@@ -25,7 +26,8 @@ class InntektsmeldingRepository(
         im: String,
         org: String,
         sykmeldtFnr: String,
-        forespoerselID: String,
+        innsendtDato: LocalDateTime,
+        forespoerselID: String?,
     ): Int =
         transaction(db) {
             InntektsmeldingEntitet.insert {
@@ -33,6 +35,7 @@ class InntektsmeldingRepository(
                 it[orgnr] = org
                 it[fnr] = sykmeldtFnr
                 it[foresporselid] = forespoerselID
+                it[innsendt] = innsendtDato
             }[InntektsmeldingEntitet.id]
         }
 

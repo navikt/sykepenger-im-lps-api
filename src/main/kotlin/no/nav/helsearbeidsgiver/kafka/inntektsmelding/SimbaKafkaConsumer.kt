@@ -46,6 +46,7 @@ class SimbaKafkaConsumer(
                             im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
                             org = obj.inntektsmelding.avsender.orgnr.verdi,
                             sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
+                            innsendtDato = obj.inntektsmelding.mottatt.toLocalDateTime(),
                             forespoerselID =
                                 obj.inntektsmelding.type.id
                                     .toString(),

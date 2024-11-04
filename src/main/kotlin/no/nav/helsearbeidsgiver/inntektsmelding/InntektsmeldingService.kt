@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import kotlinx.serialization.json.Json
-import no.nav.helsearbeidsgiver.db.Database.getInntektsmeldingRepo
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding.Type
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -9,7 +8,6 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-class InntektsmeldingService {
     val jsonMapper =
         Json {
             jsonConfig
@@ -19,6 +17,7 @@ class InntektsmeldingService {
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
+
             inntektsmeldingRepository.hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
@@ -37,7 +36,7 @@ class InntektsmeldingService {
     ): InntektsmeldingResponse {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for request: $request")
-            getInntektsmeldingRepo().hent(orgNr = orgnr, request = request)
+            inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
             return InntektsmeldingResponse(it.size, it)
@@ -52,7 +51,7 @@ class InntektsmeldingService {
     fun opprettInntektsmelding(im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding) {
         runCatching {
             sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
-            getInntektsmeldingRepo().opprett(
+            inntektsmeldingRepository.opprett(
                 im =
                     jsonMapper.encodeToString(
                         no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
@@ -61,14 +60,16 @@ class InntektsmeldingService {
                     ),
                 org = im.avsender.orgnr.verdi,
                 sykmeldtFnr = im.sykmeldt.fnr.verdi,
-                if (im.type.equals(
-                        Type.Forespurt,
-                    )
-                ) {
-                    im.id.toString()
-                } else {
-                    null
-                },
+                innsendtDato = im.mottatt.toLocalDateTime(),
+                forespoerselID =
+                    if (im.type.equals(
+                            Type.Forespurt,
+                        )
+                    ) {
+                        im.id.toString()
+                    } else {
+                        null
+                    },
             )
         }.onSuccess {
             sikkerLogger().info("Opprettet inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
