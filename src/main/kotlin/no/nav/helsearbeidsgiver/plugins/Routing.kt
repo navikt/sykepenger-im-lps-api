@@ -8,7 +8,6 @@ import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -29,25 +28,34 @@ fun Application.configureRouting(
 ) {
     routing {
         swaggerUI(path = "swagger", swaggerFile = "documentation.yaml")
-        filtrerInntektsmeldinger(inntektsmeldingService)
+
         authenticate("validToken") {
+            filtrerInntektsmeldinger(inntektsmeldingService)
             forespoersler(forespoerselService)
             inntektsmeldinger(inntektsmeldingService)
         }
     }
 }
 
-private fun Routing.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     post("/inntektsmeldinger") {
         val params = call.receive<InntektsmeldingRequest>()
+        val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
+        val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
         logger().info("Received request with params: $params")
-        inntektsmeldingService
-            .hentInntektsMeldingByRequest(
-                orgnr = "810007842",
-                request = params,
-            ).let {
-                call.respond(HttpStatusCode.OK, it)
-            }
+        if (consumerOrgnr != null) {
+            LOG.info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    orgnr = consumerOrgnr,
+                    request = params,
+                ).let {
+                    call.respond(HttpStatusCode.OK, it)
+                }
+        } else {
+            LOG.warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
+            call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+        }
     }
 }
 
