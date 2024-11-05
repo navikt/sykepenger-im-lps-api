@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
@@ -17,9 +18,10 @@ import kotlin.test.assertEquals
 class SimbaKafkaConsumerTest {
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
+    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
-    val simbaKafkaConsumer = SimbaKafkaConsumer(inntektsmeldingRepository, forespoerselRepository, mottakRepository)
+    val simbaKafkaConsumer = SimbaKafkaConsumer(inntektsmeldingService, forespoerselRepository, mottakRepository)
 
     @Test
     @Ignore

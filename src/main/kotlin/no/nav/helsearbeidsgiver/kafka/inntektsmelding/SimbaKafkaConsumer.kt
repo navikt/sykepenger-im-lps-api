@@ -8,7 +8,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class SimbaKafkaConsumer(
-    private val inntektsmeldingRepository: InntektsmeldingRepository,
+    private val inntektsmeldingService: InntektsmeldingService,
     private val forespoerselRepository: ForespoerselRepository,
     private val mottakRepository: MottakRepository,
 ) : LpsKafkaConsumer {
@@ -42,19 +42,12 @@ class SimbaKafkaConsumer(
             when (obj.eventname) {
                 "INNTEKTSMELDING_DISTRIBUERT" -> {
                     if (obj.inntektsmelding != null) {
-                        inntektsmeldingRepository.opprett(
-                            im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
-                            org = obj.inntektsmelding.avsender.orgnr.verdi,
-                            sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
-                            innsendtDato = obj.inntektsmelding.mottatt.toLocalDateTime(),
-                            forespoerselID =
-                                obj.inntektsmelding.type.id
-                                    .toString(),
-                        )
+                        inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                     } else {
                         logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
                     }
                 }
+
                 "FORESPOERSEL_MOTTATT" -> {
                     when (obj.behov) {
                         null -> {
@@ -86,9 +79,11 @@ class SimbaKafkaConsumer(
                         }
                     }
                 }
+
                 "FORESPOERSEL_BESVART" -> {
                     settBesvart(obj.forespoerselId.toString())
                 }
+
                 "FORESPOERSEL_FORKASTET" -> {
                     settForkastet(obj.forespoerselId.toString())
                 }

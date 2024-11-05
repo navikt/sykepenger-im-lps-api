@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import kotlinx.serialization.json.Json
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding.Type
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -61,15 +60,7 @@ class InntektsmeldingService(
                 org = im.avsender.orgnr.verdi,
                 sykmeldtFnr = im.sykmeldt.fnr.verdi,
                 innsendtDato = im.mottatt.toLocalDateTime(),
-                forespoerselID =
-                    if (im.type.equals(
-                            Type.Forespurt,
-                        )
-                    ) {
-                        im.id.toString()
-                    } else {
-                        null
-                    },
+                forespoerselID = im.type.id.toString(),
             )
         }.onSuccess {
             sikkerLogger().info("Opprettet inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")

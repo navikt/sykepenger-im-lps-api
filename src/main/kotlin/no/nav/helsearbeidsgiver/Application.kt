@@ -44,7 +44,7 @@ fun Application.module() {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
                 SimbaKafkaConsumer(
-                    inntektsmeldingRepository,
+                    inntektsmeldingService,
                     forespoerselRepository,
                     mottakRepository,
                 ),

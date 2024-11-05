@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.utils.buildInnteektsmeldingJson
+import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +23,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `opprett should insert a ny inntektsmelding`() {
         val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInnteektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         transaction(db) {
             val org = "123456789"
@@ -44,7 +44,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr`() {
         val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInnteektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         transaction(db) {
             val org = "123456789"
@@ -70,7 +70,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr and request`() {
         val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInnteektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
         transaction(db) {
             val org = "123456789"
             val sykmeldtFnr = "10107400090"
