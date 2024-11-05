@@ -4,10 +4,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
+import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
+import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime

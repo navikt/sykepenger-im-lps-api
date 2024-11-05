@@ -101,4 +101,52 @@ class InntektsmeldingRepositoryTest {
             rollback()
         }
     }
+
+    @Test
+    fun `hent should return list av inntektsmeldinger by orgNr and request with no match`() {
+        transaction(db) {
+            val org1 = "123456789"
+            val sykmeldtFnr1 = "10107400090"
+            val innsendtDato1 = LocalDateTime.of(2023, 1, 1, 0, 0)
+            val forespoerselId1 = UUID.randomUUID().toString()
+            generateTestData(repository, org1, sykmeldtFnr1, innsendtDato1, forespoerselId1)
+
+            val org2 = "987654321"
+            val sykmeldtFnr2 = "10107400091"
+            val innsendtDato2 = LocalDateTime.of(2023, 1, 2, 0, 0)
+            val forespoerselId2 = UUID.randomUUID().toString()
+            generateTestData(repository, org2, sykmeldtFnr2, innsendtDato2, forespoerselId2)
+
+            val result =
+                repository.hent(
+                    "987654321",
+                    InntektsmeldingRequest(
+                        fnr = null,
+                        foresporselid = null,
+                        datoFra = null,
+                        datoTil = null,
+                    ),
+                )
+
+            assertEquals(1, result.size)
+            rollback()
+        }
+    }
+
+    private fun generateTestData(
+        repository: InntektsmeldingRepository,
+        org: String,
+        sykmeldtFnr: String,
+        innsendtDato: LocalDateTime,
+        forespoerselId: String,
+    ) {
+        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
+        repository.opprett(
+            inntektsmeldingJson,
+            org,
+            sykmeldtFnr,
+            innsendtDato,
+            forespoerselId,
+        )
+    }
 }

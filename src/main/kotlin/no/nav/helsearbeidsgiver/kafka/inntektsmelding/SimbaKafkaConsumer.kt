@@ -7,10 +7,10 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
+import no.nav.helsearbeidsgiver.mottak.ExposedMottak
+import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
