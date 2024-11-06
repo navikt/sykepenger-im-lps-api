@@ -22,6 +22,7 @@ class InntektsmeldingService(
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
             return it
         }.onFailure {
+            // TODO Kast exception
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for orgnr: $orgnr", it)
             return emptyList()
         }
@@ -40,6 +41,7 @@ class InntektsmeldingService(
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
             return InntektsmeldingResponse(it.size, it)
         }.onFailure {
+            // TODO Kast exception
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
             return InntektsmeldingResponse(0, emptyList())
         }
@@ -66,6 +68,8 @@ class InntektsmeldingService(
             sikkerLogger().info("Opprettet inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
         }.onFailure {
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
+            // TODO Kast exception
+            //  throw RuntimeException("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
     }
 }
