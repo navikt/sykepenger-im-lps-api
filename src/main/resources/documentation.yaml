@@ -296,22 +296,33 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-            $ref: "#/components/schemas/InntektsmeldingRequest"
-        responses:
-          "200":
-            description: A JSON array of filtered Inntektsmeldinger
-            content:
-              'application/json':
-                schema:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/Inntektsmelding"
-          "401":
-            description: Unauthorized
-            content:
-              'application/json':
-                schema:
+              type: object
+              properties:
+                fnr:
                   type: string
-                  example: "Consumer orgnr mangler"
+                foresporselid:
+                  type: string
+                datoFra:
+                  type: string
+                  format: date-time
+                datoTil:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          description: A JSON array of filtered Inntektsmeldinger
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inntektsmelding"
+        "401":
+          description: Unauthorized
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Consumer orgnr mangler"
 
 
