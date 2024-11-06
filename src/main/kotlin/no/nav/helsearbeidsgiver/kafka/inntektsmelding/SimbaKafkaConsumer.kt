@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
@@ -12,8 +11,8 @@ import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
-import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.slf4j.LoggerFactory
@@ -25,11 +24,6 @@ class SimbaKafkaConsumer(
     private val mottakRepository: MottakRepository,
 ) : LpsKafkaConsumer {
     private val logger = LoggerFactory.getLogger(SimbaKafkaConsumer::class.java)
-    val jsonMapper =
-        Json {
-            jsonConfig
-            ignoreUnknownKeys = true
-        }
 
     override fun handleRecord(record: String) {
         // TODO: gjør dette i en transaksjon og gjør det skikkelig..

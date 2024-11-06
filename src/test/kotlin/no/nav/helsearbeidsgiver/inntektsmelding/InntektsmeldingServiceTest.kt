@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
@@ -17,7 +18,7 @@ class InntektsmeldingServiceTest {
     fun `opprettInntektsmelding should call inntektsmeldingRepository`() {
         val inntektsmeldingJson = buildInntektsmeldingJson()
         val inntektsmelding =
-            inntektsmeldingService.jsonMapper.decodeFromString(
+            jsonMapper.decodeFromString(
                 Inntektsmelding.serializer(),
                 inntektsmeldingJson,
             )

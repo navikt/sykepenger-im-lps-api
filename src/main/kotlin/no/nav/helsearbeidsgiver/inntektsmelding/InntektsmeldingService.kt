@@ -1,18 +1,11 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import kotlinx.serialization.json.Json
-import no.nav.helsearbeidsgiver.utils.json.jsonConfig
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-    val jsonMapper =
-        Json {
-            jsonConfig
-            ignoreUnknownKeys = true
-        }
-
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
