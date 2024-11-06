@@ -14,9 +14,9 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.SimbaKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
+import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -43,7 +43,7 @@ fun Application.module() {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
                 SimbaKafkaConsumer(
-                    inntektsmeldingRepository,
+                    inntektsmeldingService,
                     forespoerselRepository,
                     mottakRepository,
                 ),
@@ -53,6 +53,7 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
+
     install(Authentication) {
         tokenValidationSupport(
             "validToken",

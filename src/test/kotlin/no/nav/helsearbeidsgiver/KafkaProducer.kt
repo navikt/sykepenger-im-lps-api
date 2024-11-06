@@ -1,15 +1,13 @@
+
+import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingDistribuertJson
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
-import java.io.File
 import java.util.Properties
-import java.util.UUID
 
 fun main() {
-    val filePath = "inntektsmelding_distribuert.json"
-    val jsonFromFile = readJsonFromResources(filePath).replace("%%%FORESPOERSELID%%%", UUID.randomUUID().toString())
-
+    val inntektsmeldingDistribuertJson = buildInntektsmeldingDistribuertJson()
     val props =
         Properties().apply {
             put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
@@ -20,7 +18,7 @@ fun main() {
     val producer = KafkaProducer<String, String>(props)
 
     try {
-        val record = ProducerRecord<String, String>("helsearbeidsgiver.rapid", "key", jsonFromFile)
+        val record = ProducerRecord<String, String>("helsearbeidsgiver.rapid", "key", inntektsmeldingDistribuertJson)
         producer.send(record) { metadata, exception ->
             if (exception != null) {
                 println("Error sending message: ${exception.message}")
@@ -31,9 +29,4 @@ fun main() {
     } finally {
         producer.close()
     }
-}
-
-fun readJsonFromResources(fileName: String): String {
-    val resource = KafkaProducer::class.java.getResource("/$fileName")
-    return File(resource.toURI()).readText(Charsets.UTF_8)
 }

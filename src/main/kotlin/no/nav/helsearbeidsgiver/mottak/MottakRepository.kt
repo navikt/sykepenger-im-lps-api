@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.inntektsmelding
+package no.nav.helsearbeidsgiver.mottak
 
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Table

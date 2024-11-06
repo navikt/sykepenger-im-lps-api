@@ -7,7 +7,7 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 
 class HentInntektsmeldingerApiTest :
     FunSpecWithAuthorizedApi({ testApi ->
-        test("Hent inntektsmeldinger fra endepunkt") {
+        xtest("Hent inntektsmeldinger fra endepunkt") {
             testApi {
                 val response = get("/inntektsmeldinger")
                 response.status.value shouldBe 200

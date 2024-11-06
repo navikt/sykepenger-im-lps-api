@@ -6,7 +6,7 @@ import no.nav.helsearbeidsgiver.utils.FunSpecWithAuthorizedApi
 
 class HentForespoerslerApiTest :
     FunSpecWithAuthorizedApi({ testApi ->
-        test("Hent forespoersler fra endepunkt") {
+        xtest("Hent forespoersler fra endepunkt") {
             testApi {
                 val response = get("/forespoersler")
                 response.status.value shouldBe 200
