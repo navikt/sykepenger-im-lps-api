@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
+import no.nav.helsearbeidsgiver.kafka.EventName
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
@@ -25,6 +26,7 @@ class SimbaKafkaConsumer(
     private val mottakRepository: MottakRepository,
 ) : LpsKafkaConsumer {
     private val logger = LoggerFactory.getLogger(SimbaKafkaConsumer::class.java)
+    private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
     val jsonMapper =
         Json {
             jsonConfig
@@ -33,14 +35,18 @@ class SimbaKafkaConsumer(
 
     override fun handleRecord(record: String) {
         // TODO: gjør dette i en transaksjon og gjør det skikkelig..
+        // transaction {
+        val obj = parseRecord(record)
+        if (obj == null) {
+            sikkerLogger.warn("Ugyldig event mottatt: $record")
+            mottakRepository.opprett(ExposedMottak(record, false))
+            return
+        }
         try {
-            val obj = jsonMapper.decodeFromString<RapidMessage>(record)
-
             logger.info("Received event: ${obj.eventname}")
-            mottakRepository.opprett(ExposedMottak(record))
 
             when (obj.eventname) {
-                "INNTEKTSMELDING_DISTRIBUERT" -> {
+                EventName.INNTEKTSMELDING_DISTRIBUERT.toString() -> {
                     if (obj.inntektsmelding != null) {
                         inntektsmeldingRepository.opprett(
                             im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
@@ -50,11 +56,12 @@ class SimbaKafkaConsumer(
                                 obj.inntektsmelding.type.id
                                     .toString(),
                         )
+                        mottakRepository.opprett(ExposedMottak(record))
                     } else {
                         logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
                     }
                 }
-                "FORESPOERSEL_MOTTATT" -> {
+                EventName.FORESPOERSEL_MOTTATT.toString() -> {
                     when (obj.behov) {
                         null -> {
                             val forespoerselId =
@@ -72,28 +79,41 @@ class SimbaKafkaConsumer(
                                     ?.get("fnr")
                                     ?.fromJson(Fnr.serializer())
                                     ?.verdi
-
+                            val forespoerselPayload = obj.data?.get("forespoersel")
                             if (forespoerselId != null && orgnr != null && fnr != null) {
                                 forespoerselRepository.lagreForespoersel(
                                     forespoerselId = forespoerselId.toString(),
                                     organisasjonsnummer = orgnr.toString(),
                                     foedselsnr = fnr,
+                                    // dokument = forespoerselPayload
                                 )
+                                mottakRepository.opprett(ExposedMottak(record))
                             } else {
                                 logger.warn("Ugyldige verdier, kan ikke lagre!")
                             }
                         }
                     }
                 }
-                "FORESPOERSEL_BESVART" -> {
+                EventName.FORESPOERSEL_BESVART.toString() -> {
                     settBesvart(obj.forespoerselId.toString())
+                    mottakRepository.opprett(ExposedMottak(record))
                 }
-                "FORESPOERSEL_FORKASTET" -> {
+                EventName.FORESPOERSEL_FORKASTET.toString() -> {
                     settForkastet(obj.forespoerselId.toString())
+                    mottakRepository.opprett(ExposedMottak(record))
                 }
             }
         } catch (e: Exception) {
+            logger.warn("feil - $e")
+        }
+    }
+
+    private fun parseRecord(record: String): RapidMessage? {
+        try {
+            return jsonMapper.decodeFromString<RapidMessage>(record)
+        } catch (e: IllegalArgumentException) {
             logger.error("Failed to handle record", e)
+            return null
         }
     }
 
