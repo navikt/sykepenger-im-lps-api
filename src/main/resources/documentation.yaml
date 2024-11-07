@@ -294,23 +294,19 @@ paths:
       parameters:
         - in: query
           name: foresporselid
-          required: true
           schema:
             type: string
         - in: query
           name: fnr
-          required: true
           schema:
             type: string
         - in: query
           name: datoFom
-          required: true
           schema:
             type: string
             format: date
         - in: query
           name: datoTom
-          required: true
           schema:
             type: string
             format: date
