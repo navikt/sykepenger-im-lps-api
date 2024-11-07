@@ -289,30 +289,22 @@ paths:
                 items:
                   $ref: "#/components/schemas/Inntektsmelding"
     post:
-      summary: Filterer Inntektsmeldinger based on the request.
+      summary: Filters Inntektsmeldinger based on the request.
       description: ""
-      parameters:
-        - in: query
-          name: foresporselid
-          schema:
-            type: string
-        - in: query
-          name: fnr
-          schema:
-            type: string
-        - in: query
-          name: datoFom
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: datoTom
-          schema:
-            type: string
-            format: date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InntektsmeldingRequest"
+            example:
+              foresporselid: "UUID til foresporsel"
+              fnr: "12345678901"
+              datoFom: "2024-01-01"
+              datoTom: "2024-01-31"
       responses:
         "200":
-          description: JSON array of filtered Inntektsmeldinger
+          description: A JSON array of filtered Inntektsmeldinger
           content:
             application/json:
               schema:
@@ -326,4 +318,6 @@ paths:
               schema:
                 type: string
                 example: "Consumer orgnr mangler"
+
+
 
