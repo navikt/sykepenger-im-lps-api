@@ -11,17 +11,20 @@ import no.nav.helsearbeidsgiver.inntektsmelding.ExposedMottak
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.MottakRepository
 import no.nav.helsearbeidsgiver.kafka.EventName
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
+import no.nav.helsearbeidsgiver.mottak.ExposedMottak
+import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
-import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class SimbaKafkaConsumer(
-    private val inntektsmeldingRepository: InntektsmeldingRepository,
+    private val inntektsmeldingService: InntektsmeldingService,
     private val forespoerselRepository: ForespoerselRepository,
     private val mottakRepository: MottakRepository,
 ) : LpsKafkaConsumer {
@@ -48,14 +51,7 @@ class SimbaKafkaConsumer(
             when (obj.eventname) {
                 EventName.INNTEKTSMELDING_DISTRIBUERT.toString() -> {
                     if (obj.inntektsmelding != null) {
-                        inntektsmeldingRepository.opprett(
-                            im = jsonMapper.encodeToString(Inntektsmelding.serializer(), obj.inntektsmelding),
-                            org = obj.inntektsmelding.avsender.orgnr.verdi,
-                            sykmeldtFnr = obj.inntektsmelding.sykmeldt.fnr.verdi,
-                            forespoerselID =
-                                obj.inntektsmelding.type.id
-                                    .toString(),
-                        )
+                        inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                         mottakRepository.opprett(ExposedMottak(record))
                     } else {
                         logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")

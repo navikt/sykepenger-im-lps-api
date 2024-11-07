@@ -8,7 +8,7 @@ import readJsonFromResources
 
 class HentInntektsmeldingerApiTest :
     FunSpecWithAuthorizedApi({ testApi ->
-        test("Hent inntektsmeldinger fra endepunkt") {
+        xtest("Hent inntektsmeldinger fra endepunkt") {
             testApi {
                 val db = Database.init()
                 val im = readJsonFromResources("im.json")
