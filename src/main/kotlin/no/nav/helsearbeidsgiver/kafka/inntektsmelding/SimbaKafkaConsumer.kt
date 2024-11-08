@@ -57,18 +57,7 @@ class SimbaKafkaConsumer(
                                     ?.toString()
                             val forespoerselPayload = obj.data?.get("forespoersel")?.fromJson(ForespoerselDokument.serializer())
 
-                            val orgnr = forespoerselPayload?.orgnr
-                            val fnr = forespoerselPayload?.fnr
-//                                obj.data
-//                                    ?.get("orgnrUnderenhet")
-//                                    ?.fromJson(Orgnr.serializer())
-//                                    ?.verdi
-//                            val fnr =
-//                                obj.data
-//                                    ?.get("fnr")
-//                                    ?.fromJson(Fnr.serializer())
-//                                    ?.verdi
-                            if (forespoerselId != null && orgnr != null && fnr != null) {
+                            if (forespoerselId != null && forespoerselPayload != null) {
                                 forespoerselRepository.lagreForespoersel(
                                     forespoerselId = forespoerselId.toString(),
                                     payload = forespoerselPayload,
