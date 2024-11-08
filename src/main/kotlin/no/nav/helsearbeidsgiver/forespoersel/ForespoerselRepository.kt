@@ -47,7 +47,7 @@ class ForespoerselRepository(
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
-                .where { ForespoerselEntitet.forespoersel eq forespoerselId }
+                .where { forespoersel eq forespoerselId }
                 .map {
                     Forespoersel(
                         forespoerselId = it[forespoersel],
@@ -86,7 +86,7 @@ class ForespoerselRepository(
         transaction(db) {
             ForespoerselEntitet.update(
                 where = {
-                    (ForespoerselEntitet.forespoersel eq forespoerselId)
+                    (forespoersel eq forespoerselId)
                 },
             ) {
                 it[ForespoerselEntitet.status] = status
