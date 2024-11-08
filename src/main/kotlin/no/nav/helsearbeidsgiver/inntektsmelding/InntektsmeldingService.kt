@@ -6,21 +6,19 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-    fun hentInntektsmeldingerByOrgNr(orgnr: String): List<Inntektsmelding> {
+    fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingResponse {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
 
             inntektsmeldingRepository.hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
-            return it
+            return InntektsmeldingResponse(it.size, it)
         }.onFailure {
-            // TODO Kast exception
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for orgnr: $orgnr", it)
-            return emptyList()
+            throw it
         }
-
-        return emptyList()
+        throw RuntimeException("Feil ved henting av inntektsmeldinger for orgnr: $orgnr")
     }
 
     fun hentInntektsMeldingByRequest(
@@ -34,12 +32,11 @@ class InntektsmeldingService(
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
             return InntektsmeldingResponse(it.size, it)
         }.onFailure {
-            // TODO Kast exception
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
-            return InntektsmeldingResponse(0, emptyList())
+            throw it
         }
 
-        return InntektsmeldingResponse(0, emptyList())
+        throw RuntimeException("Feil ved henting av inntektsmeldinger for request: $request")
     }
 
     fun opprettInntektsmelding(im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding) {
@@ -61,8 +58,7 @@ class InntektsmeldingService(
             sikkerLogger().info("Opprettet inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
         }.onFailure {
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
-            // TODO Kast exception
-            //  throw RuntimeException("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
+            throw RuntimeException("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
     }
 }

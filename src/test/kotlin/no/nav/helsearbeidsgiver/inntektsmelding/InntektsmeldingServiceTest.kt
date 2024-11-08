@@ -7,8 +7,8 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
-import kotlin.test.assertEquals
 
 class InntektsmeldingServiceTest {
     val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
@@ -46,7 +46,7 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsMeldingByRequest should call inntektsmeldingRepository`() {
+    fun `hentInntektsMeldingByRequest må kalle inntektsmeldingRepository`() {
         val foresporselid = "123456789"
         val orgnr = "987654322"
         val fnr = "12345678901"
@@ -59,6 +59,7 @@ class InntektsmeldingServiceTest {
                 datoFra = datoFra,
                 datoTil = datoTil,
             )
+        every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns listOf()
         inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
 
         verify {
@@ -67,11 +68,11 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsmeldingerByOrgNr should return empty list on failure`() {
+    fun `hentInntektsmeldingerByOrgNr kaster exception ved error`() {
         val orgnr = "123456789"
         every { inntektsmeldingRepository.hent(orgnr) } throws Exception()
-        val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
-        assertEquals(emptyList(), hentInntektsmeldingerByOrgNr)
+
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr) }
     }
 
     @Test
@@ -89,7 +90,6 @@ class InntektsmeldingServiceTest {
                 datoTil = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
-        val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
-        assertEquals(InntektsmeldingResponse(0, emptyList()), hentInntektsMeldingByRequest)
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }
     }
 }

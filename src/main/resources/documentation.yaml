@@ -300,8 +300,8 @@ paths:
             example:
               foresporselid: "UUID til foresporsel"
               fnr: "12345678901"
-              datoFom: "2024-01-01"
-              datoTom: "2024-01-31"
+              datoFra: "2024-01-01"
+              datoTil: "2024-01-31"
       responses:
         "200":
           description: A JSON array of filtered Inntektsmeldinger
