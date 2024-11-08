@@ -18,9 +18,9 @@ class HentInntektsmeldingerApiTest :
 
                 val response = get("/inntektsmeldinger")
                 response.status.value shouldBe 200
-                val inntektsmeldinger = response.body<List<Inntektsmelding>>()
-                inntektsmeldinger.size shouldBe 1
-                inntektsmeldinger[0].orgnr shouldBe "810007842"
+                val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
+                inntektsmeldingResponse.antallInntektsmeldinger shouldBe 1
+                inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
             }
         }
     })
