@@ -1,7 +1,5 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.dokument
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
@@ -66,7 +64,7 @@ class InntektsmeldingRepository(
 
     private fun ResultRow.toExposedInntektsmelding(): Inntektsmelding =
         Inntektsmelding(
-            dokument = Json.parseToJsonElement(this[dokument]).jsonObject,
+            dokument = this[dokument],
             orgnr = this[orgnr],
             fnr = this[fnr],
             foresporselid = this[foresporselid],

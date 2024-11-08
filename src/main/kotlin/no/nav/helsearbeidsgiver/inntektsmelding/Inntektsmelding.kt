@@ -4,14 +4,13 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.JsonObject
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
 data class Inntektsmelding(
-    val dokument: JsonObject,
+    val dokument: String,
     val orgnr: String,
     val fnr: String,
     val foresporselid: String?,
