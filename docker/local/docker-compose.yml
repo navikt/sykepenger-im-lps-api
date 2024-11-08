@@ -6,7 +6,7 @@ services:
           "tokenCallbacks": [
               {
                   "issuerId": "maskinporten",
-                  "tokenExpiry": 120,
+                  "tokenExpiry": 1200,
                   "requestMappings": [
                       {
                           "requestParam": "scope",

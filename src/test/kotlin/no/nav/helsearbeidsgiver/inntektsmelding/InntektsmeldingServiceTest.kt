@@ -7,29 +7,48 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
+import java.util.UUID
 import kotlin.test.assertEquals
 
 class InntektsmeldingServiceTest {
-    val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
-    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
+    private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
+    private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
 
     @Test
     fun `opprettInntektsmelding should call inntektsmeldingRepository`() {
-        val inntektsmeldingJson = buildInntektsmeldingJson()
         val inntektsmelding =
             jsonMapper.decodeFromString(
                 Inntektsmelding.serializer(),
-                inntektsmeldingJson,
+                buildInntektsmeldingJson(),
             )
+        every {
+            inntektsmeldingRepository.opprett(
+                im =
+                    jsonMapper.encodeToString(
+                        Inntektsmelding.serializer(),
+                        inntektsmelding,
+                    ),
+                org = inntektsmelding.avsender.orgnr.verdi,
+                sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
+                innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
+                forespoerselID = inntektsmelding.type.id.toString(),
+            )
+        } returns 1
+
         inntektsmeldingService.opprettInntektsmelding(inntektsmelding)
 
         verify {
             inntektsmeldingRepository.opprett(
-                im = any(),
+                im =
+                    jsonMapper.encodeToString(
+                        Inntektsmelding.serializer(),
+                        inntektsmelding,
+                    ),
                 org = inntektsmelding.avsender.orgnr.verdi,
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
-                innsendtDato = any(),
+                innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
                 forespoerselID = inntektsmelding.type.id.toString(),
             )
         }
@@ -38,15 +57,39 @@ class InntektsmeldingServiceTest {
     @Test
     fun `hentInntektsmeldingerByOrgNr should call inntektsmeldingRepository`() {
         val orgnr = "123456789"
-        inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
+        val fnr = "12345678901"
+        val innsendt = LocalDateTime.now()
+        val mottattEvent = LocalDateTime.now()
+        val foresporselid = UUID.randomUUID().toString()
+        val dokument = "dokument"
+        every { inntektsmeldingRepository.hent(orgnr) } returns
+            listOf(
+                Inntektsmelding(
+                    dokument = dokument,
+                    orgnr = orgnr,
+                    fnr = fnr,
+                    foresporselid = foresporselid,
+                    innsendt = innsendt,
+                    mottattEvent = mottattEvent,
+                ),
+            )
+        val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
 
         verify {
             inntektsmeldingRepository.hent(orgnr)
         }
+        assertEquals(1, hentInntektsmeldingerByOrgNr.antallInntektsmeldinger)
+        val inntektsmelding = hentInntektsmeldingerByOrgNr.inntektsmeldinger[0]
+        assertEquals(orgnr, inntektsmelding.orgnr)
+        assertEquals(fnr, inntektsmelding.fnr)
+        assertEquals(foresporselid, inntektsmelding.foresporselid)
+        assertEquals(innsendt, inntektsmelding.innsendt)
+        assertEquals(mottattEvent, inntektsmelding.mottattEvent)
+        assertEquals(dokument, inntektsmelding.dokument)
     }
 
     @Test
-    fun `hentInntektsMeldingByRequest should call inntektsmeldingRepository`() {
+    fun `hentInntektsMeldingByRequest må kalle inntektsmeldingRepository`() {
         val foresporselid = "123456789"
         val orgnr = "987654322"
         val fnr = "12345678901"
@@ -59,19 +102,35 @@ class InntektsmeldingServiceTest {
                 datoFra = datoFra,
                 datoTil = datoTil,
             )
-        inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
+        every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
+            listOf(
+                Inntektsmelding(
+                    dokument = "dokument",
+                    orgnr = orgnr,
+                    fnr = fnr,
+                    foresporselid = foresporselid,
+                    innsendt = LocalDateTime.now(),
+                    mottattEvent = LocalDateTime.now(),
+                ),
+            )
+        val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
 
         verify {
             inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
         }
+        assertEquals(1, hentInntektsMeldingByRequest.antallInntektsmeldinger)
+        val inntektsmelding = hentInntektsMeldingByRequest.inntektsmeldinger[0]
+        assertEquals(foresporselid, inntektsmelding.foresporselid)
+        assertEquals(orgnr, inntektsmelding.orgnr)
+        assertEquals(fnr, inntektsmelding.fnr)
     }
 
     @Test
-    fun `hentInntektsmeldingerByOrgNr should return empty list on failure`() {
+    fun `hentInntektsmeldingerByOrgNr kaster exception ved error`() {
         val orgnr = "123456789"
         every { inntektsmeldingRepository.hent(orgnr) } throws Exception()
-        val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
-        assertEquals(emptyList(), hentInntektsmeldingerByOrgNr)
+
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr) }
     }
 
     @Test
@@ -89,7 +148,6 @@ class InntektsmeldingServiceTest {
                 datoTil = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
-        val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
-        assertEquals(InntektsmeldingResponse(0, emptyList()), hentInntektsMeldingByRequest)
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }
     }
 }

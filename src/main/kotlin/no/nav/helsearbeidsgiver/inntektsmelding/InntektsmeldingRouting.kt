@@ -15,22 +15,28 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     post("/inntektsmeldinger") {
-        val params = call.receive<InntektsmeldingRequest>()
-        val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
-        val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
-        logger().info("Received request with params: $params")
-        if (consumerOrgnr != null) {
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
-            inntektsmeldingService
-                .hentInntektsMeldingByRequest(
-                    orgnr = consumerOrgnr,
-                    request = params,
-                ).let {
-                    call.respond(HttpStatusCode.OK, it)
-                }
-        } else {
-            sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-            call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+        try {
+            val params = call.receive<InntektsmeldingRequest>()
+            val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
+            logger().info("Received request with params: $params")
+            if (consumerOrgnr != null) {
+                sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
+                inntektsmeldingService
+                    .hentInntektsMeldingByRequest(
+                        orgnr = consumerOrgnr,
+                        request = params,
+                    ).takeIf { it.antallInntektsmeldinger > 0 }
+                    ?.let {
+                        call.respond(it)
+                    } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+            } else {
+                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
+                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+            }
+        } catch (e: Exception) {
+            sikkerLogger().error("Error while processing request: {}", e)
+            call.respond(HttpStatusCode.InternalServerError, "Error while processing request" + e.message)
         }
     }
 }
@@ -41,7 +47,12 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
         val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
         if (consumerOrgnr != null) {
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
-            call.respond(inntektsmeldingService.hentInntektsmeldingerByOrgNr(consumerOrgnr))
+            inntektsmeldingService
+                .hentInntektsmeldingerByOrgNr(consumerOrgnr)
+                .takeIf { it.antallInntektsmeldinger > 0 }
+                ?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
         } else {
             sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
             call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
