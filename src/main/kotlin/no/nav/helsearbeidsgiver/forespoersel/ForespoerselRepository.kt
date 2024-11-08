@@ -11,18 +11,21 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class ForespoerselRepository(
     private val db: Database,
 ) {
+    private val logger = LoggerFactory.getLogger(ForespoerselRepository::class.java)
+
     fun lagreForespoersel(
         forespoerselId: String,
         payload: ForespoerselDokument,
     ) {
         val f = hentForespoersel(forespoerselId)
         if (f != null) {
-            // TODO: logg noe.. skal ikke prøve å lagre duplikater
+            logger.warn("Duplikat id: $forespoerselId, kan ikke lagre")
             return
         }
         val organisasjonsnummer = payload.orgnr
