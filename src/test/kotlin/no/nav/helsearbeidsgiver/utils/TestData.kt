@@ -28,5 +28,8 @@ object TestData {
         {"@event_name":"TILGANG_FORESPOERSEL_REQUESTED","uuid":"b52d4703-48c9-4ada-bcba-a088f1acab96","forespoerselId":"556d6430-0c43-4dbc-8040-36ba37bfa191","@id":"ce1289a0-1554-4b41-8307-ed2396b59846","@opprettet":"2024-10-23T12:54:03.432888987","system_read_count":0,"system_participating_services":[{"id":"ce1289a0-1554-4b41-8307-ed2396b59846","time":"2024-10-23T12:54:03.432888987","service":"im-forespoersel-besvart","instance":"im-forespoersel-besvart-788d6bdbd-qqrw9","image":"ghcr.io/navikt/helsearbeidsgiver-inntektsmelding/im-forespoersel-besvart:d79b643"}],"@forårsaket_av":{"id":"b584f32a-ca76-481f-8cf1-37c31d51b6f7","opprettet":"2024-10-23T12:54:03.413234137","event_name":"INNTEKTSMELDING_MOTTATT"}}
         """.trimIndent()
 
-    fun forespoerselDokument(orgnr: String, fnr: String) = ForespoerselDokument(orgnr, fnr, UUID.randomUUID(), emptyList(), emptyList())
+    fun forespoerselDokument(
+        orgnr: String,
+        fnr: String,
+    ) = ForespoerselDokument(orgnr, fnr, UUID.randomUUID(), emptyList(), emptyList())
 }
