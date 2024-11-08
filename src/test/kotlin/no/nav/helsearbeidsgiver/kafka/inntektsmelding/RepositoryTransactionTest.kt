@@ -43,7 +43,7 @@ class RepositoryTransactionTest {
                 launch {
                     val forespoerselID = lagreInntektsmelding(im, orgnr, fnr)
                     forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
-                    forespoerselRepository.lagreForespoersel(forespoerselID, orgnr, fnr, forespoerselDokument())
+                    forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(orgnr, "123"))
                     forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
                     forespoerselRepository.settBesvart(forespoerselID)
                     inntektsmeldingRepository.hent(orgnr)

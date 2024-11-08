@@ -18,8 +18,6 @@ class ForespoerselRepository(
 ) {
     fun lagreForespoersel(
         forespoerselId: String,
-        organisasjonsnummer: String,
-        foedselsnr: String,
         payload: ForespoerselDokument,
     ) {
         val f = hentForespoersel(forespoerselId)
@@ -27,6 +25,8 @@ class ForespoerselRepository(
             // TODO: logg noe.. skal ikke prøve å lagre duplikater
             return
         }
+        val organisasjonsnummer = payload.orgnr
+        val foedselsnr = payload.fnr
         val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {

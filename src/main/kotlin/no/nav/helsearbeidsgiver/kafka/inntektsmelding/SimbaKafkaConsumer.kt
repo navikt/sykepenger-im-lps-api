@@ -32,7 +32,7 @@ class SimbaKafkaConsumer(
         val obj = parseRecord(record)
         if (obj == null) {
             sikkerLogger.warn("Ugyldig event mottatt: $record")
-            mottakRepository.opprett(ExposedMottak(record, false))
+            mottakRepository.opprett(ExposedMottak(inntektsMelding = record, gyldig = false))
             return
         }
         try {
@@ -71,8 +71,6 @@ class SimbaKafkaConsumer(
                             if (forespoerselId != null && orgnr != null && fnr != null) {
                                 forespoerselRepository.lagreForespoersel(
                                     forespoerselId = forespoerselId.toString(),
-                                    organisasjonsnummer = orgnr.toString(),
-                                    foedselsnr = fnr,
                                     payload = forespoerselPayload,
                                 )
                                 mottakRepository.opprett(ExposedMottak(record))
