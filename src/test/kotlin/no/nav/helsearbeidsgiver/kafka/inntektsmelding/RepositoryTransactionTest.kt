@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
@@ -42,7 +43,7 @@ class RepositoryTransactionTest {
                 launch {
                     val forespoerselID = lagreInntektsmelding(im, orgnr, fnr)
                     forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
-                    forespoerselRepository.lagreForespoersel(forespoerselID, orgnr, fnr)
+                    forespoerselRepository.lagreForespoersel(forespoerselID, orgnr, fnr, forespoerselDokument())
                     forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
                     forespoerselRepository.settBesvart(forespoerselID)
                     inntektsmeldingRepository.hent(orgnr)

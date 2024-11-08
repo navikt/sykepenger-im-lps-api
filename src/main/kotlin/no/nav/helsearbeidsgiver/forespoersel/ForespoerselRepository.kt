@@ -1,9 +1,11 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -18,12 +20,14 @@ class ForespoerselRepository(
         forespoerselId: String,
         organisasjonsnummer: String,
         foedselsnr: String,
+        payload: ForespoerselDokument,
     ) {
         val f = hentForespoersel(forespoerselId)
         if (f != null) {
             // TODO: logg noe.. skal ikke prøve å lagre duplikater
             return
         }
+        val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {
                 it[this.forespoersel] = forespoerselId
@@ -31,6 +35,7 @@ class ForespoerselRepository(
                 it[fnr] = foedselsnr
                 it[opprettet] = LocalDateTime.now()
                 it[status] = Status.AKTIV
+                it[dokument] = jsonString
             }
         }
     }
@@ -46,6 +51,7 @@ class ForespoerselRepository(
                         orgnr = it[orgnr],
                         fnr = it[fnr],
                         status = it[status],
+                        dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
                     )
                 }.getOrNull(0)
         }
@@ -61,6 +67,7 @@ class ForespoerselRepository(
                         orgnr = it[ForespoerselEntitet.orgnr],
                         fnr = it[fnr],
                         status = it[status],
+                        dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
                     )
                 }
         }
