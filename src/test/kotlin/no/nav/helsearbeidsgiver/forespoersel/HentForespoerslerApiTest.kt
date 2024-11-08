@@ -14,7 +14,8 @@ class HentForespoerslerApiTest :
                 val forespoerselRepo = ForespoerselRepository(db)
                 val orgnr1 = "810007842"
                 val orgnr2 = "810007843"
-                forespoerselRepo.lagreForespoersel("123", forespoerselDokument(orgnr1, "123"))
+                val payload = forespoerselDokument(orgnr1, "123")
+                forespoerselRepo.lagreForespoersel("123", payload)
                 forespoerselRepo.lagreForespoersel("1234", forespoerselDokument(orgnr2, "123"))
                 val response = get("/forespoersler")
                 response.status.value shouldBe 200
@@ -22,6 +23,7 @@ class HentForespoerslerApiTest :
                 forespoerselSvar.size shouldBe 1
                 forespoerselSvar[0].status shouldBe Status.AKTIV
                 forespoerselSvar[0].orgnr shouldBe orgnr1
+                forespoerselSvar[0].dokument shouldBe payload
             }
         }
     })
