@@ -253,10 +253,10 @@ components:
           type: "string"
         fnr:
           type: "string"
-        datoFom:
+        datoFra:
           type: "string"
           format: "date"
-        datoTom:
+        datoTil:
           type: "string"
           format: "date"
 security:
@@ -300,8 +300,8 @@ paths:
             example:
               foresporselid: "UUID til foresporsel"
               fnr: "12345678901"
-              datoFra: "2024-01-01"
-              datoTil: "2024-01-31"
+              datoFra: "2024-01-01T11:00:00"
+              datoTil: "2024-10-30T11:10:22"
       responses:
         "200":
           description: A JSON array of filtered Inntektsmeldinger
