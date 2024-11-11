@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.EventName
@@ -14,8 +15,6 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.jsonMapper
-import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -33,7 +32,7 @@ class SimbaKafkaConsumer(
         val obj = parseRecord(record)
         if (obj == null) {
             sikkerLogger.warn("Ugyldig event mottatt: $record")
-            mottakRepository.opprett(ExposedMottak(record, false))
+            mottakRepository.opprett(ExposedMottak(inntektsMelding = record, gyldig = false))
             return
         }
         try {
@@ -56,23 +55,12 @@ class SimbaKafkaConsumer(
                                     ?.get("forespoerselId")
                                     ?.fromJson(UuidSerializer)
                                     ?.toString()
-                            val orgnr =
-                                obj.data
-                                    ?.get("orgnrUnderenhet")
-                                    ?.fromJson(Orgnr.serializer())
-                                    ?.verdi
-                            val fnr =
-                                obj.data
-                                    ?.get("fnr")
-                                    ?.fromJson(Fnr.serializer())
-                                    ?.verdi
-                            val forespoerselPayload = obj.data?.get("forespoersel")
-                            if (forespoerselId != null && orgnr != null && fnr != null) {
+                            val forespoerselPayload = obj.data?.get("forespoersel")?.fromJson(ForespoerselDokument.serializer())
+
+                            if (forespoerselId != null && forespoerselPayload != null) {
                                 forespoerselRepository.lagreForespoersel(
                                     forespoerselId = forespoerselId.toString(),
-                                    organisasjonsnummer = orgnr.toString(),
-                                    foedselsnr = fnr,
-                                    // dokument = forespoerselPayload
+                                    payload = forespoerselPayload,
                                 )
                                 mottakRepository.opprett(ExposedMottak(record))
                             } else {

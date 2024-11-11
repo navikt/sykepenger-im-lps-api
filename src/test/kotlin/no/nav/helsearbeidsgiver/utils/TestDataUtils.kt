@@ -32,7 +32,7 @@ fun buildInntektsmeldingJson(
 }
 
 fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
-    val filePath = "forespoersel_mottatt.json"
+    val filePath = "forespoersel.json"
     return readJsonFromResources(filePath).replace(
         FORESPOERSELID,
         forespoerselId,

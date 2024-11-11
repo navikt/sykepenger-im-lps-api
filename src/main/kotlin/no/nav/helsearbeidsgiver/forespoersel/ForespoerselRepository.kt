@@ -1,29 +1,36 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class ForespoerselRepository(
     private val db: Database,
 ) {
+    private val logger = LoggerFactory.getLogger(ForespoerselRepository::class.java)
+
     fun lagreForespoersel(
         forespoerselId: String,
-        organisasjonsnummer: String,
-        foedselsnr: String,
+        payload: ForespoerselDokument,
     ) {
         val f = hentForespoersel(forespoerselId)
         if (f != null) {
-            // TODO: logg noe.. skal ikke prøve å lagre duplikater
+            logger.warn("Duplikat id: $forespoerselId, kan ikke lagre")
             return
         }
+        val organisasjonsnummer = payload.orgnr
+        val foedselsnr = payload.fnr
+        val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {
                 it[this.forespoersel] = forespoerselId
@@ -31,6 +38,7 @@ class ForespoerselRepository(
                 it[fnr] = foedselsnr
                 it[opprettet] = LocalDateTime.now()
                 it[status] = Status.AKTIV
+                it[dokument] = jsonString
             }
         }
     }
@@ -39,13 +47,14 @@ class ForespoerselRepository(
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
-                .where { ForespoerselEntitet.forespoersel eq forespoerselId }
+                .where { forespoersel eq forespoerselId }
                 .map {
                     Forespoersel(
                         forespoerselId = it[forespoersel],
                         orgnr = it[orgnr],
                         fnr = it[fnr],
                         status = it[status],
+                        dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
                     )
                 }.getOrNull(0)
         }
@@ -61,6 +70,7 @@ class ForespoerselRepository(
                         orgnr = it[ForespoerselEntitet.orgnr],
                         fnr = it[fnr],
                         status = it[status],
+                        dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
                     )
                 }
         }
@@ -76,7 +86,7 @@ class ForespoerselRepository(
         transaction(db) {
             ForespoerselEntitet.update(
                 where = {
-                    (ForespoerselEntitet.forespoersel eq forespoerselId)
+                    (forespoersel eq forespoerselId)
                 },
             ) {
                 it[ForespoerselEntitet.status] = status
