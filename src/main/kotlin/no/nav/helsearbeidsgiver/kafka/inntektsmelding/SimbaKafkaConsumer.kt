@@ -36,7 +36,7 @@ class SimbaKafkaConsumer(
             return
         }
         try {
-            logger.info("Received event: ${obj.eventname}")
+            sikkerLogger.info("Received event: ${obj.eventname}")
 
             when (obj.eventname) {
                 EventName.INNTEKTSMELDING_DISTRIBUERT.toString() -> {
@@ -44,7 +44,7 @@ class SimbaKafkaConsumer(
                         inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                         mottakRepository.opprett(ExposedMottak(record))
                     } else {
-                        logger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
+                        sikkerLogger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
                     }
                 }
                 EventName.FORESPOERSEL_MOTTATT.toString() -> {
@@ -64,7 +64,7 @@ class SimbaKafkaConsumer(
                                 )
                                 mottakRepository.opprett(ExposedMottak(record))
                             } else {
-                                logger.warn("Ugyldige verdier, kan ikke lagre!")
+                                sikkerLogger.warn("Ugyldige verdier, kan ikke lagre!")
                             }
                         }
                     }
@@ -79,7 +79,7 @@ class SimbaKafkaConsumer(
                 }
             }
         } catch (e: Exception) {
-            logger.warn("feil - $e")
+            sikkerLogger.warn("feil - $e")
         }
     }
 
@@ -87,26 +87,26 @@ class SimbaKafkaConsumer(
         try {
             return jsonMapper.decodeFromString<RapidMessage>(record)
         } catch (e: IllegalArgumentException) {
-            logger.error("Failed to handle record", e)
+            sikkerLogger.error("Failed to handle record", e)
             return null
         }
     }
 
     private fun settForkastet(forespoerselId: String) {
         if (forespoerselId.isEmpty()) {
-            logger.warn("ingen forespørselID")
+            sikkerLogger.warn("ingen forespørselID")
         } else {
             val antall = forespoerselRepository.settForkastet(forespoerselId)
-            logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
+            sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
         }
     }
 
     private fun settBesvart(forespoerselId: String) {
         if (forespoerselId.isEmpty()) {
-            logger.warn("ingen forespørselID")
+            sikkerLogger.warn("ingen forespørselID")
         } else {
             val antall = forespoerselRepository.settBesvart(forespoerselId)
-            logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
+            sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
         }
     }
 
