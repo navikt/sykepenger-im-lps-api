@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.junit.jupiter.api.Test
@@ -25,11 +26,7 @@ class InntektsmeldingServiceTest {
             )
         every {
             inntektsmeldingRepository.opprett(
-                im =
-                    jsonMapper.encodeToString(
-                        Inntektsmelding.serializer(),
-                        inntektsmelding,
-                    ),
+                im = inntektsmelding,
                 org = inntektsmelding.avsender.orgnr.verdi,
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
                 innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
@@ -41,11 +38,7 @@ class InntektsmeldingServiceTest {
 
         verify {
             inntektsmeldingRepository.opprett(
-                im =
-                    jsonMapper.encodeToString(
-                        Inntektsmelding.serializer(),
-                        inntektsmelding,
-                    ),
+                im = inntektsmelding,
                 org = inntektsmelding.avsender.orgnr.verdi,
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
                 innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
@@ -61,7 +54,7 @@ class InntektsmeldingServiceTest {
         val innsendt = LocalDateTime.now()
         val mottattEvent = LocalDateTime.now()
         val foresporselid = UUID.randomUUID().toString()
-        val dokument = "dokument"
+        val dokument = buildInntektsmelding()
         every { inntektsmeldingRepository.hent(orgnr) } returns
             listOf(
                 Inntektsmelding(
@@ -105,7 +98,7 @@ class InntektsmeldingServiceTest {
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
                 Inntektsmelding(
-                    dokument = "dokument",
+                    dokument = buildInntektsmelding(),
                     orgnr = orgnr,
                     fnr = fnr,
                     foresporselid = foresporselid,

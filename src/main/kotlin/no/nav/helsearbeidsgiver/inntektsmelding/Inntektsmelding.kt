@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 @Serializable
 data class Inntektsmelding(
-    val dokument: String,
+    val dokument: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
     val orgnr: String,
     val fnr: String,
     val foresporselid: String?,

@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
-import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
+import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
@@ -17,7 +17,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `opprett should insert a ny inntektsmelding`() {
         val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
@@ -33,7 +33,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr`() {
         val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
@@ -56,7 +56,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr and request`() {
         val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
@@ -120,7 +120,7 @@ class InntektsmeldingRepositoryTest {
         innsendtDato: LocalDateTime,
         forespoerselId: String,
     ) {
-        val inntektsmeldingJson = buildInntektsmeldingJson(forespoerselId)
+        val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
         repository.opprett(
             inntektsmeldingJson,
             org,
