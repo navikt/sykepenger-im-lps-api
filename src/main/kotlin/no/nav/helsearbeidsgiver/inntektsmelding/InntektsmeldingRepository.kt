@@ -21,7 +21,7 @@ class InntektsmeldingRepository(
     private val db: Database,
 ) {
     fun opprett(
-        im: String,
+        im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
         org: String,
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,

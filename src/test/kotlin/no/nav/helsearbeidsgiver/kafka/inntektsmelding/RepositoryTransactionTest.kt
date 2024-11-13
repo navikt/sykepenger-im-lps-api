@@ -7,8 +7,11 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
+import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,51 +28,40 @@ class RepositoryTransactionTest {
 
     @Test
     fun handleRecord() {
-        val orgnr = "999999999"
-        val fnr = "99999999999"
         // Simuler flere samtidige http-klientkall (hent/les) og diverse innkommende kafka-meldinger (opprett/skriv)
         runBlocking {
-            val im = readJsonFromResources("im.json")
             val event =
                 readJsonFromResources(
                     "inntektsmelding_distribuert.json",
                 ).replace("%%%FORESPORSELID%%%", UUID.randomUUID().toString())
             for (i in 1..100) {
                 launch {
-                    inntektsmeldingRepository.hent(orgnr)
+                    inntektsmeldingRepository.hent(DEFAULT_ORG)
                     mottakRepository.opprett(ExposedMottak(event))
-                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
                 }
                 launch {
-                    val forespoerselID = lagreInntektsmelding(im, orgnr, fnr)
-                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
-                    forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(orgnr, "123"))
-                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+                    val forespoerselID = lagreInntektsmelding()
+                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
+                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
                     forespoerselRepository.settBesvart(forespoerselID)
-                    inntektsmeldingRepository.hent(orgnr)
+                    inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
                 launch {
-                    forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
-                    inntektsmeldingRepository.hent(orgnr)
+                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
             }
         }
-        assertEquals(100, forespoerselRepository.hentForespoerslerForOrgnr(orgnr).count())
-        assertEquals(100, inntektsmeldingRepository.hent(orgnr).count())
+        assertEquals(100, forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG).count())
+        assertEquals(100, inntektsmeldingRepository.hent(DEFAULT_ORG).count())
     }
 
-    fun lagreInntektsmelding(
-        im: String,
-        orgnr: String,
-        fnr: String,
-    ): String {
+    fun lagreInntektsmelding(): String {
         val forespoerselID = UUID.randomUUID().toString()
-        val generert =
-            im
-                .replace("%%%FORESPORSELID%%%", forespoerselID)
-                .replace("%%%ORGNR%%%", orgnr)
-                .replace("%%%SYKMELDT%%%", fnr)
-        inntektsmeldingRepository.opprett(generert, orgnr, fnr, LocalDateTime.now(), forespoerselID)
+        val generert = buildInntektsmelding(forespoerselID)
+        inntektsmeldingRepository.opprett(generert, DEFAULT_ORG, DEFAULT_FNR, LocalDateTime.now(), forespoerselID)
         return forespoerselID
     }
 }
