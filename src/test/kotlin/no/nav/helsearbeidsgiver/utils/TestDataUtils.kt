@@ -7,16 +7,10 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import java.io.File
 import java.util.UUID
 
-fun readJsonFromResources(fileName: String): String {
-    val resource = KafkaProducer::class.java.getResource("/$fileName")
-    return File(resource!!.toURI()).readText(Charsets.UTF_8)
-}
-
 private const val FORESPOERSELID = "%%%FORESPOERSELID%%%"
-
 private const val SYKMELDT_FNR = "%%%SYKMELDT%%%"
-
 private const val ORGNUMMER = "%%%ORGNR%%%"
+
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "732812083"
 
@@ -52,4 +46,9 @@ fun buildInntektsmeldingDistribuertJson(forespoerselId: String = UUID.randomUUID
         FORESPOERSELID,
         forespoerselId,
     )
+}
+
+fun readJsonFromResources(fileName: String): String {
+    val resource = KafkaProducer::class.java.getResource("/$fileName")
+    return File(resource!!.toURI()).readText(Charsets.UTF_8)
 }
