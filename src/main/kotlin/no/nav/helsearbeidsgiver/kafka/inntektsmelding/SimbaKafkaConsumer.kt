@@ -29,6 +29,7 @@ class SimbaKafkaConsumer(
     override fun handleRecord(record: String) {
         // TODO: gjør dette i en transaksjon og gjør det skikkelig..
         // transaction {
+        sikkerLogger.debug("Mottatt event: $record")
         val obj = parseRecord(record)
         if (obj == null) {
             sikkerLogger.warn("Ugyldig event mottatt: $record")
