@@ -1,10 +1,8 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.kafka.EventName
 import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -29,18 +27,8 @@ class ImKafkaConsumer(
             return
         }
         try {
-            sikkerLogger.info("Received event: ${obj.eventname}")
-
-            when (obj.eventname) {
-                EventName.INNTEKTSMELDING_DISTRIBUERT.toString() -> {
-                    if (obj.inntektsmelding != null) {
-                        inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
-                        mottakRepository.opprett(ExposedMottak(record))
-                    } else {
-                        sikkerLogger.warn("Ugyldig event - mangler felt inntektsmelding, kan ikke lagre")
-                    }
-                }
-            }
+            inntektsmeldingService.opprettInntektsmelding(obj.inntektsmeldingV1)
+            mottakRepository.opprett(ExposedMottak(record))
         } catch (e: Exception) {
             sikkerLogger.warn("feil - $e")
         }
@@ -57,7 +45,7 @@ class ImKafkaConsumer(
 
     @Serializable
     data class ImMessage(
-        @SerialName("@event_name") val eventname: String,
-        val inntektsmelding: Inntektsmelding? = null,
+        val journalpostId: String,
+        val inntektsmeldingV1: Inntektsmelding,
     )
 }
