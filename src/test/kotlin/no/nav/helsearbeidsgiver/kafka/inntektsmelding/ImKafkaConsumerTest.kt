@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -15,30 +14,29 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TransactionalExtension::class)
-class SimbaKafkaConsumerTest {
+class ImKafkaConsumerTest {
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
-    val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
-    val simbaKafkaConsumer = SimbaKafkaConsumer(inntektsmeldingService, forespoerselRepository, mottakRepository)
+    val imKafkaConsumer = ImKafkaConsumer(inntektsmeldingService, mottakRepository)
 
     @Test
     fun kunLagreEventerSomMatcher() {
         // Test at kjente payloads ikke kræsjer:
-        simbaKafkaConsumer.handleRecord(payload)
-        simbaKafkaConsumer.handleRecord(payload2)
-        simbaKafkaConsumer.handleRecord(payload3)
-        simbaKafkaConsumer.handleRecord(payload4)
+        imKafkaConsumer.handleRecord(payload)
+        imKafkaConsumer.handleRecord(payload2)
+        imKafkaConsumer.handleRecord(payload3)
+        imKafkaConsumer.handleRecord(payload4)
 
         // Skal ikke lagre:
-        simbaKafkaConsumer.handleRecord(ikkeAktuellPayload)
+        imKafkaConsumer.handleRecord(ikkeAktuellPayload)
     }
 
     @Test
     fun duplikat() {
-        simbaKafkaConsumer.handleRecord(payload)
-        simbaKafkaConsumer.handleRecord(payload)
+        imKafkaConsumer.handleRecord(payload)
+        imKafkaConsumer.handleRecord(payload)
     }
 
     @Test

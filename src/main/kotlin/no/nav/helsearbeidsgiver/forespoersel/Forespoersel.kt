@@ -27,9 +27,16 @@ enum class Status {
 
 @Serializable
 data class ForespoerselDokument(
+    val type: Type,
     val orgnr: String,
     val fnr: String,
     val vedtaksperiodeId: UUID,
+    val forespoerselId: UUID,
     val sykmeldingsperioder: List<Periode>,
     val egenmeldingsperioder: List<Periode>,
 )
+
+enum class Type {
+    KOMPLETT,
+    BEGRENSET,
+}
