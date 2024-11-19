@@ -18,7 +18,7 @@ class ForespoerselKafkaConsumer(
 
     override fun handleRecord(record: String) {
         // transaction {
-        sikkerLogger.debug("Mottatt event: $record")
+        sikkerLogger.info("Mottatt event: $record")
         val obj = parseRecord(record)
         if (obj == null) {
             sikkerLogger.warn("Ugyldig event mottatt: $record")

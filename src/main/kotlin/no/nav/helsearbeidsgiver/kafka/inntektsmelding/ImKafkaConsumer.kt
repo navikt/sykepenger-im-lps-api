@@ -13,13 +13,12 @@ class ImKafkaConsumer(
     private val inntektsmeldingService: InntektsmeldingService,
     private val mottakRepository: MottakRepository,
 ) : LpsKafkaConsumer {
-    private val logger = LoggerFactory.getLogger(ImKafkaConsumer::class.java)
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
     override fun handleRecord(record: String) {
         // TODO: gjør dette i en transaksjon og gjør det skikkelig..
         // transaction {
-        sikkerLogger.debug("Mottatt event: $record")
+        sikkerLogger.info("Mottatt event: $record")
         val obj = parseRecord(record)
         if (obj == null) {
             sikkerLogger.warn("Ugyldig event mottatt: $record")
