@@ -33,3 +33,14 @@ data class ForespoerselDokument(
     val sykmeldingsperioder: List<Periode>,
     val egenmeldingsperioder: List<Periode>,
 )
+
+data class ForespoerselRequest(
+    val fnr: String?,
+    val forespoerselId: String?,
+    val status: Status?,
+)
+
+data class ForespoerselResponse(
+    val antallForespoersler: Int,
+    val forespoerseler: List<Forespoersel>,
+)

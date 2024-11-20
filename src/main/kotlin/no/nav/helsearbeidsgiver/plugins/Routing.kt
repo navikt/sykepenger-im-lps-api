@@ -5,6 +5,7 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.forespoersel.filtererForespoersler
 import no.nav.helsearbeidsgiver.forespoersel.forespoersler
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.filtrerInntektsmeldinger
@@ -19,8 +20,9 @@ fun Application.configureRouting(
 
         authenticate("validToken") {
             filtrerInntektsmeldinger(inntektsmeldingService)
-            forespoersler(forespoerselService)
             inntektsmeldinger(inntektsmeldingService)
+            forespoersler(forespoerselService)
+            filtererForespoersler(forespoerselService)
         }
     }
 }

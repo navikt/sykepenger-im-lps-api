@@ -7,6 +7,9 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -49,13 +52,7 @@ class ForespoerselRepository(
                 .selectAll()
                 .where { forespoersel eq forespoerselId }
                 .map {
-                    Forespoersel(
-                        forespoerselId = it[forespoersel],
-                        orgnr = it[orgnr],
-                        fnr = it[fnr],
-                        status = it[status],
-                        dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
-                    )
+                    it.toExposedforespoersel()
                 }.getOrNull(0)
         }
 
@@ -72,6 +69,23 @@ class ForespoerselRepository(
                         status = it[status],
                         dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
                     )
+                }
+        }
+
+    fun filtrerForespoersler(
+        consumerOrgnr: String,
+        request: ForespoerselRequest,
+    ): List<Forespoersel> =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (orgnr eq consumerOrgnr) and
+                        (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
+                        (if (request.forespoerselId != null) forespoersel eq request.forespoerselId else Op.TRUE) and
+                        (if (request.status != null) status eq request.status else Op.TRUE)
+                }.map {
+                    it.toExposedforespoersel()
                 }
         }
 
@@ -92,4 +106,13 @@ class ForespoerselRepository(
                 it[ForespoerselEntitet.status] = status
             }
         }
+
+    private fun ResultRow.toExposedforespoersel() =
+        Forespoersel(
+            forespoerselId = this[forespoersel],
+            orgnr = this[orgnr],
+            fnr = this[fnr],
+            status = this[status],
+            dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument]),
+        )
 }
