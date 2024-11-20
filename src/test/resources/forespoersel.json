@@ -1,14 +1,14 @@
 {
   "notis": "FORESPØRSEL_MOTTATT",
-  "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
-  "orgnr": "810007982",
+  "forespoerselId": "%%%FORESPOERSELID%%%",
+  "orgnr": "810007842",
   "fnr": "01447842099",
   "skal_ha_paaminnelse": true,
   "forespoersel": {
     "type": "KOMPLETT",
-    "orgnr": "810007982",
+    "orgnr": "810007842",
     "fnr": "01447842099",
-    "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
+    "forespoerselId": "%%%FORESPOERSELID%%%",
     "vedtaksperiodeId": "70aeba59-ebe1-4e26-bf48-23765e037078",
     "egenmeldingsperioder": [],
     "sykmeldingsperioder": [
