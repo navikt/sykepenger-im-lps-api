@@ -54,8 +54,15 @@ class ForespoerselKafkaConsumer(
                     settForkastet(obj.forespoerselId.toString())
                     mottakRepository.opprett(ExposedMottak(record))
                 }
-                NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> TODO()
-                null -> TODO()
+                NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
+                    // TODO:: Skal vi håndtere kastet til infotrygd?
+                    sikkerLogger.info("Forespørsel kastet til infotrygd - håndteres ikke")
+                    mottakRepository.opprett(ExposedMottak(record, false))
+                }
+                null -> {
+                    sikkerLogger.error("Ikke gyldig payload")
+                    mottakRepository.opprett(ExposedMottak(record, false))
+                }
             }
         } catch (e: Exception) {
             sikkerLogger.warn("feil - $e")
@@ -91,7 +98,6 @@ class ForespoerselKafkaConsumer(
 
     @Serializable
     data class PriMessage(
-        @SerialName("@behov") val behov: String? = null, // TODO: kan slettes?
         @SerialName("notis") val notis: NotisType? = null,
         @SerialName("forespoersel") val forespoersel: ForespoerselDokument? = null,
         @SerialName("forespoerselId") val forespoerselId: String? = null,

@@ -5,14 +5,61 @@ import no.nav.helsearbeidsgiver.forespoersel.Type
 import java.util.UUID
 
 object TestData {
-    val payload = """
-            {"@event_name":"FORESPOERSEL_MOTTATT","uuid":"9c87f626-fe80-4618-ad37-f7e6a7026bc7","data":{"forespoerselId":"556d6430-0c43-4dbc-8040-36ba37bfa191","orgnrUnderenhet":"810007842","fnr":"22518249472","skal_ha_paaminnelse":true, "forespoersel":{"orgnr":"810007982","fnr":"01447842099","vedtaksperiodeId":"d707c782-ec1a-46a0-9a64-e5405810ad19","sykmeldingsperioder":[{"fom":"2024-09-18","tom":"2024-09-30"},{"fom":"2024-10-03","tom":"2024-10-10"}],"egenmeldingsperioder":[],"bestemmendeFravaersdager":{"810007982":"2024-10-03"},"forespurtData":{"arbeidsgiverperiode":{"paakrevd":true},"inntekt":{"paakrevd":true,"forslag":{"type":"ForslagInntektGrunnlag","forrigeInntekt":null}},"refusjon":{"paakrevd":true,"forslag":{"perioder":[],"opphoersdato":null}}},"erBesvart":false}},"@id":"44df174f-3496-485d-ae3a-517b532aee70","@opprettet":"2024-10-23T12:52:56.081140841","system_read_count":0,"system_participating_services":[{"id":"44df174f-3496-485d-ae3a-517b532aee70","time":"2024-10-23T12:52:56.081140841","service":"im-forespoersel-mottatt","instance":"im-forespoersel-mottatt-58f979bbff-rbdst","image":"ghcr.io/navikt/helsearbeidsgiver-inntektsmelding/im-forespoersel-mottatt:d79b643"}],"@forårsaket_av":{"id":"67b446f5-167f-4167-a590-91df7fccd66b","opprettet":"2024-10-23T12:52:56.077268111"}}
+    const val FORESPOERSEL_MOTTATT = """
+    {
+    "notis": "FORESPØRSEL_MOTTATT",
+    "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
+    "orgnr": "810007982",
+    "fnr": "01447842099",
+    "skal_ha_paaminnelse": true,
+    "forespoersel": {
+        "type": "KOMPLETT",
+        "orgnr": "810007982",
+        "fnr": "01447842099",
+        "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
+        "vedtaksperiodeId": "70aeba59-ebe1-4e26-bf48-23765e037078",
+        "egenmeldingsperioder": [],
+        "sykmeldingsperioder": [
+            {
+                "fom": "2024-08-01",
+                "tom": "2024-08-31"
+            }
+        ],
+        "bestemmendeFravaersdager": {
+            "810007982": "2024-08-01"
+        },
+        "forespurtData": {
+            "arbeidsgiverperiode": {
+                "paakrevd": true
+            },
+            "inntekt": {
+                "paakrevd": true,
+                "forslag": {
+                    "type": "ForslagInntektGrunnlag",
+                    "forrigeInntekt": null
+                }
+            },
+            "refusjon": {
+                "paakrevd": true,
+                "forslag": {
+                    "perioder": [],
+                    "opphoersdato": null
+                }
+            }
+        },
+        "erBesvart": false
+    }
+}
         """
 
-    val payload2 =
+    const val FORESPOERSEL_BESVART =
         """
-        {"@event_name":"FORESPOERSEL_BESVART","uuid":"b52d4703-48c9-4ada-bcba-a088f1acab96","forespoerselId":"556d6430-0c43-4dbc-8040-36ba37bfa191","@id":"ce1289a0-1554-4b41-8307-ed2396b59846","@opprettet":"2024-10-23T12:54:03.432888987","system_read_count":0,"system_participating_services":[{"id":"ce1289a0-1554-4b41-8307-ed2396b59846","time":"2024-10-23T12:54:03.432888987","service":"im-forespoersel-besvart","instance":"im-forespoersel-besvart-788d6bdbd-qqrw9","image":"ghcr.io/navikt/helsearbeidsgiver-inntektsmelding/im-forespoersel-besvart:d79b643"}],"@forårsaket_av":{"id":"b584f32a-ca76-481f-8cf1-37c31d51b6f7","opprettet":"2024-10-23T12:54:03.413234137","event_name":"INNTEKTSMELDING_MOTTATT"}}
-        """.trimIndent()
+        {
+            "notis": "FORESPOERSEL_BESVART",
+            "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
+            "spinnInntektsmeldingId": "329da7e0-ae51-4d26-a5e6-d70adb83aa16"
+        }
+        """
 
     val payload3 =
         """

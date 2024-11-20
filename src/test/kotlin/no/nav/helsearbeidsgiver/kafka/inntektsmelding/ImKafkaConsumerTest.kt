@@ -4,9 +4,9 @@ import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
+import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.ikkeAktuellPayload
-import no.nav.helsearbeidsgiver.utils.TestData.payload
-import no.nav.helsearbeidsgiver.utils.TestData.payload2
 import no.nav.helsearbeidsgiver.utils.TestData.payload3
 import no.nav.helsearbeidsgiver.utils.TestData.payload4
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
@@ -24,8 +24,8 @@ class ImKafkaConsumerTest {
     @Test
     fun kunLagreEventerSomMatcher() {
         // Test at kjente payloads ikke kræsjer:
-        imKafkaConsumer.handleRecord(payload)
-        imKafkaConsumer.handleRecord(payload2)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_MOTTATT)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_BESVART)
         imKafkaConsumer.handleRecord(payload3)
         imKafkaConsumer.handleRecord(payload4)
 
@@ -35,8 +35,8 @@ class ImKafkaConsumerTest {
 
     @Test
     fun duplikat() {
-        imKafkaConsumer.handleRecord(payload)
-        imKafkaConsumer.handleRecord(payload)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_MOTTATT)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_MOTTATT)
     }
 
     @Test
