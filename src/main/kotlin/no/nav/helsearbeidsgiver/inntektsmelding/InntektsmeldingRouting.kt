@@ -10,7 +10,6 @@ import io.ktor.server.routing.post
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSupplierOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
@@ -19,7 +18,7 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
             val params = call.receive<InntektsmeldingRequest>()
             val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
             val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
-            logger().info("Received request with params: $params")
+            sikkerLogger().info("Received request with params: $params")
             if (consumerOrgnr != null) {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
                 inntektsmeldingService
