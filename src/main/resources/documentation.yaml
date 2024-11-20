@@ -112,7 +112,7 @@ components:
         dokument:
           $ref: "#/components/schemas/ForespoerselDokument"
 
-        description: "Status på forespørsel om inntektsmelding. AKTIV = Nav venter på inntektsmelding, MOTTATT = Nav har mottatt, FORKASTET = Nav trenger ikke lenger inntektsmelding. 
+      description: "Status på forespørsel om inntektsmelding. AKTIV = Nav venter på inntektsmelding, MOTTATT = Nav har mottatt, FORKASTET = Nav trenger ikke lenger inntektsmelding. 
           Merk at status ikke alltid oppdateres umiddelbart til MOTTATT etter innsending, dette kan ta inntil en time."
     Type:
       type: "object"
