@@ -9,6 +9,8 @@ import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -77,12 +79,13 @@ class ForespoerselRepository(
         request: ForespoerselRequest,
     ): List<Forespoersel> =
         transaction(db) {
+            addLogger(StdOutSqlLogger)
             ForespoerselEntitet
                 .selectAll()
                 .where {
                     (orgnr eq consumerOrgnr) and
-                        (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.forespoerselId != null) forespoersel eq request.forespoerselId else Op.TRUE) and
+                        (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
+                        (if (!request.forespoerselId.isNullOrBlank()) forespoersel eq request.forespoerselId else Op.TRUE) and
                         (if (request.status != null) status eq request.status else Op.TRUE)
                 }.map {
                     it.toExposedforespoersel()

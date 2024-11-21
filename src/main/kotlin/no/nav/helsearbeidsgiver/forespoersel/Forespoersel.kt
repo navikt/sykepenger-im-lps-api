@@ -19,6 +19,7 @@ data class Forespoersel(
     val dokument: ForespoerselDokument,
 )
 
+@Serializable
 enum class Status {
     AKTIV,
     MOTTATT,
@@ -34,12 +35,14 @@ data class ForespoerselDokument(
     val egenmeldingsperioder: List<Periode>,
 )
 
+@Serializable
 data class ForespoerselRequest(
-    val fnr: String?,
-    val forespoerselId: String?,
-    val status: Status?,
+    val fnr: String? = null,
+    val forespoerselId: String? = null,
+    val status: Status? = null,
 )
 
+@Serializable
 data class ForespoerselResponse(
     val antallForespoersler: Int,
     val forespoerseler: List<Forespoersel>,
