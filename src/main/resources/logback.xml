@@ -20,7 +20,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
     <root level="INFO">
-        <appender-ref ref="STDOUT_TEXT"/>
+        <appender-ref ref="STDOUT"/>
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
