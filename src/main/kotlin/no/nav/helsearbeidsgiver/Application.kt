@@ -14,7 +14,8 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.kafka.inntektsmelding.SimbaKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.inntektsmelding.ImKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.plugins.configureRouting
@@ -42,8 +43,16 @@ fun Application.module() {
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
-                SimbaKafkaConsumer(
+                ImKafkaConsumer(
                     inntektsmeldingService,
+                    mottakRepository,
+                ),
+            )
+        }
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                Env.getProperty("kafkaConsumer.forespoersel.topic"),
+                ForespoerselKafkaConsumer(
                     forespoerselRepository,
                     mottakRepository,
                 ),

@@ -109,7 +109,10 @@ components:
             - AKTIV
             - MOTTATT
             - FORKASTET
-          description: "Status på forespørsel om inntektsmelding. AKTIV = Nav venter på inntektsmelding, MOTTATT = Nav har mottatt, FORKASTET = Nav trenger ikke lenger inntektsmelding. 
+        dokument:
+          $ref: "#/components/schemas/ForespoerselDokument"
+
+      description: "Status på forespørsel om inntektsmelding. AKTIV = Nav venter på inntektsmelding, MOTTATT = Nav har mottatt, FORKASTET = Nav trenger ikke lenger inntektsmelding. 
           Merk at status ikke alltid oppdateres umiddelbart til MOTTATT etter innsending, dette kan ta inntil en time."
     Type:
       type: "object"
@@ -208,6 +211,27 @@ components:
           format: "date"
       required:
         - "startdato"
+    ForespoerselDokument:
+      type: "object"
+      properties:
+        forespoerselId:
+          type: "string"
+          format: "uuid"
+        orgnr:
+          type: "string"
+        fnr:
+          type: "string"
+        vedtaksperiodeId:
+          type: "string"
+          format: "uuid"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
     Inntektsmelding:
       type: "object"
       properties:

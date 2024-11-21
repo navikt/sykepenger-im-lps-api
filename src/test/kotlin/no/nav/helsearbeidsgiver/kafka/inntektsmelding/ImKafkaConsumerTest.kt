@@ -1,44 +1,42 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
-import no.nav.helsearbeidsgiver.utils.TestData.ikkeAktuellPayload
-import no.nav.helsearbeidsgiver.utils.TestData.payload
-import no.nav.helsearbeidsgiver.utils.TestData.payload2
-import no.nav.helsearbeidsgiver.utils.TestData.payload3
-import no.nav.helsearbeidsgiver.utils.TestData.payload4
+import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
+import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TransactionalExtension::class)
-class SimbaKafkaConsumerTest {
+class ImKafkaConsumerTest {
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
-    val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
-    val simbaKafkaConsumer = SimbaKafkaConsumer(inntektsmeldingService, forespoerselRepository, mottakRepository)
+    val imKafkaConsumer = ImKafkaConsumer(inntektsmeldingService, mottakRepository)
 
     @Test
     fun kunLagreEventerSomMatcher() {
         // Test at kjente payloads ikke kræsjer:
-        simbaKafkaConsumer.handleRecord(payload)
-        simbaKafkaConsumer.handleRecord(payload2)
-        simbaKafkaConsumer.handleRecord(payload3)
-        simbaKafkaConsumer.handleRecord(payload4)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_MOTTATT)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_BESVART)
+        imKafkaConsumer.handleRecord(IM_MOTTATT)
+        imKafkaConsumer.handleRecord(ARBEIDSGIVER_INITIERT_IM_MOTTATT)
 
         // Skal ikke lagre:
-        simbaKafkaConsumer.handleRecord(ikkeAktuellPayload)
+        imKafkaConsumer.handleRecord(SIMBA_PAYLOAD)
     }
 
     @Test
     fun duplikat() {
-        simbaKafkaConsumer.handleRecord(payload)
-        simbaKafkaConsumer.handleRecord(payload)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_MOTTATT)
+        imKafkaConsumer.handleRecord(FORESPOERSEL_MOTTATT)
     }
 
     @Test

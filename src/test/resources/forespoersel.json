@@ -1,1 +1,44 @@
-{"@event_name":"FORESPOERSEL_MOTTATT","uuid":"ff4aa434-79f1-4d2e-95be-b35f6dcb5093","data":{"forespoerselId":"3a7eec35-3540-44fd-8af2-91a0eb0e42db","forespoersel":{"orgnr":"810007842","fnr":"01447842099","vedtaksperiodeId":"2a692943-fdf4-4207-a66d-8d5370bbd89c","sykmeldingsperioder":[{"fom":"2024-07-01","tom":"2024-07-31"}],"egenmeldingsperioder":[],"bestemmendeFravaersdager":{"810007982":"2024-07-01"},"forespurtData":{"arbeidsgiverperiode":{"paakrevd":true},"inntekt":{"paakrevd":true,"forslag":{"type":"ForslagInntektGrunnlag","forrigeInntekt":null}},"refusjon":{"paakrevd":true,"forslag":{"perioder":[],"opphoersdato":null}}},"erBesvart":false},"skal_ha_paaminnelse":true,"orgnr_underenheter":["810007982"],"virksomheter":{"810007982":"ANSTENDIG PIGGSVIN SYKEHJEM"},"fnr_liste":["01447842099"],"personer":{"01447842099":{"fnr":"01447842099","navn":"KONKURRANSEDYKTIG HANDLINGSROM"}}},"@id":"aa99e610-90f3-4412-a019-a3abee5a6623","@opprettet":"2024-11-08T09:49:02.521120405","system_read_count":0,"system_participating_services":[{"id":"aa99e610-90f3-4412-a019-a3abee5a6623","time":"2024-11-08T09:49:02.521120405","service":"im-pdl","instance":"im-pdl-c77d4b47-4tf6k","image":"ghcr.io/navikt/helsearbeidsgiver-inntektsmelding/im-pdl:c0d8052"}],"@forårsaket_av":{"id":"373cbfa6-975c-455f-8b71-b526484216ad","opprettet":"2024-11-08T09:49:02.112447308","event_name":"FORESPOERSEL_MOTTATT"}}
+{
+  "notis": "FORESPØRSEL_MOTTATT",
+  "forespoerselId": "%%%FORESPOERSELID%%%",
+  "orgnr": "810007842",
+  "fnr": "01447842099",
+  "skal_ha_paaminnelse": true,
+  "forespoersel": {
+    "type": "KOMPLETT",
+    "orgnr": "810007842",
+    "fnr": "01447842099",
+    "forespoerselId": "%%%FORESPOERSELID%%%",
+    "vedtaksperiodeId": "70aeba59-ebe1-4e26-bf48-23765e037078",
+    "egenmeldingsperioder": [],
+    "sykmeldingsperioder": [
+      {
+        "fom": "2024-08-01",
+        "tom": "2024-08-31"
+      }
+    ],
+    "bestemmendeFravaersdager": {
+      "810007982": "2024-08-01"
+    },
+    "forespurtData": {
+      "arbeidsgiverperiode": {
+        "paakrevd": true
+      },
+      "inntekt": {
+        "paakrevd": true,
+        "forslag": {
+          "type": "ForslagInntektGrunnlag",
+          "forrigeInntekt": null
+        }
+      },
+      "refusjon": {
+        "paakrevd": true,
+        "forslag": {
+          "perioder": [],
+          "opphoersdato": null
+        }
+      }
+    },
+    "erBesvart": false
+  }
+}

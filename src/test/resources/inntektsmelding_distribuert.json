@@ -1,8 +1,6 @@
 {
-  "@event_name": "INNTEKTSMELDING_DISTRIBUERT",
-  "uuid": "e842491c-d717-4ca3-b3f1-b81ef75c4739",
-  "journalpostId": "671159009",
-  "inntektsmelding": {
+  "journalpostId":"671166582",
+  "inntektsmeldingV1": {
     "id": "69297657-fdbe-451b-b77e-43ae3aa90e29",
     "type": {
       "type": "Forespurt",
