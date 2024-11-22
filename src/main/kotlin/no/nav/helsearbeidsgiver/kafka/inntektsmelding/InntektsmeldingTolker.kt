@@ -18,15 +18,14 @@ class InntektsmeldingTolker(
 
     override fun lesMelding(melding: String) {
         sikkerLogger.info("Mottatt IM: $melding")
-        // TODO: Kan nok gjøre dette bedre, men må håndtere ex i noen tilfeller, andre ganger kaste
-        try {
-            parseRecord(melding)
-        } catch (e: Exception) {
-            sikkerLogger.info("Ugyldig IM, ignorerer melding")
-            mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
-            return
-        }
-        val obj = parseRecord(melding)
+        val obj =
+            try {
+                parseRecord(melding)
+            } catch (e: Exception) {
+                sikkerLogger.info("Ugyldig event, ignorerer melding")
+                mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
+                return
+            }
         transaction {
             try {
                 inntektsmeldingService.opprettInntektsmelding(obj.inntektsmeldingV1)

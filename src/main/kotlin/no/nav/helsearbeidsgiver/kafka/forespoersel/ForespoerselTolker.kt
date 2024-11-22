@@ -19,14 +19,14 @@ class ForespoerselTolker(
 
     override fun lesMelding(melding: String) {
         sikkerLogger.info("Mottatt event: $melding")
-        try {
-            parseRecord(melding)
-        } catch (e: Exception) {
-            sikkerLogger.info("Ugyldig event, ignorerer melding")
-            mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
-            return
-        }
-        val obj = parseRecord(melding)
+        val obj =
+            try {
+                parseRecord(melding)
+            } catch (e: Exception) {
+                sikkerLogger.info("Ugyldig event, ignorerer melding")
+                mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
+                return
+            }
         try {
             sikkerLogger.info("Mottatt notis: ${obj.notis}")
 
