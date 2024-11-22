@@ -25,4 +25,14 @@ class ForespoerselRepositoryTest {
         forespoerselRepository.settBesvart(forespoerselID)
         assertEquals(Status.MOTTATT, forespoerselRepository.hentForespoersel(forespoerselID)?.status)
     }
+
+    @Test
+    fun `skal ikke lagre duplikat`() {
+        val forespoerselID = UUID.randomUUID().toString()
+        val payload = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
+        forespoerselRepository.lagreForespoersel(forespoerselID, payload)
+        forespoerselRepository.lagreForespoersel(forespoerselID, payload)
+        val forespoersler = forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+        assertEquals(1, forespoersler.size)
+    }
 }

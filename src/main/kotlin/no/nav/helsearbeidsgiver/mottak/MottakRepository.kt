@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 data class ExposedMottak(
-    val inntektsMelding: String,
+    val melding: String,
     val gyldig: Boolean = true,
 )
 
@@ -25,7 +25,7 @@ class MottakRepository(
     fun opprett(im: ExposedMottak): Int =
         transaction(db) {
             MottakTable.insert {
-                it[melding] = im.inntektsMelding
+                it[melding] = im.melding
                 it[gyldig] = im.gyldig
             }[MottakTable.id]
         }

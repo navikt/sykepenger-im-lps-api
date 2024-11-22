@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 class ImKafkaConsumer(
@@ -16,31 +17,28 @@ class ImKafkaConsumer(
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
     override fun handleRecord(record: String) {
-        // TODO: gjør dette i en transaksjon og gjør det skikkelig..
-        // transaction {
-        sikkerLogger.info("Mottatt event: $record")
-        val obj = parseRecord(record)
-        if (obj == null) {
-            sikkerLogger.warn("Ugyldig event mottatt: $record")
-            mottakRepository.opprett(ExposedMottak(inntektsMelding = record, gyldig = false))
+        sikkerLogger.info("Mottatt IM: $record")
+        try {
+            parseRecord(record)
+        } catch (e: Exception) {
+            sikkerLogger.info("Ugyldig IM, ignorerer melding")
+            mottakRepository.opprett(ExposedMottak(melding = record, gyldig = false))
             return
         }
-        try {
-            inntektsmeldingService.opprettInntektsmelding(obj.inntektsmeldingV1)
-            mottakRepository.opprett(ExposedMottak(record))
-        } catch (e: Exception) {
-            sikkerLogger.warn("feil - $e")
+        val obj = parseRecord(record)
+        transaction {
+            try {
+                inntektsmeldingService.opprettInntektsmelding(obj.inntektsmeldingV1)
+                mottakRepository.opprett(ExposedMottak(record))
+            } catch (e: Exception) {
+                rollback()
+                sikkerLogger.error("Klarte ikke å lagre i database!", e)
+                throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
+            }
         }
     }
 
-    private fun parseRecord(record: String): ImMessage? {
-        try {
-            return jsonMapper.decodeFromString<ImMessage>(record)
-        } catch (e: IllegalArgumentException) {
-            sikkerLogger.error("Failed to handle record", e)
-            return null
-        }
-    }
+    private fun parseRecord(record: String): ImMessage = jsonMapper.decodeFromString<ImMessage>(record)
 
     @Serializable
     data class ImMessage(

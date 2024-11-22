@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 class ForespoerselKafkaConsumer(
@@ -17,28 +18,38 @@ class ForespoerselKafkaConsumer(
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
     override fun handleRecord(record: String) {
-        // transaction {
         sikkerLogger.info("Mottatt event: $record")
-        val obj = parseRecord(record)
-        if (obj == null) {
-            sikkerLogger.warn("Ugyldig event mottatt: $record")
-            mottakRepository.opprett(ExposedMottak(inntektsMelding = record, gyldig = false))
+        try {
+            parseRecord(record)
+        } catch (e: Exception) {
+            sikkerLogger.info("Ugyldig event, ignorerer melding")
+            mottakRepository.opprett(ExposedMottak(melding = record, gyldig = false))
             return
         }
+        val obj = parseRecord(record)
         try {
-            sikkerLogger.info("Received notis: ${obj.notis}")
+            sikkerLogger.info("Mottatt notis: ${obj.notis}")
 
             when (obj.notis) {
                 NotisType.FORESPØRSEL_MOTTATT -> {
                     val forespoersel = obj.forespoersel
                     if (forespoersel != null) {
-                        forespoerselRepository.lagreForespoersel(
-                            forespoerselId = forespoersel.forespoerselId.toString(),
-                            payload = forespoersel,
-                        )
-                        mottakRepository.opprett(ExposedMottak(record))
+                        transaction {
+                            try {
+                                forespoerselRepository.lagreForespoersel(
+                                    forespoerselId = forespoersel.forespoerselId.toString(),
+                                    payload = forespoersel,
+                                )
+                                mottakRepository.opprett(ExposedMottak(record))
+                            } catch (e: Exception) {
+                                rollback()
+                                sikkerLogger.error("Klarte ikke å lagre i database!", e)
+                                throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
+                            }
+                        }
                     } else {
-                        sikkerLogger.warn("Ugyldige verdier, kan ikke lagre!")
+                        sikkerLogger.warn("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
+                        mottakRepository.opprett(ExposedMottak(melding = record, gyldig = false))
                     }
                 }
 
@@ -59,24 +70,14 @@ class ForespoerselKafkaConsumer(
                     sikkerLogger.info("Forespørsel kastet til infotrygd - håndteres ikke")
                     mottakRepository.opprett(ExposedMottak(record, false))
                 }
-                null -> {
-                    sikkerLogger.error("Ikke gyldig payload")
-                    mottakRepository.opprett(ExposedMottak(record, false))
-                }
             }
         } catch (e: Exception) {
             sikkerLogger.warn("feil - $e")
+            throw e // sørg for at vi ikke committer offset på kafka ved ikke-håndterte feil
         }
     }
 
-    private fun parseRecord(record: String): PriMessage? {
-        try {
-            return jsonMapper.decodeFromString<PriMessage>(record)
-        } catch (e: IllegalArgumentException) {
-            sikkerLogger.error("Failed to handle record", e)
-            return null
-        }
-    }
+    private fun parseRecord(record: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(record)
 
     private fun settForkastet(forespoerselId: String) {
         if (forespoerselId.isEmpty()) {
@@ -98,7 +99,7 @@ class ForespoerselKafkaConsumer(
 
     @Serializable
     data class PriMessage(
-        @SerialName("notis") val notis: NotisType? = null,
+        @SerialName("notis") val notis: NotisType,
         @SerialName("forespoersel") val forespoersel: ForespoerselDokument? = null,
         @SerialName("forespoerselId") val forespoerselId: String? = null,
     )
