@@ -18,7 +18,7 @@ class InntektsmeldingTolker(
 
     override fun lesMelding(melding: String) {
         sikkerLogger.info("Mottatt IM: $melding")
-        //TODO: Kan nok gjøre dette bedre, men må håndtere ex i noen tilfeller, andre ganger kaste
+        // TODO: Kan nok gjøre dette bedre, men må håndtere ex i noen tilfeller, andre ganger kaste
         try {
             parseRecord(melding)
         } catch (e: Exception) {
