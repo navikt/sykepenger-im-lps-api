@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 class ForespoerselRepository(
     private val db: Database,
 ) {
-    private val logger = LoggerFactory.getLogger(ForespoerselRepository::class.java)
+    private val logger = LoggerFactory.getLogger("tjenestekall")
 
     fun lagreForespoersel(
         forespoerselId: String,
@@ -41,6 +41,7 @@ class ForespoerselRepository(
                 it[dokument] = jsonString
             }
         }
+        logger.info("Forespørsel $forespoerselId lagret")
     }
 
     fun hentForespoersel(forespoerselId: String): Forespoersel? =

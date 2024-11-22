@@ -49,10 +49,10 @@ class InntektsmeldingService(
                 forespoerselID = im.type.id.toString(),
             )
         }.onSuccess {
-            sikkerLogger().info("Opprettet inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
+            sikkerLogger().info("Inntektsmelding ${im.type.id} lagret")
         }.onFailure {
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
-            throw RuntimeException("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
+            throw Exception("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
     }
 }
