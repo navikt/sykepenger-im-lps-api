@@ -6,7 +6,6 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
-import kotlin.system.exitProcess
 
 suspend fun startKafkaConsumer(
     topic: String,
@@ -22,7 +21,7 @@ suspend fun startKafkaConsumer(
             sikkerLogger().error("Feil ved polling / lagring, avslutter!", e)
             // TODO; Forsøk igjen noen ganger først, disable evt lesing fra kafka i en periode.
             // Kan evt restarte med en gang, hvis vi har flere noder (exit går utover API ellers)
-            exitProcess(-1)
+            throw e
         }
     }
 }
