@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -34,6 +35,7 @@ fun main(args: Array<String>): Unit =
 
 @Suppress("unused")
 fun Application.module() {
+    sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
@@ -68,7 +70,6 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
-
     install(Authentication) {
         tokenValidationSupport(
             "validToken",
@@ -92,5 +93,6 @@ fun Application.module() {
                 ),
         )
     }
+    sikkerLogger().info("Setter opp ruting...")
     configureRouting(forespoerselService, inntektsmeldingService)
 }
