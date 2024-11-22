@@ -4,29 +4,29 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
-class ForespoerselKafkaConsumer(
+class ForespoerselTolker(
     private val forespoerselRepository: ForespoerselRepository,
     private val mottakRepository: MottakRepository,
-) : LpsKafkaConsumer {
+) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
-    override fun handleRecord(record: String) {
-        sikkerLogger.info("Mottatt event: $record")
+    override fun lesMelding(melding: String) {
+        sikkerLogger.info("Mottatt event: $melding")
         try {
-            parseRecord(record)
+            parseRecord(melding)
         } catch (e: Exception) {
             sikkerLogger.info("Ugyldig event, ignorerer melding")
-            mottakRepository.opprett(ExposedMottak(melding = record, gyldig = false))
+            mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
             return
         }
-        val obj = parseRecord(record)
+        val obj = parseRecord(melding)
         try {
             sikkerLogger.info("Mottatt notis: ${obj.notis}")
 
@@ -40,7 +40,7 @@ class ForespoerselKafkaConsumer(
                                     forespoerselId = forespoersel.forespoerselId.toString(),
                                     payload = forespoersel,
                                 )
-                                mottakRepository.opprett(ExposedMottak(record))
+                                mottakRepository.opprett(ExposedMottak(melding))
                             } catch (e: Exception) {
                                 rollback()
                                 sikkerLogger.error("Klarte ikke å lagre i database!", e)
@@ -49,26 +49,26 @@ class ForespoerselKafkaConsumer(
                         }
                     } else {
                         sikkerLogger.warn("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
-                        mottakRepository.opprett(ExposedMottak(melding = record, gyldig = false))
+                        mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                     }
                 }
 
                 NotisType.FORESPOERSEL_BESVART -> {
                     settBesvart(obj.forespoerselId.toString())
-                    mottakRepository.opprett(ExposedMottak(record))
+                    mottakRepository.opprett(ExposedMottak(melding))
                 }
                 NotisType.FORESPOERSEL_BESVART_SIMBA -> {
                     settBesvart(obj.forespoerselId.toString())
-                    mottakRepository.opprett(ExposedMottak(record))
+                    mottakRepository.opprett(ExposedMottak(melding))
                 }
                 NotisType.FORESPOERSEL_FORKASTET -> {
                     settForkastet(obj.forespoerselId.toString())
-                    mottakRepository.opprett(ExposedMottak(record))
+                    mottakRepository.opprett(ExposedMottak(melding))
                 }
                 NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
                     // TODO:: Skal vi håndtere kastet til infotrygd?
                     sikkerLogger.info("Forespørsel kastet til infotrygd - håndteres ikke")
-                    mottakRepository.opprett(ExposedMottak(record, false))
+                    mottakRepository.opprett(ExposedMottak(melding, false))
                 }
             }
         } catch (e: Exception) {

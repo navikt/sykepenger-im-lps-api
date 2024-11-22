@@ -14,8 +14,9 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselKafkaConsumer
-import no.nav.helsearbeidsgiver.kafka.inntektsmelding.ImKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
+import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.plugins.configureRouting
@@ -25,6 +26,7 @@ import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetrie
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
+import org.apache.kafka.clients.consumer.KafkaConsumer
 
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain
@@ -40,19 +42,23 @@ fun Application.module() {
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
+        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
-                ImKafkaConsumer(
+                inntektsmeldingKafkaConsumer,
+                InntektsmeldingTolker(
                     inntektsmeldingService,
                     mottakRepository,
                 ),
             )
         }
+        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.forespoersel.topic"),
-                ForespoerselKafkaConsumer(
+                forespoerselKafkaConsumer,
+                ForespoerselTolker(
                     forespoerselRepository,
                     mottakRepository,
                 ),

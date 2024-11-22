@@ -3,33 +3,34 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.kafka.LpsKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
-class ImKafkaConsumer(
+class InntektsmeldingTolker(
     private val inntektsmeldingService: InntektsmeldingService,
     private val mottakRepository: MottakRepository,
-) : LpsKafkaConsumer {
+) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
-    override fun handleRecord(record: String) {
-        sikkerLogger.info("Mottatt IM: $record")
+    override fun lesMelding(melding: String) {
+        sikkerLogger.info("Mottatt IM: $melding")
+        //TODO: Kan nok gjøre dette bedre, men må håndtere ex i noen tilfeller, andre ganger kaste
         try {
-            parseRecord(record)
+            parseRecord(melding)
         } catch (e: Exception) {
             sikkerLogger.info("Ugyldig IM, ignorerer melding")
-            mottakRepository.opprett(ExposedMottak(melding = record, gyldig = false))
+            mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
             return
         }
-        val obj = parseRecord(record)
+        val obj = parseRecord(melding)
         transaction {
             try {
                 inntektsmeldingService.opprettInntektsmelding(obj.inntektsmeldingV1)
-                mottakRepository.opprett(ExposedMottak(record))
+                mottakRepository.opprett(ExposedMottak(melding))
             } catch (e: Exception) {
                 rollback()
                 sikkerLogger.error("Klarte ikke å lagre i database!", e)
