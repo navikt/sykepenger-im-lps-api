@@ -42,19 +42,24 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
 
 fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     get("/inntektsmeldinger") {
-        val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
-        val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
-        if (consumerOrgnr != null) {
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
-            inntektsmeldingService
-                .hentInntektsmeldingerByOrgNr(consumerOrgnr)
-                .takeIf { it.antallInntektsmeldinger > 0 }
-                ?.let {
-                    call.respond(it)
-                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
-        } else {
-            sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-            call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+        try {
+            val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
+            if (consumerOrgnr != null) {
+                sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
+                inntektsmeldingService
+                    .hentInntektsmeldingerByOrgNr(consumerOrgnr)
+                    .takeIf { it.antallInntektsmeldinger > 0 }
+                    ?.let {
+                        call.respond(it)
+                    } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+            } else {
+                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
+                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+            }
+        } catch (e: Exception) {
+            sikkerLogger().error("Error while processing request: {}", e)
+            call.respond(HttpStatusCode.InternalServerError, "Error while processing request" + e.message)
         }
     }
 }

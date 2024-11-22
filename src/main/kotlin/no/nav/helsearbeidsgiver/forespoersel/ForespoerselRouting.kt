@@ -14,14 +14,19 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun Route.forespoersler(forespoerselService: ForespoerselService) {
     get("/forespoersler") {
-        val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
-        val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
-        if (consumerOrgnr != null) {
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$consumerOrgnr]")
-            call.respond(forespoerselService.hentForespoerslerForOrgnr(consumerOrgnr))
-        } else {
-            sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-            call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+        try {
+            val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
+            if (consumerOrgnr != null) {
+                sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$consumerOrgnr]")
+                call.respond(forespoerselService.hentForespoerslerForOrgnr(consumerOrgnr))
+            } else {
+                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
+                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
+            }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av forespørsler", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler - ${e.message}")
         }
     }
 }
