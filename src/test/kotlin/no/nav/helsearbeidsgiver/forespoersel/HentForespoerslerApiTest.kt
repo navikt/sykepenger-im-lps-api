@@ -19,11 +19,11 @@ class HentForespoerslerApiTest :
                 forespoerselRepo.lagreForespoersel("1234", forespoerselDokument(orgnr2, "123"))
                 val response = get("/forespoersler")
                 response.status.value shouldBe 200
-                val forespoerselSvar = response.body<List<Forespoersel>>()
-                forespoerselSvar.size shouldBe 1
-                forespoerselSvar[0].status shouldBe Status.AKTIV
-                forespoerselSvar[0].orgnr shouldBe orgnr1
-                forespoerselSvar[0].dokument shouldBe payload
+                val forespoerselSvar = response.body<ForespoerselResponse>()
+                forespoerselSvar.antallForespoersler shouldBe 1
+                forespoerselSvar.forespoerseler[0].status shouldBe Status.AKTIV
+                forespoerselSvar.forespoerseler[0].orgnr shouldBe orgnr1
+                forespoerselSvar.forespoerseler[0].dokument shouldBe payload
             }
         }
     })

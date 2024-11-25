@@ -57,7 +57,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation ("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
@@ -90,9 +90,9 @@ tasks {
     }
     withType<Test> {
         useJUnitPlatform()
-        //testLogging {
+        // testLogging {
         //    events("skipped", "failed")
-        //}
+        // }
     }
     test {
         environment("database.embedded", "true")
