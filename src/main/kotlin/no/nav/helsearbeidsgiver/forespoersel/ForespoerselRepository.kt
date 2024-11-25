@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
@@ -16,21 +17,18 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class ForespoerselRepository(
     private val db: Database,
 ) {
-    private val logger = LoggerFactory.getLogger(ForespoerselRepository::class.java)
-
     fun lagreForespoersel(
         forespoerselId: String,
         payload: ForespoerselDokument,
     ) {
         val f = hentForespoersel(forespoerselId)
         if (f != null) {
-            logger.warn("Duplikat id: $forespoerselId, kan ikke lagre")
+            sikkerLogger().warn("Duplikat id: $forespoerselId, kan ikke lagre")
             return
         }
         val organisasjonsnummer = payload.orgnr

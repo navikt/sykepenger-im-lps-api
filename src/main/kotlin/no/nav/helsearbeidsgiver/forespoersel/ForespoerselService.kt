@@ -6,17 +6,16 @@ class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
 ) {
     fun hentForespoerslerForOrgnr(orgnr: String): ForespoerselResponse {
-        kotlin
-            .runCatching {
-                sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
-                forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
-            }.onSuccess {
-                sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
-                return ForespoerselResponse(it.size, it)
-            }.onFailure {
-                sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
-                throw it
-            }
+        runCatching {
+            sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
+            forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+        }.onSuccess {
+            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
+            return ForespoerselResponse(it.size, it)
+        }.onFailure {
+            sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
+            throw it
+        }
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
 

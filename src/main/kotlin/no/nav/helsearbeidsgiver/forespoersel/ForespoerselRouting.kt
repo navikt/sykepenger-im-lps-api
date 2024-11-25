@@ -26,7 +26,7 @@ fun Route.forespoersler(forespoerselService: ForespoerselService) {
             }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler - ${e.message}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
         }
     }
 }
@@ -37,6 +37,7 @@ fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
             val request = call.receive<ForespoerselRequest>()
             val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
             val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
+            sikkerLogger().info("Mottat request: $request")
             if (consumerOrgnr != null) {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$consumerOrgnr]")
                 call.respond(forespoerselService.filtrerForespoerslerForOrgnr(consumerOrgnr, request))
@@ -46,7 +47,7 @@ fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
             }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler - ${e.message}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
         }
     }
 }
