@@ -44,7 +44,7 @@ fun Application.module() {
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
-        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig())
+        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
@@ -55,7 +55,7 @@ fun Application.module() {
                 ),
             )
         }
-        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig())
+        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.forespoersel.topic"),
