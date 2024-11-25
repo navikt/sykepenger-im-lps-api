@@ -14,7 +14,6 @@ class ForespoerselService(
             return ForespoerselResponse(it.size, it)
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
-            throw it
         }
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
@@ -31,7 +30,6 @@ class ForespoerselService(
             return ForespoerselResponse(it.size, it)
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $consumerOrgnr", it)
-            throw it
         }
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $consumerOrgnr")
     }

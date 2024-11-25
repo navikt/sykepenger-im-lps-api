@@ -15,7 +15,6 @@ class InntektsmeldingService(
             return InntektsmeldingResponse(it.size, it)
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for orgnr: $orgnr", it)
-            throw it
         }
         throw RuntimeException("Feil ved henting av inntektsmeldinger for orgnr: $orgnr")
     }
@@ -32,9 +31,7 @@ class InntektsmeldingService(
             return InntektsmeldingResponse(it.size, it)
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
-            throw it
         }
-
         throw RuntimeException("Feil ved henting av inntektsmeldinger for request: $request")
     }
 
