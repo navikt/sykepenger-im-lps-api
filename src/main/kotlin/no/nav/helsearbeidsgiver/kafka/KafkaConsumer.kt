@@ -2,20 +2,27 @@ package no.nav.helsearbeidsgiver.kafka
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
 suspend fun startKafkaConsumer(
     topic: String,
-    lpsKafkaConsumer: LpsKafkaConsumer,
+    consumer: KafkaConsumer<String, String>,
+    meldingTolker: MeldingTolker,
 ) {
-    val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
     consumer.subscribe(listOf(topic))
-
     consumer.asFlow().collect { record ->
-        lpsKafkaConsumer.handleRecord(record.value())
-        consumer.commitSync()
+        try {
+            meldingTolker.lesMelding(record.value())
+            consumer.commitSync()
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved polling / lagring, avslutter!", e)
+            // TODO; Forsøk igjen noen ganger først, disable evt lesing fra kafka i en periode.
+            // Kan evt restarte med en gang, hvis vi har flere noder (exit går utover API ellers)
+            throw e
+        }
     }
 }
 
@@ -26,6 +33,6 @@ fun <K, V> KafkaConsumer<K, V>.asFlow(timeout: Duration = Duration.ofMillis(10))
         }
     }
 
-interface LpsKafkaConsumer {
-    fun handleRecord(record: String)
+interface MeldingTolker {
+    fun lesMelding(melding: String)
 }

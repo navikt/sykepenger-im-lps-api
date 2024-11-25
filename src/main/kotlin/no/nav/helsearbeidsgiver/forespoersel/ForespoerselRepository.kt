@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 class ForespoerselRepository(
@@ -44,6 +45,7 @@ class ForespoerselRepository(
                 it[dokument] = jsonString
             }
         }
+        sikkerLogger().info("Forespørsel $forespoerselId lagret")
     }
 
     fun hentForespoersel(forespoerselId: String): Forespoersel? =

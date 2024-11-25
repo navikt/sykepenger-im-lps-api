@@ -14,17 +14,20 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselKafkaConsumer
-import no.nav.helsearbeidsgiver.kafka.inntektsmelding.ImKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
+import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
+import org.apache.kafka.clients.consumer.KafkaConsumer
 
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain
@@ -32,6 +35,7 @@ fun main(args: Array<String>): Unit =
 
 @Suppress("unused")
 fun Application.module() {
+    sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
@@ -40,19 +44,23 @@ fun Application.module() {
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
+        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig())
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
-                ImKafkaConsumer(
+                inntektsmeldingKafkaConsumer,
+                InntektsmeldingTolker(
                     inntektsmeldingService,
                     mottakRepository,
                 ),
             )
         }
+        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig())
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 Env.getProperty("kafkaConsumer.forespoersel.topic"),
-                ForespoerselKafkaConsumer(
+                forespoerselKafkaConsumer,
+                ForespoerselTolker(
                     forespoerselRepository,
                     mottakRepository,
                 ),
@@ -62,7 +70,6 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
-
     install(Authentication) {
         tokenValidationSupport(
             "validToken",
@@ -86,5 +93,6 @@ fun Application.module() {
                 ),
         )
     }
+    sikkerLogger().info("Setter opp ruting...")
     configureRouting(forespoerselService, inntektsmeldingService)
 }
