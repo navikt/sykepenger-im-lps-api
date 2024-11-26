@@ -90,9 +90,6 @@ tasks {
     }
     withType<Test> {
         useJUnitPlatform()
-        // testLogging {
-        //    events("skipped", "failed")
-        // }
     }
     test {
         environment("database.embedded", "true")
