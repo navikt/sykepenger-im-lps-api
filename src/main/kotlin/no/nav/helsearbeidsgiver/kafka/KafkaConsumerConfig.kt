@@ -8,7 +8,7 @@ import org.apache.kafka.common.security.auth.SecurityProtocol
 import org.apache.kafka.common.serialization.StringDeserializer
 import java.util.Properties
 
-fun createKafkaConsumerConfig(): Properties {
+fun createKafkaConsumerConfig(consumerName: String): Properties {
     val pkcs12 = "PKCS12"
     val javaKeyStore = "jks"
     return Properties().apply {
@@ -20,7 +20,7 @@ fun createKafkaConsumerConfig(): Properties {
         put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
         put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1")
         put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "30000")
-        put(ConsumerConfig.CLIENT_ID_CONFIG, "sykepenger-im-lps-api")
+        put(ConsumerConfig.CLIENT_ID_CONFIG, "sykepenger-im-lps-api-$consumerName")
 
         Env.getPropertyOrNull("KAFKA_TRUSTSTORE_PATH")?.let {
             put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, it)
