@@ -10,7 +10,7 @@ services:
                   "requestMappings": [
                       {
                           "requestParam": "scope",
-                          "match": "nav:inntektsmelding/lps.write",
+                          "match": "nav:helse/im.read",
                           "claims": {
                               "supplier" : {
                                 "authority" : "iso6523-actorid-upis",
@@ -20,9 +20,9 @@ services:
                                 "authority" : "iso6523-actorid-upis",
                                 "ID" : "0192:810007842"
                               },
-                              "scope": "nav:inntektsmelding/lps.write",
+                              "scope": "nav:helse/im.read",
                               "sub": "testid",
-                              "aud": "nav:inntektsmelding/lps.write"
+                              "aud": "nav:helse/im.read"
                           }
                       }
                   ]
