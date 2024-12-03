@@ -43,7 +43,7 @@ abstract class FunSpecWithApi(
             mockOAuth2Server
                 .issueToken(
                     issuerId = "maskinporten",
-                    audience = "nav:inntektsmelding/lps.write",
+                    audience = "nav:helse/im.read",
                     claims = claims,
                 ).serialize()
 
