@@ -20,11 +20,9 @@ import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ApiTest {
     private val db: ExposedDatabase
     private val forespoerselRepo: ForespoerselRepository
