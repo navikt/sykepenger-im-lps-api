@@ -78,10 +78,12 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
     testImplementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.3") //TODO: bare for parameterizedTests
 }
 tasks {
     named<ShadowJar>("shadowJar") {
