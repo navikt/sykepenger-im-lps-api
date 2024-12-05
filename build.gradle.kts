@@ -83,7 +83,6 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.3") //TODO: bare for parameterizedTests
 }
 tasks {
     named<ShadowJar>("shadowJar") {

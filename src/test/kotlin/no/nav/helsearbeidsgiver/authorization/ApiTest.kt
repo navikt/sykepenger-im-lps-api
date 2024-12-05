@@ -111,24 +111,6 @@ class ApiTest {
             inntektsmeldingResponse.antallInntektsmeldinger shouldBe 1
             inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
         }
-//    @ParameterizedTest
-//    @MethodSource("tokens")
-//    fun `kun gyldige tokens blir akseptert`(data: TestToken) = runTest {
-//        client.get("/forespoersler") {
-//            bearerAuth(data.input)
-//        }.status shouldBe data.expected
-//    }
-//
-//    private fun tokens() = Stream.of(
-//        TestToken(input = gyldigAuthToken(), expected = HttpStatusCode.OK),
-//        TestToken(input = ugyldigTokenManglerSupplier(), expected = HttpStatusCode.Unauthorized),
-//        TestToken(input = ugyldigTokenManglerClaims(), expected = HttpStatusCode.Unauthorized),
-//    )
-//
-//    data class TestToken(
-//        val input: String,
-//        val expected: HttpStatusCode
-//    )
 
     @AfterAll
     fun shutdownStuff() {
