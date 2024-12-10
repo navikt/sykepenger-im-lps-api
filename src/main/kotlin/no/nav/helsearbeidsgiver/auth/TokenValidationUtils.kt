@@ -26,11 +26,13 @@ fun TokenValidationContext.getLpsOrgnr() {
 fun TokenValidationContext.getSluttbruker(): String? {
     val authorizationDetails = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>?
 
-    val systembruker: String? = if (authorizationDetails != null) {
-        val systemBrukerMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
-        systemBrukerMap.extractOrgnummer()
-
-    } else this.getConsumerOrgnr()
+    val systembruker: String? =
+        if (authorizationDetails != null) {
+            val systemBrukerMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
+            systemBrukerMap.extractOrgnummer()
+        } else {
+            this.getConsumerOrgnr()
+        }
     return systembruker
 }
 
@@ -50,9 +52,9 @@ fun TokenValidationContext.gyldigSupplierOgConsumer(): Boolean {
     val supplierOrgnr = supplier.extractOrgnummer()
     val consumerOrgnr = consumer.extractOrgnummer()
     return supplierOrgnr != null &&
-            consumerOrgnr != null &&
-            supplierOrgnr.matches(Regex("\\d{9}")) &&
-            consumerOrgnr.matches(Regex("\\d{9}"))
+        consumerOrgnr != null &&
+        supplierOrgnr.matches(Regex("\\d{9}")) &&
+        consumerOrgnr.matches(Regex("\\d{9}"))
 }
 
 fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
@@ -62,11 +64,11 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
     val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
     val systembrukerOrgnr = systemBrukerMap.extractOrgnummer()
     val consumerOrgnr = consumer.extractOrgnummer()
-    return consumerOrgnr != null && consumerOrgnr.matches(Regex("\\d{9}")) &&
-            systembrukerOrgnr != null &&
-            systembrukerOrgnr.matches(Regex("\\d{9}"))
+    return consumerOrgnr != null &&
+        consumerOrgnr.matches(Regex("\\d{9}")) &&
+        systembrukerOrgnr != null &&
+        systembrukerOrgnr.matches(Regex("\\d{9}"))
 }
-
 
 private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")

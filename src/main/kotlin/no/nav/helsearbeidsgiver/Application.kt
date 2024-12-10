@@ -79,7 +79,7 @@ fun Application.module() {
                     IssuerConfig(
                         "maskinporten",
                         Env.getProperty("maskinporten.wellknownUrl"),
-                        //Todo endre scope til gammelt scope
+                        // Todo endre scope til gammelt scope
                         listOf(Env.getProperty("maskinporten.eksponert_scopes")),
                         listOf("aud", "sub"),
                     ),

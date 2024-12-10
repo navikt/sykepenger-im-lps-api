@@ -49,7 +49,6 @@ class ApiTest {
         val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
         val im = buildInntektsmelding(forespoerselId = forespoerselId)
         InntektsmeldingRepository(db).opprett(im, "810007842", "12345678912", LocalDateTime.now(), forespoerselId)
-
     }
 
     @Test
@@ -100,7 +99,7 @@ class ApiTest {
     @Test
     fun `hent inntektsmeldinger`() =
         runTest {
-             val response =
+            val response =
                 client.get("/inntektsmeldinger") {
                     bearerAuth(gyldigAuthToken())
                 }
@@ -142,15 +141,15 @@ class ApiTest {
                 mapOf(
                     "scope" to "maskinporten",
                     "supplier" to
-                            mapOf(
-                                "authority" to "iso6523-actorid-upis",
-                                "ID" to "0192:991825827",
-                            ),
+                        mapOf(
+                            "authority" to "iso6523-actorid-upis",
+                            "ID" to "0192:991825827",
+                        ),
                     "consumer" to
-                            mapOf(
-                                "authority" to "iso6523-actorid-upis",
-                                "ID" to "0192:810007842",
-                            ),
+                        mapOf(
+                            "authority" to "iso6523-actorid-upis",
+                            "ID" to "0192:810007842",
+                        ),
                 ),
         )
 
@@ -160,10 +159,10 @@ class ApiTest {
                 mapOf(
                     "scope" to "maskinporten",
                     "consumer" to
-                            mapOf(
-                                "authority" to "iso6523-actorid-upis",
-                                "ID" to "0192:810007842",
-                            ),
+                        mapOf(
+                            "authority" to "iso6523-actorid-upis",
+                            "ID" to "0192:810007842",
+                        ),
                 ),
         )
 
@@ -172,23 +171,24 @@ class ApiTest {
             claims =
                 mapOf(
                     "authorization_details" to
-                            listOf(
-                                mapOf(
-                                    "type" to "urn:altinn:systemuser",
-                                    "systemuser_id" to listOf("a_unique_identifier_for_the_systemuser"),
-                                    "systemuser_org" to mapOf(
-                                        "authority" to "iso6523-actorid-upis",
-                                        "ID" to "0192:810007842"
-                                    ),
-                                    "system_id" to "315339138_tigersys",
-                                )
-                            ),
-                    "scope" to "nav:helse/im.read",//TODO sjekk om scope faktisk blir validert av tokensupport
-                    "consumer" to
+                        listOf(
                             mapOf(
-                                "authority" to "iso6523-actorid-upis",
-                                "ID" to "0192:991825827",
+                                "type" to "urn:altinn:systemuser",
+                                "systemuser_id" to listOf("a_unique_identifier_for_the_systemuser"),
+                                "systemuser_org" to
+                                    mapOf(
+                                        "authority" to "iso6523-actorid-upis",
+                                        "ID" to "0192:810007842",
+                                    ),
+                                "system_id" to "315339138_tigersys",
                             ),
+                        ),
+                    "scope" to "nav:helse/im.read", // TODO sjekk om scope faktisk blir validert av tokensupport
+                    "consumer" to
+                        mapOf(
+                            "authority" to "iso6523-actorid-upis",
+                            "ID" to "0192:991825827",
+                        ),
                 ),
         )
 }
