@@ -19,9 +19,24 @@ suspend fun PipelineContext<Unit, ApplicationCall>.tokenValidationContext(): Tok
     return tokenValidationContext
 }
 
+fun TokenValidationContext.getLpsOrgnr() {
+    this.getSupplierOrgnr() ?: this.getConsumerOrgnr()
+}
+
+fun TokenValidationContext.getSluttbruker(): String? {
+    val authorizationDetails = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>?
+
+    val systembruker: String? = if (authorizationDetails != null) {
+        val systemBrukerMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
+        systemBrukerMap.extractOrgnummer()
+
+    } else this.getConsumerOrgnr()
+    return systembruker
+}
+
 fun TokenValidationContext.getSupplierOrgnr(): String? {
-    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>
-    return supplier.extractOrgnummer()
+    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>?
+    return supplier?.extractOrgnummer()
 }
 
 fun TokenValidationContext.getConsumerOrgnr(): String? {
@@ -35,10 +50,23 @@ fun TokenValidationContext.gyldigSupplierOgConsumer(): Boolean {
     val supplierOrgnr = supplier.extractOrgnummer()
     val consumerOrgnr = consumer.extractOrgnummer()
     return supplierOrgnr != null &&
-        consumerOrgnr != null &&
-        supplierOrgnr.matches(Regex("\\d{9}")) &&
-        consumerOrgnr.matches(Regex("\\d{9}"))
+            consumerOrgnr != null &&
+            supplierOrgnr.matches(Regex("\\d{9}")) &&
+            consumerOrgnr.matches(Regex("\\d{9}"))
 }
+
+fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
+    val authDetails = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>
+    val systemBrukerMap = authDetails.first().get("systemuser_org") as Map<String, String>
+
+    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
+    val systembrukerOrgnr = systemBrukerMap.extractOrgnummer()
+    val consumerOrgnr = consumer.extractOrgnummer()
+    return consumerOrgnr != null && consumerOrgnr.matches(Regex("\\d{9}")) &&
+            systembrukerOrgnr != null &&
+            systembrukerOrgnr.matches(Regex("\\d{9}"))
+}
+
 
 private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")

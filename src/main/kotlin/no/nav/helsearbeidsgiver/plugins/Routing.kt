@@ -18,7 +18,7 @@ fun Application.configureRouting(
     routing {
         swaggerUI(path = "swagger", swaggerFile = "documentation.yaml")
 
-        authenticate("validToken") {
+        authenticate("systembruker-config","delegerbart-config" ) {
             filtrerInntektsmeldinger(inntektsmeldingService)
             inntektsmeldinger(inntektsmeldingService)
             forespoersler(forespoerselService)

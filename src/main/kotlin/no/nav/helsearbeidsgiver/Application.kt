@@ -9,6 +9,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.auth.gyldigSupplierOgConsumer
+import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
@@ -72,7 +73,29 @@ fun Application.module() {
     }
     install(Authentication) {
         tokenValidationSupport(
-            "validToken",
+            "delegerbart-config",
+            config =
+                TokenSupportConfig(
+                    IssuerConfig(
+                        "maskinporten",
+                        Env.getProperty("maskinporten.wellknownUrl"),
+                        //Todo endre scope til gammelt scope
+                        listOf(Env.getProperty("maskinporten.eksponert_scopes")),
+                        listOf("aud", "sub"),
+                    ),
+                ),
+            additionalValidation = {
+                it.gyldigSupplierOgConsumer()
+            },
+            resourceRetriever =
+                DefaultResourceRetriever(
+                    DEFAULT_HTTP_CONNECT_TIMEOUT,
+                    DEFAULT_HTTP_READ_TIMEOUT,
+                    DEFAULT_HTTP_SIZE_LIMIT,
+                ),
+        )
+        tokenValidationSupport(
+            "systembruker-config",
             config =
                 TokenSupportConfig(
                     IssuerConfig(
@@ -83,7 +106,7 @@ fun Application.module() {
                     ),
                 ),
             additionalValidation = {
-                it.gyldigSupplierOgConsumer()
+                it.gyldigSystembrukerOgConsumer()
             },
             resourceRetriever =
                 DefaultResourceRetriever(
