@@ -78,7 +78,7 @@ fun Application.module() {
                     IssuerConfig(
                         "maskinporten",
                         Env.getProperty("maskinporten.wellknownUrl"),
-                        listOf(Env.getProperty("maskinporten.scopes")),
+                        listOf(Env.getProperty("maskinporten.eksponert_scopes")),
                         listOf("aud", "sub"),
                     ),
                 ),

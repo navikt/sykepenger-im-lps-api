@@ -46,3 +46,7 @@ spec:
         tier: db-f1-micro
         databases:
           - name: hag-lps
+
+  env:
+    - name: EKSPONERT_MASKINPORTEN_SCOPES
+      value: "nav:helse/im.read"
