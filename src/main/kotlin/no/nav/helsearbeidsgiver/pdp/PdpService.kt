@@ -13,6 +13,7 @@ class PdpService(
         systembruker: String,
     ): Boolean =
         runBlocking {
+            sikkerLogger().info("orgnr: $orgnr, systembruker: $systembruker")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjon(
                     systembruker,
@@ -24,7 +25,6 @@ class PdpService(
 
 fun lagPdpClient(): PdpClient {
     val subscriptionKey = System.getenv("SUBSCRIPTION_KEY")
-    sikkerLogger().info("subscriptionKey: $subscriptionKey")
     val altinnTokenClient = AltinnTokenClient()
     val pdpClient =
         PdpClient(
