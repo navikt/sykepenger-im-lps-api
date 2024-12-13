@@ -9,15 +9,13 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.helsearbeidsgiver.utils.json.jsonConfig
+import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class AltinnTokenClient {
@@ -32,7 +30,7 @@ class AltinnTokenClient {
         HttpClient(Apache5) {
             expectSuccess = true
             install(ContentNegotiation) {
-                json(jsonConfig)
+                Json
             }
         }
 
@@ -52,11 +50,11 @@ class AltinnTokenClient {
                     }.body<TokenResponse>()
                     .accessToken
             sikkerLogger().info("maskinportenToken: $maskinportenToken")
-            val altinnToken =
+            val altinnToken: String =
                 httpClient
                     .get("https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten") {
                         header("Authorization", "Bearer $maskinportenToken")
-                    }.bodyAsText()
+                    }.body()
             sikkerLogger().info("altinnToken: $altinnToken")
             altinnToken
         }
