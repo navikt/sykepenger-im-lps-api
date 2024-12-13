@@ -8,6 +8,9 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.http.formUrlEncode
 import kotlinx.coroutines.runBlocking
 
 class AltinnTokenClient {
@@ -18,13 +21,12 @@ class AltinnTokenClient {
             val maskinportenToken =
                 httpClient
                     .post(System.getenv("NAIS_TOKEN_ENDPOINT")) {
-                        header("Content-Type", "application/json")
-                        header("Accept", "application/json")
+                        contentType(ContentType.Application.FormUrlEncoded)
                         setBody(
-                            mapOf(
+                            listOf(
                                 "identity_provider" to "maskinporten",
                                 "target" to "altinn:authorization/authorize",
-                            ),
+                            ).formUrlEncode(),
                         )
                     }.body<Map<String, Any>>()["access_token"] as String
             httpClient
