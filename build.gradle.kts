@@ -72,6 +72,7 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
+    implementation("no.nav.helsearbeidsgiver:maskinporten-client:0.1.9")
 
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")

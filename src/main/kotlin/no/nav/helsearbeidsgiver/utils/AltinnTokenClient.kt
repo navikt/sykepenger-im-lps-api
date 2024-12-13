@@ -18,6 +18,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class AltinnTokenClient {
     @Serializable
@@ -50,9 +51,13 @@ class AltinnTokenClient {
                         )
                     }.body<TokenResponse>()
                     .accessToken
-            httpClient
-                .get("https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten") {
-                    header("Authorization", "Bearer $maskinportenToken")
-                }.bodyAsText()
+            sikkerLogger().info("maskinportenToken: $maskinportenToken")
+            val altinnToken =
+                httpClient
+                    .get("https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten") {
+                        header("Authorization", "Bearer $maskinportenToken")
+                    }.bodyAsText()
+            sikkerLogger().info("altinnToken: $altinnToken")
+            altinnToken
         }
 }
