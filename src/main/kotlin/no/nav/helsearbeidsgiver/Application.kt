@@ -1,10 +1,13 @@
 package no.nav.helsearbeidsgiver
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
+import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +23,8 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.pdp.PdpService
+import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
@@ -30,12 +35,20 @@ import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
-fun main(args: Array<String>): Unit =
-    io.ktor.server.netty.EngineMain
-        .main(args)
+fun main() {
+    startServer()
+}
+
+fun startServer() {
+    embeddedServer(
+        factory = Netty,
+        port = 8080,
+        module = { apiModule(pdpService = PdpService(lagPdpClient())) },
+    ).start(wait = true)
+}
 
 @Suppress("unused")
-fun Application.module() {
+fun Application.apiModule(pdpService: PdpService) {
     sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
@@ -106,7 +119,7 @@ fun Application.module() {
                     ),
                 ),
             additionalValidation = {
-                it.gyldigSystembrukerOgConsumer()
+                it.gyldigSystembrukerOgConsumer(pdpService::harTilgang)
             },
             resourceRetriever =
                 DefaultResourceRetriever(

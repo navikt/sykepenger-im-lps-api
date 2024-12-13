@@ -70,6 +70,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:0.0.1")
 
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
@@ -96,5 +97,7 @@ tasks {
         environment("database.embedded", "true")
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
+        environment("SUBSCRIPTION_KEY", "abc")
+        environment("TOKEN_ENDPOINT", "texas")
     }
 }

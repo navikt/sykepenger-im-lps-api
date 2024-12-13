@@ -8,13 +8,18 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.pdp.IPdpService
+import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -31,6 +36,7 @@ class ApiTest {
     private val mockOAuth2Server: MockOAuth2Server
     private val testApplication: TestApplication
     private val client: HttpClient
+    private val pdpService: IPdpService
 
     init {
         mockOAuth2Server =
@@ -39,7 +45,12 @@ class ApiTest {
             }
         db = Database.init()
         forespoerselRepo = ForespoerselRepository(db)
-        testApplication = TestApplication {}
+        pdpService = PdpService(mockk(relaxed = true))
+        every { pdpService.harTilgang(any(), any()) } returns true
+        testApplication =
+            TestApplication {
+                application { apiModule(pdpService = pdpService) }
+            }
         client =
             testApplication.createClient {
                 install(ContentNegotiation) {
