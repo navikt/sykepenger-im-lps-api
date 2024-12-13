@@ -4,17 +4,10 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
 import no.nav.helsearbeidsgiver.utils.AltinnTokenClient
 
-interface IPdpService {
-    fun harTilgang(
-        orgn: String,
-        systembruker: String,
-    ): Boolean
-}
-
 class PdpService(
     val pdpClient: PdpClient,
-) : IPdpService {
-    override fun harTilgang(
+) {
+    fun harTilgang(
         orgnr: String,
         systembruker: String,
     ): Boolean =

@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
-import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -36,7 +35,7 @@ class ApiTest {
     private val mockOAuth2Server: MockOAuth2Server
     private val testApplication: TestApplication
     private val client: HttpClient
-    private val pdpService: IPdpService
+    private val pdpService: PdpService
 
     init {
         mockOAuth2Server =
