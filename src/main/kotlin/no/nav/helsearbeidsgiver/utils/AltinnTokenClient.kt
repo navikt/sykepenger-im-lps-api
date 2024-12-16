@@ -9,7 +9,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
@@ -51,13 +50,11 @@ class AltinnTokenClient {
                         )
                     }.body<TokenResponse>()
                     .accessToken
-            sikkerLogger().info("maskinportenToken: $maskinportenToken")
             val altinnToken: String =
                 httpClient
                     .get("https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten") {
                         header("Authorization", "Bearer $maskinportenToken")
-                    }.bodyAsText()
-                    .replace("\"", "")
+                    }.body<String>()
             sikkerLogger().info("altinnToken: $altinnToken")
             altinnToken
         }
