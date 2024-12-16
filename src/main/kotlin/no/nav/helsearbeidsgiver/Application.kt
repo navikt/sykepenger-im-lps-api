@@ -30,6 +30,7 @@ import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetrie
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
 import no.nav.security.token.support.v2.IssuerConfig
+import no.nav.security.token.support.v2.RequiredClaims
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -95,6 +96,7 @@ fun Application.apiModule(pdpService: PdpService) {
                         listOf("aud", "sub"),
                     ),
                 ),
+            requiredClaims = RequiredClaims("maskinporten", arrayOf("authorization_details", "consumer", "scope")),
             additionalValidation = {
                 it.gyldigSystembrukerOgConsumer(pdpService::harTilgang) &&
                     it.gyldigScope()

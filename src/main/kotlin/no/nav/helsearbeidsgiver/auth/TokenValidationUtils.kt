@@ -6,6 +6,7 @@ import io.ktor.server.application.call
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
+import no.nav.helsearbeidsgiver.Env
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 
@@ -49,7 +50,8 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(harTilgang: (systembruke
         harTilgang(systembruker, systembrukerOrgnr)
 }
 
-fun TokenValidationContext.gyldigScope(): Boolean = this.getClaims("maskinporten").get("scope") == "nav:helse/im.read"
+fun TokenValidationContext.gyldigScope(): Boolean =
+    this.getClaims("maskinporten").get("scope") == Env.getProperty("maskinporten.eksponert_scopes")
 
 private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")
