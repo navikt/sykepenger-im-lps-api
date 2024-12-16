@@ -7,6 +7,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 
@@ -22,15 +23,19 @@ suspend fun PipelineContext<Unit, ApplicationCall>.tokenValidationContext(): Tok
 
 fun TokenValidationContext.getAuthDetails() = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>
 
-fun TokenValidationContext.getSystembrukerOrgnr(): String? {
+fun TokenValidationContext.getSystembrukerOrgnr(): String {
     val authorizationDetails = this.getAuthDetails()
     val systemBrukerOrgMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
-    return systemBrukerOrgMap.extractOrgnummer()
+    val systemBrukerOrgnr = systemBrukerOrgMap.extractOrgnummer()
+    require(systemBrukerOrgnr != null)
+    return systemBrukerOrgnr
 }
 
-fun TokenValidationContext.getConsumerOrgnr(): String? {
+fun TokenValidationContext.getConsumerOrgnr(): String {
     val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
-    return consumer.extractOrgnummer()
+    val orgnr = consumer.extractOrgnummer()
+    require(orgnr != null)
+    return orgnr
 }
 
 fun TokenValidationContext.getSystembrukerId(): String {
@@ -39,16 +44,16 @@ fun TokenValidationContext.getSystembrukerId(): String {
     return systemBrukerIdListe.first()
 }
 
-fun TokenValidationContext.gyldigSystembrukerOgConsumer(harTilgang: (systembruker: String, orgnr: String) -> Boolean): Boolean {
+fun TokenValidationContext.gyldigSystembrukerOgConsumer(pdpService: PdpService): Boolean {
     val systembrukerOrgnr = this.getSystembrukerOrgnr()
     val systembruker = this.getSystembrukerId()
     val consumerOrgnr = this.getConsumerOrgnr()
-    return consumerOrgnr != null &&
-        consumerOrgnr.matches(Regex("\\d{9}")) &&
-        systembrukerOrgnr != null &&
-        systembrukerOrgnr.matches(Regex("\\d{9}")) &&
-        harTilgang(systembruker, systembrukerOrgnr)
+    return consumerOrgnr.gyldigOrgnr() &&
+        systembrukerOrgnr.gyldigOrgnr() &&
+        pdpService.harTilgang(systembruker, systembrukerOrgnr)
 }
+
+fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))
 
 fun TokenValidationContext.gyldigScope(): Boolean =
     this.getClaims("maskinporten").get("scope") == Env.getProperty("maskinporten.eksponert_scopes")

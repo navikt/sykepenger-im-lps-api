@@ -98,8 +98,7 @@ fun Application.apiModule(pdpService: PdpService) {
                 ),
             requiredClaims = RequiredClaims("maskinporten", arrayOf("authorization_details", "consumer", "scope")),
             additionalValidation = {
-                it.gyldigSystembrukerOgConsumer(pdpService::harTilgang) &&
-                    it.gyldigScope()
+                it.gyldigScope() && it.gyldigSystembrukerOgConsumer(pdpService)
             },
             resourceRetriever =
                 DefaultResourceRetriever(
