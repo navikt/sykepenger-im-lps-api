@@ -17,13 +17,8 @@ fun Route.forespoersler(forespoerselService: ForespoerselService) {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (sluttbrukerOrgnr != null) {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
-                call.respond(forespoerselService.hentForespoerslerForOrgnr(sluttbrukerOrgnr))
-            } else {
-                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
-            }
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
+            call.respond(forespoerselService.hentForespoerslerForOrgnr(sluttbrukerOrgnr))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
@@ -38,13 +33,8 @@ fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottat request: $request")
-            if (sluttbrukerOrgnr != null) {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
-                call.respond(forespoerselService.filtrerForespoerslerForOrgnr(sluttbrukerOrgnr, request))
-            } else {
-                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
-            }
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
+            call.respond(forespoerselService.filtrerForespoerslerForOrgnr(sluttbrukerOrgnr, request))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
