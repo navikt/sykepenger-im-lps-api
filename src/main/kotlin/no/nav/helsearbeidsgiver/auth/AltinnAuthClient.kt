@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.utils
+package no.nav.helsearbeidsgiver.auth
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.pdp
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
-import no.nav.helsearbeidsgiver.utils.AltinnAuthClient
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class PdpService(
