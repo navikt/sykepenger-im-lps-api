@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.pdp
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
 import no.nav.helsearbeidsgiver.utils.AltinnAuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -24,9 +25,9 @@ class PdpService(
 }
 
 fun lagPdpClient(): PdpClient {
-    val altinn3Url = System.getenv("ALTINN_3_URL")
-    val subscriptionKey = System.getenv("SUBSCRIPTION_KEY")
-    val altinnImRessurs = System.getenv("ALTINN_IM_RESSURS")
+    val altinn3Url = Env.getProperty("ALTINN_3_URL")
+    val subscriptionKey = Env.getProperty("SUBSCRIPTION_KEY")
+    val altinnImRessurs = Env.getProperty("ALTINN_IM_RESSURS")
     val altinnAuthClient = AltinnAuthClient()
     val pdpClient =
         PdpClient(

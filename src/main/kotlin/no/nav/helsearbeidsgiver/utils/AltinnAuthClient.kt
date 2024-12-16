@@ -16,6 +16,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -37,8 +38,8 @@ class AltinnAuthClient {
 
     fun getToken(): String =
         runBlocking {
-            val texasTokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT")
-            val altinn3Url = System.getenv("ALTINN_3_URL")
+            val texasTokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
+            val altinn3Url = Env.getProperty("ALTINN_3_URL")
             val altinnPdpScope = "altinn:authorization/authorize"
             val maskinportenToken: String =
                 httpClient
