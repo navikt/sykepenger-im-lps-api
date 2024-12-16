@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.pdp
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
-import no.nav.helsearbeidsgiver.utils.AltinnTokenClient
+import no.nav.helsearbeidsgiver.utils.AltinnAuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class PdpService(
@@ -19,19 +19,21 @@ class PdpService(
                     systembruker,
                     orgnr,
                 )
-            }.getOrDefault(false)
+            }.getOrDefault(false) // TODO: håndter feil ved å svare status 500 / 502 tilbake til bruker
         }
 }
 
 fun lagPdpClient(): PdpClient {
+    val altinn3Url = System.getenv("ALTINN_3_URL")
     val subscriptionKey = System.getenv("SUBSCRIPTION_KEY")
-    val altinnTokenClient = AltinnTokenClient()
+    val altinnImRessurs = System.getenv("ALTINN_IM_RESSURS")
+    val altinnAuthClient = AltinnAuthClient()
     val pdpClient =
         PdpClient(
-            "https://platform.tt02.altinn.no",
+            altinn3Url,
             subscriptionKey,
-            "nav_sykepenger_inntektsmelding-nedlasting",
-            altinnTokenClient::getToken,
+            altinnImRessurs,
+            altinnAuthClient::getToken,
         )
     return pdpClient
 }

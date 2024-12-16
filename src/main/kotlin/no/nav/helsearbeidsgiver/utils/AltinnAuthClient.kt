@@ -4,9 +4,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.accept
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -19,7 +18,7 @@ import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-class AltinnTokenClient {
+class AltinnAuthClient {
     @Serializable
     data class TokenResponse(
         @SerialName("access_token") val accessToken: String,
@@ -41,7 +40,6 @@ class AltinnTokenClient {
                 httpClient
                     .post(System.getenv("NAIS_TOKEN_ENDPOINT")) {
                         contentType(ContentType.Application.FormUrlEncoded)
-                        accept(ContentType.Application.Json)
                         setBody(
                             listOf(
                                 "identity_provider" to "maskinporten",
@@ -53,7 +51,7 @@ class AltinnTokenClient {
             val altinnToken: String =
                 httpClient
                     .get("https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten") {
-                        header("Authorization", "Bearer $maskinportenToken")
+                        bearerAuth(maskinportenToken)
                     }.body<String>()
             sikkerLogger().info("altinnToken: $altinnToken")
             altinnToken
