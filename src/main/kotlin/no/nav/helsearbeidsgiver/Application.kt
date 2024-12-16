@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
-import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -11,7 +10,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import no.nav.helsearbeidsgiver.auth.gyldigSupplierOgConsumer
+import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
@@ -86,28 +85,6 @@ fun Application.apiModule(pdpService: PdpService) {
     }
     install(Authentication) {
         tokenValidationSupport(
-            "delegerbart-config",
-            config =
-                TokenSupportConfig(
-                    IssuerConfig(
-                        "maskinporten",
-                        Env.getProperty("maskinporten.wellknownUrl"),
-                        // Todo endre scope til gammelt scope
-                        listOf(Env.getProperty("maskinporten.eksponert_scopes")),
-                        listOf("aud", "sub"),
-                    ),
-                ),
-            additionalValidation = {
-                it.gyldigSupplierOgConsumer()
-            },
-            resourceRetriever =
-                DefaultResourceRetriever(
-                    DEFAULT_HTTP_CONNECT_TIMEOUT,
-                    DEFAULT_HTTP_READ_TIMEOUT,
-                    DEFAULT_HTTP_SIZE_LIMIT,
-                ),
-        )
-        tokenValidationSupport(
             "systembruker-config",
             config =
                 TokenSupportConfig(
@@ -119,7 +96,8 @@ fun Application.apiModule(pdpService: PdpService) {
                     ),
                 ),
             additionalValidation = {
-                it.gyldigSystembrukerOgConsumer(pdpService::harTilgang)
+                it.gyldigSystembrukerOgConsumer(pdpService::harTilgang) &&
+                    it.gyldigScope()
             },
             resourceRetriever =
                 DefaultResourceRetriever(

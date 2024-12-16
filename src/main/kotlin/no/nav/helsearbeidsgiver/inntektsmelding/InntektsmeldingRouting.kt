@@ -7,8 +7,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import no.nav.helsearbeidsgiver.auth.getLpsOrgnr
-import no.nav.helsearbeidsgiver.auth.getSluttbruker
+import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
+import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -16,8 +16,8 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingRequest>()
-            val sluttbrukerOrgnr = tokenValidationContext().getSluttbruker()
-            val lpsOrgnr = tokenValidationContext().getLpsOrgnr()
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottat request: $request")
             if (sluttbrukerOrgnr != null) {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
@@ -43,8 +43,8 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
 fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     get("/inntektsmeldinger") {
         try {
-            val sluttbrukerOrgnr = tokenValidationContext().getSluttbruker()
-            val lpsOrgnr = tokenValidationContext().getLpsOrgnr()
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (sluttbrukerOrgnr != null) {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
                 inntektsmeldingService

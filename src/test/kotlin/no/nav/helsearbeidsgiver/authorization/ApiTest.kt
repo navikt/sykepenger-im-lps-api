@@ -72,7 +72,7 @@ class ApiTest {
 
             val response =
                 client.get("/forespoersler") {
-                    bearerAuth(gyldigAuthToken())
+                    bearerAuth(gyldigSystembrukerAuthToken())
                 }
             response.status.value shouldBe 200
             val forespoerselSvar = response.body<ForespoerselResponse>()
@@ -96,31 +96,18 @@ class ApiTest {
         runTest {
             val response1 =
                 client.get("/forespoersler") {
-                    bearerAuth(ugyldigTokenManglerSupplier())
+                    bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response1.status.value shouldBe 401
             val response2 =
                 client.get("/inntektsmeldinger") {
-                    bearerAuth(ugyldigTokenManglerSupplier())
+                    bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response2.status.value shouldBe 401
         }
 
     @Test
     fun `hent inntektsmeldinger`() =
-        runTest {
-            val response =
-                client.get("/inntektsmeldinger") {
-                    bearerAuth(gyldigAuthToken())
-                }
-            response.status.value shouldBe 200
-            val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
-            inntektsmeldingResponse.antallInntektsmeldinger shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
-        }
-
-    @Test
-    fun `hent inntektsmeldinger med systembruker`() =
         runTest {
             val response =
                 client.get("/inntektsmeldinger") {
@@ -145,29 +132,11 @@ class ApiTest {
                 claims = claims,
             ).serialize()
 
-    fun gyldigAuthToken(): String =
+    fun ugyldigTokenManglerSystembruker(): String =
         hentToken(
             claims =
                 mapOf(
-                    "scope" to "maskinporten",
-                    "supplier" to
-                        mapOf(
-                            "authority" to "iso6523-actorid-upis",
-                            "ID" to "0192:991825827",
-                        ),
-                    "consumer" to
-                        mapOf(
-                            "authority" to "iso6523-actorid-upis",
-                            "ID" to "0192:810007842",
-                        ),
-                ),
-        )
-
-    fun ugyldigTokenManglerSupplier(): String =
-        hentToken(
-            claims =
-                mapOf(
-                    "scope" to "maskinporten",
+                    "scope" to "nav:helse/im.read",
                     "consumer" to
                         mapOf(
                             "authority" to "iso6523-actorid-upis",

@@ -8,6 +8,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
@@ -36,23 +37,27 @@ class AltinnAuthClient {
 
     fun getToken(): String =
         runBlocking {
+            val texasTokenEndpoint = System.getenv("NAIS_TOKEN_ENDPOINT")
+            val altinn3Url = System.getenv("ALTINN_3_URL")
+            val altinnPdpScope = "altinn:authorization/authorize"
             val maskinportenToken: String =
                 httpClient
-                    .post(System.getenv("NAIS_TOKEN_ENDPOINT")) {
+                    .post(texasTokenEndpoint) {
                         contentType(ContentType.Application.FormUrlEncoded)
                         setBody(
                             listOf(
                                 "identity_provider" to "maskinporten",
-                                "target" to "altinn:authorization/authorize",
+                                "target" to altinnPdpScope,
                             ).formUrlEncode(),
                         )
                     }.body<TokenResponse>()
                     .accessToken
             val altinnToken: String =
                 httpClient
-                    .get("https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten") {
+                    .get("$altinn3Url/authentication/api/v1/exchange/maskinporten") {
                         bearerAuth(maskinportenToken)
-                    }.body<String>()
+                    }.bodyAsText()
+                    .replace("\"", "")
             sikkerLogger().info("altinnToken: $altinnToken")
             altinnToken
         }

@@ -19,26 +19,12 @@ suspend fun PipelineContext<Unit, ApplicationCall>.tokenValidationContext(): Tok
     return tokenValidationContext
 }
 
-fun TokenValidationContext.getLpsOrgnr() {
-    this.getSupplierOrgnr() ?: this.getConsumerOrgnr()
-}
+fun TokenValidationContext.getAuthDetails() = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>
 
-fun TokenValidationContext.getSluttbruker(): String? {
-    val authorizationDetails = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>?
-
-    val systembruker: String? =
-        if (authorizationDetails != null) {
-            val systemBrukerMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
-            systemBrukerMap.extractOrgnummer()
-        } else {
-            this.getConsumerOrgnr()
-        }
-    return systembruker
-}
-
-fun TokenValidationContext.getSupplierOrgnr(): String? {
-    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>?
-    return supplier?.extractOrgnummer()
+fun TokenValidationContext.getSystembrukerOrgnr(): String? {
+    val authorizationDetails = this.getAuthDetails()
+    val systemBrukerOrgMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
+    return systemBrukerOrgMap.extractOrgnummer()
 }
 
 fun TokenValidationContext.getConsumerOrgnr(): String? {
@@ -46,37 +32,24 @@ fun TokenValidationContext.getConsumerOrgnr(): String? {
     return consumer.extractOrgnummer()
 }
 
-fun TokenValidationContext.gyldigSupplierOgConsumer(): Boolean {
-    val supplier = this.getClaims("maskinporten").get("supplier") as Map<String, String>
-    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
-    val supplierOrgnr = supplier.extractOrgnummer()
-    val consumerOrgnr = consumer.extractOrgnummer()
-    return supplierOrgnr != null &&
-        consumerOrgnr != null &&
-        supplierOrgnr.matches(Regex("\\d{9}")) &&
-        consumerOrgnr.matches(Regex("\\d{9}"))
+fun TokenValidationContext.getSystembrukerId(): String {
+    val authDetails = this.getAuthDetails()
+    val systemBrukerIdListe = authDetails.first().get("systemuser_id") as List<String>
+    return systemBrukerIdListe.first()
 }
 
-fun TokenValidationContext.gyldigSystembrukerOgConsumer(harTilgang: (orgnr: String, systembruker: String) -> Boolean): Boolean {
-    val authDetails = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>
-    val systemBrukerMap = authDetails.first().get("systemuser_org") as Map<String, String>
-    val systemBrukerIdListe = authDetails.first().get("systemuser_id") as List<String>
-    val systembrukerOrgnr = systemBrukerMap.extractOrgnummer()
-    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
-    val consumerOrgnr = consumer.extractOrgnummer()
+fun TokenValidationContext.gyldigSystembrukerOgConsumer(harTilgang: (systembruker: String, orgnr: String) -> Boolean): Boolean {
+    val systembrukerOrgnr = this.getSystembrukerOrgnr()
+    val systembruker = this.getSystembrukerId()
+    val consumerOrgnr = this.getConsumerOrgnr()
     return consumerOrgnr != null &&
         consumerOrgnr.matches(Regex("\\d{9}")) &&
         systembrukerOrgnr != null &&
         systembrukerOrgnr.matches(Regex("\\d{9}")) &&
-        systemBrukerIdListe.isNotEmpty() &&
-        harTilgang(systembrukerOrgnr, systemBrukerIdListe.first())
+        harTilgang(systembruker, systembrukerOrgnr)
 }
 
-fun TokenValidationContext.trekkUttSystembrukerId(): String {
-    val authDetails = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>
-    val systemBrukerIdListe = authDetails.first().get("systemuser_id") as List<String>
-    return systemBrukerIdListe.first()
-}
+fun TokenValidationContext.gyldigScope(): Boolean = this.getClaims("maskinporten").get("scope") == "nav:helse/im.read"
 
 private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")

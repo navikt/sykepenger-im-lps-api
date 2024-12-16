@@ -9,8 +9,8 @@ class PdpService(
     val pdpClient: PdpClient,
 ) {
     fun harTilgang(
-        orgnr: String,
         systembruker: String,
+        orgnr: String,
     ): Boolean =
         runBlocking {
             sikkerLogger().info("orgnr: $orgnr, systembruker: $systembruker")
