@@ -8,7 +8,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
-import no.nav.helsearbeidsgiver.auth.getSupplierOrgnr
+import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -16,23 +16,18 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingRequest>()
-            val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottat request: $request")
-            if (consumerOrgnr != null) {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
-                inntektsmeldingService
-                    .hentInntektsMeldingByRequest(
-                        orgnr = consumerOrgnr,
-                        request = request,
-                    ).takeIf { it.antallInntektsmeldinger > 0 }
-                    ?.let {
-                        call.respond(it)
-                    } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
-            } else {
-                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
-            }
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    orgnr = sluttbrukerOrgnr,
+                    request = request,
+                ).takeIf { it.antallInntektsmeldinger > 0 }
+                ?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
@@ -43,20 +38,15 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
 fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     get("/inntektsmeldinger") {
         try {
-            val consumerOrgnr = tokenValidationContext().getConsumerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getSupplierOrgnr()
-            if (consumerOrgnr != null) {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$consumerOrgnr]")
-                inntektsmeldingService
-                    .hentInntektsmeldingerByOrgNr(consumerOrgnr)
-                    .takeIf { it.antallInntektsmeldinger > 0 }
-                    ?.let {
-                        call.respond(it)
-                    } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
-            } else {
-                sikkerLogger().warn("LPS: [$lpsOrgnr] - Consumer orgnr mangler")
-                call.respond(HttpStatusCode.Unauthorized, "Consumer orgnr mangler")
-            }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
+            inntektsmeldingService
+                .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
+                .takeIf { it.antallInntektsmeldinger > 0 }
+                ?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
