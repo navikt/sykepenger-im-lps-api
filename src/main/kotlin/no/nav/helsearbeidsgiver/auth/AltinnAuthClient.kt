@@ -18,7 +18,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class AltinnAuthClient {
     @Serializable
@@ -40,7 +39,7 @@ class AltinnAuthClient {
         runBlocking {
             val texasTokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
             val altinn3Url = Env.getProperty("ALTINN_3_URL")
-            val altinnPdpScope = "altinn:authorization/authorize"
+            val altinnPdpScope = Env.getProperty("ALTINN_PDP_SCOPE")
             val maskinportenToken: String =
                 httpClient
                     .post(texasTokenEndpoint) {
@@ -59,7 +58,6 @@ class AltinnAuthClient {
                         bearerAuth(maskinportenToken)
                     }.bodyAsText()
                     .replace("\"", "")
-            sikkerLogger().info("altinnToken: $altinnToken")
             altinnToken
         }
 }

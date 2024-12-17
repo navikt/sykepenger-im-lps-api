@@ -63,4 +63,6 @@ spec:
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS
       value: "nav_sykepenger_inntektsmelding-nedlasting"
+    - name: ALTINN_PDP_SCOPE
+      value: "altinn_authorization/authorize"
 
