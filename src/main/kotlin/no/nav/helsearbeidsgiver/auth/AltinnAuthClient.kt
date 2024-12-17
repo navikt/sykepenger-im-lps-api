@@ -18,6 +18,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class AltinnAuthClient {
     @Serializable
@@ -37,6 +38,7 @@ class AltinnAuthClient {
 
     fun getToken(): String =
         runBlocking {
+            sikkerLogger().info("Henter nytt token fra maskinporten og altinn")
             val texasTokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
             val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
             val altinnPdpScope = Env.getProperty("ALTINN_PDP_SCOPE")
