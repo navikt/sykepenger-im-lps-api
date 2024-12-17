@@ -59,7 +59,7 @@ spec:
   env:
     - name: EKSPONERT_MASKINPORTEN_SCOPES
       value: "nav:helse/im.read"
-    - name: ALTINN_3_URL
+    - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS
       value: "nav_sykepenger_inntektsmelding-nedlasting"

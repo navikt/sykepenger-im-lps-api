@@ -86,17 +86,21 @@ fun Application.apiModule(pdpService: PdpService) {
     }
     install(Authentication) {
         tokenValidationSupport(
-            "systembruker-config",
+            name = "systembruker-config",
             config =
                 TokenSupportConfig(
                     IssuerConfig(
-                        "maskinporten",
-                        Env.getProperty("maskinporten.wellknownUrl"),
-                        listOf(Env.getProperty("maskinporten.eksponert_scopes")),
-                        listOf("aud", "sub"),
+                        name = "maskinporten",
+                        discoveryUrl = Env.getProperty("maskinporten.wellknownUrl"),
+                        acceptedAudience = listOf(Env.getProperty("maskinporten.eksponert_scopes")),
+                        optionalClaims = listOf("aud", "sub"),
                     ),
                 ),
-            requiredClaims = RequiredClaims("maskinporten", arrayOf("authorization_details", "consumer", "scope")),
+            requiredClaims =
+                RequiredClaims(
+                    issuer = "maskinporten",
+                    claimMap = arrayOf("authorization_details", "consumer", "scope"),
+                ),
             additionalValidation = {
                 it.gyldigScope() && it.gyldigSystembrukerOgConsumer(pdpService)
             },

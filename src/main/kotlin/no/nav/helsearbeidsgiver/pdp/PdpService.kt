@@ -25,13 +25,13 @@ class PdpService(
 }
 
 fun lagPdpClient(): PdpClient {
-    val altinn3Url = Env.getProperty("ALTINN_3_URL")
+    val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
     val subscriptionKey = Env.getProperty("SUBSCRIPTION_KEY")
     val altinnImRessurs = Env.getProperty("ALTINN_IM_RESSURS")
     val altinnAuthClient = AltinnAuthClient()
     val pdpClient =
         PdpClient(
-            altinn3Url,
+            altinn3BaseUrl,
             subscriptionKey,
             altinnImRessurs,
             altinnAuthClient::getToken,

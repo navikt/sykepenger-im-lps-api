@@ -38,7 +38,7 @@ class AltinnAuthClient {
     fun getToken(): String =
         runBlocking {
             val texasTokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
-            val altinn3Url = Env.getProperty("ALTINN_3_URL")
+            val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
             val altinnPdpScope = Env.getProperty("ALTINN_PDP_SCOPE")
             val maskinportenToken: String =
                 httpClient
@@ -54,7 +54,7 @@ class AltinnAuthClient {
                     .accessToken
             val altinnToken: String =
                 httpClient
-                    .get("$altinn3Url/authentication/api/v1/exchange/maskinporten") {
+                    .get("$altinn3BaseUrl/authentication/api/v1/exchange/maskinporten") {
                         bearerAuth(maskinportenToken)
                     }.bodyAsText()
                     .replace("\"", "")
