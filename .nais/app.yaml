@@ -64,5 +64,5 @@ spec:
     - name: ALTINN_IM_RESSURS
       value: "nav_sykepenger_inntektsmelding-nedlasting"
     - name: ALTINN_PDP_SCOPE
-      value: "altinn_authorization/authorize"
+      value: "altinn:authorization/authorize"
 
