@@ -6,10 +6,17 @@ import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
+interface IPdpService {
+    fun harTilgang(
+        systembruker: String,
+        orgnr: String,
+    ): Boolean
+}
+
 class PdpService(
     val pdpClient: PdpClient,
-) {
-    fun harTilgang(
+) : IPdpService {
+    override fun harTilgang(
         systembruker: String,
         orgnr: String,
     ): Boolean =
@@ -22,6 +29,14 @@ class PdpService(
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500 / 502 tilbake til bruker
         }
+}
+
+// Benytter default ingen tilgang i prod inntil vi ønsker å eksponere APIet via http
+class IngenTilgangPdpService : IPdpService {
+    override fun harTilgang(
+        systembruker: String,
+        orgnr: String,
+    ): Boolean = false
 }
 
 fun lagPdpClient(): PdpClient {
