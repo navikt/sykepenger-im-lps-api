@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
-import kotlinx.serialization.Serializable
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
@@ -28,7 +27,7 @@ class InntektsmeldingTolker(
             }
         transaction {
             try {
-                inntektsmeldingService.opprettInntektsmelding(obj.inntektsmeldingV1)
+                inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                 mottakRepository.opprett(ExposedMottak(melding))
             } catch (e: Exception) {
                 rollback()
@@ -38,11 +37,5 @@ class InntektsmeldingTolker(
         }
     }
 
-    private fun parseRecord(record: String): ImMessage = jsonMapper.decodeFromString<ImMessage>(record)
-
-    @Serializable
-    data class ImMessage(
-        val journalpostId: String,
-        val inntektsmeldingV1: Inntektsmelding,
-    )
+    private fun parseRecord(record: String): JournalfoertInntektsmelding = jsonMapper.decodeFromString<JournalfoertInntektsmelding>(record)
 }
