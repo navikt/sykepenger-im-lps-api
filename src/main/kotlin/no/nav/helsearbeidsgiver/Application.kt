@@ -11,6 +11,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.Env.getProperty
+import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
@@ -43,7 +44,7 @@ fun main() {
 }
 
 fun startServer() {
-    val pdpService = if (isProd()) IngenTilgangPdpService() else PdpService(lagPdpClient())
+    val pdpService = if (isDev()) PdpService(lagPdpClient()) else IngenTilgangPdpService()
     embeddedServer(
         factory = Netty,
         port = 8080,
@@ -120,4 +121,4 @@ fun Application.apiModule(pdpService: IPdpService) {
     configureRouting(forespoerselService, inntektsmeldingService)
 }
 
-private fun isProd(): Boolean = getProperty("NAIS_CLUSTER_NAME").equals("prod-gcp", true)
+private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)

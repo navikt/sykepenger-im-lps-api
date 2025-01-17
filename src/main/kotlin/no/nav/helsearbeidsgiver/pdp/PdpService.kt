@@ -36,7 +36,10 @@ class IngenTilgangPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
-    ): Boolean = false
+    ): Boolean {
+        sikkerLogger().info("Ingen PDP, ingen tilgang")
+        return false
+    }
 }
 
 fun lagPdpClient(): PdpClient {
