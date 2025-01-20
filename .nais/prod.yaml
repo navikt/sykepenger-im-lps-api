@@ -1,0 +1,71 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+
+metadata:
+  labels:
+    team: helsearbeidsgiver
+  name: sykepenger-im-lps-api
+  namespace: helsearbeidsgiver
+  annotations:
+    texas.nais.io/enabled: "true"
+spec:
+  replicas:
+    max: 2
+    min: 2
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "768Mi"
+    limits:
+      memory: "1024Mi"
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  prometheus:
+    enabled: true
+    path: /metrics
+  secureLogs:
+    enabled: true
+  kafka:
+    pool: nav-prod
+  kafkaConsumer:
+    enabled: false
+#  ingresses:
+#    - https://sykepenger-im-lps-api.ekstern.nav.no
+  image: {{image}}
+  port: 8080
+#  accessPolicy:
+#    outbound:
+#      external:
+#        - host: platform.altinn.no
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - accessibleForAll: true
+          enabled: true
+          product: helse
+          separator: "/"
+          name: im.read
+      consumes:
+        - name: "altinn:authorization/authorize"
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_16
+        tier: db-custom-1-3840
+        diskAutoresize: true
+        databases:
+          - name: hag-lps
+#  envFrom:
+#    - secret: altinn-subscription
+  env:
+    - name: EKSPONERT_MASKINPORTEN_SCOPES
+      value: "nav:helse/im.read"
+#    - name: ALTINN_3_BASE_URL
+#      value: "https://platform.altinn.no"
+#    - name: ALTINN_IM_RESSURS
+#      value: "nav_sykepenger_inntektsmelding-nedlasting"
+#    - name: ALTINN_PDP_SCOPE
+#      value: "altinn_authorization/authorize"
+

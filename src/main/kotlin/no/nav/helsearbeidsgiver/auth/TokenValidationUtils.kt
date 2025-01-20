@@ -7,7 +7,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.pdp.PdpService
+import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 
@@ -44,7 +44,7 @@ fun TokenValidationContext.getSystembrukerId(): String {
     return systemBrukerIdListe.first()
 }
 
-fun TokenValidationContext.gyldigSystembrukerOgConsumer(pdpService: PdpService): Boolean {
+fun TokenValidationContext.gyldigSystembrukerOgConsumer(pdpService: IPdpService): Boolean {
     val systembrukerOrgnr = this.getSystembrukerOrgnr()
     val systembruker = this.getSystembrukerId()
     val consumerOrgnr = this.getConsumerOrgnr()

@@ -1,9 +1,7 @@
-name: Build and deploy
+name: Produksjon
 on:
-  push:
-    branches:
-      - main
-      - 'dev/**'
+  release:
+    types: [released]
 
 env:
   ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
@@ -35,6 +33,6 @@ jobs:
       - name: Deploy to NAIS
         uses: nais/deploy/actions/deploy@v2
         env:
-          CLUSTER: dev-gcp
-          RESOURCE: .nais/dev.yaml
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/prod.yaml
           VAR: image=${{ steps.docker-build-push.outputs.image }}

@@ -10,6 +10,8 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nav.helsearbeidsgiver.Env.getProperty
+import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
@@ -22,6 +24,8 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.pdp.IPdpService
+import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
@@ -40,15 +44,16 @@ fun main() {
 }
 
 fun startServer() {
+    val pdpService = if (isDev()) PdpService(lagPdpClient()) else IngenTilgangPdpService()
     embeddedServer(
         factory = Netty,
         port = 8080,
-        module = { apiModule(pdpService = PdpService(lagPdpClient())) },
+        module = { apiModule(pdpService = pdpService) },
     ).start(wait = true)
 }
 
 @Suppress("unused")
-fun Application.apiModule(pdpService: PdpService) {
+fun Application.apiModule(pdpService: IPdpService) {
     sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
@@ -56,12 +61,12 @@ fun Application.apiModule(pdpService: PdpService) {
     val mottakRepository = MottakRepository(db)
     val forespoerselService = ForespoerselService(forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
-    val kafka = Env.getProperty("kafkaConsumer.enabled").toBoolean()
+    val kafka = getProperty("kafkaConsumer.enabled").toBoolean()
     if (kafka) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
-                Env.getProperty("kafkaConsumer.inntektsmelding.topic"),
+                getProperty("kafkaConsumer.inntektsmelding.topic"),
                 inntektsmeldingKafkaConsumer,
                 InntektsmeldingTolker(
                     inntektsmeldingService,
@@ -72,7 +77,7 @@ fun Application.apiModule(pdpService: PdpService) {
         val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
-                Env.getProperty("kafkaConsumer.forespoersel.topic"),
+                getProperty("kafkaConsumer.forespoersel.topic"),
                 forespoerselKafkaConsumer,
                 ForespoerselTolker(
                     forespoerselRepository,
@@ -91,8 +96,8 @@ fun Application.apiModule(pdpService: PdpService) {
                 TokenSupportConfig(
                     IssuerConfig(
                         name = "maskinporten",
-                        discoveryUrl = Env.getProperty("maskinporten.wellknownUrl"),
-                        acceptedAudience = listOf(Env.getProperty("maskinporten.eksponert_scopes")),
+                        discoveryUrl = getProperty("maskinporten.wellknownUrl"),
+                        acceptedAudience = listOf(getProperty("maskinporten.eksponert_scopes")),
                         optionalClaims = listOf("aud", "sub"),
                     ),
                 ),
@@ -115,3 +120,5 @@ fun Application.apiModule(pdpService: PdpService) {
     sikkerLogger().info("Setter opp ruting...")
     configureRouting(forespoerselService, inntektsmeldingService)
 }
+
+private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)
