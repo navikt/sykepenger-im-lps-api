@@ -29,8 +29,6 @@ spec:
     enabled: true
   kafka:
     pool: nav-prod
-  kafkaConsumer:
-    enabled: false
 #  ingresses:
 #    - https://sykepenger-im-lps-api.ekstern.nav.no
   image: {{image}}
