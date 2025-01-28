@@ -21,9 +21,7 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "TokenValidationContext not found"
-                Example#2:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
