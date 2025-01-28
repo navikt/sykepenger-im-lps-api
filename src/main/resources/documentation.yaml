@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
-  title: "sykepenger_im_lps_api API"
-  description: "sykepenger_im_lps_api API"
+  title: "Sykepenger inntektsmelding lps  API"
+  description: "API for å hente forespørsler og inntektsmeldinger for sykepenger"
   version: "1.0.0"
 servers:
   - url: http://localhost:8080
