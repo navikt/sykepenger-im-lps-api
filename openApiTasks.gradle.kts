@@ -48,7 +48,9 @@ tasks.register("modifyOpenApi") {
   - url: http://localhost:8080
     description: Localhost
   - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
-    description: Dev"""
+    description: Dev
+security:
+  - bearerAuth: [ ]"""
 
         content =
             content
