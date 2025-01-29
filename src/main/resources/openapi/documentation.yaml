@@ -1,6 +1,6 @@
 openapi: "3.1.0"
 info:
-  title: "Sykepenger inntektsmelding lps  API"
+  title: "Sykepenger inntektsmelding lps API"
   description: "API for å hente forespørsler og inntektsmeldinger for sykepenger"
   version: "1.0.0"
 servers:
@@ -11,7 +11,7 @@ servers:
 paths:
   /forespoersler:
     get:
-      description: ""
+      description: "Henter forespørsler for et orgnr."
       responses:
         "401":
           description: "Unauthorized"
@@ -21,6 +21,8 @@ paths:
                 type: "string"
               examples:
                 Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -38,7 +40,7 @@ paths:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
     post:
-      description: ""
+      description: "Filtrerer forespørsler for et orgnr basert på request."
       requestBody:
         content:
           application/json:
@@ -54,9 +56,9 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
                 Example#2:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -74,7 +76,7 @@ paths:
                   value: "Feil ved henting av forespørsler"
   /inntektsmeldinger:
     get:
-      description: ""
+      description: "Henter inntektsmeldinger for et orgnr."
       responses:
         "401":
           description: "Unauthorized"
@@ -84,9 +86,9 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
                 Example#2:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -112,7 +114,7 @@ paths:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
     post:
-      description: ""
+      description: "Filterer inntektsmeldinger for et orgnr basert på request."
       requestBody:
         content:
           application/json:
@@ -128,9 +130,9 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
                 Example#2:
-                  value: "TokenValidationContext not found"
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -161,6 +163,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   schemas:
     Periode:
       type: "object"
