@@ -2,7 +2,7 @@ tasks.register("modifyOpenApi") {
     doLast {
         val openApiFile = file("src/main/resources/openapi/documentation.yaml")
         if (!openApiFile.exists()) {
-            logger.error("OpenAPI fil ikke funnet!")
+            logger.error("OpenApi fil ikke funnet!")
             return@doLast
         }
 

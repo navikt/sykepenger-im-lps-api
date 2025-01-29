@@ -8,6 +8,8 @@ servers:
     description: Localhost
   - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
     description: Dev
+security:
+  - bearerAuth: [ ]
 paths:
   /forespoersler:
     get:
