@@ -45,10 +45,10 @@ tasks.register("modifyOpenApi") {
                 }
 
         val newServersBlock = """servers:
-  - url: http://localhost:8080
-    description: Localhost
   - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
     description: Dev
+  - url: http://localhost:8080
+    description: Localhost
 security:
   - bearerAuth: [ ]"""
 
