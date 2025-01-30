@@ -44,7 +44,11 @@ tasks.register("modifyOpenApi") {
                     }
                 }
 
-        val securityBlock = """
+        val newServersBlock = """servers:
+  - url: http://localhost:8080
+    description: Localhost
+  - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
+    description: Dev
 security:
   - bearerAuth: [ ]"""
 
@@ -52,10 +56,10 @@ security:
             content
                 .replace(
                     Regex("""servers:\s*- url:\s*"https://sykepenger_im_lps_api""""),
-                    securityBlock,
+                    newServersBlock,
                 ).also {
                     if (it != content) {
-                        println("oppdatert security block.")
+                        println("oppdatert servers block.")
                         modified = true
                     }
                 }
