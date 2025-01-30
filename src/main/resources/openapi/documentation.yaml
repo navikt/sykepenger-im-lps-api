@@ -3,17 +3,13 @@ info:
   title: "Sykepenger inntektsmelding lps API"
   description: "API for å hente forespørsler og inntektsmeldinger for sykepenger"
   version: "1.0.0"
-servers:
-  - url: http://localhost:8080
-    description: Localhost
-  - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
-    description: Dev
+
 security:
   - bearerAuth: [ ]
 paths:
   /forespoersler:
     get:
-      description: "Henter forespørsler for et orgnr."
+      description: "Hent forespørsler for tilhørende systembrukers orgnr."
       responses:
         "401":
           description: "Unauthorized"
@@ -42,7 +38,8 @@ paths:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
     post:
-      description: "Filtrerer forespørsler for et orgnr basert på request."
+      description: "Hent forespørsler for tilhørende systembrukers orgnr, filtrer\
+        \ basert på request."
       requestBody:
         content:
           application/json:
@@ -78,7 +75,7 @@ paths:
                   value: "Feil ved henting av forespørsler"
   /inntektsmeldinger:
     get:
-      description: "Henter inntektsmeldinger for et orgnr."
+      description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
       responses:
         "401":
           description: "Unauthorized"
@@ -116,7 +113,8 @@ paths:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
     post:
-      description: "Filterer inntektsmeldinger for et orgnr basert på request."
+      description: "Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer\
+        \ basert på request"
       requestBody:
         content:
           application/json:
