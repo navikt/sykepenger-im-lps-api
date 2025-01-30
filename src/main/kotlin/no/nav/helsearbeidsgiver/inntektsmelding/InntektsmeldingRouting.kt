@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+    // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingRequest>()
@@ -36,6 +37,7 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
 }
 
 fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+    // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
     get("/inntektsmeldinger") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()

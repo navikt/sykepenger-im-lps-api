@@ -1,0 +1,313 @@
+openapi: "3.1.0"
+info:
+  title: "Sykepenger inntektsmelding lps API"
+  description: "API for å hente forespørsler og inntektsmeldinger for sykepenger"
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080
+    description: Localhost
+  - url: https://sykepenger-im-lps-api.ekstern.dev.nav.no
+    description: Dev
+security:
+  - bearerAuth: [ ]
+paths:
+  /forespoersler:
+    get:
+      description: "Henter forespørsler for et orgnr."
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ForespoerselResponse"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av forespørsler"
+    post:
+      description: "Filtrerer forespørsler for et orgnr basert på request."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForespoerselRequest"
+        required: true
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ForespoerselResponse"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av forespørsler"
+  /inntektsmeldinger:
+    get:
+      description: "Henter inntektsmeldinger for et orgnr."
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InntektsmeldingResponse"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ingen inntektsmeldinger funnet"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av inntektsmeldinger"
+    post:
+      description: "Filterer inntektsmeldinger for et orgnr basert på request."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InntektsmeldingRequest"
+        required: true
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InntektsmeldingResponse"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ingen inntektsmeldinger funnet"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av inntektsmeldinger"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Periode:
+      type: "object"
+      properties:
+        fom:
+          type: "string"
+          format: "date"
+        tom:
+          type: "string"
+          format: "date"
+      required:
+      - "fom"
+      - "tom"
+    ForespoerselDokument:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "KOMPLETT"
+          - "BEGRENSET"
+        orgnr:
+          type: "string"
+        fnr:
+          type: "string"
+        vedtaksperiodeId:
+          type: "string"
+          format: "uuid"
+        forespoerselId:
+          type: "string"
+          format: "uuid"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+      required:
+      - "type"
+      - "orgnr"
+      - "fnr"
+      - "vedtaksperiodeId"
+      - "forespoerselId"
+      - "sykmeldingsperioder"
+      - "egenmeldingsperioder"
+    Forespoersel:
+      type: "object"
+      properties:
+        forespoerselId:
+          type: "string"
+        orgnr:
+          type: "string"
+        fnr:
+          type: "string"
+        status:
+          type: "string"
+          enum:
+          - "AKTIV"
+          - "MOTTATT"
+          - "FORKASTET"
+        dokument:
+          $ref: "#/components/schemas/ForespoerselDokument"
+      required:
+      - "forespoerselId"
+      - "orgnr"
+      - "fnr"
+      - "status"
+      - "dokument"
+    ForespoerselResponse:
+      type: "object"
+      properties:
+        antallForespoersler:
+          type: "integer"
+          format: "int32"
+        forespoerseler:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Forespoersel"
+      required:
+      - "antallForespoersler"
+      - "forespoerseler"
+    ForespoerselRequest:
+      type: "object"
+      properties:
+        fnr:
+          type: "string"
+        forespoerselId:
+          type: "string"
+        status:
+          type: "string"
+          enum:
+          - "AKTIV"
+          - "MOTTATT"
+          - "FORKASTET"
+    Inntektsmelding:
+      type: "object"
+      properties:
+        dokument:
+          $ref: "#/components/schemas/Inntektsmelding"
+        orgnr:
+          type: "string"
+        fnr:
+          type: "string"
+        foresporselid:
+          type: "string"
+        innsendt:
+          type: "string"
+          format: "date-time"
+        mottattEvent:
+          type: "string"
+          format: "date-time"
+      required:
+      - "dokument"
+      - "orgnr"
+      - "fnr"
+      - "innsendt"
+      - "mottattEvent"
+    InntektsmeldingResponse:
+      type: "object"
+      properties:
+        antallInntektsmeldinger:
+          type: "integer"
+          format: "int32"
+        inntektsmeldinger:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Inntektsmelding"
+      required:
+      - "antallInntektsmeldinger"
+      - "inntektsmeldinger"
+    InntektsmeldingRequest:
+      type: "object"
+      properties:
+        fnr:
+          type: "string"
+        foresporselid:
+          type: "string"
+        datoFra:
+          type: "string"
+          format: "date-time"
+        datoTil:
+          type: "string"
+          format: "date-time"
