@@ -13,7 +13,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun Route.forespoersler(forespoerselService: ForespoerselService) {
-    // Henter forespørsler for et orgnr.
+    // Hent forespørsler for tilhørende systembrukers orgnr.
     get("/forespoersler") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -28,7 +28,7 @@ fun Route.forespoersler(forespoerselService: ForespoerselService) {
 }
 
 fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
-    // Filtrerer forespørsler for et orgnr basert på request.
+    // Hent forespørsler for tilhørende systembrukers orgnr, filtrer basert på request.
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
