@@ -85,6 +85,7 @@ dependencies {
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
 }
+apply(from = "openApiTasks.gradle.kts")
 tasks {
     named<ShadowJar>("shadowJar") {
         mergeServiceFiles()

@@ -73,6 +73,14 @@ Konfigurasjonsfila `src/test/resources/application.conf` lar deg overstyre param
     docker run -p 8080:8080 hello-nais
     ```
 
+# OpenApi dokumentasjon
+
+Prosjektet bruker Ktor OpenAPI-plugin i IntelliJ for å generere OpenAPI-dokumentasjon. 
+Siden den genererte filen trenger oppdatering, er det lagt til en Gradle-task som modifiserer denne filen. Kjør
+```shell
+./gradlew modifyOpenApi
+``` 
+for å modifisere OpenAPI-dokumentasjonen.
 
 # Henvendelser
 

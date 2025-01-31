@@ -16,8 +16,7 @@ fun Application.configureRouting(
     inntektsmeldingService: InntektsmeldingService,
 ) {
     routing {
-        swaggerUI(path = "swagger", swaggerFile = "documentation.yaml")
-
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         authenticate("systembruker-config") {
             filtrerInntektsmeldinger(inntektsmeldingService)
             inntektsmeldinger(inntektsmeldingService)
