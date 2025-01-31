@@ -44,15 +44,13 @@ tasks.register("modifyOpenApi") {
                     }
                 }
 
-        val securityVlock = """
-security:
-  - bearerAuth: [ ]"""
-
         content =
             content
                 .replace(
                     Regex("""servers:\s*- url:\s*"https://sykepenger_im_lps_api""""),
-                    securityVlock,
+                    """
+security:
+  - bearerAuth: [ ]""",
                 ).also {
                     if (it != content) {
                         println("oppdatert security block.")
