@@ -53,6 +53,11 @@ spec:
       - type: POSTGRES_16
         tier: db-custom-1-3840
         diskAutoresize: true
+        flags:
+          - name: cloudsql.enable_pgaudit
+            value: "true"
+          - name: pgaudit.log
+            value: 'write'
         databases:
           - name: hag-lps
 #  envFrom:
