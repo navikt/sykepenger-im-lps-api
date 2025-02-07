@@ -1,16 +1,23 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
+import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.util.pipeline.PipelineContext
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.json.fromJson
+import no.nav.helsearbeidsgiver.utils.json.parseJson
+import no.nav.helsearbeidsgiver.utils.json.toPretty
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
@@ -63,16 +70,35 @@ fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
-            val request = call.receive<SkjemaInntektsmelding>()
+            val request = lesRequestOrNull()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
-            inntektsmeldingService.sendInn(request)
+            request?.let { inntektsmeldingService.sendInn(request) }
             call.respond(HttpStatusCode.Created, UUID.randomUUID()) // Skal returnere innsendingID
         } catch (e: Exception) {
-            sikkerLogger().error("Feil ved lagring / innsending: {$e}")
+            sikkerLogger().error("Feil ved lagring / innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
         }
     }
 }
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.lesRequestOrNull(): SkjemaInntektsmelding? =
+    call
+        .receiveText()
+        .runCatching {
+            parseJson()
+                .also { json ->
+                    "Mottok inntektsmeldingsskjema.".let {
+                        logger().info(it)
+                        sikkerLogger().info("$it\n${json.toPretty()}")
+                    }
+                }.fromJson(SkjemaInntektsmelding.serializer())
+        }.getOrElse { error ->
+            "Klarte ikke parse json for inntektsmeldingsskjema.".also {
+                logger().error(it)
+                sikkerLogger().error(it, error)
+            }
+            null
+        }
