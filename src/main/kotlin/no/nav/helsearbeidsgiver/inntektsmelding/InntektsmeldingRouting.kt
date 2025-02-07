@@ -10,7 +10,9 @@ import io.ktor.server.routing.post
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
@@ -19,7 +21,7 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
             val request = call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("Mottat request: $request")
+            sikkerLogger().info("Mottatt request: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
                 .hentInntektsMeldingByRequest(
@@ -42,6 +44,7 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            // TODO: Egen tilgang (scope) for innsending
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
@@ -52,6 +55,24 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+}
+
+fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
+    // Send inn inntektsmelding
+    post("/inntektsmelding") {
+        try {
+            val request = call.receive<SkjemaInntektsmelding>()
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("Mottatt innsending: $request")
+            sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
+            inntektsmeldingService.sendInn(request)
+            call.respond(HttpStatusCode.Created, UUID.randomUUID()) // Skal returnere innsendingID
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved lagring / innsending: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
         }
     }
 }

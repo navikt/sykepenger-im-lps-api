@@ -73,6 +73,43 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
+  /inntektsmelding:
+    post:
+      description: "Send inn inntektsmelding"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkjemaInntektsmelding"
+        required: true
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+                format: "uuid"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "En feil oppstod"
   /inntektsmeldinger:
     get:
       description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
@@ -245,7 +282,6 @@ components:
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
-      - "antallForespoersler"
       - "forespoerseler"
     ForespoerselRequest:
       type: "object"
@@ -260,6 +296,146 @@ components:
           - "AKTIV"
           - "MOTTATT"
           - "FORKASTET"
+    RedusertLoennIAgp:
+      type: "object"
+      properties:
+        beloep:
+          type: "number"
+          format: "double"
+        begrunnelse:
+          type: "string"
+          enum:
+          - "ArbeidOpphoert"
+          - "BeskjedGittForSent"
+          - "BetvilerArbeidsufoerhet"
+          - "FerieEllerAvspasering"
+          - "FiskerMedHyre"
+          - "FravaerUtenGyldigGrunn"
+          - "IkkeFravaer"
+          - "IkkeFullStillingsandel"
+          - "IkkeLoenn"
+          - "LovligFravaer"
+          - "ManglerOpptjening"
+          - "Permittering"
+          - "Saerregler"
+          - "StreikEllerLockout"
+          - "TidligereVirksomhet"
+      required:
+      - "begrunnelse"
+    Arbeidsgiverperiode:
+      type: "object"
+      properties:
+        perioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldinger:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        redusertLoennIAgp:
+          $ref: "#/components/schemas/RedusertLoennIAgp"
+      required:
+      - "perioder"
+      - "egenmeldinger"
+    Naturalytelse:
+      type: "object"
+      properties:
+        naturalytelse:
+          type: "string"
+          enum:
+          - "AKSJERGRUNNFONDSBEVISTILUNDERKURS"
+          - "ANNET"
+          - "BEDRIFTSBARNEHAGEPLASS"
+          - "BESOEKSREISERHJEMMETANNET"
+          - "BIL"
+          - "BOLIG"
+          - "ELEKTRONISKKOMMUNIKASJON"
+          - "FRITRANSPORT"
+          - "INNBETALINGTILUTENLANDSKPENSJONSORDNING"
+          - "KOSTBESPARELSEIHJEMMET"
+          - "KOSTDAGER"
+          - "KOSTDOEGN"
+          - "LOSJI"
+          - "OPSJONER"
+          - "RENTEFORDELLAAN"
+          - "SKATTEPLIKTIGDELFORSIKRINGER"
+          - "TILSKUDDBARNEHAGEPLASS"
+          - "YRKEBILTJENESTLIGBEHOVKILOMETER"
+          - "YRKEBILTJENESTLIGBEHOVLISTEPRIS"
+        verdiBeloep:
+          type: "number"
+          format: "double"
+        sluttdato:
+          type: "string"
+          format: "date"
+      required:
+      - "naturalytelse"
+      - "sluttdato"
+    InntektEndringAarsak:
+      type: "object"
+      properties: {}
+    Inntekt:
+      type: "object"
+      properties:
+        beloep:
+          type: "number"
+          format: "double"
+        inntektsdato:
+          type: "string"
+          format: "date"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
+        endringAarsak:
+          $ref: "#/components/schemas/InntektEndringAarsak"
+      required:
+      - "inntektsdato"
+      - "naturalytelser"
+    RefusjonEndring:
+      type: "object"
+      properties:
+        beloep:
+          type: "number"
+          format: "double"
+        startdato:
+          type: "string"
+          format: "date"
+      required:
+      - "startdato"
+    Refusjon:
+      type: "object"
+      properties:
+        beloepPerMaaned:
+          type: "number"
+          format: "double"
+        endringer:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/RefusjonEndring"
+        sluttdato:
+          type: "string"
+          format: "date"
+      required:
+      - "endringer"
+    SkjemaInntektsmelding:
+      type: "object"
+      properties:
+        forespoerselId:
+          type: "string"
+          format: "uuid"
+        avsenderTlf:
+          type: "string"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+      required:
+      - "forespoerselId"
+      - "avsenderTlf"
     Inntektsmelding:
       type: "object"
       properties:
@@ -294,7 +470,6 @@ components:
           items:
             $ref: "#/components/schemas/Inntektsmelding"
       required:
-      - "antallInntektsmeldinger"
       - "inntektsmeldinger"
     InntektsmeldingRequest:
       type: "object"

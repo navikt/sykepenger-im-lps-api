@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.forespoersel.filtererForespoersler
 import no.nav.helsearbeidsgiver.forespoersel.forespoersler
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.filtrerInntektsmeldinger
+import no.nav.helsearbeidsgiver.inntektsmelding.innsending
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldinger
 
 fun Application.configureRouting(
@@ -22,6 +23,7 @@ fun Application.configureRouting(
             inntektsmeldinger(inntektsmeldingService)
             forespoersler(forespoerselService)
             filtererForespoersler(forespoerselService)
+            innsending(inntektsmeldingService)
         }
     }
 }

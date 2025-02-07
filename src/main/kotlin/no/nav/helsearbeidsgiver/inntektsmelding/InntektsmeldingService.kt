@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService(
@@ -51,5 +52,9 @@ class InntektsmeldingService(
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
             throw Exception("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
+    }
+
+    fun sendInn(skjema: SkjemaInntektsmelding) {
+        sikkerLogger().info("Sendt inn skjema!")
     }
 }
