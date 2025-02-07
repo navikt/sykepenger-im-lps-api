@@ -48,6 +48,8 @@ spec:
           name: im.read
       consumes:
         - name: "altinn:authorization/authorize"
+        - name: "digdir:dialogporten.serviceprovider"
+
   gcp:
     sqlInstances:
       - type: POSTGRES_16
