@@ -65,4 +65,6 @@ spec:
       value: "nav_sykepenger_inntektsmelding-nedlasting"
     - name: ALTINN_PDP_SCOPE
       value: "altinn:authorization/authorize"
+    - name: DIALOGPORTEN_SCOPE
+      value: "digdir:dialogporten.serviceprovider"
 

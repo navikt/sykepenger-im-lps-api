@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -21,7 +22,8 @@ class KafkaErrorHandlingTest {
 
     val forespoerselRepository = ForespoerselRepository(db)
     val mockMottakRepository = mockk<MottakRepository>()
-    val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository)
+    val mockDialogportenService = mockk<IDialogportenService>()
+    val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository, mockDialogportenService)
 
     @BeforeEach
     fun init() {
@@ -41,7 +43,7 @@ class KafkaErrorHandlingTest {
     fun `ugyldig forespørsel i forespørselMottatt-melding skal bare lagre til mottak og gå videre`() {
         every { mockMottakRepository.opprett(any()) } returns 100
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
-        val mockConsumer = ForespoerselTolker(mockForespoerselRepository, mockMottakRepository)
+        val mockConsumer = ForespoerselTolker(mockForespoerselRepository, mockMottakRepository, mockDialogportenService)
         mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)
 
         verify(exactly = 1) { mockMottakRepository.opprett(any()) }
