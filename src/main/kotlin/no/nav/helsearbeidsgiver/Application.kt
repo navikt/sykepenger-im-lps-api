@@ -31,6 +31,7 @@ import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -41,6 +42,7 @@ import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.common.serialization.StringSerializer
 
 fun main() {
     startServer()
@@ -68,7 +70,12 @@ fun Application.apiModule(pdpService: IPdpService) {
     val inntektsmeldingService =
         InntektsmeldingService(
             inntektsmeldingRepository = inntektsmeldingRepository,
-            kafkaProducer = KafkaProducer<String, JsonElement>(createKafkaProducerConfig("im-producer")),
+            kafkaProducer =
+                KafkaProducer(
+                    createKafkaProducerConfig("im-producer"),
+                    StringSerializer(),
+                    Serializer(),
+                ),
         )
 
     if (kafka) {
@@ -133,3 +140,14 @@ fun Application.apiModule(pdpService: IPdpService) {
 }
 
 private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)
+
+private class Serializer : org.apache.kafka.common.serialization.Serializer<JsonElement> {
+    override fun serialize(
+        topic: String,
+        data: JsonElement,
+    ): ByteArray =
+        data
+            .toJson(JsonElement.serializer())
+            .toString()
+            .toByteArray()
+}
