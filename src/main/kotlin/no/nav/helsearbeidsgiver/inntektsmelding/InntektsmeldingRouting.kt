@@ -119,11 +119,12 @@ data class ApiSkjemaInntektsmeldingV1(
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
 ) {
-    fun toSkjemaInntektsmelding() = SkjemaInntektsmelding(
-        forespoerselId = forespoerselId,
-        avsenderTlf = avsenderTlf,
-        agp = agp,
-        inntekt = inntekt,
-        refusjon = refusjon,
-    )
+    fun toSkjemaInntektsmelding() =
+        SkjemaInntektsmelding(
+            forespoerselId = forespoerselId,
+            avsenderTlf = avsenderTlf,
+            agp = agp,
+            inntekt = inntekt,
+            refusjon = refusjon,
+        )
 }
