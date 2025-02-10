@@ -1,4 +1,4 @@
-@file:UseSerializers(LocalDateSerializer::class, YearMonthSerializer::class, UuidSerializer::class)
+@file:UseSerializers(UuidSerializer::class)
 
 package no.nav.helsearbeidsgiver.inntektsmelding
 
@@ -12,16 +12,18 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.parseJson
-import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.YearMonthSerializer
 import no.nav.helsearbeidsgiver.utils.json.toPretty
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -81,7 +83,7 @@ fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
-            request?.let { inntektsmeldingService.sendInn(request) }
+            request?.let { inntektsmeldingService.sendInn(request.toSkjemaInntektsmelding()) }
             call.respond(HttpStatusCode.Created, UUID.randomUUID()) // Skal returnere innsendingID
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring / innsending: {$e}", e)
@@ -90,7 +92,7 @@ fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
     }
 }
 
-private suspend fun PipelineContext<Unit, ApplicationCall>.lesRequestOrNull(): SkjemaInntektsmelding? =
+private suspend fun PipelineContext<Unit, ApplicationCall>.lesRequestOrNull(): ApiSkjemaInntektsmeldingV1? =
     call
         .receiveText()
         .runCatching {
@@ -100,7 +102,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.lesRequestOrNull(): S
                         logger().info(it)
                         sikkerLogger().info("$it\n${json.toPretty()}")
                     }
-                }.fromJson(SkjemaInntektsmelding.serializer())
+                }.fromJson(ApiSkjemaInntektsmeldingV1.serializer())
         }.getOrElse { error ->
             "Klarte ikke parse json for inntektsmeldingsskjema.".also {
                 logger().error(it)
@@ -108,3 +110,20 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.lesRequestOrNull(): S
             }
             null
         }
+
+@Serializable
+data class ApiSkjemaInntektsmeldingV1(
+    val forespoerselId: UUID,
+    val avsenderTlf: String,
+    val agp: Arbeidsgiverperiode?,
+    val inntekt: Inntekt?,
+    val refusjon: Refusjon?,
+) {
+    fun toSkjemaInntektsmelding() = SkjemaInntektsmelding(
+        forespoerselId = forespoerselId,
+        avsenderTlf = avsenderTlf,
+        agp = agp,
+        inntekt = inntekt,
+        refusjon = refusjon,
+    )
+}
