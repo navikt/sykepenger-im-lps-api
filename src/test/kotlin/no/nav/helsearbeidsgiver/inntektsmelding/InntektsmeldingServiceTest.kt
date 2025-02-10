@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -15,7 +16,8 @@ import kotlin.test.assertEquals
 
 class InntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
-    private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
+    val mockKafkaProducer = mockk<KafkaProducer<String, String>>()
+    private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository, mockKafkaProducer)
 
     @Test
     fun `opprettInntektsmelding should call inntektsmeldingRepository`() {

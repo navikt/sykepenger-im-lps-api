@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import io.mockk.mockk
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -12,15 +13,17 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TransactionalExtension::class)
 class MeldingTolkerTest {
     val db = Database.init()
+    val mockKafkaProducer = mockk<KafkaProducer<String, String>>()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
-    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
+    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository, mockKafkaProducer)
     val mottakRepository = MottakRepository(db)
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository)
