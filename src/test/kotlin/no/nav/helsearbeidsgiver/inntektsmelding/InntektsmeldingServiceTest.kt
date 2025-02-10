@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
@@ -16,7 +17,7 @@ import kotlin.test.assertEquals
 
 class InntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
-    val mockKafkaProducer = mockk<KafkaProducer<String, String>>()
+    val mockKafkaProducer = mockk<KafkaProducer<String, JsonElement>>()
     private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository, mockKafkaProducer)
 
     @Test

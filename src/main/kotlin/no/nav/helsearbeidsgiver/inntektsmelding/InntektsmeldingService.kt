@@ -1,14 +1,22 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.utils.json.toJsonStr
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.json.toPretty
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.time.LocalDateTime
+import java.util.UUID
 
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
-    private val kafkaProducer: KafkaProducer<String, String>,
+    private val kafkaProducer: KafkaProducer<String, JsonElement>,
 ) {
     fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingResponse {
         runCatching {
@@ -61,13 +69,38 @@ class InntektsmeldingService(
     fun sendInn(skjema: SkjemaInntektsmelding) {
         sikkerLogger().info("Klar til å sende inn skjema.")
 
-        val record =
-            ProducerRecord<String, String>(
-                "helsearbeidsgiver.api-innsending",
-                skjema.toJsonStr(SkjemaInntektsmelding.serializer()),
-            )
-        kafkaProducer.send(record)
+        val mottatt = LocalDateTime.now()
 
-        sikkerLogger().info("Sendt inn skjema!")
+        val publisert =
+            sendMessage(
+                "@event_name" to "api_innsending_startet".toJson(),
+                "kontekst_id" to UUID.randomUUID().toJson(UuidSerializer),
+                "skjema_inntektsmelding" to skjema.toJson(SkjemaInntektsmelding.serializer()),
+                "mottatt" to mottatt.toJson(LocalDateTimeSerializer),
+            ).getOrThrow()
+        sikkerLogger().info("Publiserte melding om innsendt skjema:\n${publisert.toPretty()}")
     }
+
+    private fun sendMessage(vararg message: Pair<String, JsonElement>): Result<JsonElement> =
+        message
+            .toMap()
+            .toJson()
+            .let(::send)
+
+    private fun Map<String, JsonElement>.toJson(): JsonElement =
+        toJson(
+            MapSerializer(
+                String.serializer(),
+                JsonElement.serializer(),
+            ),
+        )
+
+    private fun send(message: JsonElement): Result<JsonElement> =
+        message
+            .toRecord()
+            .runCatching {
+                kafkaProducer.send(this).get()
+            }.map { message }
+
+    private fun JsonElement.toRecord(): ProducerRecord<String, JsonElement> = ProducerRecord("helsearbeidsgiver.api-innsending", this)
 }

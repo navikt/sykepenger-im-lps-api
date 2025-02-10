@@ -10,6 +10,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.gyldigScope
@@ -67,7 +68,7 @@ fun Application.apiModule(pdpService: IPdpService) {
     val inntektsmeldingService =
         InntektsmeldingService(
             inntektsmeldingRepository = inntektsmeldingRepository,
-            kafkaProducer = KafkaProducer<String, String>(createKafkaProducerConfig("im-producer")),
+            kafkaProducer = KafkaProducer<String, JsonElement>(createKafkaProducerConfig("im-producer")),
         )
 
     if (kafka) {

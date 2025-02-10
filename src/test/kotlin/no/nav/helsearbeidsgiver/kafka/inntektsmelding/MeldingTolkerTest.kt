@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import io.mockk.mockk
+import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TransactionalExtension::class)
 class MeldingTolkerTest {
     val db = Database.init()
-    val mockKafkaProducer = mockk<KafkaProducer<String, String>>()
+    val mockKafkaProducer = mockk<KafkaProducer<String, JsonElement>>()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository, mockKafkaProducer)
