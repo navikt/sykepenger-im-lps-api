@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
+import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -38,6 +39,7 @@ import no.nav.security.token.support.v2.RequiredClaims
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.producer.KafkaProducer
 
 fun main() {
     startServer()
@@ -60,8 +62,14 @@ fun Application.apiModule(pdpService: IPdpService) {
     val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
     val forespoerselService = ForespoerselService(forespoerselRepository)
-    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val kafka = getProperty("kafkaConsumer.enabled").toBoolean()
+
+    val inntektsmeldingService =
+        InntektsmeldingService(
+            inntektsmeldingRepository = inntektsmeldingRepository,
+            kafkaProducer = KafkaProducer<String, String>(createKafkaProducerConfig("im-producer")),
+        )
+
     if (kafka) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
         launch(Dispatchers.Default) {
@@ -74,6 +82,7 @@ fun Application.apiModule(pdpService: IPdpService) {
                 ),
             )
         }
+
         val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
@@ -86,6 +95,7 @@ fun Application.apiModule(pdpService: IPdpService) {
             )
         }
     }
+
     install(ContentNegotiation) {
         json()
     }

@@ -1,10 +1,14 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.json.toJsonStr
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerRecord
 
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
+    private val kafkaProducer: KafkaProducer<String, String>,
 ) {
     fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingResponse {
         runCatching {
@@ -55,6 +59,15 @@ class InntektsmeldingService(
     }
 
     fun sendInn(skjema: SkjemaInntektsmelding) {
+        sikkerLogger().info("Klar til å sende inn skjema.")
+
+        val record =
+            ProducerRecord<String, String>(
+                "helsearbeidsgiver.api-innsending",
+                skjema.toJsonStr(SkjemaInntektsmelding.serializer()),
+            )
+        kafkaProducer.send(record)
+
         sikkerLogger().info("Sendt inn skjema!")
     }
 }
