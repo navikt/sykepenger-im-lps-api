@@ -75,8 +75,11 @@ class InntektsmeldingService(
             sendMessage(
                 "@event_name" to "API_INNSENDING_STARTET".toJson(),
                 "kontekst_id" to UUID.randomUUID().toJson(UuidSerializer),
-                "skjema_inntektsmelding" to skjema.toJson(SkjemaInntektsmelding.serializer()),
-                "mottatt" to mottatt.toJson(LocalDateTimeSerializer),
+                "data" to
+                    mapOf(
+                        "skjema_inntektsmelding" to skjema.toJson(SkjemaInntektsmelding.serializer()),
+                        "mottatt" to mottatt.toJson(LocalDateTimeSerializer),
+                    ).toJson(),
             ).getOrThrow()
         sikkerLogger().info("Publiserte melding om innsendt skjema:\n${publisert.toPretty()}")
     }
