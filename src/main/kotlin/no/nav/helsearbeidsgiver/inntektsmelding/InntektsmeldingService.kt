@@ -73,7 +73,7 @@ class InntektsmeldingService(
 
         val publisert =
             sendMessage(
-                "@event_name" to "api_innsending_startet".toJson(),
+                "@event_name" to "API_INNSENDING_STARTET".toJson(),
                 "kontekst_id" to UUID.randomUUID().toJson(UuidSerializer),
                 "skjema_inntektsmelding" to skjema.toJson(SkjemaInntektsmelding.serializer()),
                 "mottatt" to mottatt.toJson(LocalDateTimeSerializer),
