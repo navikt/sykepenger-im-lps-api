@@ -48,6 +48,7 @@ class MeldingTolkerTest {
 
     @Test
     fun duplikat() {
+        every { mockDialogportenService.opprettDialog(any(), any()) } returns Result.success(UUID.randomUUID().toString())
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
     }
