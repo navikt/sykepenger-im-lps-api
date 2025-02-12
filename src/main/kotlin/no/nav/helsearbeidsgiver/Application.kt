@@ -16,10 +16,8 @@ import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.lagDialogportenClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -51,7 +49,8 @@ fun main() {
 fun startServer() {
     val authClient = AltinnAuthClient()
     val pdpService = if (isDev()) PdpService(lagPdpClient(authClient)) else IngenTilgangPdpService()
-    val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
+    // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
+    val dialogService = IngenDialogportenService()
     embeddedServer(
         factory = Netty,
         port = 8080,
