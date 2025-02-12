@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.kafka.forespoersel
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory
 class ForespoerselTolker(
     private val forespoerselRepository: ForespoerselRepository,
     private val mottakRepository: MottakRepository,
+    private val dialogportenService: IDialogportenService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
@@ -47,6 +49,10 @@ class ForespoerselTolker(
                                 throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
                             }
                         }
+                        dialogportenService.opprettDialog(
+                            orgnr = forespoersel.orgnr,
+                            forespoerselId = forespoersel.forespoerselId,
+                        )
                     } else {
                         sikkerLogger.warn("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
                         mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
@@ -57,14 +63,17 @@ class ForespoerselTolker(
                     settBesvart(obj.forespoerselId.toString())
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
+
                 NotisType.FORESPOERSEL_BESVART_SIMBA -> {
                     settBesvart(obj.forespoerselId.toString())
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
+
                 NotisType.FORESPOERSEL_FORKASTET -> {
                     settForkastet(obj.forespoerselId.toString())
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
+
                 NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
                     // TODO:: Skal vi håndtere kastet til infotrygd?
                     sikkerLogger.info("Forespørsel kastet til infotrygd - håndteres ikke")

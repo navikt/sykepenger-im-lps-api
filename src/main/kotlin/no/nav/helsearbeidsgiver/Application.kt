@@ -12,9 +12,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -44,16 +47,22 @@ fun main() {
 }
 
 fun startServer() {
-    val pdpService = if (isDev()) PdpService(lagPdpClient()) else IngenTilgangPdpService()
+    val authClient = AltinnAuthClient()
+    val pdpService = if (isDev()) PdpService(lagPdpClient(authClient)) else IngenTilgangPdpService()
+    // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
+    val dialogService = IngenDialogportenService()
     embeddedServer(
         factory = Netty,
         port = 8080,
-        module = { apiModule(pdpService = pdpService) },
+        module = { apiModule(pdpService = pdpService, dialogportenService = dialogService) },
     ).start(wait = true)
 }
 
 @Suppress("unused")
-fun Application.apiModule(pdpService: IPdpService) {
+fun Application.apiModule(
+    pdpService: IPdpService,
+    dialogportenService: IDialogportenService,
+) {
     sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
@@ -82,6 +91,7 @@ fun Application.apiModule(pdpService: IPdpService) {
                 ForespoerselTolker(
                     forespoerselRepository,
                     mottakRepository,
+                    dialogportenService,
                 ),
             )
         }

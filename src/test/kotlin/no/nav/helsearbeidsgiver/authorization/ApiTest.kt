@@ -13,6 +13,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
@@ -36,6 +38,7 @@ class ApiTest {
     private val testApplication: TestApplication
     private val client: HttpClient
     private val pdpService: PdpService
+    private val dialogportenService: IDialogportenService
 
     init {
         mockOAuth2Server =
@@ -45,10 +48,11 @@ class ApiTest {
         db = Database.init()
         forespoerselRepo = ForespoerselRepository(db)
         pdpService = PdpService(mockk(relaxed = true))
+        dialogportenService = IngenDialogportenService()
         every { pdpService.harTilgang(any(), any()) } returns true
         testApplication =
             TestApplication {
-                application { apiModule(pdpService = pdpService) }
+                application { apiModule(pdpService = pdpService, dialogportenService = dialogportenService) }
             }
         client =
             testApplication.createClient {
