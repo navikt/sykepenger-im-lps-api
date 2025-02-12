@@ -69,6 +69,6 @@ spec:
       value: "altinn:authorization/authorize"
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
-    - name: IM_DIALOG_BASEURL
+    - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
       value: "https://arbeidsgiver.intern.dev.nav.no"
 

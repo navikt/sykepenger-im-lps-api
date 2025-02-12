@@ -33,7 +33,7 @@ class IngenDialogportenService : IDialogportenService {
 class DialogportenService(
     val dialogportenClient: DialogportenClient,
 ) : IDialogportenService {
-    private val imDalogBaseUrl = Env.getProperty("IM_DIALOG_BASEURL")
+    private val navPortalBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_PORTAL_BASEURL")
 
     override fun opprettDialog(
         orgnr: String,
@@ -43,7 +43,7 @@ class DialogportenService(
             dialogportenClient
                 .opprettDialog(
                     orgnr = orgnr,
-                    url = "$imDalogBaseUrl/im-dialog/$forespoerselId",
+                    url = "$navPortalBaseUrl/im-dialog/$forespoerselId",
                 ).onFailure { e -> sikkerLogger().error("Fikk feil mot dialogporten", e) }
                 .onSuccess { dialogId ->
                     sikkerLogger().info(
