@@ -1,22 +1,18 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.inntektsmelding.Innsending.toJson
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.json.toPretty
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.LocalDateTime
 import java.util.UUID
 
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
-    private val kafkaProducer: KafkaProducer<String, JsonElement>,
+    private val innsendingProducer: InnsendingProducer,
 ) {
     fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingResponse {
         runCatching {
@@ -67,43 +63,20 @@ class InntektsmeldingService(
     }
 
     fun sendInn(skjema: SkjemaInntektsmelding) {
-        sikkerLogger().info("Klar til å sende inn skjema.")
-
         val mottatt = LocalDateTime.now()
+        val kontekstId = UUID.randomUUID()
 
         val publisert =
-            sendMessage(
-                "@event_name" to "API_INNSENDING_STARTET".toJson(),
-                "kontekst_id" to UUID.randomUUID().toJson(UuidSerializer),
-                "data" to
-                    mapOf(
-                        "skjema_inntektsmelding" to skjema.toJson(SkjemaInntektsmelding.serializer()),
-                        "mottatt" to mottatt.toJson(LocalDateTimeSerializer),
-                    ).toJson(),
-            ).getOrThrow()
+            innsendingProducer
+                .send(
+                    Innsending.Key.EVENT_NAME to Innsending.EventName.API_INNSENDING_STARTET.toJson(),
+                    Innsending.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
+                    Innsending.Key.DATA to
+                        mapOf(
+                            Innsending.Key.SKJEMA_INNTEKTSMELDING to skjema.toJson(SkjemaInntektsmelding.serializer()),
+                            Innsending.Key.MOTTATT to mottatt.toJson(LocalDateTimeSerializer),
+                        ).toJson(),
+                ).getOrThrow()
         sikkerLogger().info("Publiserte melding om innsendt skjema:\n${publisert.toPretty()}")
     }
-
-    private fun sendMessage(vararg message: Pair<String, JsonElement>): Result<JsonElement> =
-        message
-            .toMap()
-            .toJson()
-            .let(::send)
-
-    private fun Map<String, JsonElement>.toJson(): JsonElement =
-        toJson(
-            MapSerializer(
-                String.serializer(),
-                JsonElement.serializer(),
-            ),
-        )
-
-    private fun send(message: JsonElement): Result<JsonElement> =
-        message
-            .toRecord()
-            .runCatching {
-                kafkaProducer.send(this).get()
-            }.map { message }
-
-    private fun JsonElement.toRecord(): ProducerRecord<String, JsonElement> = ProducerRecord("helsearbeidsgiver.api-innsending", this)
 }

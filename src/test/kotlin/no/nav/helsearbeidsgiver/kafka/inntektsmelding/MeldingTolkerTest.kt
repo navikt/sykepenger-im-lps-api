@@ -4,6 +4,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingProducer
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
@@ -24,7 +25,8 @@ class MeldingTolkerTest {
     val mockKafkaProducer = mockk<KafkaProducer<String, JsonElement>>()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
-    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository, mockKafkaProducer)
+    val inntektsmeldingService =
+        InntektsmeldingService(inntektsmeldingRepository, InnsendingProducer(mockKafkaProducer))
     val mottakRepository = MottakRepository(db)
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository)

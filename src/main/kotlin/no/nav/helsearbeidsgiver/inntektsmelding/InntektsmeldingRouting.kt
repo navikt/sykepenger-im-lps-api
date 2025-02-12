@@ -70,10 +70,13 @@ fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
             val request = this.call.receive<SkjemaInntektsmelding>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
+
             inntektsmeldingService.sendInn(request)
-            call.respond(HttpStatusCode.Created, UUID.randomUUID().toString()) // Skal returnere innsendingID
+
+            call.respond(HttpStatusCode.Created, UUID.randomUUID().toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring / innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")

@@ -18,7 +18,8 @@ import kotlin.test.assertEquals
 class InntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
     val mockKafkaProducer = mockk<KafkaProducer<String, JsonElement>>()
-    private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository, mockKafkaProducer)
+    private val inntektsmeldingService =
+        InntektsmeldingService(inntektsmeldingRepository, InnsendingProducer(mockKafkaProducer))
 
     @Test
     fun `opprettInntektsmelding should call inntektsmeldingRepository`() {

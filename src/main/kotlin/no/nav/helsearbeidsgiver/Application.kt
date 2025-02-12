@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingProducer
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
@@ -70,11 +71,13 @@ fun Application.apiModule(pdpService: IPdpService) {
     val inntektsmeldingService =
         InntektsmeldingService(
             inntektsmeldingRepository = inntektsmeldingRepository,
-            kafkaProducer =
-                KafkaProducer(
-                    createKafkaProducerConfig("im-producer"),
-                    StringSerializer(),
-                    Serializer(),
+            innsendingProducer =
+                InnsendingProducer(
+                    KafkaProducer(
+                        createKafkaProducerConfig("im-producer"),
+                        StringSerializer(),
+                        Serializer(),
+                    ),
                 ),
         )
 
