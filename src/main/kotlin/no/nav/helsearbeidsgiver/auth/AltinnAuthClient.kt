@@ -36,12 +36,11 @@ class AltinnAuthClient {
             }
         }
 
-    fun getToken(): String =
+    fun getToken(scope: String): String =
         runBlocking {
             sikkerLogger().info("Henter nytt token fra maskinporten og altinn")
             val texasTokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
             val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
-            val altinnPdpScope = Env.getProperty("ALTINN_PDP_SCOPE")
             val maskinportenToken: String =
                 httpClient
                     .post(texasTokenEndpoint) {
@@ -49,7 +48,7 @@ class AltinnAuthClient {
                         setBody(
                             listOf(
                                 "identity_provider" to "maskinporten",
-                                "target" to altinnPdpScope,
+                                "target" to scope,
                             ).formUrlEncode(),
                         )
                     }.body<TokenResponse>()
@@ -63,3 +62,7 @@ class AltinnAuthClient {
             altinnToken
         }
 }
+
+fun AltinnAuthClient.getPdpToken() = getToken(scope = Env.getProperty("ALTINN_PDP_SCOPE"))
+
+fun AltinnAuthClient.getDialogportenToken() = getToken(scope = Env.getProperty("DIALOGPORTEN_SCOPE"))
