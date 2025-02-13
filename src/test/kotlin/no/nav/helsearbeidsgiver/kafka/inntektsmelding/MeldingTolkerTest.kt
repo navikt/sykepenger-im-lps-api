@@ -4,7 +4,6 @@ import io.mockk.mockk
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingProducer
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker

@@ -1,7 +1,8 @@
-package no.nav.helsearbeidsgiver.inntektsmelding
+package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.JsonElement
+import no.nav.helsearbeidsgiver.inntektsmelding.Innsending
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
