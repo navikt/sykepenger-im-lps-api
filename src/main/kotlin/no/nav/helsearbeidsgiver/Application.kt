@@ -70,32 +70,31 @@ fun Application.apiModule(
     val mottakRepository = MottakRepository(db)
     val forespoerselService = ForespoerselService(forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
-    val kafka = getProperty("kafkaConsumer.enabled").toBoolean()
-    if (kafka) {
-        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                getProperty("kafkaConsumer.inntektsmelding.topic"),
-                inntektsmeldingKafkaConsumer,
-                InntektsmeldingTolker(
-                    inntektsmeldingService,
-                    mottakRepository,
-                ),
-            )
-        }
-        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                getProperty("kafkaConsumer.forespoersel.topic"),
-                forespoerselKafkaConsumer,
-                ForespoerselTolker(
-                    forespoerselRepository,
-                    mottakRepository,
-                    dialogportenService,
-                ),
-            )
-        }
+
+    val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            getProperty("kafkaConsumer.inntektsmelding.topic"),
+            inntektsmeldingKafkaConsumer,
+            InntektsmeldingTolker(
+                inntektsmeldingService,
+                mottakRepository,
+            ),
+        )
     }
+    val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            getProperty("kafkaConsumer.forespoersel.topic"),
+            forespoerselKafkaConsumer,
+            ForespoerselTolker(
+                forespoerselRepository,
+                mottakRepository,
+                dialogportenService,
+            ),
+        )
+    }
+
     install(ContentNegotiation) {
         json()
     }
