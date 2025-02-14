@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
@@ -57,10 +58,27 @@ fun startServer() {
     val pdpService = if (isDev()) PdpService(lagPdpClient(authClient)) else IngenTilgangPdpService()
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
     val dialogService = IngenDialogportenService()
+
+    val innsendingService =
+        InnsendingService(
+            InnsendingProducer(
+                KafkaProducer(
+                    createKafkaProducerConfig(producerName = "api-innsending-producer"),
+                    StringSerializer(),
+                    Serializer(),
+                ),
+            ),
+        )
     embeddedServer(
         factory = Netty,
         port = 8080,
-        module = { apiModule(pdpService = pdpService, dialogportenService = dialogService) },
+        module = {
+            apiModule(
+                pdpService = pdpService,
+                dialogportenService = dialogService,
+                innsendingService = innsendingService,
+            )
+        },
     ).start(wait = true)
 }
 
@@ -68,6 +86,7 @@ fun startServer() {
 fun Application.apiModule(
     pdpService: IPdpService,
     dialogportenService: IDialogportenService,
+    innsendingService: InnsendingService,
 ) {
     sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
@@ -75,20 +94,8 @@ fun Application.apiModule(
     val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
     val forespoerselService = ForespoerselService(forespoerselRepository)
+    val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val kafka = getProperty("kafkaConsumer.enabled").toBoolean()
-
-    val inntektsmeldingService =
-        InntektsmeldingService(
-            inntektsmeldingRepository = inntektsmeldingRepository,
-            innsendingProducer =
-                InnsendingProducer(
-                    KafkaProducer(
-                        createKafkaProducerConfig("im-producer"),
-                        StringSerializer(),
-                        Serializer(),
-                    ),
-                ),
-        )
 
     if (kafka) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
@@ -149,7 +156,7 @@ fun Application.apiModule(
         )
     }
     sikkerLogger().info("Setter opp ruting...")
-    configureRouting(forespoerselService, inntektsmeldingService)
+    configureRouting(forespoerselService, inntektsmeldingService, innsendingService)
 }
 
 private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)

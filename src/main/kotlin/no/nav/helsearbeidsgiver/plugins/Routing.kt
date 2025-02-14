@@ -7,6 +7,7 @@ import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.forespoersel.filtererForespoersler
 import no.nav.helsearbeidsgiver.forespoersel.forespoersler
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.filtrerInntektsmeldinger
 import no.nav.helsearbeidsgiver.inntektsmelding.innsending
@@ -15,6 +16,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldinger
 fun Application.configureRouting(
     forespoerselService: ForespoerselService,
     inntektsmeldingService: InntektsmeldingService,
+    innsendingService: InnsendingService,
 ) {
     routing {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
@@ -23,7 +25,7 @@ fun Application.configureRouting(
             inntektsmeldinger(inntektsmeldingService)
             forespoersler(forespoerselService)
             filtererForespoersler(forespoerselService)
-            innsending(inntektsmeldingService)
+            innsending(innsendingService)
         }
     }
 }

@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.inntektsmelding
+package no.nav.helsearbeidsgiver.innsending
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.MapSerializer
@@ -42,7 +42,7 @@ object Innsending {
 
     internal object KeySerializer : AsStringSerializer<Key>(
         serialName = "helsearbeidsgiver.kotlinx.sykepenger-im-lps-api.innsending.Key",
-        parse = Key::fromString,
+        parse = Key.Companion::fromString,
     )
 
     fun Map<Key, JsonElement>.toJson(): JsonElement =

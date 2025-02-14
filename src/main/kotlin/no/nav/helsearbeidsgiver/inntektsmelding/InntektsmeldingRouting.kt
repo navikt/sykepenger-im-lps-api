@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
@@ -63,7 +64,7 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     }
 }
 
-fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
+fun Route.innsending(innsendingService: InnsendingService) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
@@ -74,7 +75,7 @@ fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
 
-            inntektsmeldingService.sendInn(request)
+            innsendingService.sendInn(request)
 
             call.respond(HttpStatusCode.Created, UUID.randomUUID().toString())
         } catch (e: Exception) {

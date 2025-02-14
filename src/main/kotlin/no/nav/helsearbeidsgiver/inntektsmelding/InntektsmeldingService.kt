@@ -1,19 +1,9 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.inntektsmelding.Innsending.toJson
-import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InnsendingProducer
-import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
-import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.json.toPretty
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import java.time.LocalDateTime
-import java.util.UUID
 
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
-    private val innsendingProducer: InnsendingProducer,
 ) {
     fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingResponse {
         runCatching {
@@ -61,23 +51,5 @@ class InntektsmeldingService(
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
             throw Exception("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
-    }
-
-    fun sendInn(skjema: SkjemaInntektsmelding) {
-        val mottatt = LocalDateTime.now()
-        val kontekstId = UUID.randomUUID()
-
-        val publisert =
-            innsendingProducer
-                .send(
-                    Innsending.Key.EVENT_NAME to Innsending.EventName.API_INNSENDING_STARTET.toJson(),
-                    Innsending.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
-                    Innsending.Key.DATA to
-                        mapOf(
-                            Innsending.Key.SKJEMA_INNTEKTSMELDING to skjema.toJson(SkjemaInntektsmelding.serializer()),
-                            Innsending.Key.MOTTATT to mottatt.toJson(LocalDateTimeSerializer),
-                        ).toJson(),
-                ).getOrThrow()
-        sikkerLogger().info("Publiserte melding om innsendt skjema:\n${publisert.toPretty()}")
     }
 }

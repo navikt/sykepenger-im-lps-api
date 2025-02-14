@@ -6,6 +6,10 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.every
@@ -15,18 +19,23 @@ import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import java.util.UUID
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 class ApiTest {
@@ -39,6 +48,7 @@ class ApiTest {
     private val client: HttpClient
     private val pdpService: PdpService
     private val dialogportenService: IDialogportenService
+    private val innsendingServiceMock: InnsendingService
 
     init {
         mockOAuth2Server =
@@ -47,12 +57,24 @@ class ApiTest {
             }
         db = Database.init()
         forespoerselRepo = ForespoerselRepository(db)
+
         pdpService = PdpService(mockk(relaxed = true))
-        dialogportenService = IngenDialogportenService()
         every { pdpService.harTilgang(any(), any()) } returns true
+
+        innsendingServiceMock = mockk<InnsendingService>()
+        every { innsendingServiceMock.sendInn(any()) } returns Pair(UUID.randomUUID(), LocalDateTime.now())
+
+        dialogportenService = IngenDialogportenService()
+
         testApplication =
             TestApplication {
-                application { apiModule(pdpService = pdpService, dialogportenService = dialogportenService) }
+                application {
+                    apiModule(
+                        pdpService = pdpService,
+                        dialogportenService = dialogportenService,
+                        innsendingService = innsendingServiceMock,
+                    )
+                }
             }
         client =
             testApplication.createClient {
@@ -91,8 +113,17 @@ class ApiTest {
         runTest {
             val response1 = client.get("/forespoersler")
             response1.status.value shouldBe 401
+
             val response2 = client.get("/inntektsmeldinger")
             response2.status.value shouldBe 401
+
+            val requestBody = mockSkjemaInntektsmelding()
+            val response3 =
+                client.post("/inntektsmelding") {
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                }
+            response3.status.value shouldBe 401
         }
 
     @Test
@@ -103,11 +134,21 @@ class ApiTest {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response1.status.value shouldBe 401
+
             val response2 =
                 client.get("/inntektsmeldinger") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response2.status.value shouldBe 401
+
+            val requestBody = mockSkjemaInntektsmelding()
+            val response3 =
+                client.post("/inntektsmelding") {
+                    bearerAuth(ugyldigTokenManglerSystembruker())
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                }
+            response3.status.value shouldBe 401
         }
 
     @Test
@@ -121,6 +162,19 @@ class ApiTest {
             val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
             inntektsmeldingResponse.antallInntektsmeldinger shouldBe 1
             inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
+        }
+
+    @Test
+    fun `send inn inntektsmelding`() =
+        runTest {
+            val requestBody = mockSkjemaInntektsmelding()
+            val response =
+                client.post("/inntektsmelding") {
+                    bearerAuth(gyldigSystembrukerAuthToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                }
+            response.status.value shouldBe 201
         }
 
     @AfterAll
