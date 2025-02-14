@@ -10,7 +10,6 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
@@ -27,7 +26,8 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
 import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
-import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InnsendingProducer
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -36,7 +36,6 @@ import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
-import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -65,10 +64,11 @@ fun startServer() {
                 KafkaProducer(
                     createKafkaProducerConfig(producerName = "api-innsending-producer"),
                     StringSerializer(),
-                    Serializer(),
+                    InnsendingSerializer(),
                 ),
             ),
         )
+
     embeddedServer(
         factory = Netty,
         port = 8080,
@@ -160,14 +160,3 @@ fun Application.apiModule(
 }
 
 private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)
-
-private class Serializer : org.apache.kafka.common.serialization.Serializer<JsonElement> {
-    override fun serialize(
-        topic: String,
-        data: JsonElement,
-    ): ByteArray =
-        data
-            .toJson(JsonElement.serializer())
-            .toString()
-            .toByteArray()
-}

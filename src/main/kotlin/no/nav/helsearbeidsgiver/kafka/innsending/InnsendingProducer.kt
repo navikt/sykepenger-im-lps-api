@@ -1,7 +1,8 @@
-package no.nav.helsearbeidsgiver.kafka.inntektsmelding
+package no.nav.helsearbeidsgiver.kafka.innsending
 
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.json.JsonElement
+import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.innsending.Innsending
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -10,7 +11,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 class InnsendingProducer(
     private val kafkaProducer: KafkaProducer<String, JsonElement>,
 ) {
-    private val topic = Innsending.TOPIC
+    private val topic = getProperty("kafkaProducer.innsending.topic")
 
     fun send(vararg message: Pair<Innsending.Key, JsonElement>): Result<JsonElement> =
         message
