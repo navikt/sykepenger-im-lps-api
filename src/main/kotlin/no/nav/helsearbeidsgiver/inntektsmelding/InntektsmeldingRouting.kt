@@ -74,6 +74,11 @@ fun Route.innsending(inntektsmeldingService: InntektsmeldingService) {
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
 
+            request.valider().takeIf { it.isNotEmpty() }?.let {
+                call.respond(HttpStatusCode.BadRequest, it)
+                return@post
+            }
+
             inntektsmeldingService.sendInn(request)
 
             call.respond(HttpStatusCode.Created, UUID.randomUUID().toString())
