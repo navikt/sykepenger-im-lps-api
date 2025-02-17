@@ -94,13 +94,20 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Uautorisert tilgang"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  type: "string"
         "201":
           description: "Created"
           content:
             '*/*':
               schema:
                 type: "string"
-                format: "uuid"
         "500":
           description: "Internal Server Error"
           content:
@@ -282,6 +289,7 @@ components:
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
+      - "antallForespoersler"
       - "forespoerseler"
     ForespoerselRequest:
       type: "object"
@@ -321,6 +329,7 @@ components:
           - "StreikEllerLockout"
           - "TidligereVirksomhet"
       required:
+      - "beloep"
       - "begrunnelse"
     Arbeidsgiverperiode:
       type: "object"
@@ -371,6 +380,7 @@ components:
           format: "date"
       required:
       - "naturalytelse"
+      - "verdiBeloep"
       - "sluttdato"
     InntektEndringAarsak:
       type: "object"
@@ -391,6 +401,7 @@ components:
         endringAarsak:
           $ref: "#/components/schemas/InntektEndringAarsak"
       required:
+      - "beloep"
       - "inntektsdato"
       - "naturalytelser"
     RefusjonEndring:
@@ -403,6 +414,7 @@ components:
           type: "string"
           format: "date"
       required:
+      - "beloep"
       - "startdato"
     Refusjon:
       type: "object"
@@ -418,6 +430,7 @@ components:
           type: "string"
           format: "date"
       required:
+      - "beloepPerMaaned"
       - "endringer"
     SkjemaInntektsmelding:
       type: "object"
@@ -470,6 +483,7 @@ components:
           items:
             $ref: "#/components/schemas/Inntektsmelding"
       required:
+      - "antallInntektsmeldinger"
       - "inntektsmeldinger"
     InntektsmeldingRequest:
       type: "object"
