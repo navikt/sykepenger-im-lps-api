@@ -49,7 +49,6 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            // TODO: Egen tilgang (scope) for innsending
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
