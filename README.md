@@ -19,7 +19,7 @@ http://localhost:8080/swagger
 
 Hent test-token fra mockserver:
 ```
-ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=nav:inntektsmelding/lps.write&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/maskinporten/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
+ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=nav:helse/im.read&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/maskinporten/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
 ```
 Utfør et kall:
 ```
