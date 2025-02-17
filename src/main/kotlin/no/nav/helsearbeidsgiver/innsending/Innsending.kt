@@ -7,8 +7,6 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.AsStringSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 
 object Innsending {
-    const val TOPIC = "helsearbeidsgiver.api-innsending"
-
     @Serializable
     enum class EventName {
         API_INNSENDING_STARTET,
