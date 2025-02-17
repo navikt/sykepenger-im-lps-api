@@ -33,7 +33,10 @@ class MeldingTolkerTest {
 
     @Test
     fun kunLagreEventerSomMatcher() {
-        every { mockDialogportenService.opprettDialog(any(), any()) } returns Result.success(UUID.randomUUID().toString())
+        every { mockDialogportenService.opprettDialog(any(), any()) } returns
+            Result.success(
+                UUID.randomUUID().toString(),
+            )
         // Test at kjente payloads ikke kræsjer:
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
         verify { mockDialogportenService.opprettDialog(any(), any()) }
@@ -48,7 +51,10 @@ class MeldingTolkerTest {
 
     @Test
     fun duplikat() {
-        every { mockDialogportenService.opprettDialog(any(), any()) } returns Result.success(UUID.randomUUID().toString())
+        every { mockDialogportenService.opprettDialog(any(), any()) } returns
+            Result.success(
+                UUID.randomUUID().toString(),
+            )
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
     }

@@ -20,10 +20,14 @@ import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
+import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -41,6 +45,8 @@ import no.nav.security.token.support.v2.RequiredClaims
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.common.serialization.StringSerializer
 
 fun main() {
     startServer()
@@ -51,10 +57,28 @@ fun startServer() {
     val pdpService = if (isDev()) PdpService(lagPdpClient(authClient)) else IngenTilgangPdpService()
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
     val dialogService = IngenDialogportenService()
+
+    val innsendingService =
+        InnsendingService(
+            InnsendingProducer(
+                KafkaProducer(
+                    createKafkaProducerConfig(producerName = "api-innsending-producer"),
+                    StringSerializer(),
+                    InnsendingSerializer(),
+                ),
+            ),
+        )
+
     embeddedServer(
         factory = Netty,
         port = 8080,
-        module = { apiModule(pdpService = pdpService, dialogportenService = dialogService) },
+        module = {
+            apiModule(
+                pdpService = pdpService,
+                dialogportenService = dialogService,
+                innsendingService = innsendingService,
+            )
+        },
     ).start(wait = true)
 }
 
@@ -62,6 +86,7 @@ fun startServer() {
 fun Application.apiModule(
     pdpService: IPdpService,
     dialogportenService: IDialogportenService,
+    innsendingService: InnsendingService,
 ) {
     sikkerLogger().info("Starter applikasjon!")
     val db = Database.init()
@@ -127,7 +152,7 @@ fun Application.apiModule(
         )
     }
     sikkerLogger().info("Setter opp ruting...")
-    configureRouting(forespoerselService, inntektsmeldingService)
+    configureRouting(forespoerselService, inntektsmeldingService, innsendingService)
 }
 
 private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)
