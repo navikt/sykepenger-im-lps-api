@@ -26,7 +26,7 @@ fun createKafkaConsumerConfig(consumerName: String): Properties {
             ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "30000",
             ConsumerConfig.CLIENT_ID_CONFIG to "sykepenger-im-lps-api-$consumerName",
         )
-    return Properties().apply { consumerKafkaProperties + commonKafkaProperties() }
+    return Properties().apply { putAll(consumerKafkaProperties + commonKafkaProperties()) }
 }
 
 fun createKafkaProducerConfig(producerName: String): Properties {
@@ -46,7 +46,7 @@ fun createKafkaProducerConfig(producerName: String): Properties {
             ProducerConfig.CLIENT_ID_CONFIG to "sykepenger-im-lps-api-$producerName",
         )
 
-    return Properties().apply { producerKafkaProperties + commonKafkaProperties() }
+    return Properties().apply { putAll(producerKafkaProperties + commonKafkaProperties()) }
 }
 
 private fun commonKafkaProperties(): Map<String, String> {
