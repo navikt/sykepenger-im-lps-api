@@ -50,6 +50,7 @@ spec:
         - name: "altinn:authorization/authorize"
         - name: "digdir:dialogporten.serviceprovider"
         - name: "altinn:correspondence.write"
+        - name: "altinn:correspondence.read"
 
   gcp:
     sqlInstances:
@@ -68,8 +69,10 @@ spec:
       value: "nav_sykepenger_inntektsmelding-nedlasting"
     - name: ALTINN_PDP_SCOPE
       value: "altinn:authorization/authorize"
-    - name: ALTINN_CORRESPONDENCE_SCOPE
+    - name: ALTINN_CORRESPONDENCE_WRITE_SCOPE
       value: "altinn:correspondence.write"
+    - name: ALTINN_CORRESPONDENCE_READ_SCOPE
+      value: "altinn:correspondence.read"
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
