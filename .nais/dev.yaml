@@ -51,7 +51,8 @@ spec:
         - name: "digdir:dialogporten.serviceprovider"
         - name: "altinn:correspondence.write"
         - name: "altinn:correspondence.read"
-        - name: "altinn:serviceowner"
+        - name: "altinn:serviceowner/instances.write"
+        - name: "altinn:serviceowner/instances.read"
 
   gcp:
     sqlInstances:
@@ -74,8 +75,10 @@ spec:
       value: "altinn:correspondence.write"
     - name: ALTINN_CORRESPONDENCE_READ_SCOPE
       value: "altinn:correspondence.read"
-    - name: ALTINN_SERVICEOWNER_SCOPE
-      value: "altinn:serviceowner"
+    - name: ALTINN_SERVICEOWNER_WRITE_SCOPE
+      value: "altinn:serviceowner/instances.write"
+    - name: ALTINN_SERVICEOWNER_READ_SCOPE
+      value: "altinn:serviceowner/instances.read"
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
