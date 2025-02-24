@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val kotlin_version: String by project
 val kotlinxSerializationVersion: String by project
@@ -24,9 +23,8 @@ val dialogportenClientVersion: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.12"
+    id("io.ktor.plugin") version "3.1.0"
     id("org.jmailen.kotlinter")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "no.nav.helsearbeidsgiver"
@@ -74,8 +72,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
-    implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
-    testImplementation("io.ktor:ktor-server-tests-jvm")
+    implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
@@ -90,10 +88,10 @@ dependencies {
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
-    named<ShadowJar>("shadowJar") {
-        mergeServiceFiles()
-        archiveBaseName.set("${project.name}-all")
-    }
+//    named<ShadowJar>("shadowJar") {
+//        mergeServiceFiles()
+//        archiveBaseName.set("${project.name}-all")
+//    }
     withType<Test> {
         useJUnitPlatform()
     }
