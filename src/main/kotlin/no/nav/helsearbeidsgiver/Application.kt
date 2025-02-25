@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.innsending.InnsendingRepository
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -33,6 +34,7 @@ import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
+import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
@@ -54,20 +56,14 @@ fun main() {
 
 fun startServer() {
     val authClient = AltinnAuthClient()
-    val pdpService = if (isDev()) PdpService(lagPdpClient(authClient)) else IngenTilgangPdpService()
+    val pdpService =
+        when {
+            isDev() -> PdpService(lagPdpClient(authClient))
+            isLocal() -> LocalhostPdpService()
+            else -> IngenTilgangPdpService()
+        }
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
     val dialogService = IngenDialogportenService()
-
-    val innsendingService =
-        InnsendingService(
-            InnsendingProducer(
-                KafkaProducer(
-                    createKafkaProducerConfig(producerName = "api-innsending-producer"),
-                    StringSerializer(),
-                    InnsendingSerializer(),
-                ),
-            ),
-        )
 
     embeddedServer(
         factory = Netty,
@@ -76,7 +72,6 @@ fun startServer() {
             apiModule(
                 pdpService = pdpService,
                 dialogportenService = dialogService,
-                innsendingService = innsendingService,
             )
         },
     ).start(wait = true)
@@ -86,15 +81,32 @@ fun startServer() {
 fun Application.apiModule(
     pdpService: IPdpService,
     dialogportenService: IDialogportenService,
-    innsendingService: InnsendingService,
 ) {
     sikkerLogger().info("Starter applikasjon!")
+
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
+    val innsendingRepository = InnsendingRepository(db)
+
     val forespoerselService = ForespoerselService(forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
+
+    val innsendingProducer =
+        InnsendingProducer(
+            KafkaProducer(
+                createKafkaProducerConfig(producerName = "api-innsending-producer"),
+                StringSerializer(),
+                InnsendingSerializer(),
+            ),
+        )
+
+    val innsendingService =
+        InnsendingService(
+            innsendingProducer = innsendingProducer,
+            innsendingRepository = innsendingRepository,
+        )
 
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
     launch(Dispatchers.Default) {
@@ -156,3 +168,5 @@ fun Application.apiModule(
 }
 
 private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)
+
+private fun isLocal(): Boolean = "localhost".equals(getPropertyOrNull("APP_ENV"), true)

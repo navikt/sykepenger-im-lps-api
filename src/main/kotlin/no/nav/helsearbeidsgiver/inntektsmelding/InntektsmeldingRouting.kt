@@ -13,11 +13,8 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import java.util.UUID
 
 fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
@@ -59,32 +56,6 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
-        }
-    }
-}
-
-fun Route.innsending(innsendingService: InnsendingService) {
-    // Send inn inntektsmelding
-    post("/inntektsmelding") {
-        try {
-            val request = this.call.receive<SkjemaInntektsmelding>()
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
-            sikkerLogger().info("Mottatt innsending: $request")
-            sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
-
-            request.valider().takeIf { it.isNotEmpty() }?.let {
-                call.respond(HttpStatusCode.BadRequest, it)
-                return@post
-            }
-
-            innsendingService.sendInn(request)
-
-            call.respond(HttpStatusCode.Created, UUID.randomUUID().toString())
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved lagring / innsending: {$e}", e)
-            call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
         }
     }
 }

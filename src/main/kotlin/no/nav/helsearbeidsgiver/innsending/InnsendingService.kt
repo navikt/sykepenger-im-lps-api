@@ -13,7 +13,21 @@ import java.util.UUID
 
 class InnsendingService(
     private val innsendingProducer: InnsendingProducer,
+    private val innsendingRepository: InnsendingRepository,
 ) {
+    fun lagreInnsending(
+        organisasjonsNr: String,
+        lpsOrgnr: String,
+        skjema: SkjemaInntektsmelding,
+    ): UUID =
+        runCatching {
+            innsendingRepository.opprettInnsending(organisasjonsNr, lpsOrgnr, skjema)
+        }.onSuccess { uuid ->
+            sikkerLogger().info("Innsending lagret med id: $uuid")
+        }.onFailure { error ->
+            sikkerLogger().error("Feilet ved lagring av innsending skjema med forspørselId = ${skjema.forespoerselId} ", error)
+        }.getOrThrow()
+
     fun sendInn(skjema: SkjemaInntektsmelding): Pair<UUID, LocalDateTime> {
         val mottatt = LocalDateTime.now()
         val kontekstId = UUID.randomUUID()

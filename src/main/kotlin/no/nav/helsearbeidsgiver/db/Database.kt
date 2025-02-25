@@ -3,8 +3,11 @@ package no.nav.helsearbeidsgiver.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.innsending.InnsendingEntitet
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 object Database {
@@ -19,6 +22,10 @@ object Database {
     fun init(): Database {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
         val db = getDatabase(embedded)
+        transaction {
+            SchemaUtils.create(InnsendingEntitet)
+        }
+
         if (embedded) {
             runMigrateEmbedded()
         } else {

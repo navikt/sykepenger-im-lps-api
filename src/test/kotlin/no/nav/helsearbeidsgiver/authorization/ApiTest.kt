@@ -72,7 +72,6 @@ class ApiTest {
                     apiModule(
                         pdpService = pdpService,
                         dialogportenService = dialogportenService,
-                        innsendingService = innsendingServiceMock,
                     )
                 }
             }

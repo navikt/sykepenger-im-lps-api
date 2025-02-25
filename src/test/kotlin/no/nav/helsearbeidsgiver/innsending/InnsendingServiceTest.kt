@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class InnsendingServiceTest {
     private val innsendingProducer = mockk<InnsendingProducer>()
-    private val innsendigService = InnsendingService(innsendingProducer)
+    private val innsendigService = InnsendingService(innsendingProducer, mockk())
 
     init {
         every {
