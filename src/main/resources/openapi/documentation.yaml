@@ -7,7 +7,7 @@ info:
 security:
   - bearerAuth: [ ]
 paths:
-  /forespoersler:
+  /v1/forespoersler:
     get:
       description: "Hent forespørsler for tilhørende systembrukers orgnr."
       responses:
@@ -73,7 +73,7 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
-  /inntektsmelding:
+  /v1/inntektsmelding:
     post:
       description: "Send inn inntektsmelding"
       requestBody:
@@ -117,7 +117,7 @@ paths:
               examples:
                 Example#1:
                   value: "En feil oppstod"
-  /inntektsmeldinger:
+  /v1/inntektsmeldinger:
     get:
       description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
       responses:

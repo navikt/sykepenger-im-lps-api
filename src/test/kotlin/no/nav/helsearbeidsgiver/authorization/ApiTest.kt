@@ -97,7 +97,7 @@ class ApiTest {
             forespoerselRepo.lagreForespoersel("1234", forespoerselDokument(orgnr2, "123"))
 
             val response =
-                client.get("/forespoersler") {
+                client.get("/v1/forespoersler") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                 }
             response.status.value shouldBe 200
@@ -111,15 +111,15 @@ class ApiTest {
     @Test
     fun `gir 401 når token mangler`() =
         runTest {
-            val response1 = client.get("/forespoersler")
+            val response1 = client.get("/v1/forespoersler")
             response1.status.value shouldBe 401
 
-            val response2 = client.get("/inntektsmeldinger")
+            val response2 = client.get("/v1/inntektsmeldinger")
             response2.status.value shouldBe 401
 
             val requestBody = mockSkjemaInntektsmelding()
             val response3 =
-                client.post("/inntektsmelding") {
+                client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
                 }
@@ -130,20 +130,20 @@ class ApiTest {
     fun `gir 401 når supplier mangler i token`() =
         runTest {
             val response1 =
-                client.get("/forespoersler") {
+                client.get("/v1/forespoersler") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response1.status.value shouldBe 401
 
             val response2 =
-                client.get("/inntektsmeldinger") {
+                client.get("/v1/inntektsmeldinger") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response2.status.value shouldBe 401
 
             val requestBody = mockSkjemaInntektsmelding()
             val response3 =
-                client.post("/inntektsmelding") {
+                client.post("/v1/inntektsmelding") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
@@ -155,7 +155,7 @@ class ApiTest {
     fun `hent inntektsmeldinger`() =
         runTest {
             val response =
-                client.get("/inntektsmeldinger") {
+                client.get("/v1/inntektsmeldinger") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                 }
             response.status.value shouldBe 200
@@ -169,7 +169,7 @@ class ApiTest {
         runTest {
             val requestBody = mockSkjemaInntektsmelding()
             val response =
-                client.post("/inntektsmelding") {
+                client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))

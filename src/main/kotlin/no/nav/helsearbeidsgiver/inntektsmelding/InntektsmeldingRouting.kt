@@ -9,6 +9,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
@@ -19,7 +20,20 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
-fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+fun Route.inntektsmeldingV1(inntektsmeldingService: InntektsmeldingService) {
+    route("/v1") {
+        filtrerInntektsmeldinger(inntektsmeldingService)
+        inntektsmeldinger(inntektsmeldingService)
+    }
+}
+
+fun Route.innsendingV1(innsendingService: InnsendingService) {
+    route("/v1") {
+        innsending(innsendingService)
+    }
+}
+
+private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
@@ -43,7 +57,7 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
     }
 }
 
-fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
     get("/inntektsmeldinger") {
         try {
@@ -63,9 +77,10 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     }
 }
 
-fun Route.innsending(innsendingService: InnsendingService) {
+private fun Route.innsending(innsendingService: InnsendingService) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
+        // TODO: "/innsending" ??
         try {
             val request = this.call.receive<SkjemaInntektsmelding>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()

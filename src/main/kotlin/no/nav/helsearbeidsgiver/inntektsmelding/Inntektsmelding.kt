@@ -10,13 +10,13 @@ import java.time.LocalDateTime
 
 @Serializable
 data class Inntektsmelding(
-    //TODO: Fjern dokument, skal ikke eksponeres til LPS. merge properties fra dokument inn i denne klassen.
+    // TODO: Fjern dokument, skal ikke eksponeres til LPS. merge properties fra dokument inn i denne klassen.
     val dokument: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
     val orgnr: String,
     val fnr: String,
     val foresporsel_id: String?,
     val innsendt_tid: LocalDateTime,
-    val mottatt_tid: LocalDateTime, //TODO: Er denne nødvendig?
+    val mottatt_tid: LocalDateTime, // TODO: Er denne nødvendig?
 )
 
 @Serializable

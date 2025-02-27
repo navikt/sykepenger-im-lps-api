@@ -24,7 +24,7 @@ enum class Status {
     AKTIV,
     MOTTATT,
     FORKASTET,
-    }
+}
 
 /*
 TODO: skal ikke eksponeres mot LPS, men brukes for å tolke innkommende forespørsler fra BRO.
