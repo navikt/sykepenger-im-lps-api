@@ -167,6 +167,6 @@ fun Application.apiModule(
     configureRouting(forespoerselService, inntektsmeldingService, innsendingService)
 }
 
-private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("NAIS_CLUSTER_NAME"), true)
+private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("application.env"), true)
 
 private fun isLocal(): Boolean = "local".equals(getPropertyOrNull("application.env"), true)
