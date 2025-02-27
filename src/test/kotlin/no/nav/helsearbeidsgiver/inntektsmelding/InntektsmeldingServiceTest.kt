@@ -61,9 +61,9 @@ class InntektsmeldingServiceTest {
                     dokument = dokument,
                     orgnr = orgnr,
                     fnr = fnr,
-                    foresporselid = foresporselid,
-                    innsendt = innsendt,
-                    mottattEvent = mottattEvent,
+                    foresporsel_id = foresporselid,
+                    innsendt_tid = innsendt,
+                    mottatt_tid = mottattEvent,
                 ),
             )
         val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
@@ -71,13 +71,13 @@ class InntektsmeldingServiceTest {
         verify {
             inntektsmeldingRepository.hent(orgnr)
         }
-        assertEquals(1, hentInntektsmeldingerByOrgNr.antallInntektsmeldinger)
+        assertEquals(1, hentInntektsmeldingerByOrgNr.antall)
         val inntektsmelding = hentInntektsmeldingerByOrgNr.inntektsmeldinger[0]
         assertEquals(orgnr, inntektsmelding.orgnr)
         assertEquals(fnr, inntektsmelding.fnr)
-        assertEquals(foresporselid, inntektsmelding.foresporselid)
-        assertEquals(innsendt, inntektsmelding.innsendt)
-        assertEquals(mottattEvent, inntektsmelding.mottattEvent)
+        assertEquals(foresporselid, inntektsmelding.foresporsel_id)
+        assertEquals(innsendt, inntektsmelding.innsendt_tid)
+        assertEquals(mottattEvent, inntektsmelding.mottatt_tid)
         assertEquals(dokument, inntektsmelding.dokument)
     }
 
@@ -91,9 +91,9 @@ class InntektsmeldingServiceTest {
         val request =
             InntektsmeldingRequest(
                 fnr = fnr,
-                foresporselid = foresporselid,
-                datoFra = datoFra,
-                datoTil = datoTil,
+                foresporsel_id = foresporselid,
+                fra_dato = datoFra,
+                til_dato = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
@@ -101,9 +101,9 @@ class InntektsmeldingServiceTest {
                     dokument = buildInntektsmelding(),
                     orgnr = orgnr,
                     fnr = fnr,
-                    foresporselid = foresporselid,
-                    innsendt = LocalDateTime.now(),
-                    mottattEvent = LocalDateTime.now(),
+                    foresporsel_id = foresporselid,
+                    innsendt_tid = LocalDateTime.now(),
+                    mottatt_tid = LocalDateTime.now(),
                 ),
             )
         val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
@@ -111,9 +111,9 @@ class InntektsmeldingServiceTest {
         verify {
             inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
         }
-        assertEquals(1, hentInntektsMeldingByRequest.antallInntektsmeldinger)
+        assertEquals(1, hentInntektsMeldingByRequest.antall)
         val inntektsmelding = hentInntektsMeldingByRequest.inntektsmeldinger[0]
-        assertEquals(foresporselid, inntektsmelding.foresporselid)
+        assertEquals(foresporselid, inntektsmelding.foresporsel_id)
         assertEquals(orgnr, inntektsmelding.orgnr)
         assertEquals(fnr, inntektsmelding.fnr)
     }
@@ -136,9 +136,9 @@ class InntektsmeldingServiceTest {
         val request =
             InntektsmeldingRequest(
                 fnr = fnr,
-                foresporselid = foresporselid,
-                datoFra = datoFra,
-                datoTil = datoTil,
+                foresporsel_id = foresporselid,
+                fra_dato = datoFra,
+                til_dato = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
         assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }

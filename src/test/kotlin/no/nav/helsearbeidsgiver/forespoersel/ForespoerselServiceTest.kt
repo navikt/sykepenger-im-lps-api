@@ -26,7 +26,7 @@ class ForespoerselServiceTest {
         every { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns forespoersler
 
         val response = forespoerselService.hentForespoerslerForOrgnr(DEFAULT_ORG)
-        assertEquals(2, response.antallForespoersler)
+        assertEquals(2, response.antall)
 
         verify { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) }
     }
@@ -37,14 +37,14 @@ class ForespoerselServiceTest {
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoerselId = null,
+                forespoersel_id = null,
                 status = null,
             )
 
         every { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) } returns forespoersler
 
         val response = forespoerselService.filtrerForespoerslerForOrgnr(DEFAULT_ORG, request)
-        assertEquals(2, response.antallForespoersler)
+        assertEquals(2, response.antall)
 
         verify { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) }
     }

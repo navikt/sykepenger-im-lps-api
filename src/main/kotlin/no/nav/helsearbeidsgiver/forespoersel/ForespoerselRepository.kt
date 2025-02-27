@@ -64,7 +64,7 @@ class ForespoerselRepository(
                 .where { ForespoerselEntitet.orgnr eq orgnr }
                 .map {
                     Forespoersel(
-                        forespoerselId = it[forespoersel],
+                        forespoersel_id = it[forespoersel],
                         orgnr = it[ForespoerselEntitet.orgnr],
                         fnr = it[fnr],
                         status = it[status],
@@ -84,7 +84,7 @@ class ForespoerselRepository(
                 .where {
                     (orgnr eq consumerOrgnr) and
                         (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
-                        (if (!request.forespoerselId.isNullOrBlank()) forespoersel eq request.forespoerselId else Op.TRUE) and
+                        (if (!request.forespoersel_id.isNullOrBlank()) forespoersel eq request.forespoersel_id else Op.TRUE) and
                         (if (request.status != null) status eq request.status else Op.TRUE)
                 }.map {
                     it.toExposedforespoersel()
@@ -111,7 +111,7 @@ class ForespoerselRepository(
 
     private fun ResultRow.toExposedforespoersel() =
         Forespoersel(
-            forespoerselId = this[forespoersel],
+            forespoersel_id = this[forespoersel],
             orgnr = this[orgnr],
             fnr = this[fnr],
             status = this[status],

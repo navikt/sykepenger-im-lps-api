@@ -50,7 +50,7 @@ class InntektsmeldingRepositoryTest {
         assertEquals(1, result.size)
         assertEquals(org, result[0].orgnr)
         assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].foresporselid)
+        assertEquals(forespoerselId, result[0].foresporsel_id)
     }
 
     @Test
@@ -73,16 +73,16 @@ class InntektsmeldingRepositoryTest {
                 org,
                 InntektsmeldingRequest(
                     fnr = sykmeldtFnr,
-                    foresporselid = forespoerselId,
-                    datoFra = innsendtDato.minusDays(1),
-                    datoTil = innsendtDato.plusDays(1),
+                    foresporsel_id = forespoerselId,
+                    fra_dato = innsendtDato.minusDays(1),
+                    til_dato = innsendtDato.plusDays(1),
                 ),
             )
 
         assertEquals(1, result.size)
         assertEquals(org, result[0].orgnr)
         assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].foresporselid)
+        assertEquals(forespoerselId, result[0].foresporsel_id)
     }
 
     @Test
@@ -104,9 +104,9 @@ class InntektsmeldingRepositoryTest {
                 "987654321",
                 InntektsmeldingRequest(
                     fnr = null,
-                    foresporselid = null,
-                    datoFra = null,
-                    datoTil = null,
+                    foresporsel_id = null,
+                    fra_dato = null,
+                    til_dato = null,
                 ),
             )
 

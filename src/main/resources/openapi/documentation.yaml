@@ -258,7 +258,7 @@ components:
     Forespoersel:
       type: "object"
       properties:
-        forespoerselId:
+        forespoersel_id:
           type: "string"
         orgnr:
           type: "string"
@@ -273,7 +273,7 @@ components:
         dokument:
           $ref: "#/components/schemas/ForespoerselDokument"
       required:
-      - "forespoerselId"
+      - "forespoersel_id"
       - "orgnr"
       - "fnr"
       - "status"
@@ -281,22 +281,21 @@ components:
     ForespoerselResponse:
       type: "object"
       properties:
-        antallForespoersler:
+        antall:
           type: "integer"
           format: "int32"
-        forespoerseler:
+        forespoersler:
           type: "array"
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
-      - "antallForespoersler"
-      - "forespoerseler"
+      - "forespoersler"
     ForespoerselRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-        forespoerselId:
+        forespoersel_id:
           type: "string"
         status:
           type: "string"
@@ -329,7 +328,6 @@ components:
           - "StreikEllerLockout"
           - "TidligereVirksomhet"
       required:
-      - "beloep"
       - "begrunnelse"
     Arbeidsgiverperiode:
       type: "object"
@@ -380,7 +378,6 @@ components:
           format: "date"
       required:
       - "naturalytelse"
-      - "verdiBeloep"
       - "sluttdato"
     InntektEndringAarsak:
       type: "object"
@@ -401,7 +398,6 @@ components:
         endringAarsak:
           $ref: "#/components/schemas/InntektEndringAarsak"
       required:
-      - "beloep"
       - "inntektsdato"
       - "naturalytelser"
     RefusjonEndring:
@@ -414,7 +410,6 @@ components:
           type: "string"
           format: "date"
       required:
-      - "beloep"
       - "startdato"
     Refusjon:
       type: "object"
@@ -430,7 +425,6 @@ components:
           type: "string"
           format: "date"
       required:
-      - "beloepPerMaaned"
       - "endringer"
     SkjemaInntektsmelding:
       type: "object"
@@ -458,24 +452,24 @@ components:
           type: "string"
         fnr:
           type: "string"
-        foresporselid:
+        foresporsel_id:
           type: "string"
-        innsendt:
+        innsendt_tid:
           type: "string"
           format: "date-time"
-        mottattEvent:
+        mottatt_tid:
           type: "string"
           format: "date-time"
       required:
       - "dokument"
       - "orgnr"
       - "fnr"
-      - "innsendt"
-      - "mottattEvent"
+      - "innsendt_tid"
+      - "mottatt_tid"
     InntektsmeldingResponse:
       type: "object"
       properties:
-        antallInntektsmeldinger:
+        antall:
           type: "integer"
           format: "int32"
         inntektsmeldinger:
@@ -483,18 +477,17 @@ components:
           items:
             $ref: "#/components/schemas/Inntektsmelding"
       required:
-      - "antallInntektsmeldinger"
       - "inntektsmeldinger"
     InntektsmeldingRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-        foresporselid:
+        foresporsel_id:
           type: "string"
-        datoFra:
+        fra_dato:
           type: "string"
           format: "date-time"
-        datoTil:
+        til_dato:
           type: "string"
           format: "date-time"

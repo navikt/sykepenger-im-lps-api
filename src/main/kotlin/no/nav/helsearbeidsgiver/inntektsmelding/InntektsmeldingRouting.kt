@@ -32,7 +32,7 @@ fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingServic
                 .hentInntektsMeldingByRequest(
                     orgnr = sluttbrukerOrgnr,
                     request = request,
-                ).takeIf { it.antallInntektsmeldinger > 0 }
+                ).takeIf { it.antall > 0 }
                 ?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
@@ -52,7 +52,7 @@ fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
-                .takeIf { it.antallInntektsmeldinger > 0 }
+                .takeIf { it.antall > 0 }
                 ?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")

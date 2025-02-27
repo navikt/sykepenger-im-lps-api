@@ -56,9 +56,9 @@ class InntektsmeldingRepository(
                 .where {
                     (orgnr eq orgNr) and
                         (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.foresporselid != null) foresporselid eq request.foresporselid else Op.TRUE) and
-                        (request.datoFra?.let { innsendt greaterEq it } ?: Op.TRUE) and
-                        (request.datoTil?.let { innsendt lessEq it } ?: Op.TRUE)
+                        (if (request.foresporsel_id != null) foresporselid eq request.foresporsel_id else Op.TRUE) and
+                        (request.fra_dato?.let { innsendt greaterEq it } ?: Op.TRUE) and
+                        (request.til_dato?.let { innsendt lessEq it } ?: Op.TRUE)
                 }.map { it.toExposedInntektsmelding() }
         }
 
@@ -67,8 +67,8 @@ class InntektsmeldingRepository(
             dokument = this[dokument],
             orgnr = this[orgnr],
             fnr = this[fnr],
-            foresporselid = this[foresporselid],
-            innsendt = this[innsendt],
-            mottattEvent = this[mottattEvent],
+            foresporsel_id = this[foresporselid],
+            innsendt_tid = this[innsendt],
+            mottatt_tid = this[mottattEvent],
         )
 }

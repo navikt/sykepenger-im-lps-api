@@ -102,10 +102,10 @@ class ApiTest {
                 }
             response.status.value shouldBe 200
             val forespoerselSvar = response.body<ForespoerselResponse>()
-            forespoerselSvar.antallForespoersler shouldBe 1
-            forespoerselSvar.forespoerseler[0].status shouldBe Status.AKTIV
-            forespoerselSvar.forespoerseler[0].orgnr shouldBe orgnr1
-            forespoerselSvar.forespoerseler[0].dokument shouldBe payload
+            forespoerselSvar.antall shouldBe 1
+            forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
+            forespoerselSvar.forespoersler[0].orgnr shouldBe orgnr1
+            forespoerselSvar.forespoersler[0].dokument shouldBe payload
         }
 
     @Test
@@ -160,7 +160,7 @@ class ApiTest {
                 }
             response.status.value shouldBe 200
             val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
-            inntektsmeldingResponse.antallInntektsmeldinger shouldBe 1
+            inntektsmeldingResponse.antall shouldBe 1
             inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
         }
 

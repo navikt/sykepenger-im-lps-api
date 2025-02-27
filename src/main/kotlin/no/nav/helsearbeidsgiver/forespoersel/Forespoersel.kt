@@ -12,7 +12,7 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val forespoerselId: String,
+    val forespoersel_id: String,
     val orgnr: String,
     val fnr: String,
     val status: Status,
@@ -24,8 +24,12 @@ enum class Status {
     AKTIV,
     MOTTATT,
     FORKASTET,
-}
+    }
 
+/*
+TODO: skal ikke eksponeres mot LPS, men brukes for å tolke innkommende forespørsler fra BRO.
+Data fra denne skal legges over i egne felter på eksponert Forespørsel
+ */
 @Serializable
 data class ForespoerselDokument(
     val type: Type,
@@ -45,12 +49,12 @@ enum class Type {
 @Serializable
 data class ForespoerselRequest(
     val fnr: String? = null,
-    val forespoerselId: String? = null,
+    val forespoersel_id: String? = null,
     val status: Status? = null,
 )
 
 @Serializable
 data class ForespoerselResponse(
-    val antallForespoersler: Int,
-    val forespoerseler: List<Forespoersel>,
+    val antall: Int,
+    val forespoersler: List<Forespoersel>,
 )
