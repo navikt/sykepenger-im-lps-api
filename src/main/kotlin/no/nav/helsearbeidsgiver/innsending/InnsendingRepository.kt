@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsm
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.UUID
 
 class InnsendingRepository(
@@ -24,8 +25,9 @@ class InnsendingRepository(
                     it[status] = InnsendingStatus.NY
                     it[dokument] = payload
                     it[foresporselid] = payload.forespoerselId
+                    it[innsendtdato] = LocalDateTime.now()
                 }
             }
-        return dokument.get(InnsendingEntitet.id)
+        return dokument[InnsendingEntitet.id]
     }
 }
