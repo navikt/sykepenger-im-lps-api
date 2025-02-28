@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
-class InntektsmeldingServiceTest {
+class InnsendtInntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
     private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
 
@@ -57,7 +57,7 @@ class InntektsmeldingServiceTest {
         val dokument = buildInntektsmelding()
         every { inntektsmeldingRepository.hent(orgnr) } returns
             listOf(
-                Inntektsmelding(
+                InnsendtInntektsmelding(
                     dokument = dokument,
                     orgnr = orgnr,
                     fnr = fnr,
@@ -97,7 +97,7 @@ class InntektsmeldingServiceTest {
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
-                Inntektsmelding(
+                InnsendtInntektsmelding(
                     dokument = buildInntektsmelding(),
                     orgnr = orgnr,
                     fnr = fnr,

@@ -9,7 +9,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
 @Serializable
-data class Inntektsmelding(
+data class InnsendtInntektsmelding(
     // TODO: Fjern dokument, skal ikke eksponeres til LPS. merge properties fra dokument inn i denne klassen.
     val dokument: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
     val orgnr: String,
@@ -30,5 +30,5 @@ data class InntektsmeldingRequest(
 @Serializable
 data class InntektsmeldingResponse(
     val antall: Int = 0,
-    val inntektsmeldinger: List<Inntektsmelding>,
+    val inntektsmeldinger: List<InnsendtInntektsmelding>,
 )

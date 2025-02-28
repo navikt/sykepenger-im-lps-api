@@ -10,7 +10,7 @@ import java.util.UUID
 import kotlin.test.assertEquals
 
 @ExtendWith(TransactionalExtension::class)
-class InntektsmeldingRepositoryTest {
+class InnsendtInntektsmeldingRepositoryTest {
     val db = Database.init()
     val repository = InntektsmeldingRepository(db)
 

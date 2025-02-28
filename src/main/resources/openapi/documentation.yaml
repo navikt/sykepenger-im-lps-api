@@ -443,7 +443,71 @@ components:
       required:
       - "forespoerselId"
       - "avsenderTlf"
+    Type:
+      type: "object"
+      properties: {}
+    Sykmeldt:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+      required:
+      - "navn"
+    Avsender:
+      type: "object"
+      properties:
+        orgNavn:
+          type: "string"
+        navn:
+          type: "string"
+        tlf:
+          type: "string"
+      required:
+      - "orgNavn"
+      - "navn"
+      - "tlf"
     Inntektsmelding:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          $ref: "#/components/schemas/Type"
+        sykmeldt:
+          $ref: "#/components/schemas/Sykmeldt"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+        aarsakInnsending:
+          type: "string"
+          enum:
+          - "Ny"
+          - "Endring"
+        mottatt:
+          type: "string"
+          format: "date-time"
+        vedtaksperiodeId:
+          type: "string"
+          format: "uuid"
+      required:
+      - "id"
+      - "type"
+      - "sykmeldt"
+      - "avsender"
+      - "sykmeldingsperioder"
+      - "aarsakInnsending"
+      - "mottatt"
+    InnsendtInntektsmelding:
       type: "object"
       properties:
         dokument:
@@ -475,7 +539,7 @@ components:
         inntektsmeldinger:
           type: "array"
           items:
-            $ref: "#/components/schemas/Inntektsmelding"
+            $ref: "#/components/schemas/InnsendtInntektsmelding"
       required:
       - "inntektsmeldinger"
     InntektsmeldingRequest:
