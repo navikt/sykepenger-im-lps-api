@@ -34,14 +34,15 @@ class InnsendingRepository(
         return dokument[InnsendingEntitet.id]
     }
 
-    fun hentInnsendinger(): List<Innsending> =
+    fun hentAlleInnsendingerByStatus(status: InnsendingStatus): List<Innsending> =
         transaction(db) {
             InnsendingEntitet
                 .selectAll()
+                .where(InnsendingEntitet.status eq status)
                 .map { it.toExposedInnsending() }
         }
 
-    fun getById(id: UUID): Innsending? =
+    fun hentById(id: UUID): Innsending? =
         transaction(db) {
             InnsendingEntitet
                 .selectAll()
