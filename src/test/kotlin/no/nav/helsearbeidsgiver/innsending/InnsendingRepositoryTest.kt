@@ -14,7 +14,7 @@ class InnsendingRepositoryTest {
     val repository = InnsendingRepository(db)
 
     @Test
-    fun `opprett innsending og innsendingen faar status NY`() {
+    fun `opprett innsending og innsendingen får status NY`() {
         val organisasjonsNr = "123456789"
         val lpsOrgnr = "987654321"
         val payload = mockSkjemaInntektsmelding()
@@ -28,7 +28,9 @@ class InnsendingRepositoryTest {
         assertEquals(payload, innsending.dokument)
         assertEquals(InnsendingStatus.NY, innsending.status)
     }
-/**
+
+    // TODO: Testen feiler fordi første testen ikke rolles tilbake. kommenterer den bort til vi finner årsaken.
+    /**
      @Test
      fun `hent alle innsendinger med status ny`() {
      val organisasjonsNr = "123456789"
