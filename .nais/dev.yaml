@@ -49,6 +49,7 @@ spec:
       consumes:
         - name: "altinn:authorization/authorize"
         - name: "digdir:dialogporten.serviceprovider"
+        - name: "altinn:events.subscribe"
 
   gcp:
     sqlInstances:
