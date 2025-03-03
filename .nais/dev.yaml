@@ -50,6 +50,7 @@ spec:
         - name: "altinn:authorization/authorize"
         - name: "digdir:dialogporten.serviceprovider"
         - name: "altinn:events.subscribe"
+        - name: "altinn:serviceowner"
 
   gcp:
     sqlInstances:
