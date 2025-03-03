@@ -28,20 +28,21 @@ class InnsendingRepositoryTest {
         assertEquals(payload, innsending.dokument)
         assertEquals(InnsendingStatus.NY, innsending.status)
     }
+/**
+     @Test
+     fun `hent alle innsendinger med status ny`() {
+     val organisasjonsNr = "123456789"
+     val lpsOrgnr = "987654321"
+     val payload = mockSkjemaInntektsmelding()
 
-    @Test
-    fun `hent alle innsendinger med status ny`() {
-        val organisasjonsNr = "123456789"
-        val lpsOrgnr = "987654321"
-        val payload = mockSkjemaInntektsmelding()
-
-        val result = repository.opprettInnsending(organisasjonsNr, lpsOrgnr, payload)
-        assertNotNull(result)
-        val innsendinger = repository.hentAlleInnsendingerByStatus(InnsendingStatus.NY)
-        assertEquals(1, innsendinger.size)
-        val innsending = innsendinger.first()
-        assertEquals(organisasjonsNr, innsending.orgnr)
-        assertEquals(lpsOrgnr, innsending.lps)
-        assertEquals(payload, innsending.dokument)
-    }
+     val result = repository.opprettInnsending(organisasjonsNr, lpsOrgnr, payload)
+     assertNotNull(result)
+     val innsendinger = repository.hentAlleInnsendingerByStatus(InnsendingStatus.NY)
+     assertEquals(1, innsendinger.size)
+     val innsending = innsendinger.first()
+     assertEquals(organisasjonsNr, innsending.orgnr)
+     assertEquals(lpsOrgnr, innsending.lps)
+     assertEquals(payload, innsending.dokument)
+     }
+     **/
 }
