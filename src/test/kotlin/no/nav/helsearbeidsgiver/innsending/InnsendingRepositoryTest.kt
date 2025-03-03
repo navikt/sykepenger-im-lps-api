@@ -30,6 +30,7 @@ class InnsendingRepositoryTest {
     }
 
     // TODO: Testen feiler fordi første testen ikke rolles tilbake. kommenterer den bort til vi finner årsaken.
+
     /**
      @Test
      fun `hent alle innsendinger med status ny`() {
