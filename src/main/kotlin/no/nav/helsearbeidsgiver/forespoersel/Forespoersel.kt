@@ -16,7 +16,10 @@ data class Forespoersel(
     val orgnr: String,
     val fnr: String,
     val status: Status,
-    val dokument: ForespoerselDokument,
+    val sykmeldingsperioder: List<Periode>,
+    val egenmeldingsperioder: List<Periode>,
+    val arbeidsgiverperiode_paakrevd: Boolean,
+    val inntekt_paakrevd: Boolean,
 )
 
 @Serializable
@@ -25,21 +28,6 @@ enum class Status {
     MOTTATT,
     FORKASTET,
 }
-
-/*
-TODO: skal ikke eksponeres mot LPS, men brukes for å tolke innkommende forespørsler fra BRO.
-Data fra denne skal legges over i egne felter på eksponert Forespørsel
- */
-@Serializable
-data class ForespoerselDokument(
-    val type: Type,
-    val orgnr: String,
-    val fnr: String,
-    val vedtaksperiodeId: UUID,
-    val forespoerselId: UUID,
-    val sykmeldingsperioder: List<Periode>,
-    val egenmeldingsperioder: List<Periode>,
-)
 
 enum class Type {
     KOMPLETT,
@@ -57,4 +45,35 @@ data class ForespoerselRequest(
 data class ForespoerselResponse(
     val antall: Int,
     val forespoersler: List<Forespoersel>,
+)
+
+/*
+Kopierte domeneobjekter fra BRO. Skal ikke eksponeres mot LPS, brukes for å tolke innkommende forespørsler fra BRO.
+ */
+@Serializable
+data class ForespoerselDokument(
+    val type: Type,
+    val orgnr: String,
+    val fnr: String,
+    val vedtaksperiodeId: UUID,
+    val forespoerselId: UUID,
+    val sykmeldingsperioder: List<Periode>,
+    val egenmeldingsperioder: List<Periode>,
+    val forespurtData: ForespurtData,
+)
+
+@Serializable
+data class ForespurtData(
+    val arbeidsgiverperiode: Arbeidsgiverperiode,
+    val inntekt: Inntekt,
+)
+
+@Serializable
+data class Arbeidsgiverperiode(
+    val paakrevd: Boolean,
+)
+
+@Serializable
+data class Inntekt(
+    val paakrevd: Boolean,
 )

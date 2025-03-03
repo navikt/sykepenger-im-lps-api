@@ -221,40 +221,6 @@ components:
       required:
       - "fom"
       - "tom"
-    ForespoerselDokument:
-      type: "object"
-      properties:
-        type:
-          type: "string"
-          enum:
-          - "KOMPLETT"
-          - "BEGRENSET"
-        orgnr:
-          type: "string"
-        fnr:
-          type: "string"
-        vedtaksperiodeId:
-          type: "string"
-          format: "uuid"
-        forespoerselId:
-          type: "string"
-          format: "uuid"
-        sykmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        egenmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-      required:
-      - "type"
-      - "orgnr"
-      - "fnr"
-      - "vedtaksperiodeId"
-      - "forespoerselId"
-      - "sykmeldingsperioder"
-      - "egenmeldingsperioder"
     Forespoersel:
       type: "object"
       properties:
@@ -270,14 +236,25 @@ components:
           - "AKTIV"
           - "MOTTATT"
           - "FORKASTET"
-        dokument:
-          $ref: "#/components/schemas/ForespoerselDokument"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        arbeidsgiverperiode_paakrevd:
+          type: "boolean"
+        inntekt_paakrevd:
+          type: "boolean"
       required:
       - "forespoersel_id"
       - "orgnr"
       - "fnr"
       - "status"
-      - "dokument"
+      - "sykmeldingsperioder"
+      - "egenmeldingsperioder"
     ForespoerselResponse:
       type: "object"
       properties:

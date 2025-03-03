@@ -105,7 +105,6 @@ class ApiTest {
             forespoerselSvar.antall shouldBe 1
             forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
             forespoerselSvar.forespoersler[0].orgnr shouldBe orgnr1
-            forespoerselSvar.forespoersler[0].dokument shouldBe payload
         }
 
     @Test
