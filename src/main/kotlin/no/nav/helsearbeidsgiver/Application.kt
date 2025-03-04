@@ -16,7 +16,6 @@ import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
@@ -32,7 +31,6 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
-import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
@@ -55,6 +53,19 @@ fun main() {
 }
 
 fun startServer() {
+    embeddedServer(
+        factory = Netty,
+        port = 8080,
+        module = {
+            apiModule()
+        },
+    ).start(wait = true)
+}
+
+@Suppress("unused")
+fun Application.apiModule() {
+    sikkerLogger().info("Starter applikasjon!")
+
     val authClient = AltinnAuthClient()
     val pdpService =
         when {
@@ -63,26 +74,7 @@ fun startServer() {
             else -> IngenTilgangPdpService()
         }
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
-    val dialogService = IngenDialogportenService()
-
-    embeddedServer(
-        factory = Netty,
-        port = 8080,
-        module = {
-            apiModule(
-                pdpService = pdpService,
-                dialogportenService = dialogService,
-            )
-        },
-    ).start(wait = true)
-}
-
-@Suppress("unused")
-fun Application.apiModule(
-    pdpService: IPdpService,
-    dialogportenService: IDialogportenService,
-) {
-    sikkerLogger().info("Starter applikasjon!")
+    val dialogportenService = IngenDialogportenService()
 
     val db = Database.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
