@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.innsending
 
 enum class InnsendingStatus {
-    NY,
-    SENDT_SIMBA,
+    MOTTATT,
+    UNDER_BEHANDLING,
     FEILET,
     GODKJENT,
 }

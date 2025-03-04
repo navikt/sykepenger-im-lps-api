@@ -25,7 +25,7 @@ class InnsendingRepository(
                     it[lps] = lpsOrgnr
                     // TODO: Finne ut hvor vi henter fnr fra
                     it[fnr] = "fnr"
-                    it[status] = InnsendingStatus.NY
+                    it[status] = InnsendingStatus.MOTTATT
                     it[dokument] = payload
                     it[foresporselid] = payload.forespoerselId
                     it[innsendtdato] = LocalDateTime.now()
