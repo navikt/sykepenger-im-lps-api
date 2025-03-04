@@ -29,7 +29,7 @@ class InnsendingRepositoryTest {
         assertEquals(InnsendingStatus.MOTTATT, innsending.status)
     }
 
-    // TODO: Testen feiler fordi første testen ikke rolles tilbake. kommenterer den bort til vi finner årsaken.
+// TODO: Testen feiler fordi en rad i innsending-tabellen, opprettet av ApiTest, ikke blir rullet tilbake.
 
 //    @Test
 //    fun `hent alle innsendinger med status MOTTATT`() {
