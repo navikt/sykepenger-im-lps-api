@@ -105,7 +105,7 @@ class ApiTest {
         }
 
     @Test
-    fun `gir 401 når supplier mangler i token`() =
+    fun `gir 401 når systembruker mangler i token`() =
         runTest {
             val response1 =
                 client.get("/forespoersler") {
