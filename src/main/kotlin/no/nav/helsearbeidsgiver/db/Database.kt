@@ -19,6 +19,7 @@ object Database {
     fun init(): Database {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
         val db = getDatabase(embedded)
+
         if (embedded) {
             runMigrateEmbedded()
         } else {
