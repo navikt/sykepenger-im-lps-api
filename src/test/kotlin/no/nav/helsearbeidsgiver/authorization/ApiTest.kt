@@ -12,21 +12,15 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
-import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -35,7 +29,6 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import java.util.UUID
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 class ApiTest {
@@ -46,9 +39,6 @@ class ApiTest {
     private val mockOAuth2Server: MockOAuth2Server
     private val testApplication: TestApplication
     private val client: HttpClient
-    private val pdpService: PdpService
-    private val dialogportenService: IDialogportenService
-    private val innsendingServiceMock: InnsendingService
 
     init {
         mockOAuth2Server =
@@ -58,22 +48,10 @@ class ApiTest {
         db = Database.init()
         forespoerselRepo = ForespoerselRepository(db)
 
-        pdpService = PdpService(mockk(relaxed = true))
-        every { pdpService.harTilgang(any(), any()) } returns true
-
-        innsendingServiceMock = mockk<InnsendingService>()
-        every { innsendingServiceMock.sendInn(any()) } returns Pair(UUID.randomUUID(), LocalDateTime.now())
-
-        dialogportenService = IngenDialogportenService()
-
         testApplication =
             TestApplication {
                 application {
-                    apiModule(
-                        pdpService = pdpService,
-                        dialogportenService = dialogportenService,
-                        innsendingService = innsendingServiceMock,
-                    )
+                    apiModule()
                 }
             }
         client =
@@ -127,7 +105,7 @@ class ApiTest {
         }
 
     @Test
-    fun `gir 401 når supplier mangler i token`() =
+    fun `gir 401 når systembruker mangler i token`() =
         runTest {
             val response1 =
                 client.get("/forespoersler") {

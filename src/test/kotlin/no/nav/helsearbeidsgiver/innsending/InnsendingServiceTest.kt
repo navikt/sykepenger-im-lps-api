@@ -6,21 +6,25 @@ import io.mockk.verify
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.innsending.Innsending.toJson
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.util.UUID
 
 class InnsendingServiceTest {
     private val innsendingProducer = mockk<InnsendingProducer>()
-    private val innsendigService = InnsendingService(innsendingProducer)
+    private val innsendingRepository = mockk<InnsendingRepository>()
+    private val innsendigService = InnsendingService(innsendingProducer, innsendingRepository)
 
     init {
         every {
-            innsendingProducer.send(*anyVararg<Pair<Innsending.Key, JsonElement>>())
+            innsendingProducer.send(*anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         } returns toResult("".toJson(String.serializer()))
     }
 
@@ -34,14 +38,41 @@ class InnsendingServiceTest {
 
         verify {
             innsendingProducer.send(
-                Innsending.Key.EVENT_NAME to Innsending.EventName.API_INNSENDING_STARTET.toJson(),
-                Innsending.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
-                Innsending.Key.DATA to
+                InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.API_INNSENDING_STARTET.toJson(),
+                InnsendingKafka.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
+                InnsendingKafka.Key.DATA to
                     mapOf(
-                        Innsending.Key.SKJEMA_INNTEKTSMELDING to innsendtSkjema.toJson(SkjemaInntektsmelding.serializer()),
-                        Innsending.Key.MOTTATT to mottatt.toJson(LocalDateTimeSerializer),
+                        InnsendingKafka.Key.SKJEMA_INNTEKTSMELDING to innsendtSkjema.toJson(SkjemaInntektsmelding.serializer()),
+                        InnsendingKafka.Key.MOTTATT to mottatt.toJson(LocalDateTimeSerializer),
                     ).toJson(),
             )
         }
+    }
+
+    @Test
+    fun `lagreInnsending logger ved suksess`() {
+        val innsendtSkjema = mockSkjemaInntektsmelding()
+        val expectedUuid = UUID.randomUUID()
+
+        every { innsendingRepository.opprettInnsending(any(), any(), any()) } returns expectedUuid
+
+        innsendigService.lagreInnsending("orgnr", "lpsOrgnr", innsendtSkjema)
+
+        verify {
+            innsendingRepository.opprettInnsending("orgnr", "lpsOrgnr", innsendtSkjema)
+        }
+    }
+
+    @Test
+    fun `lagreInnsending kaster exception ved feil`() {
+        val innsendtSkjema = mockSkjemaInntektsmelding()
+
+        every { innsendingRepository.opprettInnsending(any(), any(), any()) } throws RuntimeException("Feil ved lagring")
+
+        val exception =
+            assertThrows<RuntimeException> {
+                innsendigService.lagreInnsending("orgnr", "lpsOrgnr", innsendtSkjema)
+            }
+        assert(exception.message == "Feil ved lagring")
     }
 }
