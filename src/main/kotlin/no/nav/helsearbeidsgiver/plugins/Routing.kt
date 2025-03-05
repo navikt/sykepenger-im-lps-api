@@ -7,8 +7,8 @@ import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.innsending.innsendingV1
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.inntektsmelding.innsendingV1
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 
 fun Application.configureRouting(
