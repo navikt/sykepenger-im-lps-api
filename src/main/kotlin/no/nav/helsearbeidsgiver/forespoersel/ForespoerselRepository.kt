@@ -33,6 +33,7 @@ class ForespoerselRepository(
         }
         val organisasjonsnummer = payload.orgnr
         val foedselsnr = payload.fnr
+
         val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {
@@ -63,13 +64,7 @@ class ForespoerselRepository(
                 .selectAll()
                 .where { ForespoerselEntitet.orgnr eq orgnr }
                 .map {
-                    Forespoersel(
-                        forespoerselId = it[forespoersel],
-                        orgnr = it[ForespoerselEntitet.orgnr],
-                        fnr = it[fnr],
-                        status = it[status],
-                        dokument = jsonMapper.decodeFromString<ForespoerselDokument>(it[dokument]),
-                    )
+                    it.toExposedforespoersel()
                 }
         }
 
@@ -84,7 +79,7 @@ class ForespoerselRepository(
                 .where {
                     (orgnr eq consumerOrgnr) and
                         (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
-                        (if (!request.forespoerselId.isNullOrBlank()) forespoersel eq request.forespoerselId else Op.TRUE) and
+                        (if (!request.forespoersel_id.isNullOrBlank()) forespoersel eq request.forespoersel_id else Op.TRUE) and
                         (if (request.status != null) status eq request.status else Op.TRUE)
                 }.map {
                     it.toExposedforespoersel()
@@ -109,12 +104,17 @@ class ForespoerselRepository(
             }
         }
 
-    private fun ResultRow.toExposedforespoersel() =
-        Forespoersel(
-            forespoerselId = this[forespoersel],
+    private fun ResultRow.toExposedforespoersel(): Forespoersel {
+        val dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument])
+        return Forespoersel(
+            forespoersel_id = this[forespoersel],
             orgnr = this[orgnr],
             fnr = this[fnr],
             status = this[status],
-            dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument]),
+            sykmeldingsperioder = dokument.sykmeldingsperioder,
+            egenmeldingsperioder = dokument.egenmeldingsperioder,
+            arbeidsgiverperiode_paakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
+            inntekt_paakrevd = dokument.forespurtData.inntekt.paakrevd,
         )
+    }
 }
