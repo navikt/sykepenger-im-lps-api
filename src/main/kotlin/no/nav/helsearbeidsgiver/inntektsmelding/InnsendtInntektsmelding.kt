@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
+// TODO: InnsendtInntektsmelding kan discardes, erstattes med Innsending
 @Serializable
 data class InnsendtInntektsmelding(
     // TODO: Fjern dokument, skal ikke eksponeres til LPS. merge properties fra dokument inn i denne klassen.
