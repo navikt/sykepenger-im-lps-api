@@ -1,0 +1,13 @@
+CREATE TABLE innsending (
+    id UUID PRIMARY KEY,
+    dokument TEXT NOT NULL,
+    orgnr VARCHAR(9) NOT NULL,
+    fnr VARCHAR(11) NOT NULL,
+    lps VARCHAR(40) NOT NULL,
+    foresporsel_id UUID NOT NULL,
+    innsendt_dato TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+    inntektsmelding_id INTEGER,
+    status VARCHAR(15) NOT NULL,
+    feil_aarsak VARCHAR(500),
+    FOREIGN KEY (inntektsmelding_id) REFERENCES inntektsmelding(id)
+);
