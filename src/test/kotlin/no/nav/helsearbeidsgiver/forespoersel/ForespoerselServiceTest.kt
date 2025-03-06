@@ -2,12 +2,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRequest
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.forespoersel.Type
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
@@ -26,7 +24,7 @@ class ForespoerselServiceTest {
         every { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns forespoersler
 
         val response = forespoerselService.hentForespoerslerForOrgnr(DEFAULT_ORG)
-        assertEquals(2, response.antallForespoersler)
+        assertEquals(2, response.antall)
 
         verify { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) }
     }
@@ -37,14 +35,14 @@ class ForespoerselServiceTest {
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoerselId = null,
+                forespoersel_id = null,
                 status = null,
             )
 
         every { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) } returns forespoersler
 
         val response = forespoerselService.filtrerForespoerslerForOrgnr(DEFAULT_ORG, request)
-        assertEquals(2, response.antallForespoersler)
+        assertEquals(2, response.antall)
 
         verify { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) }
     }
@@ -54,34 +52,24 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
     val forespoersler =
         listOf(
             Forespoersel(
-                UUID.randomUUID().toString(),
-                DEFAULT_ORG,
-                DEFAULT_FNR,
-                Status.AKTIV,
-                ForespoerselDokument(
-                    Type.KOMPLETT,
-                    DEFAULT_ORG,
-                    DEFAULT_FNR,
-                    UUID.randomUUID(),
-                    UUID.randomUUID(),
-                    emptyList(),
-                    emptyList(),
-                ),
+                forespoersel_id = UUID.randomUUID().toString(),
+                orgnr = DEFAULT_ORG,
+                fnr = DEFAULT_FNR,
+                status = Status.AKTIV,
+                sykmeldingsperioder = emptyList(),
+                egenmeldingsperioder = emptyList(),
+                arbeidsgiverperiode_paakrevd = true,
+                inntekt_paakrevd = true,
             ),
             Forespoersel(
-                UUID.randomUUID().toString(),
-                DEFAULT_ORG,
-                DEFAULT_FNR,
-                Status.AKTIV,
-                ForespoerselDokument(
-                    Type.KOMPLETT,
-                    DEFAULT_ORG,
-                    DEFAULT_FNR,
-                    UUID.randomUUID(),
-                    UUID.randomUUID(),
-                    emptyList(),
-                    emptyList(),
-                ),
+                forespoersel_id = UUID.randomUUID().toString(),
+                orgnr = DEFAULT_ORG,
+                fnr = DEFAULT_FNR,
+                status = Status.AKTIV,
+                sykmeldingsperioder = emptyList(),
+                egenmeldingsperioder = emptyList(),
+                arbeidsgiverperiode_paakrevd = true,
+                inntekt_paakrevd = true,
             ),
         )
     return forespoersler

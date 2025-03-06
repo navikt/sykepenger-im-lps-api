@@ -7,7 +7,7 @@ info:
 security:
   - bearerAuth: [ ]
 paths:
-  /forespoersler:
+  /v1/forespoersler:
     get:
       description: "Hent forespørsler for tilhørende systembrukers orgnr."
       responses:
@@ -73,7 +73,7 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
-  /inntektsmelding:
+  /v1/inntektsmelding:
     post:
       description: "Send inn inntektsmelding"
       requestBody:
@@ -117,7 +117,7 @@ paths:
               examples:
                 Example#1:
                   value: "En feil oppstod"
-  /inntektsmeldinger:
+  /v1/inntektsmeldinger:
     get:
       description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
       responses:
@@ -266,44 +266,10 @@ components:
       required:
       - "fom"
       - "tom"
-    ForespoerselDokument:
-      type: "object"
-      properties:
-        type:
-          type: "string"
-          enum:
-          - "KOMPLETT"
-          - "BEGRENSET"
-        orgnr:
-          type: "string"
-        fnr:
-          type: "string"
-        vedtaksperiodeId:
-          type: "string"
-          format: "uuid"
-        forespoerselId:
-          type: "string"
-          format: "uuid"
-        sykmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        egenmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-      required:
-      - "type"
-      - "orgnr"
-      - "fnr"
-      - "vedtaksperiodeId"
-      - "forespoerselId"
-      - "sykmeldingsperioder"
-      - "egenmeldingsperioder"
     Forespoersel:
       type: "object"
       properties:
-        forespoerselId:
+        forespoersel_id:
           type: "string"
         orgnr:
           type: "string"
@@ -315,33 +281,43 @@ components:
           - "AKTIV"
           - "MOTTATT"
           - "FORKASTET"
-        dokument:
-          $ref: "#/components/schemas/ForespoerselDokument"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        egenmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        arbeidsgiverperiode_paakrevd:
+          type: "boolean"
+        inntekt_paakrevd:
+          type: "boolean"
       required:
-      - "forespoerselId"
+      - "forespoersel_id"
       - "orgnr"
       - "fnr"
       - "status"
-      - "dokument"
+      - "sykmeldingsperioder"
+      - "egenmeldingsperioder"
     ForespoerselResponse:
       type: "object"
       properties:
-        antallForespoersler:
+        antall:
           type: "integer"
           format: "int32"
-        forespoerseler:
+        forespoersler:
           type: "array"
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
-      - "antallForespoersler"
-      - "forespoerseler"
+      - "forespoersler"
     ForespoerselRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-        forespoerselId:
+        forespoersel_id:
           type: "string"
         status:
           type: "string"
@@ -374,7 +350,6 @@ components:
           - "StreikEllerLockout"
           - "TidligereVirksomhet"
       required:
-      - "beloep"
       - "begrunnelse"
     Arbeidsgiverperiode:
       type: "object"
@@ -425,7 +400,6 @@ components:
           format: "date"
       required:
       - "naturalytelse"
-      - "verdiBeloep"
       - "sluttdato"
     InntektEndringAarsak:
       type: "object"
@@ -446,7 +420,6 @@ components:
         endringAarsak:
           $ref: "#/components/schemas/InntektEndringAarsak"
       required:
-      - "beloep"
       - "inntektsdato"
       - "naturalytelser"
     RefusjonEndring:
@@ -459,7 +432,6 @@ components:
           type: "string"
           format: "date"
       required:
-      - "beloep"
       - "startdato"
     Refusjon:
       type: "object"
@@ -475,7 +447,6 @@ components:
           type: "string"
           format: "date"
       required:
-      - "beloepPerMaaned"
       - "endringer"
     SkjemaInntektsmelding:
       type: "object"
@@ -494,7 +465,71 @@ components:
       required:
       - "forespoerselId"
       - "avsenderTlf"
+    Type:
+      type: "object"
+      properties: {}
+    Sykmeldt:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+      required:
+      - "navn"
+    Avsender:
+      type: "object"
+      properties:
+        orgNavn:
+          type: "string"
+        navn:
+          type: "string"
+        tlf:
+          type: "string"
+      required:
+      - "orgNavn"
+      - "navn"
+      - "tlf"
     Inntektsmelding:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          $ref: "#/components/schemas/Type"
+        sykmeldt:
+          $ref: "#/components/schemas/Sykmeldt"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
+        sykmeldingsperioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+        aarsakInnsending:
+          type: "string"
+          enum:
+          - "Ny"
+          - "Endring"
+        mottatt:
+          type: "string"
+          format: "date-time"
+        vedtaksperiodeId:
+          type: "string"
+          format: "uuid"
+      required:
+      - "id"
+      - "type"
+      - "sykmeldt"
+      - "avsender"
+      - "sykmeldingsperioder"
+      - "aarsakInnsending"
+      - "mottatt"
+    InnsendtInntektsmelding:
       type: "object"
       properties:
         dokument:
@@ -503,44 +538,43 @@ components:
           type: "string"
         fnr:
           type: "string"
-        foresporselid:
+        foresporsel_id:
           type: "string"
-        innsendt:
+        innsendt_tid:
           type: "string"
           format: "date-time"
-        mottattEvent:
+        mottatt_tid:
           type: "string"
           format: "date-time"
       required:
       - "dokument"
       - "orgnr"
       - "fnr"
-      - "innsendt"
-      - "mottattEvent"
+      - "innsendt_tid"
+      - "mottatt_tid"
     InntektsmeldingResponse:
       type: "object"
       properties:
-        antallInntektsmeldinger:
+        antall:
           type: "integer"
           format: "int32"
         inntektsmeldinger:
           type: "array"
           items:
-            $ref: "#/components/schemas/Inntektsmelding"
+            $ref: "#/components/schemas/InnsendtInntektsmelding"
       required:
-      - "antallInntektsmeldinger"
       - "inntektsmeldinger"
     InntektsmeldingRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-        foresporselid:
+        foresporsel_id:
           type: "string"
-        datoFra:
+        fra_dato:
           type: "string"
           format: "date-time"
-        datoTil:
+        til_dato:
           type: "string"
           format: "date-time"
     Skjema:

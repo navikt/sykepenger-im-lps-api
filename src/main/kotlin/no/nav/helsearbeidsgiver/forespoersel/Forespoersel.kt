@@ -12,11 +12,14 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val forespoerselId: String,
+    val forespoersel_id: String,
     val orgnr: String,
     val fnr: String,
     val status: Status,
-    val dokument: ForespoerselDokument,
+    val sykmeldingsperioder: List<Periode>,
+    val egenmeldingsperioder: List<Periode>,
+    val arbeidsgiverperiode_paakrevd: Boolean,
+    val inntekt_paakrevd: Boolean,
 )
 
 @Serializable
@@ -26,6 +29,27 @@ enum class Status {
     FORKASTET,
 }
 
+enum class Type {
+    KOMPLETT,
+    BEGRENSET,
+}
+
+@Serializable
+data class ForespoerselRequest(
+    val fnr: String? = null,
+    val forespoersel_id: String? = null,
+    val status: Status? = null,
+)
+
+@Serializable
+data class ForespoerselResponse(
+    val antall: Int,
+    val forespoersler: List<Forespoersel>,
+)
+
+/*
+Kopierte domeneobjekter fra BRO. Skal ikke eksponeres mot LPS, brukes for å tolke innkommende forespørsler fra BRO.
+ */
 @Serializable
 data class ForespoerselDokument(
     val type: Type,
@@ -35,22 +59,21 @@ data class ForespoerselDokument(
     val forespoerselId: UUID,
     val sykmeldingsperioder: List<Periode>,
     val egenmeldingsperioder: List<Periode>,
-)
-
-enum class Type {
-    KOMPLETT,
-    BEGRENSET,
-}
-
-@Serializable
-data class ForespoerselRequest(
-    val fnr: String? = null,
-    val forespoerselId: String? = null,
-    val status: Status? = null,
+    val forespurtData: ForespurtData,
 )
 
 @Serializable
-data class ForespoerselResponse(
-    val antallForespoersler: Int,
-    val forespoerseler: List<Forespoersel>,
+data class ForespurtData(
+    val arbeidsgiverperiode: Arbeidsgiverperiode,
+    val inntekt: Inntekt,
+)
+
+@Serializable
+data class Arbeidsgiverperiode(
+    val paakrevd: Boolean,
+)
+
+@Serializable
+data class Inntekt(
+    val paakrevd: Boolean,
 )
