@@ -4,6 +4,7 @@ import com.nimbusds.jose.util.DefaultResourceRetriever
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -154,8 +155,8 @@ fun Application.apiModule() {
         val urlString = getPropertyOrNull("ELECTOR_GET_URL")
         if (urlString != null) {
             val response = httpClient.get(urlString)
-            sikkerLogger().info("Elector response: $response")
-            logger().info("Elector response: $response")
+            sikkerLogger().info("Elector response: ${response.bodyAsText()}")
+            logger().info("Elector response: ${response.bodyAsText()}")
         }
     }
     install(Authentication) {
