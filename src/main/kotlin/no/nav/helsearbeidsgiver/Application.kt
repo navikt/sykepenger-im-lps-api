@@ -10,14 +10,11 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
-import no.nav.hag.utils.bakgrunnsjobb.PostgresBakgrunnsjobbRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
-import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
