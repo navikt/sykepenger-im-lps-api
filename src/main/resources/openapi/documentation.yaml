@@ -201,6 +201,51 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
+  /v1/ny_inntektsmelding:
+    post:
+      description: "Her kommer dokumentasjon - dette er finfint\n        Slik sender\
+        \ du inn: bla bla bla\n        Ikke glem: lorem ipsum"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Skjema"
+        required: true
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "En feil oppstod"
 components:
   securitySchemes:
     bearerAuth:
@@ -532,3 +577,20 @@ components:
         til_dato:
           type: "string"
           format: "date-time"
+    Skjema:
+      type: "object"
+      properties:
+        forespoersel_id:
+          type: "string"
+          format: "uuid"
+        avsender_tlf:
+          type: "string"
+        arbeidsgiverperiode:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+      required:
+      - "forespoersel_id"
+      - "avsender_tlf"
