@@ -1,6 +1,9 @@
 package no.nav.helsearbeidsgiver
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -10,6 +13,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
@@ -135,8 +139,24 @@ fun Application.apiModule() {
 //        registrer(InnsendingProcessor(innsendingRepository))
 //        startAsync(true)
 //    }'
+
     install(ContentNegotiation) {
         json()
+    }
+    val httpClient =
+        HttpClient(Apache5) {
+            install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
+                json()
+            }
+        }
+
+    runBlocking {
+        val urlString = getPropertyOrNull("ELECTOR_GET_URL")
+        if (urlString != null) {
+            val response = httpClient.get(urlString)
+            sikkerLogger().info("Elector response: $response")
+            logger().info("Elector response: $response")
+        }
     }
     install(Authentication) {
         tokenValidationSupport(
