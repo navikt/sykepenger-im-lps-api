@@ -10,11 +10,14 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.hag.utils.bakgrunnsjobb.PostgresBakgrunnsjobbRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
+import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
@@ -47,6 +50,7 @@ import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
+import java.net.InetAddress
 
 fun main() {
     startServer()
@@ -65,6 +69,10 @@ fun startServer() {
 @Suppress("unused")
 fun Application.apiModule() {
     sikkerLogger().info("Starter applikasjon!")
+
+    sikkerLogger().info("ELECTOR_GET_URL" + getProperty("ELECTOR_GET_URL"))
+    val hostName = InetAddress.getLocalHost().hostName
+    sikkerLogger().info("HOST NAME: $hostName")
 
     val authClient = AltinnAuthClient()
     val pdpService =
