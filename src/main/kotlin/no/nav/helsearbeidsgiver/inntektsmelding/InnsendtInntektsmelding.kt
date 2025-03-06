@@ -24,8 +24,8 @@ data class InnsendtInntektsmelding(
 data class InntektsmeldingRequest(
     val fnr: String? = null,
     val foresporsel_id: String? = null,
-    val fra_dato: LocalDateTime? = null,
-    val til_dato: LocalDateTime? = null,
+    val fra_dato: LocalDateTime? = null, // TODO: Endre til LocalDate? Eller endre navn til _tid
+    val til_dato: LocalDateTime? = null, // Ditto
 )
 
 @Serializable
