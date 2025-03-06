@@ -67,7 +67,7 @@ fun startServer() {
 fun Application.apiModule() {
     sikkerLogger().info("Starter applikasjon!")
 
-    sikkerLogger().info("ELECTOR_GET_URL" + getProperty("ELECTOR_GET_URL"))
+    sikkerLogger().info("ELECTOR_GET_URL" + getPropertyOrNull("ELECTOR_GET_URL"))
     val hostName = InetAddress.getLocalHost().hostName
     sikkerLogger().info("HOST NAME: $hostName")
 
@@ -128,7 +128,10 @@ fun Application.apiModule() {
             ),
         )
     }
-
+//  '  BakgrunnsjobbService(PostgresBakgrunnsjobbRepository(Database.hikari())).apply {
+//        registrer(InnsendingProcessor(innsendingRepository))
+//        startAsync(true)
+//    }'
     install(ContentNegotiation) {
         json()
     }
