@@ -37,7 +37,7 @@ class InntektsmeldingRepository(
             }[InntektsmeldingEntitet.id]
         }
 
-    fun hent(orgNr: String): List<Inntektsmelding> =
+    fun hent(orgNr: String): List<InnsendtInntektsmelding> =
         transaction(db) {
             InntektsmeldingEntitet
                 .selectAll()
@@ -48,7 +48,7 @@ class InntektsmeldingRepository(
     fun hent(
         orgNr: String,
         request: InntektsmeldingRequest,
-    ): List<Inntektsmelding> =
+    ): List<InnsendtInntektsmelding> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             InntektsmeldingEntitet
@@ -56,19 +56,19 @@ class InntektsmeldingRepository(
                 .where {
                     (orgnr eq orgNr) and
                         (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.foresporselid != null) foresporselid eq request.foresporselid else Op.TRUE) and
-                        (request.datoFra?.let { innsendt greaterEq it } ?: Op.TRUE) and
-                        (request.datoTil?.let { innsendt lessEq it } ?: Op.TRUE)
+                        (if (request.foresporsel_id != null) foresporselid eq request.foresporsel_id else Op.TRUE) and
+                        (request.fra_dato?.let { innsendt greaterEq it } ?: Op.TRUE) and
+                        (request.til_dato?.let { innsendt lessEq it } ?: Op.TRUE)
                 }.map { it.toExposedInntektsmelding() }
         }
 
-    private fun ResultRow.toExposedInntektsmelding(): Inntektsmelding =
-        Inntektsmelding(
+    private fun ResultRow.toExposedInntektsmelding(): InnsendtInntektsmelding =
+        InnsendtInntektsmelding(
             dokument = this[dokument],
             orgnr = this[orgnr],
             fnr = this[fnr],
-            foresporselid = this[foresporselid],
-            innsendt = this[innsendt],
-            mottattEvent = this[mottattEvent],
+            foresporsel_id = this[foresporselid],
+            innsendt_tid = this[innsendt],
+            mottatt_tid = this[mottattEvent],
         )
 }

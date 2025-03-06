@@ -12,10 +12,19 @@ services:
                           "requestParam": "scope",
                           "match": "nav:helse/im.read",
                           "claims": {
-                              "supplier" : {
-                                "authority" : "iso6523-actorid-upis",
-                                "ID" : "0192:991825827"
-                              },
+                              "authorization_details": [
+                                {
+                                  "type": "urn:altinn:systemuser",
+                                  "systemuser_org": {
+                                    "authority": "iso6523-actorid-upis",
+                                    "ID": "0192:315587336"
+                                  },
+                                  "systemuser_id": [
+                                    "38dc7f47-3ff2-4478-8b48-f791ed324c5b"
+                                  ],
+                                  "system_id": "315339138_tigersys2"
+                                }
+                              ],
                              "consumer" : {
                                 "authority" : "iso6523-actorid-upis",
                                 "ID" : "0192:810007842"

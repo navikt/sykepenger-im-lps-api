@@ -32,6 +32,16 @@ class PdpService(
         }
 }
 
+class LocalhostPdpService : IPdpService {
+    override fun harTilgang(
+        systembruker: String,
+        orgnr: String,
+    ): Boolean {
+        sikkerLogger().info("Ingen PDP, har tilgang")
+        return true
+    }
+}
+
 // Benytter default ingen tilgang i prod inntil vi ønsker å eksponere APIet via http
 class IngenTilgangPdpService : IPdpService {
     override fun harTilgang(

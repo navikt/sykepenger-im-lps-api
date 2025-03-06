@@ -12,21 +12,15 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
-import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -35,7 +29,6 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import java.util.UUID
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 class ApiTest {
@@ -46,9 +39,6 @@ class ApiTest {
     private val mockOAuth2Server: MockOAuth2Server
     private val testApplication: TestApplication
     private val client: HttpClient
-    private val pdpService: PdpService
-    private val dialogportenService: IDialogportenService
-    private val innsendingServiceMock: InnsendingService
 
     init {
         mockOAuth2Server =
@@ -58,22 +48,10 @@ class ApiTest {
         db = Database.init()
         forespoerselRepo = ForespoerselRepository(db)
 
-        pdpService = PdpService(mockk(relaxed = true))
-        every { pdpService.harTilgang(any(), any()) } returns true
-
-        innsendingServiceMock = mockk<InnsendingService>()
-        every { innsendingServiceMock.sendInn(any()) } returns Pair(UUID.randomUUID(), LocalDateTime.now())
-
-        dialogportenService = IngenDialogportenService()
-
         testApplication =
             TestApplication {
                 application {
-                    apiModule(
-                        pdpService = pdpService,
-                        dialogportenService = dialogportenService,
-                        innsendingService = innsendingServiceMock,
-                    )
+                    apiModule()
                 }
             }
         client =
@@ -97,29 +75,28 @@ class ApiTest {
             forespoerselRepo.lagreForespoersel("1234", forespoerselDokument(orgnr2, "123"))
 
             val response =
-                client.get("/forespoersler") {
+                client.get("/v1/forespoersler") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                 }
             response.status.value shouldBe 200
             val forespoerselSvar = response.body<ForespoerselResponse>()
-            forespoerselSvar.antallForespoersler shouldBe 1
-            forespoerselSvar.forespoerseler[0].status shouldBe Status.AKTIV
-            forespoerselSvar.forespoerseler[0].orgnr shouldBe orgnr1
-            forespoerselSvar.forespoerseler[0].dokument shouldBe payload
+            forespoerselSvar.antall shouldBe 1
+            forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
+            forespoerselSvar.forespoersler[0].orgnr shouldBe orgnr1
         }
 
     @Test
     fun `gir 401 når token mangler`() =
         runTest {
-            val response1 = client.get("/forespoersler")
+            val response1 = client.get("/v1/forespoersler")
             response1.status.value shouldBe 401
 
-            val response2 = client.get("/inntektsmeldinger")
+            val response2 = client.get("/v1/inntektsmeldinger")
             response2.status.value shouldBe 401
 
             val requestBody = mockSkjemaInntektsmelding()
             val response3 =
-                client.post("/inntektsmelding") {
+                client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
                 }
@@ -127,23 +104,23 @@ class ApiTest {
         }
 
     @Test
-    fun `gir 401 når supplier mangler i token`() =
+    fun `gir 401 når systembruker mangler i token`() =
         runTest {
             val response1 =
-                client.get("/forespoersler") {
+                client.get("/v1/forespoersler") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response1.status.value shouldBe 401
 
             val response2 =
-                client.get("/inntektsmeldinger") {
+                client.get("/v1/inntektsmeldinger") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                 }
             response2.status.value shouldBe 401
 
             val requestBody = mockSkjemaInntektsmelding()
             val response3 =
-                client.post("/inntektsmelding") {
+                client.post("/v1/inntektsmelding") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
@@ -155,12 +132,12 @@ class ApiTest {
     fun `hent inntektsmeldinger`() =
         runTest {
             val response =
-                client.get("/inntektsmeldinger") {
+                client.get("/v1/inntektsmeldinger") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                 }
             response.status.value shouldBe 200
             val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
-            inntektsmeldingResponse.antallInntektsmeldinger shouldBe 1
+            inntektsmeldingResponse.antall shouldBe 1
             inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
         }
 
@@ -169,7 +146,7 @@ class ApiTest {
         runTest {
             val requestBody = mockSkjemaInntektsmelding()
             val response =
-                client.post("/inntektsmelding") {
+                client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))

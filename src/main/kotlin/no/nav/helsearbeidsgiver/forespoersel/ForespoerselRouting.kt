@@ -7,12 +7,20 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-fun Route.forespoersler(forespoerselService: ForespoerselService) {
+fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
+    route("/v1") {
+        forespoersler(forespoerselService)
+        filtererForespoersler(forespoerselService)
+    }
+}
+
+private fun Route.forespoersler(forespoerselService: ForespoerselService) {
     // Hent forespørsler for tilhørende systembrukers orgnr.
     get("/forespoersler") {
         try {
@@ -27,7 +35,7 @@ fun Route.forespoersler(forespoerselService: ForespoerselService) {
     }
 }
 
-fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
+private fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
     // Hent forespørsler for tilhørende systembrukers orgnr, filtrer basert på request.
     post("/forespoersler") {
         try {
