@@ -19,6 +19,7 @@ val kafkaVersion: String by project
 val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
+val swaggerVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -56,6 +57,7 @@ dependencies {
     implementation("io.ktor:ktor-server-swagger")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
