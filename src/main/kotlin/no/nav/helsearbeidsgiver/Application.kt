@@ -1,10 +1,6 @@
 package no.nav.helsearbeidsgiver
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache5.Apache5
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -14,7 +10,6 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
@@ -41,6 +36,7 @@ import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.isElectedLeader
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
@@ -53,7 +49,6 @@ import no.nav.security.token.support.v2.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
-import java.net.InetAddress
 
 fun main() {
     startServer()
@@ -72,12 +67,6 @@ fun startServer() {
 @Suppress("unused")
 fun Application.apiModule() {
     sikkerLogger().info("Starter applikasjon!")
-
-    sikkerLogger().info("ELECTOR_GET_URL" + getPropertyOrNull("ELECTOR_GET_URL"))
-
-    logger().info("Her er elector " + getPropertyOrNull("ELECTOR_GET_URL"))
-    val hostName = InetAddress.getLocalHost().hostName
-    sikkerLogger().info("HOST NAME: $hostName")
 
     val authClient = AltinnAuthClient()
     val pdpService =
@@ -136,6 +125,9 @@ fun Application.apiModule() {
             ),
         )
     }
+    val electedLeader = isElectedLeader()
+    logger().info("Er valgt som leder: $electedLeader")
+
 //  '  BakgrunnsjobbService(PostgresBakgrunnsjobbRepository(Database.hikari())).apply {
 //        registrer(InnsendingProcessor(innsendingRepository))
 //        startAsync(true)
@@ -144,21 +136,7 @@ fun Application.apiModule() {
     install(ContentNegotiation) {
         json()
     }
-    val httpClient =
-        HttpClient(Apache5) {
-            install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
-                json()
-            }
-        }
 
-    runBlocking {
-        val urlString = getPropertyOrNull("ELECTOR_GET_URL")
-        if (urlString != null) {
-            val response = httpClient.get(urlString)
-            sikkerLogger().info("Elector response: ${response.bodyAsText()}")
-            logger().info("Elector response: ${response.bodyAsText()}")
-        }
-    }
     install(Authentication) {
         tokenValidationSupport(
             name = "systembruker-config",
