@@ -22,7 +22,7 @@ fun getElectedLeaderId(): String =
         if (electorUrl != null) {
             try {
                 val electedPod: ElectedPod = createHttpClient().get(electorUrl).body()
-                logger().info("Elected leader: ${electedPod.name}")
+                logger().info("Elected leader: ${electedPod.name} and host: ${InetAddress.getLocalHost().hostName}")
                 electedPod.name
             } catch (e: Exception) {
                 logger().warn("feilet å hente elected leader", e)
