@@ -16,15 +16,22 @@ import java.net.InetAddress
 fun getElectedLeaderId(): String =
     runBlocking {
         val electorUrl = getPropertyOrNull("ELECTOR_GET_URL")
-        logger().info("Getting elector: $electorUrl")
+        logger().info("Hentet elector url: $electorUrl")
+
         if (electorUrl != null) {
-            val electedPod = createHttpClient().get(electorUrl)
-            logger().info("Getting elector: $electedPod")
-            electedPod.body<ElectedPod>().name
+            try {
+                val electedPod: ElectedPod = createHttpClient().get(electorUrl).body()
+                logger().info("Elected leader: ${electedPod.name}")
+                electedPod.name
+            } catch (e: Exception) {
+                logger().warn("feilet å hente elected leader", e)
+                "UNKNOWN_LEADER"
+            }
         } else {
-            logger().warn("electorUrl is null")
+            logger().warn("ELECTOR_GET_URL er null")
+            "UNKNOWN_LEADER"
         }
-    }.toString()
+    }
 
 data class ElectedPod(
     val name: String,
