@@ -1,7 +1,3 @@
-DROP TABLE IF EXISTS inntektsmelding;
-DROP TABLE IF EXISTS mottak;
-DROP TABLE IF EXISTS forespoersel;
-
 CREATE TABLE inntektsmelding
 (
     id            SERIAL PRIMARY KEY,

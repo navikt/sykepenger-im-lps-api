@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
@@ -33,8 +34,9 @@ class InntektsmeldingRepository(
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,
         forespoerselID: String?,
-    ): Int =
-        transaction(db) {
+    ): Int {
+        sikkerLogger().info("Lagrer inntektsmelding")
+        return transaction(db) {
             InntektsmeldingEntitet.insert {
                 it[dokument] = im
                 it[orgnr] = org
@@ -51,6 +53,7 @@ class InntektsmeldingRepository(
                 it[status] = InnsendingStatus.GODKJENT // Alt fra Simba er OK!
             }[InntektsmeldingEntitet.id]
         }
+    }
 
     fun hent(orgNr: String): List<InnsendtInntektsmelding> =
         transaction(db) {

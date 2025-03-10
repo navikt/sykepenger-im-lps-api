@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.helsearbeidsgiver.Env
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import javax.sql.DataSource
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 object Database {
@@ -18,27 +19,29 @@ object Database {
 
     fun init(): Database {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
-        val db = getDatabase(embedded)
+        val dataSource = getDataSource(embedded)
+        val database = ExposedDatabase.connect(dataSource) //koble til én gang
 
         if (embedded) {
-            runMigrateEmbedded()
+            runMigrateEmbedded(dataSource)
         } else {
             runMigrate()
         }
-        return db
+        return database
     }
 
-    private fun getDatabase(embedded: Boolean): Database =
-        if (embedded) {
-            Database.connect(
-                url = "jdbc:h2:mem:test",
-                user = "root",
-                driver = "org.h2.Driver",
-                password = "",
-            )
+    private fun getDataSource(embedded: Boolean): DataSource {
+        return if (embedded) {
+            val config = HikariConfig()
+            config.jdbcUrl = "jdbc:h2:mem:test"
+            config.username = "root"
+            config.driverClassName = "org.h2.Driver"
+            config.password = ""
+            return HikariDataSource(config)
         } else {
-            ExposedDatabase.connect(hikari())
+            HikariDataSource(hikari())
         }
+    }
 
     private fun runMigrate() {
         val flyway =
@@ -51,16 +54,17 @@ object Database {
         flyway.validate()
     }
 
-    private fun runMigrateEmbedded() {
+    private fun runMigrateEmbedded(ds: DataSource) {
         val flyway =
             Flyway
                 .configure()
                 .sqlMigrationSuffixes("h2")
                 .validateMigrationNaming(true)
-                .dataSource("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "root", "")
+                .cleanDisabled(false)
+                .dataSource(ds)
                 .load()
+        flyway.clean()
         flyway.migrate()
-        flyway.validate()
     }
 
     private fun hikari(): HikariDataSource {

@@ -36,6 +36,7 @@ import org.jetbrains.exposed.sql.Database as ExposedDatabase
 class ApiTest {
     private val db: ExposedDatabase
     private val forespoerselRepo: ForespoerselRepository
+    private val inntektsmeldingRepo: InntektsmeldingRepository
 
     private val port = 33445
     private val mockOAuth2Server: MockOAuth2Server
@@ -47,9 +48,6 @@ class ApiTest {
             MockOAuth2Server().apply {
                 start(port = port)
             }
-        db = Database.init()
-        forespoerselRepo = ForespoerselRepository(db)
-
         testApplication =
             TestApplication {
                 application {
@@ -62,15 +60,10 @@ class ApiTest {
                     json()
                 }
             }
-        val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
-        val im = buildInntektsmelding(forespoerselId = forespoerselId)
-        InntektsmeldingRepository(db).opprettInntektsmeldingFraSimba(
-            im = im,
-            org = "810007842",
-            sykmeldtFnr = "12345678912",
-            innsendtDato = LocalDateTime.now(),
-            forespoerselID = forespoerselId,
-        )
+        // Gjøres etter apiModule()
+        db = Database.init()
+        forespoerselRepo = ForespoerselRepository(db)
+        inntektsmeldingRepo = InntektsmeldingRepository(db)
     }
 
     @Test
@@ -139,6 +132,20 @@ class ApiTest {
     @Test
     fun `hent inntektsmeldinger`() =
         runTest {
+            val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
+            val im = buildInntektsmelding(forespoerselId = forespoerselId)
+            client.get("/v1/inntektsmeldinger") {
+                // setter i gang apiModule() og database-cleanup *en ekstra gang* ?
+                bearerAuth(gyldigSystembrukerAuthToken())
+            }
+
+            inntektsmeldingRepo.opprettInntektsmeldingFraSimba(
+                im = im,
+                org = "810007842",
+                sykmeldtFnr = "12345678912",
+                innsendtDato = LocalDateTime.now(),
+                forespoerselID = forespoerselId,
+            )
             val response =
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(gyldigSystembrukerAuthToken())

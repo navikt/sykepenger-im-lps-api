@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS innsending;
-
 CREATE TABLE innsending (
     id UUID PRIMARY KEY,
     dokument TEXT NOT NULL,
