@@ -469,93 +469,65 @@ components:
       required:
       - "forespoerselId"
       - "avsenderTlf"
-    Type:
-      type: "object"
-      properties: {}
-    Sykmeldt:
+    Skjema:
       type: "object"
       properties:
-        navn:
-          type: "string"
-      required:
-      - "navn"
-    Avsender:
-      type: "object"
-      properties:
-        orgNavn:
-          type: "string"
-        navn:
-          type: "string"
-        tlf:
-          type: "string"
-      required:
-      - "orgNavn"
-      - "navn"
-      - "tlf"
-    Inntektsmelding:
-      type: "object"
-      properties:
-        id:
+        forespoersel_id:
           type: "string"
           format: "uuid"
-        type:
-          $ref: "#/components/schemas/Type"
-        sykmeldt:
-          $ref: "#/components/schemas/Sykmeldt"
-        avsender:
-          $ref: "#/components/schemas/Avsender"
-        sykmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        agp:
+        avsender_tlf:
+          type: "string"
+        arbeidsgiverperiode:
           $ref: "#/components/schemas/Arbeidsgiverperiode"
         inntekt:
           $ref: "#/components/schemas/Inntekt"
         refusjon:
           $ref: "#/components/schemas/Refusjon"
-        aarsakInnsending:
-          type: "string"
-          enum:
-          - "Ny"
-          - "Endring"
-        mottatt:
-          type: "string"
-          format: "date-time"
-        vedtaksperiodeId:
-          type: "string"
-          format: "uuid"
       required:
-      - "id"
-      - "type"
-      - "sykmeldt"
-      - "avsender"
-      - "sykmeldingsperioder"
-      - "aarsakInnsending"
-      - "mottatt"
+      - "forespoersel_id"
+      - "avsender_tlf"
     InnsendtInntektsmelding:
       type: "object"
       properties:
-        dokument:
-          $ref: "#/components/schemas/Inntektsmelding"
+        skjema:
+          $ref: "#/components/schemas/Skjema"
         orgnr:
           type: "string"
         fnr:
           type: "string"
-        foresporsel_id:
-          type: "string"
         innsendt_tid:
           type: "string"
           format: "date-time"
-        mottatt_tid:
+        aarsak_innsending:
           type: "string"
-          format: "date-time"
+          enum:
+          - "Ny"
+          - "Endring"
+        type_innsending:
+          type: "string"
+          enum:
+          - "FORESPURT"
+          - "ARBEIDSGIVER_INITIERT"
+        versjon:
+          type: "integer"
+          format: "int32"
+        status:
+          type: "string"
+          enum:
+          - "MOTTATT"
+          - "UNDER_BEHANDLING"
+          - "FEILET"
+          - "GODKJENT"
+        status_melding:
+          type: "string"
       required:
-      - "dokument"
+      - "skjema"
       - "orgnr"
       - "fnr"
       - "innsendt_tid"
-      - "mottatt_tid"
+      - "aarsak_innsending"
+      - "type_innsending"
+      - "status"
     InntektsmeldingResponse:
       type: "object"
       properties:
@@ -581,20 +553,3 @@ components:
         til_tid:
           type: "string"
           format: "date-time"
-    Skjema:
-      type: "object"
-      properties:
-        forespoersel_id:
-          type: "string"
-          format: "uuid"
-        avsender_tlf:
-          type: "string"
-        arbeidsgiverperiode:
-          $ref: "#/components/schemas/Arbeidsgiverperiode"
-        inntekt:
-          $ref: "#/components/schemas/Inntekt"
-        refusjon:
-          $ref: "#/components/schemas/Refusjon"
-      required:
-      - "forespoersel_id"
-      - "avsender_tlf"
