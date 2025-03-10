@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 // TODO: Merge Innsending og InnsendtInntektsmelding - en av dem beholdes
 @Serializable
 data class InnsendtInntektsmelding(
-    val skjema: Skjema,
+    val skjema: Skjema?, // TODO: Kan gjøre denne ikke-null - hvis vi sletter gamle data i databasen...!
     val orgnr: String,
     val fnr: String,
     val innsendt_tid: LocalDateTime,

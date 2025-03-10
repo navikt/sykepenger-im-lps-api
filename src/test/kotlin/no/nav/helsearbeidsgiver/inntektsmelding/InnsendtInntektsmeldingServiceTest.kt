@@ -80,7 +80,7 @@ class InnsendtInntektsmeldingServiceTest {
         val inntektsmelding = hentInntektsmeldingerByOrgNr.inntektsmeldinger[0]
         assertEquals(orgnr, inntektsmelding.orgnr)
         assertEquals(fnr, inntektsmelding.fnr)
-        assertEquals(foresporselid, inntektsmelding.skjema.forespoersel_id.toString())
+        assertEquals(foresporselid, inntektsmelding.skjema?.forespoersel_id.toString())
         assertEquals(innsendt, inntektsmelding.innsendt_tid)
         assertEquals(skjema, inntektsmelding.skjema)
     }
@@ -120,7 +120,7 @@ class InnsendtInntektsmeldingServiceTest {
         }
         assertEquals(1, hentInntektsMeldingByRequest.antall)
         val inntektsmelding = hentInntektsMeldingByRequest.inntektsmeldinger[0]
-        assertEquals(foresporselid, inntektsmelding.skjema.forespoersel_id.toString())
+        assertEquals(foresporselid, inntektsmelding.skjema?.forespoersel_id.toString())
         assertEquals(orgnr, inntektsmelding.orgnr)
         assertEquals(fnr, inntektsmelding.fnr)
     }

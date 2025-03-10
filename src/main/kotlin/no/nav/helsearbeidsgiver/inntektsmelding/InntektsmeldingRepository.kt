@@ -46,7 +46,7 @@ class InntektsmeldingRepository(
                 it[skjema] = Skjema(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
-                it[navReferanseId] = im.type.id.toString()
+                it[navReferanseId] = im.type.id
                 it[versjon] = 1 // TODO: bør legges til i dokument-payload..
                 it[avsenderSystemNavn] = "NAV_NO_SIMBA"
                 it[avsenderSystemVersjon] = "1.0" // Bør egentlig komme fra simba..

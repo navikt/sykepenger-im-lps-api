@@ -52,7 +52,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         assertEquals(1, result.size)
         assertEquals(org, result[0].orgnr)
         assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].skjema.forespoersel_id)
+        assertEquals(forespoerselId, result[0].skjema?.forespoersel_id)
     }
 
     @Test
@@ -84,7 +84,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         assertEquals(1, result.size)
         assertEquals(org, result[0].orgnr)
         assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].skjema.forespoersel_id.toString())
+        assertEquals(forespoerselId, result[0].skjema?.forespoersel_id.toString())
     }
 
     @Test
