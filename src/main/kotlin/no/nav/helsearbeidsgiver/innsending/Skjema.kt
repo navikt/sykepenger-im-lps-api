@@ -15,8 +15,8 @@ import java.util.UUID
 /*
 Skjema som representerer en IM innsendt via API
  */
-@Schema(description = "Dette er en inntektsmelding blah") //TODO: Dette plukkes ikke opp av openapi / ktor plugin :(
-data class Skjema( // TODO: Bedre navn -> Inntektsmelding..?
+@Schema(description = "Dette er en inntektsmelding blah") // description plukkes ikke opp av openapi / ktor plugin :(
+data class Skjema( // TODO: Bedre navn -> Inntektsmelding..
     val forespoersel_id: UUID,
     @Schema(description = "Telefonnummer til avsender", example = "33132323")
     val avsender_tlf: String,

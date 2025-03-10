@@ -19,11 +19,13 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsm
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.innsending.Skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.mockSkjema
 import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
@@ -142,7 +144,8 @@ class ApiTest {
         }
 
     @Test
-    fun `send inn inntektsmelding`() =
+    fun `send inn gammel inntektsmelding`() =
+        // TODO: slettes
         runTest {
             val requestBody = mockSkjemaInntektsmelding()
             val response =
@@ -150,6 +153,19 @@ class ApiTest {
                     bearerAuth(gyldigSystembrukerAuthToken())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                }
+            response.status.value shouldBe 201
+        }
+
+    @Test
+    fun `send inn inntektsmelding`() =
+        runTest {
+            val requestBody = mockSkjema()
+            val response =
+                client.post("/v1/ny_inntektsmelding") {
+                    bearerAuth(gyldigSystembrukerAuthToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = Skjema.serializer()))
                 }
             response.status.value shouldBe 201
         }

@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RedusertLoennIAgp
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.innsending.Skjema
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -75,6 +76,15 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         refusjon = mockRefusjon(),
     )
 
+fun mockSkjema(): Skjema =
+    Skjema(
+        forespoersel_id = UUID.randomUUID(),
+        avsender_tlf = randomDigitString(8),
+        arbeidsgiverperiode = mockArbeidsgiverperiode(),
+        inntekt = mockInntekt(),
+        refusjon = mockRefusjon(),
+    )
+
 private fun randomDigitString(length: Int): String =
     List(length) { Random.nextInt(10) }
         .joinToString(separator = "")
@@ -121,9 +131,15 @@ private fun mockInntekt(): Inntekt =
                     sluttdato = 12.oktober,
                 ),
             ),
-        endringAarsak =
-            NyStillingsprosent(
-                gjelderFra = 16.oktober,
+        endringAarsak = null,
+//            NyStillingsprosent(
+//                gjelderFra = 16.oktober,
+//            ),
+        endringAarsaker =
+            listOf(
+                NyStillingsprosent(
+                    gjelderFra = 16.oktober,
+                ),
             ),
     )
 
@@ -134,15 +150,15 @@ private fun mockRefusjon(): Refusjon =
             listOf(
                 RefusjonEndring(
                     beloep = 140.9,
-                    startdato = 14.oktober,
+                    startdato = 23.oktober,
                 ),
                 RefusjonEndring(
                     beloep = 130.8,
-                    startdato = 18.oktober,
+                    startdato = 25.oktober,
                 ),
                 RefusjonEndring(
                     beloep = 120.7,
-                    startdato = 21.oktober,
+                    startdato = 27.oktober,
                 ),
             ),
         sluttdato = 31.oktober,
