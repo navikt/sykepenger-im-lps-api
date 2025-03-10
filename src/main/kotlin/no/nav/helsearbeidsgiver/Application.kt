@@ -98,7 +98,7 @@ fun Application.apiModule() {
                 InnsendingSerializer(),
             ),
         )
-    val bakgrunnsjobbService = BakgrunnsjobbService(PostgresBakgrunnsjobbRepository(Database.hikari()))
+    val bakgrunnsjobbService = BakgrunnsjobbService(PostgresBakgrunnsjobbRepository(Database.getDataSource()))
     bakgrunnsjobbService.apply {
         registrer(InnsendingProcessor(innsendingRepository))
         startAsync(true)

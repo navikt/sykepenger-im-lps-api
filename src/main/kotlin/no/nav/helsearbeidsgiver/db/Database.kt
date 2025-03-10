@@ -30,12 +30,7 @@ object Database {
 
     private fun getDatabase(embedded: Boolean): Database =
         if (embedded) {
-            Database.connect(
-                url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-                user = "root",
-                driver = "org.h2.Driver",
-                password = "",
-            )
+            ExposedDatabase.connect(hikariH2())
         } else {
             ExposedDatabase.connect(hikari())
         }
@@ -63,7 +58,7 @@ object Database {
         flyway.validate()
     }
 
-    fun hikari(): HikariDataSource {
+    private fun hikari(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
         config.jdbcUrl = jdbcUrl
@@ -74,5 +69,26 @@ object Database {
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
         return HikariDataSource(config)
+    }
+
+    private fun hikariH2(): HikariDataSource {
+        val config = HikariConfig()
+        config.driverClassName = "org.h2.Driver"
+        config.jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
+        config.username = "root"
+        config.password = ""
+        config.maximumPoolSize = 3
+        config.isAutoCommit = false
+        config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+        config.validate()
+        return HikariDataSource(config)
+    }
+
+    fun getDataSource(): HikariDataSource {
+        if (Env.getPropertyOrNull("database.embedded").toBoolean()) {
+            return hikariH2()
+        } else {
+            return hikari()
+        }
     }
 }
