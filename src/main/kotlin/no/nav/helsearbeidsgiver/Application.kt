@@ -109,29 +109,32 @@ fun Application.apiModule() {
             innsendingRepository = innsendingRepository,
             bakgrunnsjobbService = bakgrunnsjobbService,
         )
+    val kafka = getProperty("kafkaConsumer.enabled").toBoolean()
 
-    val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
-    launch(Dispatchers.Default) {
-        startKafkaConsumer(
-            getProperty("kafkaConsumer.inntektsmelding.topic"),
-            inntektsmeldingKafkaConsumer,
-            InntektsmeldingTolker(
-                inntektsmeldingService,
-                mottakRepository,
-            ),
-        )
-    }
-    val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
-    launch(Dispatchers.Default) {
-        startKafkaConsumer(
-            getProperty("kafkaConsumer.forespoersel.topic"),
-            forespoerselKafkaConsumer,
-            ForespoerselTolker(
-                forespoerselRepository,
-                mottakRepository,
-                dialogportenService,
-            ),
-        )
+    if (kafka) {
+        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                getProperty("kafkaConsumer.inntektsmelding.topic"),
+                inntektsmeldingKafkaConsumer,
+                InntektsmeldingTolker(
+                    inntektsmeldingService,
+                    mottakRepository,
+                ),
+            )
+        }
+        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                getProperty("kafkaConsumer.forespoersel.topic"),
+                forespoerselKafkaConsumer,
+                ForespoerselTolker(
+                    forespoerselRepository,
+                    mottakRepository,
+                    dialogportenService,
+                ),
+            )
+        }
     }
     val electedLeader = isElectedLeader()
     logger().info("Er valgt som leder: $electedLeader")

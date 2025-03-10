@@ -65,7 +65,7 @@ object Database {
         config.username = dbUser
         config.password = dbPassword
         config.maximumPoolSize = 3
-        config.isAutoCommit = false
+        config.isAutoCommit = true
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
         return HikariDataSource(config)
@@ -78,17 +78,16 @@ object Database {
         config.username = "root"
         config.password = ""
         config.maximumPoolSize = 3
-        config.isAutoCommit = false
+        config.isAutoCommit = true
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
         return HikariDataSource(config)
     }
 
-    fun getDataSource(): HikariDataSource {
+    fun getDataSource(): HikariDataSource =
         if (Env.getPropertyOrNull("database.embedded").toBoolean()) {
-            return hikariH2()
+            hikariH2()
         } else {
-            return hikari()
+            hikari()
         }
-    }
 }
