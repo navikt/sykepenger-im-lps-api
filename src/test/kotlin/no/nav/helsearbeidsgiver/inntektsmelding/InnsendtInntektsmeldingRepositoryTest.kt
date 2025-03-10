@@ -74,8 +74,8 @@ class InnsendtInntektsmeldingRepositoryTest {
                 InntektsmeldingRequest(
                     fnr = sykmeldtFnr,
                     foresporsel_id = forespoerselId,
-                    fra_dato = innsendtDato.minusDays(1),
-                    til_dato = innsendtDato.plusDays(1),
+                    fra_tid = innsendtDato.minusDays(1),
+                    til_tid = innsendtDato.plusDays(1),
                 ),
             )
 
@@ -105,8 +105,8 @@ class InnsendtInntektsmeldingRepositoryTest {
                 InntektsmeldingRequest(
                     fnr = null,
                     foresporsel_id = null,
-                    fra_dato = null,
-                    til_dato = null,
+                    fra_tid = null,
+                    til_tid = null,
                 ),
             )
 

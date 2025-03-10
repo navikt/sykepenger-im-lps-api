@@ -419,6 +419,10 @@ components:
             $ref: "#/components/schemas/Naturalytelse"
         endringAarsak:
           $ref: "#/components/schemas/InntektEndringAarsak"
+        endringAarsaker:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/InntektEndringAarsak"
       required:
       - "inntektsdato"
       - "naturalytelser"
@@ -571,10 +575,10 @@ components:
           type: "string"
         foresporsel_id:
           type: "string"
-        fra_dato:
+        fra_tid:
           type: "string"
           format: "date-time"
-        til_dato:
+        til_tid:
           type: "string"
           format: "date-time"
     Skjema:

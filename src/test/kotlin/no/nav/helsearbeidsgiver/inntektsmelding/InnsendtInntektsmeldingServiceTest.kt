@@ -92,8 +92,8 @@ class InnsendtInntektsmeldingServiceTest {
             InntektsmeldingRequest(
                 fnr = fnr,
                 foresporsel_id = foresporselid,
-                fra_dato = datoFra,
-                til_dato = datoTil,
+                fra_tid = datoFra,
+                til_tid = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
@@ -137,8 +137,8 @@ class InnsendtInntektsmeldingServiceTest {
             InntektsmeldingRequest(
                 fnr = fnr,
                 foresporsel_id = foresporselid,
-                fra_dato = datoFra,
-                til_dato = datoTil,
+                fra_tid = datoFra,
+                til_tid = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
         assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }

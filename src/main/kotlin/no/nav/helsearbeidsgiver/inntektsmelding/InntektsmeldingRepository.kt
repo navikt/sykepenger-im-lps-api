@@ -57,8 +57,8 @@ class InntektsmeldingRepository(
                     (orgnr eq orgNr) and
                         (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
                         (if (request.foresporsel_id != null) foresporselid eq request.foresporsel_id else Op.TRUE) and
-                        (request.fra_dato?.let { innsendt greaterEq it } ?: Op.TRUE) and
-                        (request.til_dato?.let { innsendt lessEq it } ?: Op.TRUE)
+                        (request.fra_tid?.let { innsendt greaterEq it } ?: Op.TRUE) and
+                        (request.til_tid?.let { innsendt lessEq it } ?: Op.TRUE)
                 }.map { it.toExposedInntektsmelding() }
         }
 
