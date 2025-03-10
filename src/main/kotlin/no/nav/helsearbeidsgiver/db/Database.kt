@@ -63,7 +63,7 @@ object Database {
         flyway.validate()
     }
 
-    private fun hikari(): HikariDataSource {
+    fun hikari(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
         config.jdbcUrl = jdbcUrl

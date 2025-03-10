@@ -10,26 +10,25 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.InetAddress
 
 fun getElectedLeaderId(): String =
     runBlocking {
         val electorUrl = getPropertyOrNull("ELECTOR_GET_URL")
-        logger().info("Hentet elector url: $electorUrl")
+        sikkerLogger().info("Hentet elector url: $electorUrl")
 
         if (electorUrl != null) {
             try {
                 val electedPod: ElectedPod = createHttpClient().get(electorUrl).body()
-                logger().info("Elected leader: ${electedPod.name} and host: ${InetAddress.getLocalHost().hostName}")
+                sikkerLogger().info("Elected leader: ${electedPod.name} and host: ${InetAddress.getLocalHost().hostName}")
                 electedPod.name
             } catch (e: Exception) {
-                logger().warn("feilet å hente elected leader", e)
+                sikkerLogger().warn("feilet å hente elected leader", e)
                 "UNKNOWN_LEADER"
             }
         } else {
-            logger().warn("ELECTOR_GET_URL er null")
+            sikkerLogger().warn("ELECTOR_GET_URL er null")
             "UNKNOWN_LEADER"
         }
     }
