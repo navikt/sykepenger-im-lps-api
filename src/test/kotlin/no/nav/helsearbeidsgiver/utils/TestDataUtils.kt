@@ -28,6 +28,8 @@ private const val ORGNUMMER = "%%%ORGNR%%%"
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "732812083"
 
+fun Inntektsmelding.tilSkjema(): Skjema = Skjema(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
+
 fun buildInntektsmelding(
     forespoerselId: String = UUID.randomUUID().toString(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),

@@ -64,7 +64,13 @@ class ApiTest {
             }
         val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
         val im = buildInntektsmelding(forespoerselId = forespoerselId)
-        InntektsmeldingRepository(db).opprett(im, "810007842", "12345678912", LocalDateTime.now(), forespoerselId)
+        InntektsmeldingRepository(db).opprettInntektsmeldingFraSimba(
+            im = im,
+            org = "810007842",
+            sykmeldtFnr = "12345678912",
+            innsendtDato = LocalDateTime.now(),
+            forespoerselID = forespoerselId,
+        )
     }
 
     @Test

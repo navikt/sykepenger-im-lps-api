@@ -1,11 +1,18 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.dokument
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Skjema
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.mottattEvent
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMelding
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
@@ -20,8 +27,8 @@ import java.time.LocalDateTime
 class InntektsmeldingRepository(
     private val db: Database,
 ) {
-    fun opprett(
-        im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
+    fun opprettInntektsmeldingFraSimba(
+        im: Inntektsmelding,
         org: String,
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,
@@ -34,6 +41,14 @@ class InntektsmeldingRepository(
                 it[fnr] = sykmeldtFnr
                 it[foresporselid] = forespoerselID
                 it[innsendt] = innsendtDato
+                it[skjema] = Skjema(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
+                it[aarsakInnsending] = im.aarsakInnsending
+                it[typeInnsending] = InnsendingType.from(im.type)
+                it[navReferanseId] = im.type.id.toString()
+                it[versjon] = 1 // TODO: bør legges til i dokument-payload..
+                it[avsenderSystemNavn] = "NAV_NO_SIMBA"
+                it[avsenderSystemVersjon] = "1.0" // Bør egentlig komme fra simba..
+                it[status] = InnsendingStatus.GODKJENT // Alt fra Simba er OK!
             }[InntektsmeldingEntitet.id]
         }
 
@@ -64,11 +79,14 @@ class InntektsmeldingRepository(
 
     private fun ResultRow.toExposedInntektsmelding(): InnsendtInntektsmelding =
         InnsendtInntektsmelding(
-            dokument = this[dokument],
+            skjema = this[skjema],
             orgnr = this[orgnr],
             fnr = this[fnr],
-            foresporsel_id = this[foresporselid],
             innsendt_tid = this[innsendt],
-            mottatt_tid = this[mottattEvent],
+            aarsak_innsending = this[aarsakInnsending],
+            type_innsending = this[typeInnsending],
+            versjon = this[versjon],
+            status = this[status],
+            status_melding = this[statusMelding],
         )
 }

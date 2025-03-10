@@ -38,7 +38,7 @@ class InntektsmeldingService(
     fun opprettInntektsmelding(im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding) {
         runCatching {
             sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
-            inntektsmeldingRepository.opprett(
+            inntektsmeldingRepository.opprettInntektsmeldingFraSimba(
                 im = im,
                 org = im.avsender.orgnr.verdi,
                 sykmeldtFnr = im.sykmeldt.fnr.verdi,

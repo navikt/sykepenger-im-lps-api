@@ -13,11 +13,11 @@ import java.util.UUID
 
 @Serializable
 /*
-Skjema som representerer en IM innsendt via API
+Skjema som representerer en Inntektsmelding
  */
 @Schema(description = "Dette er en inntektsmelding blah") // description plukkes ikke opp av openapi / ktor plugin :(
 data class Skjema( // TODO: Bedre navn -> Inntektsmelding..
-    val forespoersel_id: UUID,
+    val forespoersel_id: UUID, // TODO:: endre navn: nav_referanse_id el.l. (referer til TYPE.ID)
     @Schema(description = "Telefonnummer til avsender", example = "33132323")
     val avsender_tlf: String,
     val arbeidsgiverperiode: Arbeidsgiverperiode?,
