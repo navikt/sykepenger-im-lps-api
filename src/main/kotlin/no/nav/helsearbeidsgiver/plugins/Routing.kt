@@ -5,13 +5,11 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
-import no.nav.helsearbeidsgiver.forespoersel.filtererForespoersler
-import no.nav.helsearbeidsgiver.forespoersel.forespoersler
+import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
-import no.nav.helsearbeidsgiver.innsending.innsending
+import no.nav.helsearbeidsgiver.innsending.innsendingV1
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.inntektsmelding.filtrerInntektsmeldinger
-import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldinger
+import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 
 fun Application.configureRouting(
     forespoerselService: ForespoerselService,
@@ -21,11 +19,9 @@ fun Application.configureRouting(
     routing {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         authenticate("systembruker-config") {
-            filtrerInntektsmeldinger(inntektsmeldingService)
-            inntektsmeldinger(inntektsmeldingService)
-            forespoersler(forespoerselService)
-            filtererForespoersler(forespoerselService)
-            innsending(innsendingService)
+            inntektsmeldingV1(inntektsmeldingService)
+            forespoerselV1(forespoerselService)
+            innsendingV1(innsendingService)
         }
     }
 }

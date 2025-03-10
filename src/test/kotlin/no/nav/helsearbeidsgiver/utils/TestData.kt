@@ -1,6 +1,9 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
+import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
+import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.forespoersel.Type
 import java.util.UUID
 
@@ -95,5 +98,17 @@ object TestData {
     fun forespoerselDokument(
         orgnr: String,
         fnr: String,
-    ) = ForespoerselDokument(Type.KOMPLETT, orgnr, fnr, UUID.randomUUID(), UUID.randomUUID(), emptyList(), emptyList())
+    ) = ForespoerselDokument(
+        Type.KOMPLETT,
+        orgnr,
+        fnr,
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        emptyList(),
+        emptyList(),
+        ForespurtData(
+            Arbeidsgiverperiode(true),
+            Inntekt(paakrevd = true),
+        ),
+    )
 }

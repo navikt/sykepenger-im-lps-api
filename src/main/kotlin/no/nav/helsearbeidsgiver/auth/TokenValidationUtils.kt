@@ -16,7 +16,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.tokenValidationContext(): Tok
     val tokenValidationContext = principal?.context
     if (tokenValidationContext == null) {
         call.respond(HttpStatusCode.Unauthorized, "Uautorisert tilgang")
-        throw IllegalStateException("Tenisk feil - mangler tokenValidationContext")
+        throw IllegalStateException("Teknisk feil - mangler tokenValidationContext")
     }
     return tokenValidationContext
 }

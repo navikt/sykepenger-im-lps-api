@@ -12,6 +12,6 @@
     <logger name="io.netty" level="INFO"/>
     <logger name="no.nav" level="DEBUG"/>
     <logger name="tjenestekall" level="INFO" additivity="false">
-        <appender-ref ref="secureLog" />
+        <appender-ref ref="STDOUT" />
     </logger>
 </configuration>
