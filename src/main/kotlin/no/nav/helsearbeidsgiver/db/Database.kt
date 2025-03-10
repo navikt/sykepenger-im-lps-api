@@ -20,7 +20,7 @@ object Database {
     fun init(): Database {
         val embedded = Env.getPropertyOrNull("database.embedded").toBoolean()
         val dataSource = getDataSource(embedded)
-        val database = ExposedDatabase.connect(dataSource) //koble til én gang
+        val database = ExposedDatabase.connect(dataSource) // koble til én gang
 
         if (embedded) {
             runMigrateEmbedded(dataSource)
