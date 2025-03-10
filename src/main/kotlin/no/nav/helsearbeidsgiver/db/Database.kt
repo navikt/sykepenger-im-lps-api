@@ -31,7 +31,7 @@ object Database {
     private fun getDatabase(embedded: Boolean): Database =
         if (embedded) {
             Database.connect(
-                url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+                url = "jdbc:h2:mem:test",
                 user = "root",
                 driver = "org.h2.Driver",
                 password = "",
