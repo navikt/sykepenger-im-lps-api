@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
@@ -9,12 +10,15 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
+import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -27,9 +31,12 @@ class MeldingTolkerTest {
     val forespoerselRepository = ForespoerselRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val mottakRepository = MottakRepository(db)
+    val sykmeldingRepository = spyk(SykmeldingRepository(db))
+
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val mockDialogportenService = mockk<IDialogportenService>()
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository, mockDialogportenService)
+    val sykmeldingTolker = SykmeldingTolker(sykmeldingRepository)
 
     @Test
     fun kunLagreEventerSomMatcher() {
@@ -47,6 +54,12 @@ class MeldingTolkerTest {
 
         // Skal ikke lagre:
         inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
+    }
+
+    @Test
+    fun `ta i mot og lagre gyldig sykmelding`() {
+        sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
+        verify { sykmeldingRepository.opprettSykmelding(any()) }
     }
 
     @Test
