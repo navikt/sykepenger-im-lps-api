@@ -21,7 +21,7 @@ fun getElectedLeaderId(): String =
         if (electorUrl != null) {
             try {
                 val electedPod: ElectedPod = createHttpClient().get(electorUrl).body()
-                sikkerLogger().info("Elected leader: ${electedPod.name} and host: ${InetAddress.getLocalHost().hostName}")
+                sikkerLogger().info("Elected leader: ${electedPod.name} and host: ${getHostName()}")
                 electedPod.name
             } catch (e: Exception) {
                 sikkerLogger().warn("feilet å hente elected leader", e)
@@ -40,10 +40,12 @@ data class ElectedPod(
 
 fun isElectedLeader(): Boolean {
     val electedLeaderId = getElectedLeaderId()
-    val hostName = InetAddress.getLocalHost().hostName
+    val hostName = getHostName()
     sikkerLogger().info("HOST NAME: $hostName")
     return electedLeaderId == hostName
 }
+
+fun getHostName(): String? = InetAddress.getLocalHost().hostName
 
 fun createHttpClient() =
     HttpClient(Apache5) {
