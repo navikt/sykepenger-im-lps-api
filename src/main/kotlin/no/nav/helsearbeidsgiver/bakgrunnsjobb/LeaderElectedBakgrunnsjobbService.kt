@@ -6,6 +6,7 @@ import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
+import no.nav.helsearbeidsgiver.utils.getElectedLeaderId
 import no.nav.helsearbeidsgiver.utils.isElectedLeader
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.LocalDateTime
@@ -37,8 +38,14 @@ class LeaderElectedBakgrunnsjobbService(
 
     override fun doJob() {
         if (isElectedLeader()) {
-            sikkerLogger().info("Leder valgt, kjører bakgrunnsjobb")
-            bakgrunnsjobbService.doJob()
+            do {
+                val wasEmpty =
+                    bakgrunnsjobbService
+                        .finnVentende()
+                        .also { logger.debug("Fant ${it.size} bakgrunnsjobber å kjøre på ${getElectedLeaderId()}") }
+                        .onEach { bakgrunnsjobbService.prosesser(it) }
+                        .isEmpty()
+            } while (!wasEmpty)
         } else {
             sikkerLogger().info("Ikke leder, venter til neste runde")
         }
