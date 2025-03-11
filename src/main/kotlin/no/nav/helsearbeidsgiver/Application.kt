@@ -105,11 +105,6 @@ fun Application.apiModule() {
             startAsync(true)
         }
 
-    bakgrunnsjobbService.apply {
-        registrer(InnsendingProcessor(innsendingRepository))
-        startAsync(true)
-    }
-
     val innsendingService =
         InnsendingService(
             innsendingProducer = innsendingProducer,
