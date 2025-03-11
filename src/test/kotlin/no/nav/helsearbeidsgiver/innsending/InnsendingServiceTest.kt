@@ -5,7 +5,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonElement
-import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
@@ -21,7 +21,7 @@ import java.util.UUID
 class InnsendingServiceTest {
     private val innsendingProducer = mockk<InnsendingProducer>()
     private val innsendingRepository = mockk<InnsendingRepository>()
-    private val bakgrunnsjobbService = mockk<BakgrunnsjobbService>()
+    private val bakgrunnsjobbService = mockk<LeaderElectedBakgrunnsjobbService>()
     private val innsendigService = InnsendingService(innsendingProducer, innsendingRepository, bakgrunnsjobbService)
 
     init {

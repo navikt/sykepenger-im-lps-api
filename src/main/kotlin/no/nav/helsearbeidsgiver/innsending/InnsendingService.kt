@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.innsending
 
-import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
+import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
@@ -17,7 +17,7 @@ import java.util.UUID
 class InnsendingService(
     private val innsendingProducer: InnsendingProducer,
     private val innsendingRepository: InnsendingRepository,
-    private val bakgrunnsjobbService: BakgrunnsjobbService,
+    private val bakgrunnsjobbService: LeaderElectedBakgrunnsjobbService,
 ) {
     fun lagreInnsending(
         organisasjonsNr: String,
