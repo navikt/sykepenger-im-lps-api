@@ -10,7 +10,6 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RedusertLoennIAgp
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.innsending.Skjema
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -28,7 +27,8 @@ private const val ORGNUMMER = "%%%ORGNR%%%"
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "732812083"
 
-fun Inntektsmelding.tilSkjema(): Skjema = Skjema(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
+fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
+    SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
 
 fun buildInntektsmelding(
     forespoerselId: String = UUID.randomUUID().toString(),
@@ -74,15 +74,6 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         forespoerselId = UUID.randomUUID(),
         avsenderTlf = randomDigitString(8),
         agp = mockArbeidsgiverperiode(),
-        inntekt = mockInntekt(),
-        refusjon = mockRefusjon(),
-    )
-
-fun mockSkjema(): Skjema =
-    Skjema(
-        forespoersel_id = UUID.randomUUID(),
-        avsender_tlf = randomDigitString(8),
-        arbeidsgiverperiode = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
         refusjon = mockRefusjon(),
     )

@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
-import no.nav.helsearbeidsgiver.innsending.Skjema
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 // TODO: Merge Innsending og InnsendtInntektsmelding - en av dem beholdes
 @Serializable
 data class InnsendtInntektsmelding(
-    val skjema: Skjema?, // TODO: Kan gjøre denne ikke-null - hvis vi sletter gamle data i databasen...!
+    val skjema: SkjemaInntektsmelding?, // TODO: Kan gjøre denne ikke-null - hvis vi sletter gamle data i databasen...!
     val orgnr: String,
     val fnr: String,
     val innsendt_tid: LocalDateTime,
