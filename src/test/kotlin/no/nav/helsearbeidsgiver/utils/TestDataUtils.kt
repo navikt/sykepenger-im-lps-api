@@ -124,10 +124,10 @@ private fun mockInntekt(): Inntekt =
                     sluttdato = 12.oktober,
                 ),
             ),
-        endringAarsak = null,
-//            NyStillingsprosent(
-//                gjelderFra = 16.oktober,
-//            ),
+        endringAarsak =
+            NyStillingsprosent(
+                gjelderFra = 16.oktober,
+            ),
         endringAarsaker =
             listOf(
                 NyStillingsprosent(
