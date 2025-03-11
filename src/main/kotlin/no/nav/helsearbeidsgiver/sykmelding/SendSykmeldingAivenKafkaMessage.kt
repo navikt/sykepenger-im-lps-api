@@ -20,37 +20,37 @@ data class SendSykmeldingAivenKafkaMessage(
 data class ArbeidsgiverSykmelding(
     val id: String,
     val mottattTidspunkt: OffsetDateTime,
-    val syketilfelleStartDato: LocalDate?,
+    val syketilfelleStartDato: LocalDate? = null,
     val behandletTidspunkt: OffsetDateTime,
     val arbeidsgiver: ArbeidsgiverAGDTO,
     val sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>,
-    val prognose: PrognoseAGDTO?,
-    val tiltakArbeidsplassen: String?,
-    val meldingTilArbeidsgiver: String?,
+    val prognose: PrognoseAGDTO? = null,
+    val tiltakArbeidsplassen: String? = null,
+    val meldingTilArbeidsgiver: String? = null,
     val kontaktMedPasient: KontaktMedPasientAGDTO,
-    val behandler: BehandlerAGDTO?,
+    val behandler: BehandlerAGDTO? = null,
     val egenmeldt: Boolean,
     val papirsykmelding: Boolean,
     val harRedusertArbeidsgiverperiode: Boolean,
-    val merknader: List<Merknad>?,
-    val utenlandskSykmelding: UtenlandskSykmeldingAGDTO?,
-    val signaturDato: OffsetDateTime?,
+    val merknader: List<Merknad>? = null,
+    val utenlandskSykmelding: UtenlandskSykmeldingAGDTO? = null,
+    val signaturDato: OffsetDateTime? = null,
 ) {
     @Serializable
     data class ArbeidsgiverAGDTO(
-        val navn: String?,
-        val yrkesbetegnelse: String?,
+        val navn: String? = null,
+        val yrkesbetegnelse: String? = null,
     )
 
     @Serializable
     data class SykmeldingsperiodeAGDTO(
         val fom: LocalDate,
         val tom: LocalDate,
-        val gradert: GradertDTO?,
-        val behandlingsdager: Int?,
-        val innspillTilArbeidsgiver: String?,
+        val gradert: GradertDTO? = null,
+        val behandlingsdager: Int? = null,
+        val innspillTilArbeidsgiver: String? = null,
         val type: PeriodetypeDTO,
-        val aktivitetIkkeMulig: AktivitetIkkeMuligAGDTO?,
+        val aktivitetIkkeMulig: AktivitetIkkeMuligAGDTO? = null,
         val reisetilskudd: Boolean,
     ) {
         @Serializable
@@ -69,11 +69,11 @@ data class ArbeidsgiverSykmelding(
 
         @Serializable
         data class AktivitetIkkeMuligAGDTO(
-            val arbeidsrelatertArsak: ArbeidsrelatertArsakDTO?,
+            val arbeidsrelatertArsak: ArbeidsrelatertArsakDTO? = null,
         ) {
             @Serializable
             class ArbeidsrelatertArsakDTO(
-                val beskrivelse: String?,
+                val beskrivelse: String? = null,
                 val arsak: List<ArbeidsrelatertArsakTypeDTO>,
             ) {
                 @Serializable
@@ -92,37 +92,37 @@ data class ArbeidsgiverSykmelding(
     @Serializable
     data class PrognoseAGDTO(
         val arbeidsforEtterPeriode: Boolean,
-        val hensynArbeidsplassen: String?,
+        val hensynArbeidsplassen: String? = null,
     )
 
     @Serializable
     data class KontaktMedPasientAGDTO(
-        val kontaktDato: LocalDate?,
+        val kontaktDato: LocalDate? = null,
     )
 
     @Serializable
     data class BehandlerAGDTO(
         val fornavn: String,
-        val mellomnavn: String?,
+        val mellomnavn: String? = null,
         val etternavn: String,
-        val hpr: String?,
+        val hpr: String? = null,
         val adresse: AdresseDTO,
-        val tlf: String?,
+        val tlf: String? = null,
     ) {
         @Serializable
         data class AdresseDTO(
-            val gate: String?,
-            val postnummer: Int?,
-            val kommune: String?,
-            val postboks: String?,
-            val land: String?,
+            val gate: String? = null,
+            val postnummer: Int? = null,
+            val kommune: String? = null,
+            val postboks: String? = null,
+            val land: String? = null,
         )
     }
 
     @Serializable
     data class Merknad(
         val type: String,
-        val beskrivelse: String?,
+        val beskrivelse: String? = null,
     )
 
     @Serializable
