@@ -39,8 +39,6 @@ import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
-import no.nav.helsearbeidsgiver.utils.isElectedLeader
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -138,8 +136,6 @@ fun Application.apiModule() {
             )
         }
     }
-    val electedLeader = isElectedLeader()
-    logger().info("Er valgt som leder: $electedLeader")
 
     install(ContentNegotiation) {
         json()

@@ -17,11 +17,13 @@ class InnsendingProcessor(
     override val type: String get() = JOB_TYPE
 
     override fun prosesser(jobb: Bakgrunnsjobb) {
-        sikkerLogger().info("Prosesserer ${jobb.uuid} med type ${jobb.type} på ${getHostName()} elected leader: ${getElectedLeaderId()}")
-        sikkerLogger().info("Data: $jobb")
+        sikkerLogger().info(
+            "Bakgrunnsjobb: Prosesserer ${jobb.uuid} med type ${jobb.type} på ${getHostName()} elected leader: ${getElectedLeaderId()}",
+        )
+        sikkerLogger().info("Bakgrunnsjobb: Data: $jobb")
         sikkerLogger().info(
             @Suppress("ktlint:standard:max-line-length")
-            "jobb status: ${jobb.status} og forsøk: ${jobb.forsoek} og data: ${jobb.data} og kjoeretid: ${jobb.kjoeretid} og opprettet: ${jobb.opprettet}  og behandlet: ${jobb.behandlet}",
+            "Bakgrunnsjobb: jobb status: ${jobb.status} og forsøk: ${jobb.forsoek} og data: ${jobb.data} og kjoeretid: ${jobb.kjoeretid} og opprettet: ${jobb.opprettet}  og behandlet: ${jobb.behandlet}",
         )
     }
 }

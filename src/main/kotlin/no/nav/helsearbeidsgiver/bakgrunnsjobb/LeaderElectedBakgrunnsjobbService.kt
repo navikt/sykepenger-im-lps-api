@@ -42,12 +42,12 @@ class LeaderElectedBakgrunnsjobbService(
                 val wasEmpty =
                     bakgrunnsjobbService
                         .finnVentende()
-                        .also { logger.debug("Fant ${it.size} bakgrunnsjobber å kjøre på ${getElectedLeaderId()}") }
+                        .also { logger.debug("Bakgrunnsjobb: Fant ${it.size} bakgrunnsjobber å kjøre på ${getElectedLeaderId()}") }
                         .onEach { bakgrunnsjobbService.prosesser(it) }
                         .isEmpty()
             } while (!wasEmpty)
         } else {
-            sikkerLogger().info("Ikke leder, venter til neste runde")
+            sikkerLogger().info("Bakgrunnsjobb: Ikke leder, venter til neste runde")
         }
     }
 }
