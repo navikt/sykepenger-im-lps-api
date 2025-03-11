@@ -30,12 +30,14 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -81,6 +83,7 @@ fun Application.apiModule() {
     val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
     val innsendingRepository = InnsendingRepository(db)
+    val sykmeldingRepository = SykmeldingRepository(db)
 
     val forespoerselService = ForespoerselService(forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
@@ -121,6 +124,15 @@ fun Application.apiModule() {
                 mottakRepository,
                 dialogportenService,
             ),
+        )
+    }
+
+    val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.sykmelding.topic"),
+            consumer = sykmeldingKafkaConsumer,
+            meldingTolker = SykmeldingTolker(sykmeldingRepository),
         )
     }
 

@@ -1,0 +1,189 @@
+@file:UseSerializers(LocalDateSerializer::class, OffsetDateTimeSerializer::class)
+
+package no.nav.helsearbeidsgiver.sykmelding
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.OffsetDateTimeSerializer
+import java.time.LocalDate
+import java.time.OffsetDateTime
+
+@Serializable
+data class SendSykmeldingAivenKafkaMessage(
+    val sykmelding: ArbeidsgiverSykmelding,
+    val kafkaMetadata: KafkaMetadataDTO,
+    val event: SykmeldingStatusKafkaEventDTO,
+)
+
+@Serializable
+data class ArbeidsgiverSykmelding(
+    val id: String,
+    val mottattTidspunkt: OffsetDateTime,
+    val syketilfelleStartDato: LocalDate?,
+    val behandletTidspunkt: OffsetDateTime,
+    val arbeidsgiver: ArbeidsgiverAGDTO,
+    val sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>,
+    val prognose: PrognoseAGDTO?,
+    val tiltakArbeidsplassen: String?,
+    val meldingTilArbeidsgiver: String?,
+    val kontaktMedPasient: KontaktMedPasientAGDTO,
+    val behandler: BehandlerAGDTO?,
+    val egenmeldt: Boolean,
+    val papirsykmelding: Boolean,
+    val harRedusertArbeidsgiverperiode: Boolean,
+    val merknader: List<Merknad>?,
+    val utenlandskSykmelding: UtenlandskSykmeldingAGDTO?,
+    val signaturDato: OffsetDateTime?,
+) {
+    @Serializable
+    data class ArbeidsgiverAGDTO(
+        val navn: String?,
+        val yrkesbetegnelse: String?,
+    )
+
+    @Serializable
+    data class SykmeldingsperiodeAGDTO(
+        val fom: LocalDate,
+        val tom: LocalDate,
+        val gradert: GradertDTO?,
+        val behandlingsdager: Int?,
+        val innspillTilArbeidsgiver: String?,
+        val type: PeriodetypeDTO,
+        val aktivitetIkkeMulig: AktivitetIkkeMuligAGDTO?,
+        val reisetilskudd: Boolean,
+    ) {
+        @Serializable
+        data class GradertDTO(
+            val grad: Int,
+            val reisetilskudd: Boolean,
+        )
+
+        enum class PeriodetypeDTO {
+            AKTIVITET_IKKE_MULIG,
+            AVVENTENDE,
+            BEHANDLINGSDAGER,
+            GRADERT,
+            REISETILSKUDD,
+        }
+
+        @Serializable
+        data class AktivitetIkkeMuligAGDTO(
+            val arbeidsrelatertArsak: ArbeidsrelatertArsakDTO?,
+        ) {
+            @Serializable
+            class ArbeidsrelatertArsakDTO(
+                val beskrivelse: String?,
+                val arsak: List<ArbeidsrelatertArsakTypeDTO>,
+            ) {
+                @Serializable
+                enum class ArbeidsrelatertArsakTypeDTO(
+                    val codeValue: String,
+                    val text: String,
+                    val oid: String = "2.16.578.1.12.4.1.1.8132",
+                ) {
+                    MANGLENDE_TILRETTELEGGING("1", "Manglende tilrettelegging på arbeidsplassen"),
+                    ANNET("9", "Annet"),
+                }
+            }
+        }
+    }
+
+    @Serializable
+    data class PrognoseAGDTO(
+        val arbeidsforEtterPeriode: Boolean,
+        val hensynArbeidsplassen: String?,
+    )
+
+    @Serializable
+    data class KontaktMedPasientAGDTO(
+        val kontaktDato: LocalDate?,
+    )
+
+    @Serializable
+    data class BehandlerAGDTO(
+        val fornavn: String,
+        val mellomnavn: String?,
+        val etternavn: String,
+        val hpr: String?,
+        val adresse: AdresseDTO,
+        val tlf: String?,
+    ) {
+        @Serializable
+        data class AdresseDTO(
+            val gate: String?,
+            val postnummer: Int?,
+            val kommune: String?,
+            val postboks: String?,
+            val land: String?,
+        )
+    }
+
+    @Serializable
+    data class Merknad(
+        val type: String,
+        val beskrivelse: String?,
+    )
+
+    @Serializable
+    data class UtenlandskSykmeldingAGDTO(
+        val land: String,
+    )
+}
+
+@Serializable
+data class KafkaMetadataDTO(
+    val sykmeldingId: String,
+    val timestamp: OffsetDateTime,
+    val fnr: String,
+    val source: String,
+)
+
+@Serializable
+data class SykmeldingStatusKafkaEventDTO(
+    val sykmeldingId: String,
+    val timestamp: OffsetDateTime,
+    val statusEvent: String,
+    val arbeidsgiver: ArbeidsgiverStatusDTO? = null,
+    val sporsmals: List<SporsmalOgSvarDTO>? = null,
+    val erSvarOppdatering: Boolean? = null,
+    val tidligereArbeidsgiver: TidligereArbeidsgiverDTO? = null,
+) {
+    @Serializable
+    data class ArbeidsgiverStatusDTO(
+        val orgnummer: String,
+        val juridiskOrgnummer: String? = null,
+        val orgNavn: String,
+    )
+
+    @Serializable
+    data class SporsmalOgSvarDTO(
+        val tekst: String,
+        val shortName: ShortNameDTO,
+        val svartype: SvartypeDTO,
+        val svar: String,
+    )
+
+    enum class ShortNameDTO {
+        ARBEIDSSITUASJON,
+        NY_NARMESTE_LEDER,
+        FRAVAER,
+        PERIODE,
+        FORSIKRING,
+        EGENMELDINGSDAGER,
+    }
+
+    enum class SvartypeDTO {
+        ARBEIDSSITUASJON,
+        PERIODER,
+        JA_NEI,
+        DAGER,
+    }
+
+    @Serializable
+    data class TidligereArbeidsgiverDTO(
+        val orgNavn: String,
+        val orgnummer: String,
+        val sykmeldingsId: String,
+    )
+}
