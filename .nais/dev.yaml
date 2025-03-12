@@ -9,6 +9,7 @@ metadata:
   annotations:
     texas.nais.io/enabled: "true"
 spec:
+  leaderElection: true
   replicas:
     max: 2
     min: 2

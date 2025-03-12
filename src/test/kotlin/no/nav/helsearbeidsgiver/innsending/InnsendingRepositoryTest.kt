@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.innsending
 
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ import kotlin.test.assertNotNull
 
 @ExtendWith(TransactionalExtension::class)
 class InnsendingRepositoryTest {
-    val db = Database.init()
+    val db = DbConfig.init()
     val repository = InnsendingRepository(db)
 
     @Test

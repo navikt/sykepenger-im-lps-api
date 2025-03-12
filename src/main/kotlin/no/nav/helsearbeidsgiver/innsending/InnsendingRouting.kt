@@ -35,7 +35,7 @@ private fun Route.innsending(innsendingService: InnsendingService) {
                 return@post
             }
 
-            val lagreInnsending = innsendingService.lagreInnsending(sluttbrukerOrgnr, lpsOrgnr, request)
+            val lagreInnsending = innsendingService.lagreOgSendinn(sluttbrukerOrgnr, lpsOrgnr, request)
 
             call.respond(HttpStatusCode.Created, lagreInnsending.toString())
         } catch (e: Exception) {
