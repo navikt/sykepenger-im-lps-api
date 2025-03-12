@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import no.nav.helsearbeidsgiver.db.Database
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.tilSkjema
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
@@ -18,31 +19,32 @@ class InnsendtInntektsmeldingRepositoryTest {
     fun `opprett should insert a ny inntektsmelding`() {
         val forespoerselId = UUID.randomUUID().toString()
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
+        val forventetSkjema = inntektsmeldingJson.tilSkjema()
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
-        repository.opprett(inntektsmeldingJson, org, sykmeldtFnr, innsendtDato, forespoerselId)
+        repository.opprettInntektsmeldingFraSimba(inntektsmeldingJson, org, sykmeldtFnr, innsendtDato, forespoerselId)
 
         val result = repository.hent(org)[0]
 
-        assertEquals(inntektsmeldingJson, result.dokument)
+        assertEquals(forventetSkjema, result.skjema)
         assertEquals(org, result.orgnr)
         assertEquals(sykmeldtFnr, result.fnr)
     }
 
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr`() {
-        val forespoerselId = UUID.randomUUID().toString()
-        val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
+        val forespoerselId = UUID.randomUUID()
+        val inntektsmeldingJson = buildInntektsmelding(forespoerselId.toString())
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
-        repository.opprett(
+        repository.opprettInntektsmeldingFraSimba(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
             innsendtDato,
-            forespoerselId,
+            forespoerselId.toString(),
         )
 
         val result = repository.hent(org)
@@ -50,7 +52,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         assertEquals(1, result.size)
         assertEquals(org, result[0].orgnr)
         assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].foresporsel_id)
+        assertEquals(forespoerselId, result[0].skjema?.forespoerselId)
     }
 
     @Test
@@ -60,7 +62,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
-        repository.opprett(
+        repository.opprettInntektsmeldingFraSimba(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
@@ -74,15 +76,15 @@ class InnsendtInntektsmeldingRepositoryTest {
                 InntektsmeldingRequest(
                     fnr = sykmeldtFnr,
                     foresporsel_id = forespoerselId,
-                    fra_dato = innsendtDato.minusDays(1),
-                    til_dato = innsendtDato.plusDays(1),
+                    fra_tid = innsendtDato.minusDays(1),
+                    til_tid = innsendtDato.plusDays(1),
                 ),
             )
 
         assertEquals(1, result.size)
         assertEquals(org, result[0].orgnr)
         assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].foresporsel_id)
+        assertEquals(forespoerselId, result[0].skjema?.forespoerselId.toString())
     }
 
     @Test
@@ -105,8 +107,8 @@ class InnsendtInntektsmeldingRepositoryTest {
                 InntektsmeldingRequest(
                     fnr = null,
                     foresporsel_id = null,
-                    fra_dato = null,
-                    til_dato = null,
+                    fra_tid = null,
+                    til_tid = null,
                 ),
             )
 
@@ -120,7 +122,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         forespoerselId: String,
     ) {
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
-        repository.opprett(
+        repository.opprettInntektsmeldingFraSimba(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,

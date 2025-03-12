@@ -22,7 +22,6 @@ fun Route.innsendingV1(innsendingService: InnsendingService) {
 private fun Route.innsending(innsendingService: InnsendingService) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
-        // TODO: "/innsending" ??
         try {
             val request = this.call.receive<SkjemaInntektsmelding>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
