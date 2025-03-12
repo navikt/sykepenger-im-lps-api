@@ -8,7 +8,6 @@ import javax.sql.DataSource
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 object DbConfig {
-
     private val dbUser = Env.getProperty("database.username")
     private val dbPassword = Env.getProperty("database.password")
     private val dbName = Env.getProperty("database.name")
