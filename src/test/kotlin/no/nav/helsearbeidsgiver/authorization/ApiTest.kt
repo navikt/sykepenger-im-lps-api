@@ -47,13 +47,13 @@ class ApiTest {
     private val client: HttpClient
 
     init {
+        db = Database.init()
+        forespoerselRepo = ForespoerselRepository(db)
+        inntektsmeldingRepo = InntektsmeldingRepository(db)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
             }
-        db = DbConfig.init()
-        forespoerselRepo = ForespoerselRepository(db)
-        inntektsmeldingRepo = InntektsmeldingRepository(db)
         testApplication =
             TestApplication {
                 application {

@@ -66,7 +66,7 @@ class ForespoerselRepositoryTest {
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoersel_id = null,
+                forespoerselId = null,
                 status = null,
             )
         val forespoersler = forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request)
