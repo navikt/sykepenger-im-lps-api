@@ -63,12 +63,12 @@ class InnsendtInntektsmeldingServiceTest {
                     skjema = skjema,
                     orgnr = orgnr,
                     fnr = fnr,
-                    innsendt_tid = innsendt,
-                    aarsak_innsending = AarsakInnsending.Ny,
-                    type_innsending = InnsendingType.FORESPURT,
+                    innsendtTid = innsendt,
+                    aarsakInnsending = AarsakInnsending.Ny,
+                    typeInnsending = InnsendingType.FORESPURT,
                     versjon = 1,
                     status = InnsendingStatus.MOTTATT,
-                    status_melding = null,
+                    statusMelding = null,
                 ),
             )
         val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
@@ -81,7 +81,7 @@ class InnsendtInntektsmeldingServiceTest {
         assertEquals(orgnr, inntektsmelding.orgnr)
         assertEquals(fnr, inntektsmelding.fnr)
         assertEquals(foresporselid, inntektsmelding.skjema?.forespoerselId.toString())
-        assertEquals(innsendt, inntektsmelding.innsendt_tid)
+        assertEquals(innsendt, inntektsmelding.innsendtTid)
         assertEquals(skjema, inntektsmelding.skjema)
     }
 
@@ -95,9 +95,9 @@ class InnsendtInntektsmeldingServiceTest {
         val request =
             InntektsmeldingRequest(
                 fnr = fnr,
-                foresporsel_id = foresporselid,
-                fra_tid = datoFra,
-                til_tid = datoTil,
+                foresporselId = foresporselid,
+                fraTid = datoFra,
+                tilTid = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
@@ -105,12 +105,12 @@ class InnsendtInntektsmeldingServiceTest {
                     skjema = buildInntektsmelding(forespoerselId = foresporselid).tilSkjema(),
                     orgnr = orgnr,
                     fnr = fnr,
-                    innsendt_tid = LocalDateTime.now(),
-                    aarsak_innsending = AarsakInnsending.Ny,
-                    type_innsending = InnsendingType.FORESPURT,
+                    innsendtTid = LocalDateTime.now(),
+                    aarsakInnsending = AarsakInnsending.Ny,
+                    typeInnsending = InnsendingType.FORESPURT,
                     versjon = 1,
                     status = InnsendingStatus.MOTTATT,
-                    status_melding = null,
+                    statusMelding = null,
                 ),
             )
         val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
@@ -143,9 +143,9 @@ class InnsendtInntektsmeldingServiceTest {
         val request =
             InntektsmeldingRequest(
                 fnr = fnr,
-                foresporsel_id = foresporselid,
-                fra_tid = datoFra,
-                til_tid = datoTil,
+                foresporselId = foresporselid,
+                fraTid = datoFra,
+                tilTid = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
         assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }

@@ -75,9 +75,9 @@ class InnsendtInntektsmeldingRepositoryTest {
                 org,
                 InntektsmeldingRequest(
                     fnr = sykmeldtFnr,
-                    foresporsel_id = forespoerselId,
-                    fra_tid = innsendtDato.minusDays(1),
-                    til_tid = innsendtDato.plusDays(1),
+                    foresporselId = forespoerselId,
+                    fraTid = innsendtDato.minusDays(1),
+                    tilTid = innsendtDato.plusDays(1),
                 ),
             )
 
@@ -106,9 +106,9 @@ class InnsendtInntektsmeldingRepositoryTest {
                 "987654321",
                 InntektsmeldingRequest(
                     fnr = null,
-                    foresporsel_id = null,
-                    fra_tid = null,
-                    til_tid = null,
+                    foresporselId = null,
+                    fraTid = null,
+                    tilTid = null,
                 ),
             )
 
