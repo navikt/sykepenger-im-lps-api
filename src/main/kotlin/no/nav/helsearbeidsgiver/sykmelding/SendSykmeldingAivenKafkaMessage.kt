@@ -1,4 +1,4 @@
-@file:UseSerializers(LocalDateSerializer::class, OffsetDateTimeSerializer::class)
+@file:UseSerializers(LocalDateSerializer::class, OffsetDateTimeSerializer::class, UuidSerializer::class)
 
 package no.nav.helsearbeidsgiver.sykmelding
 
@@ -8,6 +8,8 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.OffsetDateTimeSerializer
 import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.util.UUID
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 
 @Serializable
 data class SendSykmeldingAivenKafkaMessage(
@@ -18,7 +20,7 @@ data class SendSykmeldingAivenKafkaMessage(
 
 @Serializable
 data class ArbeidsgiverSykmelding(
-    val id: String,
+    val id: UUID, // Denne er i den originale String
     val mottattTidspunkt: OffsetDateTime,
     val syketilfelleStartDato: LocalDate? = null,
     val behandletTidspunkt: OffsetDateTime,
