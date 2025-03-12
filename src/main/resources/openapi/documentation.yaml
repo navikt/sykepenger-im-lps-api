@@ -224,7 +224,7 @@ components:
     Forespoersel:
       type: "object"
       properties:
-        forespoersel_id:
+        forespoerselId:
           type: "string"
         orgnr:
           type: "string"
@@ -244,12 +244,12 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Periode"
-        arbeidsgiverperiode_paakrevd:
+        arbeidsgiverperiodePaakrevd:
           type: "boolean"
-        inntekt_paakrevd:
+        inntektPaakrevd:
           type: "boolean"
       required:
-      - "forespoersel_id"
+      - "forespoerselId"
       - "orgnr"
       - "fnr"
       - "status"
@@ -272,7 +272,7 @@ components:
       properties:
         fnr:
           type: "string"
-        forespoersel_id:
+        forespoerselId:
           type: "string"
         status:
           type: "string"
