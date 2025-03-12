@@ -20,7 +20,7 @@ object Database {
     fun init(): ExposedDatabase {
         val dataSource = getDataSource()
         runMigrate(dataSource)
-        return ExposedDatabase.connect(dataSource) // koble til bare én gang
+        return ExposedDatabase.connect(dataSource)
     }
 
     private fun getDataSource(): DataSource =
