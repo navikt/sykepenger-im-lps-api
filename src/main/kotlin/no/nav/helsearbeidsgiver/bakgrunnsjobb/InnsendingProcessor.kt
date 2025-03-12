@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.bakgrunnsjobb
 import no.nav.hag.utils.bakgrunnsjobb.Bakgrunnsjobb
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
 import no.nav.helsearbeidsgiver.innsending.InnsendingRepository
-import no.nav.helsearbeidsgiver.utils.getElectedLeaderId
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
@@ -21,7 +20,9 @@ class InnsendingProcessor(
             "Bakgrunnsjobb: Prosesserer ${jobb.uuid} med type ${jobb.type} på elected leader: ${getElectedLeaderId()}",
         )
         sikkerLogger().info("Bakgrunnsjobb: Data: $jobb")
-        innsendingRepository.hentById(UUID.fromString(jobb.data))?.let {
+        val hentById = innsendingRepository.hentById(UUID.fromString(jobb.data))
+        sikkerLogger().info("Bakgrunnsjobb: Henting av $hentById")
+        hentById?.let {
             sikkerLogger().info("Bakgrunnsjobb: Fant innsending med id: ${it.innsendingId}")
             sikkerLogger().info("Bakgrunnsjobb: Status: ${it.status}")
         }

@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.db
+package no.nav.helsearbeidsgiver.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -7,7 +7,7 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
-object Database {
+object DbConfig {
     val dbUser = Env.getProperty("database.username")
     val dbPassword = Env.getProperty("database.password")
     val dbName = Env.getProperty("database.name")

@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 
 @ExtendWith(TransactionalExtension::class)
 class InnsendtInntektsmeldingRepositoryTest {
-    val db = Database.init()
+    val db = DbConfig.init()
     val repository = InntektsmeldingRepository(db)
 
     @Test

@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
@@ -21,7 +21,7 @@ import kotlin.test.assertEquals
 
 @ExtendWith(TransactionalExtension::class)
 class RepositoryTransactionTest {
-    val db = Database.init()
+    val db = DbConfig.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
     val mottakRepository = MottakRepository(db)
