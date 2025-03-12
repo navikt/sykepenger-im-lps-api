@@ -23,7 +23,7 @@ object DbConfig {
         return ExposedDatabase.connect(dataSource)
     }
 
-    private fun getDataSource(): DataSource =
+    fun getDataSource(): DataSource =
         if (embedded) {
             embeddedH2()
         } else {
