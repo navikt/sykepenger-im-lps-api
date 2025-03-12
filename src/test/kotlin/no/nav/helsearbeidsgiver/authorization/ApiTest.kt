@@ -31,6 +31,11 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
+/*
+ Denne testen kan ikke brukes med postgresql-instans, fordi det ikke er mulig å rulle tilbake endringer.
+ Flyway/H2 er satt opp til å gjøre clean ved Database.init(), slik at vi ikke får problemer med data som blir igjen
+ TODO: Fiks disse testene skikkelig
+ */
 class ApiTest {
     private val db: ExposedDatabase
     private val forespoerselRepo: ForespoerselRepository
@@ -42,6 +47,9 @@ class ApiTest {
     private val client: HttpClient
 
     init {
+        db = Database.init()
+        forespoerselRepo = ForespoerselRepository(db)
+        inntektsmeldingRepo = InntektsmeldingRepository(db)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -58,10 +66,6 @@ class ApiTest {
                     json()
                 }
             }
-        // Gjøres etter apiModule()
-        db = Database.init()
-        forespoerselRepo = ForespoerselRepository(db)
-        inntektsmeldingRepo = InntektsmeldingRepository(db)
     }
 
     @Test
@@ -133,7 +137,8 @@ class ApiTest {
             val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
             val im = buildInntektsmelding(forespoerselId = forespoerselId)
             client.get("/v1/inntektsmeldinger") {
-                // setter i gang apiModule() og database-cleanup *en ekstra gang* ?
+                // dette første kallet setter i gang apiModule() og database-cleanup *en ekstra gang* (!) og må kalles her fordi
+                // ellers skjer dette i client.get() - steget under (og databasen nukes før vi får hentet noe...) TODO: figure out.
                 bearerAuth(gyldigSystembrukerAuthToken())
             }
 
@@ -169,6 +174,7 @@ class ApiTest {
 
     @AfterAll
     fun shutdownStuff() {
+        testApplication.stop()
         mockOAuth2Server.shutdown()
     }
 
