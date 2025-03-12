@@ -61,7 +61,7 @@ class RepositoryTransactionTest {
     fun lagreInntektsmelding(): String {
         val forespoerselID = UUID.randomUUID().toString()
         val generert = buildInntektsmelding(forespoerselID)
-        inntektsmeldingRepository.opprett(generert, DEFAULT_ORG, DEFAULT_FNR, LocalDateTime.now(), forespoerselID)
+        inntektsmeldingRepository.opprettInntektsmeldingFraSimba(generert, DEFAULT_ORG, DEFAULT_FNR, LocalDateTime.now(), forespoerselID)
         return forespoerselID
     }
 }

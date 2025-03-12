@@ -27,6 +27,9 @@ private const val ORGNUMMER = "%%%ORGNR%%%"
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "732812083"
 
+fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
+    SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
+
 fun buildInntektsmelding(
     forespoerselId: String = UUID.randomUUID().toString(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
@@ -125,6 +128,12 @@ private fun mockInntekt(): Inntekt =
             NyStillingsprosent(
                 gjelderFra = 16.oktober,
             ),
+        endringAarsaker =
+            listOf(
+                NyStillingsprosent(
+                    gjelderFra = 16.oktober,
+                ),
+            ),
     )
 
 private fun mockRefusjon(): Refusjon =
@@ -134,15 +143,15 @@ private fun mockRefusjon(): Refusjon =
             listOf(
                 RefusjonEndring(
                     beloep = 140.9,
-                    startdato = 14.oktober,
+                    startdato = 23.oktober,
                 ),
                 RefusjonEndring(
                     beloep = 130.8,
-                    startdato = 18.oktober,
+                    startdato = 25.oktober,
                 ),
                 RefusjonEndring(
                     beloep = 120.7,
-                    startdato = 21.oktober,
+                    startdato = 27.oktober,
                 ),
             ),
         sluttdato = 31.oktober,

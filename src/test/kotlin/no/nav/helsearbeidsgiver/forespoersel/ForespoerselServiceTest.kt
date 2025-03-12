@@ -35,7 +35,7 @@ class ForespoerselServiceTest {
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoersel_id = null,
+                forespoerselId = null,
                 status = null,
             )
 
@@ -52,24 +52,24 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
     val forespoersler =
         listOf(
             Forespoersel(
-                forespoersel_id = UUID.randomUUID().toString(),
+                forespoerselId = UUID.randomUUID().toString(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 status = Status.AKTIV,
                 sykmeldingsperioder = emptyList(),
                 egenmeldingsperioder = emptyList(),
-                arbeidsgiverperiode_paakrevd = true,
-                inntekt_paakrevd = true,
+                arbeidsgiverperiodePaakrevd = true,
+                inntektPaakrevd = true,
             ),
             Forespoersel(
-                forespoersel_id = UUID.randomUUID().toString(),
+                forespoerselId = UUID.randomUUID().toString(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 status = Status.AKTIV,
                 sykmeldingsperioder = emptyList(),
                 egenmeldingsperioder = emptyList(),
-                arbeidsgiverperiode_paakrevd = true,
-                inntekt_paakrevd = true,
+                arbeidsgiverperiodePaakrevd = true,
+                inntektPaakrevd = true,
             ),
         )
     return forespoersler
