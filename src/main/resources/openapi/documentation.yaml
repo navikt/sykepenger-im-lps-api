@@ -42,7 +42,7 @@ paths:
         \ basert på request."
       requestBody:
         content:
-          '*/*':
+          application/json:
             schema:
               $ref: "#/components/schemas/ForespoerselRequest"
         required: true
@@ -78,7 +78,7 @@ paths:
       description: "Send inn inntektsmelding"
       requestBody:
         content:
-          '*/*':
+          application/json:
             schema:
               $ref: "#/components/schemas/SkjemaInntektsmelding"
         required: true
@@ -161,7 +161,7 @@ paths:
         \ basert på request"
       requestBody:
         content:
-          '*/*':
+          application/json:
             schema:
               $ref: "#/components/schemas/InntektsmeldingRequest"
         required: true
