@@ -14,7 +14,7 @@ class InnsendingRepositoryTest {
     val repository = InnsendingRepository(db)
 
     @Test
-    fun `opprett innsending og innsendingen får status NY`() {
+    fun `opprett innsending og innsendingen får status MOTTATT`() {
         val organisasjonsNr = "123456789"
         val lpsOrgnr = "987654321"
         val payload = mockSkjemaInntektsmelding()

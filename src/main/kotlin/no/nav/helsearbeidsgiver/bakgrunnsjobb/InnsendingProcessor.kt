@@ -16,9 +16,6 @@ class InnsendingProcessor(
     override val type: String get() = JOB_TYPE
 
     override fun prosesser(jobb: Bakgrunnsjobb) {
-        sikkerLogger().info(
-            "Bakgrunnsjobb: Prosesserer ${jobb.uuid} med type ${jobb.type} på elected leader: ${getElectedLeaderId()}",
-        )
         sikkerLogger().info("Bakgrunnsjobb: Data: $jobb")
         val hentById = innsendingRepository.hentById(UUID.fromString(jobb.data))
         sikkerLogger().info("Bakgrunnsjobb: Henting av $hentById")
