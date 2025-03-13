@@ -433,15 +433,15 @@ components:
           type: "string"
         fnr:
           type: "string"
-        innsendt_tid:
+        innsendtTid:
           type: "string"
           format: "date-time"
-        aarsak_innsending:
+        aarsakInnsending:
           type: "string"
           enum:
           - "Ny"
           - "Endring"
-        type_innsending:
+        typeInnsending:
           type: "string"
           enum:
           - "FORESPURT"
@@ -456,14 +456,14 @@ components:
           - "UNDER_BEHANDLING"
           - "FEILET"
           - "GODKJENT"
-        status_melding:
+        statusMelding:
           type: "string"
       required:
       - "orgnr"
       - "fnr"
-      - "innsendt_tid"
-      - "aarsak_innsending"
-      - "type_innsending"
+      - "innsendtTid"
+      - "aarsakInnsending"
+      - "typeInnsending"
       - "status"
     InntektsmeldingResponse:
       type: "object"
@@ -482,11 +482,11 @@ components:
       properties:
         fnr:
           type: "string"
-        foresporsel_id:
+        foresporselId:
           type: "string"
-        fra_tid:
+        fraTid:
           type: "string"
           format: "date-time"
-        til_tid:
+        tilTid:
           type: "string"
           format: "date-time"

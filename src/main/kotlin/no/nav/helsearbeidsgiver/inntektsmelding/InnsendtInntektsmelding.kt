@@ -12,18 +12,19 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
-// TODO: Merge Innsending og InnsendtInntektsmelding - en av dem beholdes
+// TODO: Innsending og InnsendtInntektsmelding deler mange felt - kan vi bruke bare en klasse?
+//  Dersom begge klasser skal brukes, bør vi rydde opp i dette...
 @Serializable
-data class InnsendtInntektsmelding(
+data class InnsendtInntektsmelding( // rename: Inntektsmelding..?
     val skjema: SkjemaInntektsmelding?, // TODO: Kan gjøre denne ikke-null - hvis vi sletter gamle data i databasen...!
     val orgnr: String,
     val fnr: String,
-    val innsendt_tid: LocalDateTime,
-    val aarsak_innsending: AarsakInnsending,
-    val type_innsending: InnsendingType,
+    val innsendtTid: LocalDateTime,
+    val aarsakInnsending: AarsakInnsending,
+    val typeInnsending: InnsendingType,
     val versjon: Int,
     val status: InnsendingStatus,
-    val status_melding: String?,
+    val statusMelding: String?,
 )
 
 enum class InnsendingType {
@@ -43,9 +44,9 @@ enum class InnsendingType {
 @Serializable
 data class InntektsmeldingRequest(
     val fnr: String? = null,
-    val foresporsel_id: String? = null,
-    val fra_tid: LocalDateTime? = null,
-    val til_tid: LocalDateTime? = null,
+    val foresporselId: String? = null,
+    val fraTid: LocalDateTime? = null,
+    val tilTid: LocalDateTime? = null,
 )
 
 @Serializable
