@@ -14,7 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
@@ -47,7 +47,7 @@ class ApiTest {
     private val client: HttpClient
 
     init {
-        db = Database.init()
+        db = DbConfig.init()
         forespoerselRepo = ForespoerselRepository(db)
         inntektsmeldingRepo = InntektsmeldingRepository(db)
         mockOAuth2Server =

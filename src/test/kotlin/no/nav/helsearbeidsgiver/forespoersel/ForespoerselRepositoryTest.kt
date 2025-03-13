@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
@@ -12,7 +12,7 @@ import java.util.UUID
 
 @ExtendWith(TransactionalExtension::class)
 class ForespoerselRepositoryTest {
-    val db = Database.init()
+    val db = DbConfig.init()
     val forespoerselRepository = ForespoerselRepository(db)
 
     @Test
