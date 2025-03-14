@@ -23,7 +23,7 @@ ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -
 ```
 Utfør et kall:
 ```
-curl -v -H "Authorization: Bearer $ACCESSTOKEN" http://localhost:8080/forespoersler
+curl -v -H "Authorization: Bearer $ACCESSTOKEN" http://localhost:8080/v1/forespoersler
 ```
 
 Du kan også bruke test.maskinporten.no - endre i så fall 

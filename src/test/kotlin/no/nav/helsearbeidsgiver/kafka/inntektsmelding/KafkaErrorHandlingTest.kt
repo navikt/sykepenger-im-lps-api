@@ -5,7 +5,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
 class KafkaErrorHandlingTest {
-    val db = Database.init()
+    val db = DbConfig.init()
 
     val forespoerselRepository = ForespoerselRepository(db)
     val mockMottakRepository = mockk<MottakRepository>()

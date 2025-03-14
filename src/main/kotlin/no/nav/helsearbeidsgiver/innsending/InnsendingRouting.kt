@@ -22,7 +22,6 @@ fun Route.innsendingV1(innsendingService: InnsendingService) {
 private fun Route.innsending(innsendingService: InnsendingService) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
-        // TODO: "/innsending" ??
         try {
             val request = this.call.receive<SkjemaInntektsmelding>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -36,7 +35,7 @@ private fun Route.innsending(innsendingService: InnsendingService) {
                 return@post
             }
 
-            val lagreInnsending = innsendingService.lagreInnsending(sluttbrukerOrgnr, lpsOrgnr, request)
+            val lagreInnsending = innsendingService.lagreOgSendinn(sluttbrukerOrgnr, lpsOrgnr, request)
 
             call.respond(HttpStatusCode.Created, lagreInnsending.toString())
         } catch (e: Exception) {

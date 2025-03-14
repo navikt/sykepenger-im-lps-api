@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.selectAll
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 class SykmeldingRepositoryTestH2 {
-    val db = Database.init()
+    val db = DbConfig.init()
     val sykmeldingRepository = SykmeldingRepository(db)
 
     @Test

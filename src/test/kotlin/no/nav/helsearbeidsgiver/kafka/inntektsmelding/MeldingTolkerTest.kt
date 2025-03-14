@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -26,7 +26,7 @@ import java.util.UUID
 
 @ExtendWith(TransactionalExtension::class)
 class MeldingTolkerTest {
-    val db = Database.init()
+    val db = DbConfig.init()
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)

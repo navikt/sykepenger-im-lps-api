@@ -14,7 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
@@ -31,9 +31,15 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
+/*
+ Denne testen kan ikke brukes med postgresql-instans, fordi det ikke er mulig å rulle tilbake endringer.
+ Flyway/H2 er satt opp til å gjøre clean ved Database.init(), slik at vi ikke får problemer med data som blir igjen
+ TODO: Fiks disse testene skikkelig
+ */
 class ApiTest {
     private val db: ExposedDatabase
     private val forespoerselRepo: ForespoerselRepository
+    private val inntektsmeldingRepo: InntektsmeldingRepository
 
     private val port = 33445
     private val mockOAuth2Server: MockOAuth2Server
@@ -41,13 +47,13 @@ class ApiTest {
     private val client: HttpClient
 
     init {
+        db = DbConfig.init()
+        forespoerselRepo = ForespoerselRepository(db)
+        inntektsmeldingRepo = InntektsmeldingRepository(db)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
             }
-        db = Database.init()
-        forespoerselRepo = ForespoerselRepository(db)
-
         testApplication =
             TestApplication {
                 application {
@@ -60,9 +66,6 @@ class ApiTest {
                     json()
                 }
             }
-        val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
-        val im = buildInntektsmelding(forespoerselId = forespoerselId)
-        InntektsmeldingRepository(db).opprett(im, "810007842", "12345678912", LocalDateTime.now(), forespoerselId)
     }
 
     @Test
@@ -131,6 +134,21 @@ class ApiTest {
     @Test
     fun `hent inntektsmeldinger`() =
         runTest {
+            val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
+            val im = buildInntektsmelding(forespoerselId = forespoerselId)
+            client.get("/v1/inntektsmeldinger") {
+                // dette første kallet setter i gang apiModule() og database-cleanup *en ekstra gang* (!) og må kalles her fordi
+                // ellers skjer dette i client.get() - steget under (og databasen nukes før vi får hentet noe...) TODO: figure out.
+                bearerAuth(gyldigSystembrukerAuthToken())
+            }
+
+            inntektsmeldingRepo.opprettInntektsmeldingFraSimba(
+                im = im,
+                org = "810007842",
+                sykmeldtFnr = "12345678912",
+                innsendtDato = LocalDateTime.now(),
+                forespoerselID = forespoerselId,
+            )
             val response =
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(gyldigSystembrukerAuthToken())
@@ -156,6 +174,7 @@ class ApiTest {
 
     @AfterAll
     fun shutdownStuff() {
+        testApplication.stop()
         mockOAuth2Server.shutdown()
     }
 

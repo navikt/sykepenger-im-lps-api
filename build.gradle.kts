@@ -20,7 +20,7 @@ val kafkaVersion: String by project
 val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
-val testcontainersPostgresqlVersion: String by project
+val bakgrunnsjobbVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -75,6 +75,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
+    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
@@ -88,7 +89,6 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
-    testImplementation("org.testcontainers:postgresql:$testcontainersPostgresqlVersion")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {

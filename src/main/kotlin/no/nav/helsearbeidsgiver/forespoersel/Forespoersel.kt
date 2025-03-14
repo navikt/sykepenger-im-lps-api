@@ -12,14 +12,14 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val forespoersel_id: String,
+    val forespoerselId: String,
     val orgnr: String,
     val fnr: String,
     val status: Status,
     val sykmeldingsperioder: List<Periode>,
     val egenmeldingsperioder: List<Periode>,
-    val arbeidsgiverperiode_paakrevd: Boolean,
-    val inntekt_paakrevd: Boolean,
+    val arbeidsgiverperiodePaakrevd: Boolean,
+    val inntektPaakrevd: Boolean,
 )
 
 @Serializable
@@ -37,7 +37,7 @@ enum class Type {
 @Serializable
 data class ForespoerselRequest(
     val fnr: String? = null,
-    val forespoersel_id: String? = null,
+    val forespoerselId: String? = null,
     val status: Status? = null,
 )
 
