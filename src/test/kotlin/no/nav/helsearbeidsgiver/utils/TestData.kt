@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.forespoersel.Type
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import java.util.UUID
 
 object TestData {
@@ -193,4 +194,7 @@ object TestData {
             Inntekt(paakrevd = true),
         ),
     )
+
+    fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
+        jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(sykmeldingMottattMelding)
 }
