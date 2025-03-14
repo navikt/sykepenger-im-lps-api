@@ -10,6 +10,7 @@ object SykmeldingEntitet : Table("sykmelding") {
         ulong("id").autoIncrement()
     val sykmeldingId = uuid("sykmelding_id")
     val fnr = varchar("fnr", length = 11)
+    val orgnr = varchar("orgnr", length = 9)
     val arbeidsgiverSykmelding =
         jsonb<ArbeidsgiverSykmelding>(
             name = "arbeidsgiver_sykmelding",

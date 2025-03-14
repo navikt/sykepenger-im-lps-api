@@ -59,7 +59,7 @@ class MeldingTolkerTest {
     @Test
     fun `ta i mot og lagre gyldig sykmelding`() {
         sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
-        verify { sykmeldingRepository.opprettSykmelding(any()) }
+        verify { sykmeldingRepository.lagreSykmelding(any()) }
     }
 
     @Test
