@@ -29,12 +29,14 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -54,6 +56,7 @@ data class Repositories(
     val mottakRepository: MottakRepository,
     val innsendingRepository: InnsendingRepository,
     val bakgrunnsjobbRepository: PostgresBakgrunnsjobbRepository,
+    val sykmeldingRepository: SykmeldingRepository,
 )
 
 data class Services(
@@ -70,6 +73,7 @@ fun configureRepositories(db: Database): Repositories =
         mottakRepository = MottakRepository(db),
         innsendingRepository = InnsendingRepository(db),
         bakgrunnsjobbRepository = PostgresBakgrunnsjobbRepository(DbConfig.getDataSource()),
+        sykmeldingRepository = SykmeldingRepository(db),
     )
 
 fun configureServices(repositories: Repositories): Services {
@@ -136,6 +140,15 @@ fun Application.configureKafkaConsumers(
                     repositories.mottakRepository,
                     services.dialogportenService,
                 ),
+            )
+        }
+
+        val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                topic = getProperty("kafkaConsumer.sykmelding.topic"),
+                consumer = sykmeldingKafkaConsumer,
+                meldingTolker = SykmeldingTolker(repositories.sykmeldingRepository),
             )
         }
     }
