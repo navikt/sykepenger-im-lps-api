@@ -36,7 +36,7 @@ class SykmeldingRepositoryTest {
     }
 
     @Test
-    fun `kast feil istedenfor å lagre sykmelding som mangler orgnr`() {
+    fun `kast feil istedenfor å lagre en sykmelding som mangler orgnr`() {
         val sykmeldingKafkaMessage =
             sykmeldingMock().copy(
                 event =
@@ -44,6 +44,8 @@ class SykmeldingRepositoryTest {
                         arbeidsgiver = null,
                     ),
             )
+
+        assertThrows<SykmeldingOrgnrManglerException> { sykmeldingRepository.lagreSykmelding(sykmeldingKafkaMessage) }
 
         val lagretSykmelding =
             transaction(db) {
@@ -55,7 +57,5 @@ class SykmeldingRepositoryTest {
             }
 
         assertNull(lagretSykmelding, "Sykmelding ble lagret i databasen, selv om vi mangler orgnr")
-
-        assertThrows<SykmeldingOrgnrManglerException> { sykmeldingRepository.lagreSykmelding(sykmeldingKafkaMessage) }
     }
 }
