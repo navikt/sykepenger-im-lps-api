@@ -1,10 +1,8 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
@@ -25,13 +23,4 @@ class SykmeldingRepository(
             }
         return dokument[SykmeldingEntitet.sykmeldingId]
     }
-
-    fun hentSykmeldingForSykmeldingId(sykmeldingId: UUID): ArbeidsgiverSykmelding? =
-        transaction(db) {
-            SykmeldingEntitet
-                .selectAll()
-                .where { SykmeldingEntitet.sykmeldingId eq sykmeldingId }
-                .firstOrNull()
-                ?.getOrNull(arbeidsgiverSykmelding)
-        }
 }

@@ -17,7 +17,6 @@ class SykmeldingTolker(
 
         try {
             sykmeldingRepository.opprettSykmelding(sykmeldingMessage)
-            // TODO: Opprett dialog i dialogporten.
         } catch (e: Exception) {
             sikkerLogger.error("Klarte ikke å lagre sykmelding i database!", e)
             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db

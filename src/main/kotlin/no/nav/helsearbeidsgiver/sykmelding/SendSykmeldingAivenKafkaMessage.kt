@@ -59,6 +59,7 @@ data class ArbeidsgiverSykmelding(
             val reisetilskudd: Boolean,
         )
 
+        @Serializable
         enum class PeriodetypeDTO {
             AKTIVITET_IKKE_MULIG,
             AVVENTENDE,
@@ -72,7 +73,7 @@ data class ArbeidsgiverSykmelding(
             val arbeidsrelatertArsak: ArbeidsrelatertArsakDTO? = null,
         ) {
             @Serializable
-            class ArbeidsrelatertArsakDTO(
+            data class ArbeidsrelatertArsakDTO(
                 val beskrivelse: String? = null,
                 val arsak: List<ArbeidsrelatertArsakTypeDTO>,
             ) {
@@ -164,6 +165,7 @@ data class SykmeldingStatusKafkaEventDTO(
         val svar: String,
     )
 
+    @Serializable
     enum class ShortNameDTO {
         ARBEIDSSITUASJON,
         NY_NARMESTE_LEDER,
@@ -173,6 +175,7 @@ data class SykmeldingStatusKafkaEventDTO(
         EGENMELDINGSDAGER,
     }
 
+    @Serializable
     enum class SvartypeDTO {
         ARBEIDSSITUASJON,
         PERIODER,
