@@ -7,14 +7,12 @@ import org.jetbrains.exposed.sql.json.jsonb
 
 object SykmeldingEntitet : Table("sykmelding") {
     val id =
-        ulong("id").autoIncrement(
-            idSeqName = "sykmelding_id_seq",
-        )
+        ulong("id").autoIncrement()
     val sykmeldingId = uuid("sykmelding_id")
     val fnr = varchar("fnr", length = 11)
-    val sykmelding =
+    val arbeidsgiverSykmelding =
         jsonb<ArbeidsgiverSykmelding>(
-            name = "inntektsmelding",
+            name = "arbeidsgiver_sykmelding",
             jsonConfig = jsonConfig,
             kSerializer = ArbeidsgiverSykmelding.serializer(),
         )

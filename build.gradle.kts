@@ -20,6 +20,7 @@ val kafkaVersion: String by project
 val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
+val testcontainersPostgresqlVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -87,6 +88,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
+    testImplementation("org.testcontainers:postgresql:$testcontainersPostgresqlVersion")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
