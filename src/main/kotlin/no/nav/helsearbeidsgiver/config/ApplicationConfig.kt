@@ -89,10 +89,7 @@ fun configureServices(repositories: Repositories): Services {
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository = repositories.bakgrunnsjobbRepository,
             createHttpClient(),
-        ).apply {
-            registrer(InnsendingProcessor(repositories.innsendingRepository))
-            startAsync(true)
-        }
+        )
 
     val innsendingService =
         InnsendingService(
@@ -100,6 +97,12 @@ fun configureServices(repositories: Repositories): Services {
             innsendingRepository = repositories.innsendingRepository,
             bakgrunnsjobbService = bakgrunnsjobbService,
         )
+
+    bakgrunnsjobbService
+        .apply {
+            registrer(InnsendingProcessor(innsendingService))
+            startAsync(true)
+        }
 
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
     val dialogportenService = IngenDialogportenService()

@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.innsending
 
+import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
@@ -32,21 +33,11 @@ class InnsendingService(
             sikkerLogger().error("Feilet ved lagring av innsending skjema med forspørselId = ${skjema.forespoerselId} ", error)
         }.getOrThrow()
 
-    fun lagreBakgrunsjobbInnsending(innsendingsId: UUID) {
+    fun lagreBakgrunsjobbInnsending(skjema: SkjemaInntektsmelding) {
         bakgrunnsjobbService.opprettJobb<InnsendingProcessor>(
             maksAntallForsoek = 10,
-            data = innsendingsId.toJson().toString(),
+            data = Json.encodeToString(SkjemaInntektsmelding.serializer(), skjema),
         )
-    }
-
-    fun lagreOgSendinn(
-        organisasjonsNr: String,
-        lpsOrgnr: String,
-        skjema: SkjemaInntektsmelding,
-    ): UUID {
-        val innsendingsId = lagreInnsending(organisasjonsNr, lpsOrgnr, skjema)
-        lagreBakgrunsjobbInnsending(innsendingsId)
-        return innsendingsId
     }
 
     fun sendInn(skjema: SkjemaInntektsmelding): Pair<UUID, LocalDateTime> {
