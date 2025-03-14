@@ -21,7 +21,6 @@ val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
 val bakgrunnsjobbVersion: String by project
-
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
