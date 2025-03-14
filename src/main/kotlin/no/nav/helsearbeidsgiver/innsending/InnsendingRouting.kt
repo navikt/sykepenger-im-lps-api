@@ -37,7 +37,7 @@ private fun Route.innsending(innsendingService: InnsendingService) {
 
             innsendingService.lagreBakgrunsjobbInnsending(request)
 
-            call.respond(HttpStatusCode.Created, "Innsetting mottatt")
+            call.respond(HttpStatusCode.Created, "Inntektsmelding mottatt")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
