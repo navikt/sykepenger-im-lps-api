@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
-import no.nav.helsearbeidsgiver.innsending.InnsendingRepository
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -52,7 +51,6 @@ data class Repositories(
     val inntektsmeldingRepository: InntektsmeldingRepository,
     val forespoerselRepository: ForespoerselRepository,
     val mottakRepository: MottakRepository,
-    val innsendingRepository: InnsendingRepository,
     val bakgrunnsjobbRepository: PostgresBakgrunnsjobbRepository,
 )
 
@@ -68,7 +66,6 @@ fun configureRepositories(db: Database): Repositories =
         inntektsmeldingRepository = InntektsmeldingRepository(db),
         forespoerselRepository = ForespoerselRepository(db),
         mottakRepository = MottakRepository(db),
-        innsendingRepository = InnsendingRepository(db),
         bakgrunnsjobbRepository = PostgresBakgrunnsjobbRepository(DbConfig.getDataSource()),
     )
 
@@ -94,7 +91,6 @@ fun configureServices(repositories: Repositories): Services {
     val innsendingService =
         InnsendingService(
             innsendingProducer = innsendingProducer,
-            innsendingRepository = repositories.innsendingRepository,
             bakgrunnsjobbService = bakgrunnsjobbService,
         )
 
