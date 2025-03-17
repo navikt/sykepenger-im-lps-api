@@ -12,7 +12,6 @@ class SykmeldingTolker(
     private val sikkerLogger = sikkerLogger()
 
     override fun lesMelding(melding: String) {
-        sikkerLogger.info("Mottatt sykmelding: $melding")
         val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
         try {
             sykmeldingRepository.lagreSykmelding(sykmeldingMessage)
