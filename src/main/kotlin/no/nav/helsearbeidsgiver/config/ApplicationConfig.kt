@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
-import no.nav.helsearbeidsgiver.innsending.InnsendingRepository
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -29,12 +28,14 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
+import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -52,8 +53,8 @@ data class Repositories(
     val inntektsmeldingRepository: InntektsmeldingRepository,
     val forespoerselRepository: ForespoerselRepository,
     val mottakRepository: MottakRepository,
-    val innsendingRepository: InnsendingRepository,
     val bakgrunnsjobbRepository: PostgresBakgrunnsjobbRepository,
+    val sykmeldingRepository: SykmeldingRepository,
 )
 
 data class Services(
@@ -68,8 +69,8 @@ fun configureRepositories(db: Database): Repositories =
         inntektsmeldingRepository = InntektsmeldingRepository(db),
         forespoerselRepository = ForespoerselRepository(db),
         mottakRepository = MottakRepository(db),
-        innsendingRepository = InnsendingRepository(db),
         bakgrunnsjobbRepository = PostgresBakgrunnsjobbRepository(DbConfig.getDataSource()),
+        sykmeldingRepository = SykmeldingRepository(db),
     )
 
 fun configureServices(repositories: Repositories): Services {
@@ -89,17 +90,19 @@ fun configureServices(repositories: Repositories): Services {
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository = repositories.bakgrunnsjobbRepository,
             createHttpClient(),
-        ).apply {
-            registrer(InnsendingProcessor(repositories.innsendingRepository))
-            startAsync(true)
-        }
+        )
 
     val innsendingService =
         InnsendingService(
             innsendingProducer = innsendingProducer,
-            innsendingRepository = repositories.innsendingRepository,
             bakgrunnsjobbService = bakgrunnsjobbService,
         )
+
+    bakgrunnsjobbService
+        .apply {
+            registrer(InnsendingProcessor(innsendingService))
+            startAsync(true)
+        }
 
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
     val dialogportenService = IngenDialogportenService()
@@ -111,9 +114,8 @@ fun Application.configureKafkaConsumers(
     services: Services,
     repositories: Repositories,
 ) {
-    val kafkaEnabled = getProperty("kafkaConsumer.enabled").toBoolean()
-
-    if (kafkaEnabled) {
+    // Ta bare imot dev kafka meldinger da repo er i testfase
+    if (isLocal() || isDev()) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
@@ -136,6 +138,15 @@ fun Application.configureKafkaConsumers(
                     repositories.mottakRepository,
                     services.dialogportenService,
                 ),
+            )
+        }
+
+        val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                topic = getProperty("kafkaConsumer.sykmelding.topic"),
+                consumer = sykmeldingKafkaConsumer,
+                meldingTolker = SykmeldingTolker(repositories.sykmeldingRepository),
             )
         }
     }

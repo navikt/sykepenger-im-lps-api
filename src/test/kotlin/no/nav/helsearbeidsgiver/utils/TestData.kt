@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.forespoersel.Type
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import java.util.UUID
 
 object TestData {
@@ -74,6 +75,88 @@ object TestData {
         {"journalpostId":"671166582","inntektsmelding":{"id":"2f7685d0-fe65-48c6-96b9-7b5189358ab1","type":{"type":"Selvbestemt","id":"24428a05-6826-4a01-a6be-30fb15816a6e"},"sykmeldt":{"fnr":"10107400090","navn":"BERØMT FLYTTELASS"},"avsender":{"orgnr":"810007842","orgNavn":"ANSTENDIG PIGGSVIN BARNEHAGE","navn":"BERØMT FLYTTELASS","tlf":"12345678"},"sykmeldingsperioder":[{"fom":"2024-08-01","tom":"2024-08-08"}],"agp":{"perioder":[{"fom":"2024-08-01","tom":"2024-08-08"}],"egenmeldinger":[],"redusertLoennIAgp":{"beloep":23456.0,"begrunnelse":"ArbeidOpphoert"}},"inntekt":{"beloep":54000.0,"inntektsdato":"2024-08-01","naturalytelser":[],"endringAarsak":null},"refusjon":null,"aarsakInnsending":"Ny","mottatt":"2024-11-12T14:04:07.557238646+01:00","vedtaksperiodeId":"dc2b6464-d606-4c2d-8bb1-c5ce8d811077"},"bestemmendeFravaersdag":null,"selvbestemt":true}
         """
 
+    const val SYKMELDING_MOTTATT =
+        """
+        {
+            "sykmelding": {
+                "id": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
+                "mottattTidspunkt": "2020-03-14T23:00:00Z",
+                "syketilfelleStartDato": "2020-03-15",
+                "behandletTidspunkt": "2020-03-14T23:00:00Z",
+                "arbeidsgiver": {
+                    "navn": "LOMMEN BARNEHAVE"
+                },
+                "sykmeldingsperioder": [
+                    {
+                        "fom": "2020-03-15",
+                        "tom": "2020-04-15",
+                        "type": "AKTIVITET_IKKE_MULIG",
+                        "aktivitetIkkeMulig": {
+                            "arbeidsrelatertArsak": {
+                                "beskrivelse": "andre årsaker til sykefravær",
+                                "arsak": [
+                                    "ANNET"
+                                ]
+                            }
+                        },
+                        "reisetilskudd": false
+                    }
+                ],
+                "prognose": {
+                    "arbeidsforEtterPeriode": true,
+                    "hensynArbeidsplassen": "Må ta det pent"
+                },
+                "tiltakArbeidsplassen": "Fortsett som sist.",
+                "kontaktMedPasient": {},
+                "behandler": {
+                    "fornavn": "Frida",
+                    "mellomnavn": "Perma",
+                    "etternavn": "Frost",
+                    "adresse": {
+                        "gate": "Kirkegårdsveien 3",
+                        "postnummer": 1348,
+                        "kommune": "Rykkinn",
+                        "land": "Country"
+                    },
+                    "tlf": "tel:1234678"
+                },
+                "egenmeldt": false,
+                "papirsykmelding": false,
+                "harRedusertArbeidsgiverperiode": false
+            },
+            "kafkaMetadata": {
+                "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
+                "timestamp": "2020-04-30T13:57:48.444372Z",
+                "fnr": "01447842099",
+                "source": "macgyver-syfoservice"
+            },
+            "event": {
+                "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
+                "timestamp": "2020-04-30T13:57:48.302706Z",
+                "statusEvent": "SENDT",
+                "arbeidsgiver": {
+                    "orgnummer": "900668490",
+                    "juridiskOrgnummer": "928497704",
+                    "orgNavn": "Lama utleiren"
+                },
+                "sporsmals": [
+                    {
+                        "tekst": "Jeg er sykmeldt fra",
+                        "shortName": "ARBEIDSSITUASJON",
+                        "svartype": "ARBEIDSSITUASJON",
+                        "svar": "ARBEIDSTAKER"
+                    },
+                    {
+                        "tekst": "Skal finne ny nærmeste leder",
+                        "shortName": "NY_NARMESTE_LEDER",
+                        "svartype": "JA_NEI",
+                        "svar": "NEI"
+                    }
+                ]
+            }
+        }
+        """
+
     const val SIMBA_PAYLOAD =
         """
         {"@event_name":"TILGANG_FORESPOERSEL_REQUESTED","uuid":"b52d4703-48c9-4ada-bcba-a088f1acab96","forespoerselId":"556d6430-0c43-4dbc-8040-36ba37bfa191","@id":"ce1289a0-1554-4b41-8307-ed2396b59846","@opprettet":"2024-10-23T12:54:03.432888987","system_read_count":0,"system_participating_services":[{"id":"ce1289a0-1554-4b41-8307-ed2396b59846","time":"2024-10-23T12:54:03.432888987","service":"im-forespoersel-besvart","instance":"im-forespoersel-besvart-788d6bdbd-qqrw9","image":"ghcr.io/navikt/helsearbeidsgiver-inntektsmelding/im-forespoersel-besvart:d79b643"}],"@forårsaket_av":{"id":"b584f32a-ca76-481f-8cf1-37c31d51b6f7","opprettet":"2024-10-23T12:54:03.413234137","event_name":"INNTEKTSMELDING_MOTTATT"}}
@@ -111,4 +194,7 @@ object TestData {
             Inntekt(paakrevd = true),
         ),
     )
+
+    fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
+        jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(sykmeldingMottattMelding)
 }
