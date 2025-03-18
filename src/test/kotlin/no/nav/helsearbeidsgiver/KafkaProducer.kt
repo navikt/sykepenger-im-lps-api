@@ -1,5 +1,6 @@
 
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingDistribuertJson
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -13,10 +14,15 @@ fun main() {
     val forespoerselJson = buildForespoerselMottattJson()
     val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
     val imTopic = Env.getProperty("kafkaConsumer.inntektsmelding.topic")
+    val sykmeldingTopic = Env.getProperty("kafkaConsumer.sykmelding.topic")
+
     val imRecord = ProducerRecord(imTopic, "key", inntektsmeldingDistribuertJson)
     val priRecord = ProducerRecord(priTopic, "key", forespoerselJson)
+    val sykmeldingRecord = ProducerRecord(sykmeldingTopic, "key", SYKMELDING_MOTTATT)
+
     Producer.sendMelding(imRecord)
     Producer.sendMelding(priRecord)
+    Producer.sendMelding(sykmeldingRecord)
     Producer.kafkaProducer.close()
 }
 
