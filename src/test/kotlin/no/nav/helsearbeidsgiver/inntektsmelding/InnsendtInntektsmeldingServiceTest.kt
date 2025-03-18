@@ -28,7 +28,7 @@ class InnsendtInntektsmeldingServiceTest {
                 buildInntektsmeldingJson(),
             )
         every {
-            inntektsmeldingRepository.opprettInntektsmeldingFraSimba(
+            inntektsmeldingRepository.opprettInntektsmelding(
                 im = inntektsmelding,
                 org = inntektsmelding.avsender.orgnr.verdi,
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
@@ -40,7 +40,7 @@ class InnsendtInntektsmeldingServiceTest {
         inntektsmeldingService.opprettInntektsmelding(inntektsmelding)
 
         verify {
-            inntektsmeldingRepository.opprettInntektsmeldingFraSimba(
+            inntektsmeldingRepository.opprettInntektsmelding(
                 im = inntektsmelding,
                 org = inntektsmelding.avsender.orgnr.verdi,
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,

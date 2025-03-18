@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -86,7 +87,10 @@ private fun Route.innsending(
                 )
             // TODO: transaction funker ikke nu, vi satser på at det går bra :)
             inntektsmeldingService.opprettInntektsmelding(
-                inntektsmelding,
+                im = inntektsmelding,
+                systemNavn = request.avsender.systemNavn,
+                systemVersjon = request.avsender.systemVersjon,
+                innsendingStatus = InnsendingStatus.MOTTATT,
             )
             innsendingService.lagreBakgrunsjobbInnsending(
                 SkjemaInntektsmelding(

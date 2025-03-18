@@ -31,12 +31,15 @@ import java.time.LocalDateTime
 class InntektsmeldingRepository(
     private val db: Database,
 ) {
-    fun opprettInntektsmeldingFraSimba(
+    fun opprettInntektsmelding(
         im: Inntektsmelding,
         org: String,
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,
         forespoerselID: String?,
+        systemNavn: String = "NAV_NO_SIMBA",
+        systemVersjon: String = "1.0",
+        innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ): Int {
         sikkerLogger().info("Lagrer inntektsmelding")
         return transaction(db) {
@@ -51,9 +54,9 @@ class InntektsmeldingRepository(
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
                 it[versjon] = 1 // TODO: bør legges til i dokument-payload..
-                it[avsenderSystemNavn] = "NAV_NO_SIMBA"
-                it[avsenderSystemVersjon] = "1.0" // Bør egentlig komme fra simba..
-                it[status] = InnsendingStatus.GODKJENT // Alt fra Simba er OK!
+                it[avsenderSystemNavn] = systemNavn
+                it[avsenderSystemVersjon] = systemVersjon
+                it[status] = innsendingStatus
             }[InntektsmeldingEntitet.id]
         }
     }

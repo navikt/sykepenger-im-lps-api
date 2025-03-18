@@ -23,7 +23,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
-        repository.opprettInntektsmeldingFraSimba(inntektsmeldingJson, org, sykmeldtFnr, innsendtDato, forespoerselId)
+        repository.opprettInntektsmelding(inntektsmeldingJson, org, sykmeldtFnr, innsendtDato, forespoerselId)
 
         val result = repository.hent(org)[0]
 
@@ -42,7 +42,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
-        repository.opprettInntektsmeldingFraSimba(
+        repository.opprettInntektsmelding(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
@@ -65,7 +65,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
-        repository.opprettInntektsmeldingFraSimba(
+        repository.opprettInntektsmelding(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
@@ -125,7 +125,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         forespoerselId: String,
     ) {
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
-        repository.opprettInntektsmeldingFraSimba(
+        repository.opprettInntektsmelding(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,

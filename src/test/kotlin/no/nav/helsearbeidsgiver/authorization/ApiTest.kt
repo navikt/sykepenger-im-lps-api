@@ -142,7 +142,7 @@ class ApiTest {
                 bearerAuth(gyldigSystembrukerAuthToken())
             }
 
-            inntektsmeldingRepo.opprettInntektsmeldingFraSimba(
+            inntektsmeldingRepo.opprettInntektsmelding(
                 im = im,
                 org = "810007842",
                 sykmeldtFnr = "12345678912",

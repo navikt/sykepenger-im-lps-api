@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService(
@@ -35,15 +36,23 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av inntektsmeldinger for request: $request")
     }
 
-    fun opprettInntektsmelding(im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding) {
+    fun opprettInntektsmelding(
+        im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
+        systemNavn: String = "NAV_NO_SIMBA",
+        systemVersjon: String = "1.0",
+        innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
+    ) {
         runCatching {
             sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
-            inntektsmeldingRepository.opprettInntektsmeldingFraSimba(
+            inntektsmeldingRepository.opprettInntektsmelding(
                 im = im,
                 org = im.avsender.orgnr.verdi,
                 sykmeldtFnr = im.sykmeldt.fnr.verdi,
                 innsendtDato = im.mottatt.toLocalDateTime(),
                 forespoerselID = im.type.id.toString(),
+                systemNavn = systemNavn,
+                systemVersjon = systemVersjon,
+                innsendingStatus = innsendingStatus,
             )
         }.onSuccess {
             sikkerLogger().info("InnsendtInntektsmelding ${im.type.id} lagret")
