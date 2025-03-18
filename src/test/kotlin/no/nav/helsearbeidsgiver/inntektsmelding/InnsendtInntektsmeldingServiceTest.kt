@@ -59,7 +59,7 @@ class InnsendtInntektsmeldingServiceTest {
         val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
         every { inntektsmeldingRepository.hent(orgnr) } returns
             listOf(
-                InnsendtInntektsmelding(
+                InntektsmeldingResponse(
                     sykmeldtFnr = fnr,
                     innsendtTid = innsendt,
                     aarsakInnsending = AarsakInnsending.Ny,
@@ -98,7 +98,7 @@ class InnsendtInntektsmeldingServiceTest {
         val innsendt = LocalDateTime.now()
         val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
         val request =
-            InntektsmeldingRequest(
+            InntektsmeldingFilterRequest(
                 fnr = fnr,
                 foresporselId = foresporselid.toString(),
                 fraTid = datoFra,
@@ -106,7 +106,7 @@ class InnsendtInntektsmeldingServiceTest {
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
-                InnsendtInntektsmelding(
+                InntektsmeldingResponse(
                     sykmeldtFnr = fnr,
                     innsendtTid = innsendt,
                     aarsakInnsending = AarsakInnsending.Ny,
@@ -150,7 +150,7 @@ class InnsendtInntektsmeldingServiceTest {
         val datoFra = LocalDateTime.now()
         val datoTil = datoFra.plusDays(1)
         val request =
-            InntektsmeldingRequest(
+            InntektsmeldingFilterRequest(
                 fnr = fnr,
                 foresporselId = foresporselid,
                 fraTid = datoFra,

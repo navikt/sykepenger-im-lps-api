@@ -10,9 +10,8 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RedusertLoennIAgp
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingSkjema
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -82,14 +81,14 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         refusjon = mockRefusjon(),
     )
 
-fun mockInntektsmeldingSkjema(): InntektsmeldingSkjema =
-    InntektsmeldingSkjema(
+fun mockInntektsmeldingSkjema(): InntektsmeldingRequest =
+    InntektsmeldingRequest(
         navReferanseId = UUID.randomUUID(),
         agp = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
         refusjon = mockRefusjon(),
         sykmeldtFnr = Fnr.genererGyldig().toString(),
-        arbeidsgiver = Arbeidsgiver(DEFAULT_ORG, "22222222"),
+        arbeidsgiverTlf = "22222222",
         avsender = Avsender("Tigersys", "3.0"),
     )
 

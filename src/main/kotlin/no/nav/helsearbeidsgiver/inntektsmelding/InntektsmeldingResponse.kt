@@ -17,10 +17,8 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import java.time.LocalDateTime
 import java.util.UUID
 
-// TODO: Innsending og InnsendtInntektsmelding deler mange felt - kan vi bruke bare en klasse?
-//  Dersom begge klasser skal brukes, bør vi rydde opp i dette...
 @Serializable
-data class InnsendtInntektsmelding( // rename: bare Inntektsmelding..?
+data class InntektsmeldingResponse(
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
@@ -37,16 +35,16 @@ data class InnsendtInntektsmelding( // rename: bare Inntektsmelding..?
 )
 
 @Serializable
-data class InntektsmeldingSkjema( // Innsending slik APIet sender inn
+data class InntektsmeldingRequest( // Innsending slik APIet sender inn
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
     val sykmeldtFnr: String,
-    val arbeidsgiver: Arbeidsgiver,
+    val arbeidsgiverTlf: String,
     val avsender: Avsender, // avsendersystem
 ) {
-    fun valider(): Set<String> = SkjemaInntektsmelding(navReferanseId, arbeidsgiver.tlf, agp, inntekt, refusjon).valider()
+    fun valider(): Set<String> = SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, refusjon).valider()
 }
 
 enum class InnsendingType {
@@ -76,7 +74,7 @@ data class Avsender(
 )
 
 @Serializable
-data class InntektsmeldingRequest(
+data class InntektsmeldingFilterRequest(
     val fnr: String? = null,
     val foresporselId: String? = null,
     val fraTid: LocalDateTime? = null,
@@ -84,7 +82,7 @@ data class InntektsmeldingRequest(
 )
 
 @Serializable
-data class InntektsmeldingResponse(
+data class InntektsmeldingFilterResponse(
     val antall: Int = 0,
-    val inntektsmeldinger: List<InnsendtInntektsmelding>,
+    val inntektsmeldinger: List<InntektsmeldingResponse>,
 )

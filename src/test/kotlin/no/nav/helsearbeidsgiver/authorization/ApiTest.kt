@@ -18,9 +18,9 @@ import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingSkjema
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -101,7 +101,7 @@ class ApiTest {
             val response3 =
                 client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = InntektsmeldingSkjema.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response3.status.value shouldBe 401
         }
@@ -126,7 +126,7 @@ class ApiTest {
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = InntektsmeldingSkjema.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response3.status.value shouldBe 401
         }
@@ -154,9 +154,9 @@ class ApiTest {
                     bearerAuth(gyldigSystembrukerAuthToken())
                 }
             response.status.value shouldBe 200
-            val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
-            inntektsmeldingResponse.antall shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe "810007842"
+            val inntektsmeldingFilterResponse = response.body<InntektsmeldingFilterResponse>()
+            inntektsmeldingFilterResponse.antall shouldBe 1
+            inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe "810007842"
         }
 
     @Test
@@ -167,7 +167,7 @@ class ApiTest {
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = InntektsmeldingSkjema.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response.status.value shouldBe 201
         }

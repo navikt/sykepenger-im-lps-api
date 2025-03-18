@@ -58,7 +58,7 @@ class InntektsmeldingRepository(
         }
     }
 
-    fun hent(orgNr: String): List<InnsendtInntektsmelding> =
+    fun hent(orgNr: String): List<InntektsmeldingResponse> =
         transaction(db) {
             InntektsmeldingEntitet
                 .selectAll()
@@ -68,8 +68,8 @@ class InntektsmeldingRepository(
 
     fun hent(
         orgNr: String,
-        request: InntektsmeldingRequest,
-    ): List<InnsendtInntektsmelding> =
+        request: InntektsmeldingFilterRequest,
+    ): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             InntektsmeldingEntitet
@@ -83,8 +83,8 @@ class InntektsmeldingRepository(
                 }.map { it.toExposedInntektsmelding() }
         }
 
-    private fun ResultRow.toExposedInntektsmelding(): InnsendtInntektsmelding =
-        InnsendtInntektsmelding(
+    private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
+        InntektsmeldingResponse(
             sykmeldtFnr = this[fnr],
             innsendtTid = this[innsendt],
             aarsakInnsending = this[aarsakInnsending],

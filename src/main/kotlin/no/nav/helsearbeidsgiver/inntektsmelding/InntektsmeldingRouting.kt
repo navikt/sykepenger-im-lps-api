@@ -45,7 +45,7 @@ private fun Route.innsending(
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
-            val request = this.call.receive<InntektsmeldingSkjema>()
+            val request = this.call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr() // TODO Underenhet!
             // Hvis tilgang gis til hovedenhet, må man gjøre noe med tilganger til underenheter etc...
@@ -74,7 +74,7 @@ private fun Route.innsending(
                             Orgnr(sluttbrukerOrgnr),
                             "",
                             "",
-                            request.arbeidsgiver.tlf,
+                            request.arbeidsgiverTlf,
                         ),
                     sykmeldingsperioder = emptyList(), // TODO hent fra forespørsel
                     agp = request.agp,
@@ -91,7 +91,7 @@ private fun Route.innsending(
             innsendingService.lagreBakgrunsjobbInnsending(
                 SkjemaInntektsmelding(
                     forespoerselId = request.navReferanseId,
-                    avsenderTlf = request.arbeidsgiver.tlf,
+                    avsenderTlf = request.arbeidsgiverTlf,
                     agp = request.agp,
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
@@ -109,7 +109,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
-            val request = call.receive<InntektsmeldingRequest>()
+            val request = call.receive<InntektsmeldingFilterRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottatt request: $request")

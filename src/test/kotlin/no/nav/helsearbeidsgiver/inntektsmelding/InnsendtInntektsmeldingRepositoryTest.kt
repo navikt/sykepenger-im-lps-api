@@ -76,7 +76,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val result =
             repository.hent(
                 org,
-                InntektsmeldingRequest(
+                InntektsmeldingFilterRequest(
                     fnr = sykmeldtFnr,
                     foresporselId = forespoerselId,
                     fraTid = innsendtDato.minusDays(1),
@@ -107,7 +107,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val result =
             repository.hent(
                 "987654321",
-                InntektsmeldingRequest(
+                InntektsmeldingFilterRequest(
                     fnr = null,
                     foresporselId = null,
                     fraTid = null,

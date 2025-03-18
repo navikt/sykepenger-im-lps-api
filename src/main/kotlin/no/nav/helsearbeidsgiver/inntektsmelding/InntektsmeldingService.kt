@@ -5,14 +5,14 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-    fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingResponse {
+    fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingFilterResponse {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
 
             inntektsmeldingRepository.hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
-            return InntektsmeldingResponse(it.size, it)
+            return InntektsmeldingFilterResponse(it.size, it)
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for orgnr: $orgnr", it)
         }
@@ -21,14 +21,14 @@ class InntektsmeldingService(
 
     fun hentInntektsMeldingByRequest(
         orgnr: String,
-        request: InntektsmeldingRequest,
-    ): InntektsmeldingResponse {
+        request: InntektsmeldingFilterRequest,
+    ): InntektsmeldingFilterResponse {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for request: $request")
             inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
-            return InntektsmeldingResponse(it.size, it)
+            return InntektsmeldingFilterResponse(it.size, it)
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
         }
