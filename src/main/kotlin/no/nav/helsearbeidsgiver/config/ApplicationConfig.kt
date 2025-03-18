@@ -115,9 +115,8 @@ fun Application.configureKafkaConsumers(
     services: Services,
     repositories: Repositories,
 ) {
-    val kafkaEnabled = getProperty("kafkaConsumer.enabled").toBoolean()
-
-    if (kafkaEnabled) {
+    // Ta bare imot dev kafka meldinger da repo er i testfase
+    if (isDev()) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
