@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun main() {
@@ -28,26 +29,26 @@ fun startServer() {
     ).start(wait = true)
 }
 
-@Suppress("unused")
 fun Application.apiModule() {
-    sikkerLogger().info("Starter applikasjon!")
+    logger().info("Starter applikasjon!")
 
-    sikkerLogger().info("Setter opp database...")
+    logger().info("Setter opp database...")
     val db = DbConfig.init()
 
     sikkerLogger().info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
     val services = configureServices(repositories)
 
-    sikkerLogger().info("Setter opp Kafka consumers...")
+    logger().info("Setter opp Kafka consumers...")
     configureKafkaConsumers(services, repositories)
 
     install(ContentNegotiation) {
         json()
     }
-    sikkerLogger().info("Setter opp autentisering...")
+
+    logger().info("Setter opp autentisering...")
     configureAuth()
 
-    sikkerLogger().info("Setter opp ruting...")
+    logger().info("Setter opp ruting...")
     configureRouting(services)
 }

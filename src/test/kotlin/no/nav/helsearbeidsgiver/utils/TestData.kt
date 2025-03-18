@@ -118,7 +118,7 @@ object TestData {
                         "kommune": "Rykkinn",
                         "land": "Country"
                     },
-                    "tlf": "tel:94431152"
+                    "tlf": "tel:1234678"
                 },
                 "egenmeldt": false,
                 "papirsykmelding": false,
@@ -127,7 +127,7 @@ object TestData {
             "kafkaMetadata": {
                 "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
                 "timestamp": "2020-04-30T13:57:48.444372Z",
-                "fnr": "11037223435",
+                "fnr": "01447842099",
                 "source": "macgyver-syfoservice"
             },
             "event": {

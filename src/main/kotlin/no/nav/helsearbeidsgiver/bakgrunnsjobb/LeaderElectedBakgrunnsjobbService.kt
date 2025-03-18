@@ -13,9 +13,10 @@ import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.utils.log.logger
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.InetAddress
 import java.time.LocalDateTime
+
+const val UNKNOWN_LEADER = "UNKNOWN_LEADER"
 
 class LeaderElectedBakgrunnsjobbService(
     val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
@@ -46,42 +47,37 @@ class LeaderElectedBakgrunnsjobbService(
     override fun doJob() {
         if (isElectedLeader()) {
             do {
-                val wasEmpty =
+                val jobbFunnet =
                     bakgrunnsjobbService
                         .finnVentende()
-                        .also { logger.debug("Bakgrunnsjobb: Fant ${it.size} bakgrunnsjobber å kjøre på ${getElectedLeaderId()}") }
+                        .also { logger().debug("Bakgrunnsjobb: Fant ${it.size} bakgrunnsjobber å kjøre på ${getElectedLeaderId()}") }
                         .onEach { bakgrunnsjobbService.prosesser(it) }
-                        .isEmpty()
-            } while (!wasEmpty)
-        } else {
-            logger().debug("Bakgrunnsjobb: Ikke leder, venter til neste runde")
+                        .isNotEmpty()
+            } while (jobbFunnet)
         }
     }
 
     private fun getElectedLeaderId(): String =
         runBlocking {
             val electorUrl = getPropertyOrNull("ELECTOR_GET_URL")
-            sikkerLogger().info("Hentet elector url: $electorUrl")
-
             if (electorUrl != null) {
                 try {
                     val electedPod: ElectedPod = httpClient.get(electorUrl).body()
-                    sikkerLogger().info("Elected leader: ${electedPod.name} and host: ${getHostName()}")
+                    logger().debug("Elected leader: ${electedPod.name} and host: ${getHostName()}")
                     electedPod.name
                 } catch (e: Exception) {
-                    sikkerLogger().warn("feilet å hente elected leader", e)
-                    "UNKNOWN_LEADER"
+                    logger().warn("feilet å hente elected leader", e)
+                    UNKNOWN_LEADER
                 }
             } else {
-                sikkerLogger().warn("ELECTOR_GET_URL er null")
-                "UNKNOWN_LEADER"
+                logger().warn("ELECTOR_GET_URL er null")
+                UNKNOWN_LEADER
             }
         }
 
     private fun isElectedLeader(): Boolean {
         val electedLeaderId = getElectedLeaderId()
         val hostName = getHostName()
-        sikkerLogger().info("HOST NAME: $hostName")
         return electedLeaderId == hostName
     }
 

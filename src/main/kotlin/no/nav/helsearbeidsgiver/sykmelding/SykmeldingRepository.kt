@@ -5,6 +5,8 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeld
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -17,20 +19,25 @@ class SykmeldingRepository(
     private val db: Database,
 ) {
     fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): UUID {
-        logger().info("Lagrer sykmelding med id ${sykmeldingMessage.sykmelding.id}.")
-        val orgnummer =
-            sykmeldingMessage.event.arbeidsgiver?.orgnummer
-                ?: logAndThrowSykmeldingOrgnrManglerException(sykmeldingMessage.sykmelding.id)
-        val dokument =
-            transaction(db) {
-                SykmeldingEntitet.insert {
-                    it[sykmeldingId] = UUID.fromString(sykmeldingMessage.sykmelding.id)
-                    it[fnr] = sykmeldingMessage.kafkaMetadata.fnr
-                    it[orgnr] = orgnummer
-                    it[arbeidsgiverSykmelding] = sykmeldingMessage.sykmelding
+        try {
+            logger().info("Lagrer sykmelding med id ${sykmeldingMessage.sykmelding.id}.")
+            val orgnummer =
+                sykmeldingMessage.event.arbeidsgiver?.orgnummer
+                    ?: logAndThrowSykmeldingOrgnrManglerException(sykmeldingMessage.sykmelding.id)
+            val dokument =
+                transaction(db) {
+                    SykmeldingEntitet.insert {
+                        it[sykmeldingId] = UUID.fromString(sykmeldingMessage.sykmelding.id)
+                        it[fnr] = sykmeldingMessage.kafkaMetadata.fnr
+                        it[orgnr] = orgnummer
+                        it[arbeidsgiverSykmelding] = sykmeldingMessage.sykmelding
+                    }
                 }
-            }
-        return dokument[SykmeldingEntitet.sykmeldingId]
+            return dokument[SykmeldingEntitet.sykmeldingId]
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().warn("Klarte ikke å lagre sykmelding ${sykmeldingMessage.sykmelding.id} i database! ${e.message}")
+            throw e
+        }
     }
 
     fun hentSykmelding(id: UUID): SykmeldingResponse? =

@@ -1,5 +1,3 @@
-CREATE TYPE "JSONB" AS json; -- H2 does not support JSONB type
-
 CREATE TABLE sykmelding
 (
     id                       BIGSERIAL PRIMARY KEY,
@@ -9,3 +7,5 @@ CREATE TABLE sykmelding
     arbeidsgiver_sykmelding  JSONB       NOT NULL,
     opprettet                TIMESTAMP   NOT NULL DEFAULT now()
 );
+
+CREATE INDEX sykmelding_id_index ON sykmelding (sykmelding_id);
