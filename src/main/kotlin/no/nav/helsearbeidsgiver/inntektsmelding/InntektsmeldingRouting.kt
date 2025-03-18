@@ -88,9 +88,7 @@ private fun Route.innsending(
             inntektsmeldingService.opprettInntektsmelding(
                 inntektsmelding,
             )
-            innsendingService.lagreInnsending(
-                sluttbrukerOrgnr,
-                lpsOrgnr,
+            innsendingService.lagreBakgrunsjobbInnsending(
                 SkjemaInntektsmelding(
                     forespoerselId = request.navReferanseId,
                     avsenderTlf = request.arbeidsgiver.tlf,
