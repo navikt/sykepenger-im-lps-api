@@ -35,9 +35,9 @@ private fun Route.innsending(innsendingService: InnsendingService) {
                 return@post
             }
 
-            val lagreInnsending = innsendingService.lagreOgSendinn(sluttbrukerOrgnr, lpsOrgnr, request)
+            innsendingService.lagreBakgrunsjobbInnsending(request)
 
-            call.respond(HttpStatusCode.Created, lagreInnsending.toString())
+            call.respond(HttpStatusCode.Created, "Inntektsmelding mottatt")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
