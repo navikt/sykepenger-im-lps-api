@@ -80,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InntektsmeldingSkjema"
+              $ref: "#/components/schemas/InntektsmeldingRequest"
         required: true
       responses:
         "401":
@@ -137,7 +137,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingResponse"
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
         "404":
           description: "Not Found"
           content:
@@ -163,7 +163,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InntektsmeldingRequest"
+              $ref: "#/components/schemas/InntektsmeldingFilterRequest"
         required: true
       responses:
         "401":
@@ -182,7 +182,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingResponse"
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
         "404":
           description: "Not Found"
           content:
@@ -407,16 +407,6 @@ components:
           format: "date"
       required:
       - "endringer"
-    Arbeidsgiver:
-      type: "object"
-      properties:
-        orgnr:
-          type: "string"
-        tlf:
-          type: "string"
-      required:
-      - "orgnr"
-      - "tlf"
     Avsender:
       type: "object"
       properties:
@@ -427,7 +417,7 @@ components:
       required:
       - "systemNavn"
       - "systemVersjon"
-    InntektsmeldingSkjema:
+    InntektsmeldingRequest:
       type: "object"
       properties:
         navReferanseId:
@@ -441,16 +431,26 @@ components:
           $ref: "#/components/schemas/Refusjon"
         sykmeldtFnr:
           type: "string"
-        arbeidsgiver:
-          $ref: "#/components/schemas/Arbeidsgiver"
+        arbeidsgiverTlf:
+          type: "string"
         avsender:
           $ref: "#/components/schemas/Avsender"
       required:
       - "navReferanseId"
       - "sykmeldtFnr"
-      - "arbeidsgiver"
+      - "arbeidsgiverTlf"
       - "avsender"
-    InnsendtInntektsmelding:
+    Arbeidsgiver:
+      type: "object"
+      properties:
+        orgnr:
+          type: "string"
+        tlf:
+          type: "string"
+      required:
+      - "orgnr"
+      - "tlf"
+    InntektsmeldingResponse:
       type: "object"
       properties:
         navReferanseId:
@@ -502,7 +502,7 @@ components:
       - "arbeidsgiver"
       - "avsender"
       - "status"
-    InntektsmeldingResponse:
+    InntektsmeldingFilterResponse:
       type: "object"
       properties:
         antall:
@@ -511,10 +511,10 @@ components:
         inntektsmeldinger:
           type: "array"
           items:
-            $ref: "#/components/schemas/InnsendtInntektsmelding"
+            $ref: "#/components/schemas/InntektsmeldingResponse"
       required:
       - "inntektsmeldinger"
-    InntektsmeldingRequest:
+    InntektsmeldingFilterRequest:
       type: "object"
       properties:
         fnr:
