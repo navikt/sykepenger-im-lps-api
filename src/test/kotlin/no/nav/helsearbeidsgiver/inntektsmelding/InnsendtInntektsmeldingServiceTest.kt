@@ -55,20 +55,24 @@ class InnsendtInntektsmeldingServiceTest {
         val orgnr = "123456789"
         val fnr = "12345678901"
         val innsendt = LocalDateTime.now()
-        val foresporselid = UUID.randomUUID().toString()
-        val skjema = buildInntektsmelding(forespoerselId = foresporselid).tilSkjema()
+        val foresporselid = UUID.randomUUID()
+        val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
         every { inntektsmeldingRepository.hent(orgnr) } returns
             listOf(
                 InnsendtInntektsmelding(
-                    skjema = skjema,
-                    orgnr = orgnr,
-                    fnr = fnr,
+                    sykmeldtFnr = fnr,
                     innsendtTid = innsendt,
                     aarsakInnsending = AarsakInnsending.Ny,
                     typeInnsending = InnsendingType.FORESPURT,
                     versjon = 1,
                     status = InnsendingStatus.MOTTATT,
                     statusMelding = null,
+                    navReferanseId = foresporselid,
+                    agp = skjema.agp,
+                    inntekt = skjema.inntekt,
+                    refusjon = skjema.refusjon,
+                    arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
+                    avsender = Avsender("", ""),
                 ),
             )
         val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
@@ -78,39 +82,44 @@ class InnsendtInntektsmeldingServiceTest {
         }
         assertEquals(1, hentInntektsmeldingerByOrgNr.antall)
         val inntektsmelding = hentInntektsmeldingerByOrgNr.inntektsmeldinger[0]
-        assertEquals(orgnr, inntektsmelding.orgnr)
-        assertEquals(fnr, inntektsmelding.fnr)
-        assertEquals(foresporselid, inntektsmelding.skjema?.forespoerselId.toString())
+        assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
+        assertEquals(fnr, inntektsmelding.sykmeldtFnr)
+        assertEquals(foresporselid, inntektsmelding.navReferanseId)
         assertEquals(innsendt, inntektsmelding.innsendtTid)
-        assertEquals(skjema, inntektsmelding.skjema)
     }
 
     @Test
     fun `hentInntektsMeldingByRequest må kalle inntektsmeldingRepository`() {
-        val foresporselid = UUID.randomUUID().toString()
+        val foresporselid = UUID.randomUUID()
         val orgnr = "987654322"
         val fnr = "12345678901"
         val datoFra = LocalDateTime.now()
         val datoTil = datoFra.plusDays(1)
+        val innsendt = LocalDateTime.now()
+        val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
         val request =
             InntektsmeldingRequest(
                 fnr = fnr,
-                foresporselId = foresporselid,
+                foresporselId = foresporselid.toString(),
                 fraTid = datoFra,
                 tilTid = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
                 InnsendtInntektsmelding(
-                    skjema = buildInntektsmelding(forespoerselId = foresporselid).tilSkjema(),
-                    orgnr = orgnr,
-                    fnr = fnr,
-                    innsendtTid = LocalDateTime.now(),
+                    sykmeldtFnr = fnr,
+                    innsendtTid = innsendt,
                     aarsakInnsending = AarsakInnsending.Ny,
                     typeInnsending = InnsendingType.FORESPURT,
                     versjon = 1,
                     status = InnsendingStatus.MOTTATT,
                     statusMelding = null,
+                    navReferanseId = foresporselid,
+                    agp = skjema.agp,
+                    inntekt = skjema.inntekt,
+                    refusjon = skjema.refusjon,
+                    arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
+                    avsender = Avsender("", ""),
                 ),
             )
         val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
@@ -120,9 +129,9 @@ class InnsendtInntektsmeldingServiceTest {
         }
         assertEquals(1, hentInntektsMeldingByRequest.antall)
         val inntektsmelding = hentInntektsMeldingByRequest.inntektsmeldinger[0]
-        assertEquals(foresporselid, inntektsmelding.skjema?.forespoerselId.toString())
-        assertEquals(orgnr, inntektsmelding.orgnr)
-        assertEquals(fnr, inntektsmelding.fnr)
+        assertEquals(foresporselid, inntektsmelding.navReferanseId)
+        assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
+        assertEquals(fnr, inntektsmelding.sykmeldtFnr)
     }
 
     @Test

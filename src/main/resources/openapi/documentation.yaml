@@ -80,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SkjemaInntektsmelding"
+              $ref: "#/components/schemas/InntektsmeldingSkjema"
         required: true
       responses:
         "401":
@@ -407,35 +407,63 @@ components:
           format: "date"
       required:
       - "endringer"
-    SkjemaInntektsmelding:
+    Arbeidsgiver:
       type: "object"
       properties:
-        forespoerselId:
+        orgnr:
+          type: "string"
+        tlf:
+          type: "string"
+      required:
+      - "orgnr"
+      - "tlf"
+    Avsender:
+      type: "object"
+      properties:
+        systemNavn:
+          type: "string"
+        systemVersjon:
+          type: "string"
+      required:
+      - "systemNavn"
+      - "systemVersjon"
+    InntektsmeldingSkjema:
+      type: "object"
+      properties:
+        navReferanseId:
           type: "string"
           format: "uuid"
-        avsenderTlf:
-          type: "string"
         agp:
           $ref: "#/components/schemas/Arbeidsgiverperiode"
         inntekt:
           $ref: "#/components/schemas/Inntekt"
         refusjon:
           $ref: "#/components/schemas/Refusjon"
+        sykmeldtFnr:
+          type: "string"
+        arbeidsgiver:
+          $ref: "#/components/schemas/Arbeidsgiver"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
       required:
-      - "forespoerselId"
-      - "avsenderTlf"
+      - "navReferanseId"
+      - "sykmeldtFnr"
+      - "arbeidsgiver"
+      - "avsender"
     InnsendtInntektsmelding:
       type: "object"
       properties:
-        skjema:
-          $ref: "#/components/schemas/SkjemaInntektsmelding"
-        orgnr:
+        navReferanseId:
           type: "string"
-        fnr:
+          format: "uuid"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+        sykmeldtFnr:
           type: "string"
-        innsendtTid:
-          type: "string"
-          format: "date-time"
         aarsakInnsending:
           type: "string"
           enum:
@@ -446,9 +474,16 @@ components:
           enum:
           - "FORESPURT"
           - "ARBEIDSGIVER_INITIERT"
+        innsendtTid:
+          type: "string"
+          format: "date-time"
         versjon:
           type: "integer"
           format: "int32"
+        arbeidsgiver:
+          $ref: "#/components/schemas/Arbeidsgiver"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
         status:
           type: "string"
           enum:
@@ -459,11 +494,13 @@ components:
         statusMelding:
           type: "string"
       required:
-      - "orgnr"
-      - "fnr"
-      - "innsendtTid"
+      - "navReferanseId"
+      - "sykmeldtFnr"
       - "aarsakInnsending"
       - "typeInnsending"
+      - "innsendtTid"
+      - "arbeidsgiver"
+      - "avsender"
       - "status"
     InntektsmeldingResponse:
       type: "object"

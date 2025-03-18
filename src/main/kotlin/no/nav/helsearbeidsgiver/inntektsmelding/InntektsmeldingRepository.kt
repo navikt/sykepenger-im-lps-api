@@ -4,9 +4,12 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
@@ -82,14 +85,18 @@ class InntektsmeldingRepository(
 
     private fun ResultRow.toExposedInntektsmelding(): InnsendtInntektsmelding =
         InnsendtInntektsmelding(
-            skjema = this[skjema],
-            orgnr = this[orgnr],
-            fnr = this[fnr],
+            sykmeldtFnr = this[fnr],
             innsendtTid = this[innsendt],
             aarsakInnsending = this[aarsakInnsending],
             typeInnsending = this[typeInnsending],
             versjon = this[versjon],
             status = this[status],
             statusMelding = this[statusMelding],
+            navReferanseId = this[navReferanseId],
+            agp = this[skjema].agp,
+            inntekt = this[skjema].inntekt,
+            refusjon = this[skjema].refusjon,
+            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf), // TODO: Navn
+            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]), // TODO: orgnr - lps er ok, men hva med simba..
         )
 }

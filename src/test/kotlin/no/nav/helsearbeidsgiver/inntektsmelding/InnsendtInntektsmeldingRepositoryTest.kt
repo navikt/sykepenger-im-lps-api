@@ -27,9 +27,12 @@ class InnsendtInntektsmeldingRepositoryTest {
 
         val result = repository.hent(org)[0]
 
-        assertEquals(forventetSkjema, result.skjema)
-        assertEquals(org, result.orgnr)
-        assertEquals(sykmeldtFnr, result.fnr)
+        assertEquals(forventetSkjema.forespoerselId, result.navReferanseId)
+        assertEquals(forventetSkjema.agp, result.agp)
+        assertEquals(forventetSkjema.inntekt, result.inntekt)
+        assertEquals(forventetSkjema.refusjon, result.refusjon)
+        assertEquals(org, result.arbeidsgiver.orgnr)
+        assertEquals(sykmeldtFnr, result.sykmeldtFnr)
     }
 
     @Test
@@ -50,9 +53,9 @@ class InnsendtInntektsmeldingRepositoryTest {
         val result = repository.hent(org)
 
         assertEquals(1, result.size)
-        assertEquals(org, result[0].orgnr)
-        assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].skjema?.forespoerselId)
+        assertEquals(org, result[0].arbeidsgiver.orgnr)
+        assertEquals(sykmeldtFnr, result[0].sykmeldtFnr)
+        assertEquals(forespoerselId, result[0].navReferanseId)
     }
 
     @Test
@@ -82,9 +85,9 @@ class InnsendtInntektsmeldingRepositoryTest {
             )
 
         assertEquals(1, result.size)
-        assertEquals(org, result[0].orgnr)
-        assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].skjema?.forespoerselId.toString())
+        assertEquals(org, result[0].arbeidsgiver.orgnr)
+        assertEquals(sykmeldtFnr, result[0].sykmeldtFnr)
+        assertEquals(forespoerselId, result[0].navReferanseId.toString())
     }
 
     @Test

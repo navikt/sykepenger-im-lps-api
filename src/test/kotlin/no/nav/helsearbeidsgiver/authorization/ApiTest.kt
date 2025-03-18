@@ -15,16 +15,16 @@ import io.ktor.server.testing.TestApplication
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DbConfig
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingSkjema
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingSkjema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -97,11 +97,11 @@ class ApiTest {
             val response2 = client.get("/v1/inntektsmeldinger")
             response2.status.value shouldBe 401
 
-            val requestBody = mockSkjemaInntektsmelding()
+            val requestBody = mockInntektsmeldingSkjema()
             val response3 =
                 client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingSkjema.serializer()))
                 }
             response3.status.value shouldBe 401
         }
@@ -121,12 +121,12 @@ class ApiTest {
                 }
             response2.status.value shouldBe 401
 
-            val requestBody = mockSkjemaInntektsmelding()
+            val requestBody = mockInntektsmeldingSkjema()
             val response3 =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingSkjema.serializer()))
                 }
             response3.status.value shouldBe 401
         }
@@ -156,18 +156,18 @@ class ApiTest {
             response.status.value shouldBe 200
             val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
             inntektsmeldingResponse.antall shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
+            inntektsmeldingResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe "810007842"
         }
 
     @Test
     fun `send inn inntektsmelding`() =
         runTest {
-            val requestBody = mockSkjemaInntektsmelding()
+            val requestBody = mockInntektsmeldingSkjema()
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingSkjema.serializer()))
                 }
             response.status.value shouldBe 201
         }
