@@ -116,7 +116,7 @@ fun Application.configureKafkaConsumers(
     repositories: Repositories,
 ) {
     // Ta bare imot dev kafka meldinger da repo er i testfase
-    if (isDev()) {
+    if (isLocal() || isDev()) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
