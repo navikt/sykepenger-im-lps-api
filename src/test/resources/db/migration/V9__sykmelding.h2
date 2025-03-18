@@ -1,3 +1,5 @@
+CREATE TYPE "JSONB" AS json; -- H2 does not support JSONB type
+
 CREATE TABLE sykmelding
 (
     id                       BIGSERIAL PRIMARY KEY,
