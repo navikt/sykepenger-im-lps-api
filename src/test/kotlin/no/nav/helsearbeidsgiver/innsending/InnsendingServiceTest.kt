@@ -4,25 +4,31 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
+import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
+import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import java.util.UUID
 
 class InnsendingServiceTest {
     private val innsendingProducer = mockk<InnsendingProducer>()
-    private val innsendingRepository = mockk<InnsendingRepository>()
-    private val bakgrunnsjobbService = mockk<LeaderElectedBakgrunnsjobbService>()
-    private val innsendigService = InnsendingService(innsendingProducer, innsendingRepository, bakgrunnsjobbService)
+    private val bakgrunnsjobbRepository = mockk<BakgrunnsjobbRepository>(relaxed = true)
+    private val leaderElectedBakgrunnsjobbService =
+        LeaderElectedBakgrunnsjobbService(
+            bakgrunnsjobbRepository,
+            httpClient = createHttpClient(),
+        )
+    private val innsendigService = InnsendingService(innsendingProducer, leaderElectedBakgrunnsjobbService)
 
     init {
         every {
@@ -52,29 +58,19 @@ class InnsendingServiceTest {
     }
 
     @Test
-    fun `lagreInnsending logger ved suksess`() {
+    fun `lagreBakgrunsjobbInnsending kaller bakgrunnsjobbService sin opprettJobb-metode med forventede parametere`() {
         val innsendtSkjema = mockSkjemaInntektsmelding()
-        val expectedUuid = UUID.randomUUID()
-
-        every { innsendingRepository.opprettInnsending(any(), any(), any()) } returns expectedUuid
-
-        innsendigService.lagreInnsending("orgnr", "lpsOrgnr", innsendtSkjema)
+        leaderElectedBakgrunnsjobbService.registrer(InnsendingProcessor(mockk()))
+        innsendigService.lagreBakgrunsjobbInnsending(innsendtSkjema)
 
         verify {
-            innsendingRepository.opprettInnsending("orgnr", "lpsOrgnr", innsendtSkjema)
+            bakgrunnsjobbRepository.save(
+                match { jobb ->
+                    jobb.type == "innsendingsjobb" &&
+                        jobb.maksAntallForsoek == 10 &&
+                        jobb.data == Json.encodeToString(SkjemaInntektsmelding.serializer(), innsendtSkjema)
+                },
+            )
         }
-    }
-
-    @Test
-    fun `lagreInnsending kaster exception ved feil`() {
-        val innsendtSkjema = mockSkjemaInntektsmelding()
-
-        every { innsendingRepository.opprettInnsending(any(), any(), any()) } throws RuntimeException("Feil ved lagring")
-
-        val exception =
-            assertThrows<RuntimeException> {
-                innsendigService.lagreInnsending("orgnr", "lpsOrgnr", innsendtSkjema)
-            }
-        assert(exception.message == "Feil ved lagring")
     }
 }

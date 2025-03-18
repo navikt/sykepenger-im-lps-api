@@ -1,13 +1,14 @@
 package no.nav.helsearbeidsgiver.bakgrunnsjobb
 
+import kotlinx.serialization.json.Json
 import no.nav.hag.utils.bakgrunnsjobb.Bakgrunnsjobb
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
-import no.nav.helsearbeidsgiver.innsending.InnsendingRepository
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import java.util.UUID
 
 class InnsendingProcessor(
-    val innsendingRepository: InnsendingRepository,
+    val innsendingService: InnsendingService,
 ) : BakgrunnsjobbProsesserer {
     companion object {
         const val JOB_TYPE = "innsendingsjobb"
@@ -16,12 +17,8 @@ class InnsendingProcessor(
     override val type: String get() = JOB_TYPE
 
     override fun prosesser(jobb: Bakgrunnsjobb) {
-        sikkerLogger().info("Bakgrunnsjobb: Data: $jobb")
-        val hentById = innsendingRepository.hentById(UUID.fromString(jobb.data))
-        sikkerLogger().info("Bakgrunnsjobb: Henting av $hentById")
-        hentById?.let {
-            sikkerLogger().info("Bakgrunnsjobb: Fant innsending med id: ${it.innsendingId}")
-            sikkerLogger().info("Bakgrunnsjobb: Status: ${it.status}")
-        }
+        val skjemaInntektsmelding = Json.decodeFromString<SkjemaInntektsmelding>(jobb.data)
+        sikkerLogger().debug("Bakgrunnsjobb: sender inn Skjema Inntektsmelding Data: {}", skjemaInntektsmelding)
+        innsendingService.sendInn(skjemaInntektsmelding)
     }
 }
