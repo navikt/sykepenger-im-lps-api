@@ -4,9 +4,12 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
@@ -28,12 +31,15 @@ import java.time.LocalDateTime
 class InntektsmeldingRepository(
     private val db: Database,
 ) {
-    fun opprettInntektsmeldingFraSimba(
+    fun opprettInntektsmelding(
         im: Inntektsmelding,
         org: String,
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,
         forespoerselID: String?,
+        systemNavn: String = "NAV_NO_SIMBA",
+        systemVersjon: String = "1.0",
+        innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ): Int {
         sikkerLogger().info("Lagrer inntektsmelding")
         return transaction(db) {
@@ -48,14 +54,14 @@ class InntektsmeldingRepository(
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
                 it[versjon] = 1 // TODO: bør legges til i dokument-payload..
-                it[avsenderSystemNavn] = "NAV_NO_SIMBA"
-                it[avsenderSystemVersjon] = "1.0" // Bør egentlig komme fra simba..
-                it[status] = InnsendingStatus.GODKJENT // Alt fra Simba er OK!
+                it[avsenderSystemNavn] = systemNavn
+                it[avsenderSystemVersjon] = systemVersjon
+                it[status] = innsendingStatus
             }[InntektsmeldingEntitet.id]
         }
     }
 
-    fun hent(orgNr: String): List<InnsendtInntektsmelding> =
+    fun hent(orgNr: String): List<InntektsmeldingResponse> =
         transaction(db) {
             InntektsmeldingEntitet
                 .selectAll()
@@ -65,8 +71,8 @@ class InntektsmeldingRepository(
 
     fun hent(
         orgNr: String,
-        request: InntektsmeldingRequest,
-    ): List<InnsendtInntektsmelding> =
+        request: InntektsmeldingFilterRequest,
+    ): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             InntektsmeldingEntitet
@@ -80,16 +86,20 @@ class InntektsmeldingRepository(
                 }.map { it.toExposedInntektsmelding() }
         }
 
-    private fun ResultRow.toExposedInntektsmelding(): InnsendtInntektsmelding =
-        InnsendtInntektsmelding(
-            skjema = this[skjema],
-            orgnr = this[orgnr],
-            fnr = this[fnr],
+    private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
+        InntektsmeldingResponse(
+            sykmeldtFnr = this[fnr],
             innsendtTid = this[innsendt],
             aarsakInnsending = this[aarsakInnsending],
             typeInnsending = this[typeInnsending],
             versjon = this[versjon],
             status = this[status],
             statusMelding = this[statusMelding],
+            navReferanseId = this[navReferanseId],
+            agp = this[skjema].agp,
+            inntekt = this[skjema].inntekt,
+            refusjon = this[skjema].refusjon,
+            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf), // TODO: Navn
+            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]), // TODO: orgnr - lps er ok, men hva med simba..
         )
 }

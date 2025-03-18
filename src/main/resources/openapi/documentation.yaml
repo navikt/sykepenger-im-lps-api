@@ -80,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SkjemaInntektsmelding"
+              $ref: "#/components/schemas/InntektsmeldingRequest"
         required: true
       responses:
         "401":
@@ -137,7 +137,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingResponse"
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
         "404":
           description: "Not Found"
           content:
@@ -163,7 +163,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InntektsmeldingRequest"
+              $ref: "#/components/schemas/InntektsmeldingFilterRequest"
         required: true
       responses:
         "401":
@@ -182,7 +182,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingResponse"
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
         "404":
           description: "Not Found"
           content:
@@ -407,35 +407,63 @@ components:
           format: "date"
       required:
       - "endringer"
-    SkjemaInntektsmelding:
+    Avsender:
       type: "object"
       properties:
-        forespoerselId:
+        systemNavn:
+          type: "string"
+        systemVersjon:
+          type: "string"
+      required:
+      - "systemNavn"
+      - "systemVersjon"
+    InntektsmeldingRequest:
+      type: "object"
+      properties:
+        navReferanseId:
           type: "string"
           format: "uuid"
-        avsenderTlf:
-          type: "string"
         agp:
           $ref: "#/components/schemas/Arbeidsgiverperiode"
         inntekt:
           $ref: "#/components/schemas/Inntekt"
         refusjon:
           $ref: "#/components/schemas/Refusjon"
+        sykmeldtFnr:
+          type: "string"
+        arbeidsgiverTlf:
+          type: "string"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
       required:
-      - "forespoerselId"
-      - "avsenderTlf"
-    InnsendtInntektsmelding:
+      - "navReferanseId"
+      - "sykmeldtFnr"
+      - "arbeidsgiverTlf"
+      - "avsender"
+    Arbeidsgiver:
       type: "object"
       properties:
-        skjema:
-          $ref: "#/components/schemas/SkjemaInntektsmelding"
         orgnr:
           type: "string"
-        fnr:
+        tlf:
           type: "string"
-        innsendtTid:
+      required:
+      - "orgnr"
+      - "tlf"
+    InntektsmeldingResponse:
+      type: "object"
+      properties:
+        navReferanseId:
           type: "string"
-          format: "date-time"
+          format: "uuid"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+        sykmeldtFnr:
+          type: "string"
         aarsakInnsending:
           type: "string"
           enum:
@@ -446,9 +474,16 @@ components:
           enum:
           - "FORESPURT"
           - "ARBEIDSGIVER_INITIERT"
+        innsendtTid:
+          type: "string"
+          format: "date-time"
         versjon:
           type: "integer"
           format: "int32"
+        arbeidsgiver:
+          $ref: "#/components/schemas/Arbeidsgiver"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
         status:
           type: "string"
           enum:
@@ -459,13 +494,15 @@ components:
         statusMelding:
           type: "string"
       required:
-      - "orgnr"
-      - "fnr"
-      - "innsendtTid"
+      - "navReferanseId"
+      - "sykmeldtFnr"
       - "aarsakInnsending"
       - "typeInnsending"
+      - "innsendtTid"
+      - "arbeidsgiver"
+      - "avsender"
       - "status"
-    InntektsmeldingResponse:
+    InntektsmeldingFilterResponse:
       type: "object"
       properties:
         antall:
@@ -474,10 +511,10 @@ components:
         inntektsmeldinger:
           type: "array"
           items:
-            $ref: "#/components/schemas/InnsendtInntektsmelding"
+            $ref: "#/components/schemas/InntektsmeldingResponse"
       required:
       - "inntektsmeldinger"
-    InntektsmeldingRequest:
+    InntektsmeldingFilterRequest:
       type: "object"
       properties:
         fnr:

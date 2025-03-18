@@ -10,8 +10,11 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RedusertLoennIAgp
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -76,6 +79,17 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         agp = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
         refusjon = mockRefusjon(),
+    )
+
+fun mockInntektsmeldingSkjema(): InntektsmeldingRequest =
+    InntektsmeldingRequest(
+        navReferanseId = UUID.randomUUID(),
+        agp = mockArbeidsgiverperiode(),
+        inntekt = mockInntekt(),
+        refusjon = mockRefusjon(),
+        sykmeldtFnr = Fnr.genererGyldig().toString(),
+        arbeidsgiverTlf = "22222222",
+        avsender = Avsender("Tigersys", "3.0"),
     )
 
 private fun randomDigitString(length: Int): String =

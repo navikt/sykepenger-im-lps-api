@@ -23,13 +23,16 @@ class InnsendtInntektsmeldingRepositoryTest {
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
-        repository.opprettInntektsmeldingFraSimba(inntektsmeldingJson, org, sykmeldtFnr, innsendtDato, forespoerselId)
+        repository.opprettInntektsmelding(inntektsmeldingJson, org, sykmeldtFnr, innsendtDato, forespoerselId)
 
         val result = repository.hent(org)[0]
 
-        assertEquals(forventetSkjema, result.skjema)
-        assertEquals(org, result.orgnr)
-        assertEquals(sykmeldtFnr, result.fnr)
+        assertEquals(forventetSkjema.forespoerselId, result.navReferanseId)
+        assertEquals(forventetSkjema.agp, result.agp)
+        assertEquals(forventetSkjema.inntekt, result.inntekt)
+        assertEquals(forventetSkjema.refusjon, result.refusjon)
+        assertEquals(org, result.arbeidsgiver.orgnr)
+        assertEquals(sykmeldtFnr, result.sykmeldtFnr)
     }
 
     @Test
@@ -39,7 +42,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
-        repository.opprettInntektsmeldingFraSimba(
+        repository.opprettInntektsmelding(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
@@ -50,9 +53,9 @@ class InnsendtInntektsmeldingRepositoryTest {
         val result = repository.hent(org)
 
         assertEquals(1, result.size)
-        assertEquals(org, result[0].orgnr)
-        assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].skjema?.forespoerselId)
+        assertEquals(org, result[0].arbeidsgiver.orgnr)
+        assertEquals(sykmeldtFnr, result[0].sykmeldtFnr)
+        assertEquals(forespoerselId, result[0].navReferanseId)
     }
 
     @Test
@@ -62,7 +65,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val org = "123456789"
         val sykmeldtFnr = "10107400090"
         val innsendtDato = LocalDateTime.of(2023, 1, 1, 0, 0)
-        repository.opprettInntektsmeldingFraSimba(
+        repository.opprettInntektsmelding(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
@@ -73,7 +76,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val result =
             repository.hent(
                 org,
-                InntektsmeldingRequest(
+                InntektsmeldingFilterRequest(
                     fnr = sykmeldtFnr,
                     foresporselId = forespoerselId,
                     fraTid = innsendtDato.minusDays(1),
@@ -82,9 +85,9 @@ class InnsendtInntektsmeldingRepositoryTest {
             )
 
         assertEquals(1, result.size)
-        assertEquals(org, result[0].orgnr)
-        assertEquals(sykmeldtFnr, result[0].fnr)
-        assertEquals(forespoerselId, result[0].skjema?.forespoerselId.toString())
+        assertEquals(org, result[0].arbeidsgiver.orgnr)
+        assertEquals(sykmeldtFnr, result[0].sykmeldtFnr)
+        assertEquals(forespoerselId, result[0].navReferanseId.toString())
     }
 
     @Test
@@ -104,7 +107,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         val result =
             repository.hent(
                 "987654321",
-                InntektsmeldingRequest(
+                InntektsmeldingFilterRequest(
                     fnr = null,
                     foresporselId = null,
                     fraTid = null,
@@ -122,7 +125,7 @@ class InnsendtInntektsmeldingRepositoryTest {
         forespoerselId: String,
     ) {
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId)
-        repository.opprettInntektsmeldingFraSimba(
+        repository.opprettInntektsmelding(
             inntektsmeldingJson,
             org,
             sykmeldtFnr,
