@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService(
@@ -37,7 +39,7 @@ class InntektsmeldingService(
     }
 
     fun opprettInntektsmelding(
-        im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
+        im: Inntektsmelding,
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ) {
         runCatching {
@@ -56,5 +58,14 @@ class InntektsmeldingService(
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
             throw Exception("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
+    }
+
+    fun oppdaterStatus(
+        inntektsmelding: Inntektsmelding,
+        status: InnsendingStatus,
+    ) {
+        // TODO : implementer
+        logger().info("Skal oppdatere ${inntektsmelding.id} med status: $status (ikke implementert enda)")
+        sikkerLogger().info("Skal oppdatere ${inntektsmelding.id} med status: $status (ikke implementert enda)")
     }
 }

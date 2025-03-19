@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
@@ -27,7 +29,13 @@ class InntektsmeldingTolker(
             }
         transaction {
             try {
-                inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
+                if (innsendtFraNavPortal(obj.inntektsmelding.avsenderSystem)) {
+                    sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
+                    inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
+                } else {
+                    sikkerLogger.info("Mottok im sendt fra LPS - oppdaterer status")
+                    inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
+                }
                 mottakRepository.opprett(ExposedMottak(melding))
             } catch (e: Exception) {
                 rollback()
@@ -35,6 +43,10 @@ class InntektsmeldingTolker(
                 throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
             }
         }
+    }
+
+    private fun innsendtFraNavPortal(avsenderSystem: AvsenderSystem): Boolean {
+        return AvsenderSystem().equals(avsenderSystem) // TODO: Litt bedre sjekk ja
     }
 
     private fun parseRecord(record: String): JournalfoertInntektsmelding = jsonMapper.decodeFromString<JournalfoertInntektsmelding>(record)
