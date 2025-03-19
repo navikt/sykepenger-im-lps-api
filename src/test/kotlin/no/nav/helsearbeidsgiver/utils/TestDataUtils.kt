@@ -1,14 +1,18 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Naturalytelse
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.NyStillingsprosent
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RedusertLoennIAgp
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -20,6 +24,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
 import java.io.File
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
 
@@ -28,7 +33,7 @@ private const val SYKMELDT_FNR = "%%%SYKMELDT%%%"
 private const val ORGNUMMER = "%%%ORGNR%%%"
 
 const val DEFAULT_FNR = "16076006028"
-const val DEFAULT_ORG = "732812083"
+const val DEFAULT_ORG = "810007842"
 
 fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
     SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
@@ -70,6 +75,20 @@ fun buildInntektsmeldingDistribuertJson(forespoerselId: String = UUID.randomUUID
 fun readJsonFromResources(fileName: String): String {
     val resource = KafkaProducer::class.java.getResource("/$fileName")
     return File(resource!!.toURI()).readText(Charsets.UTF_8)
+}
+
+fun mockInnsending(): Innsending {
+    val skjema = mockSkjemaInntektsmelding()
+    return Innsending(
+        innsendingId = UUID.randomUUID(),
+        skjema = skjema,
+        aarsakInnsending = AarsakInnsending.Ny,
+        type = Inntektsmelding.Type.Forespurt(skjema.forespoerselId),
+        avsenderSystem = AvsenderSystem(Orgnr(DEFAULT_ORG), "TigerSys", "1.0"),
+        innsendtTid = OffsetDateTime.now(),
+        kanal = Kanal.NAV_NO,
+        versjon = 1,
+    )
 }
 
 fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =

@@ -17,7 +17,10 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -54,12 +57,18 @@ private fun Route.innsending(
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
 
-            val versjon = 1
+            val versjon = 1 // TODO: Skal denne settes / brukes?
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 call.respond(HttpStatusCode.BadRequest, it)
                 return@post
             }
+            val avsenderSystem =
+                AvsenderSystem(
+                    orgnr = Orgnr(lpsOrgnr),
+                    avsenderSystemNavn = request.avsender.systemNavn,
+                    avsenderSystemVersjon = request.avsender.systemVersjon,
+                )
             val inntektsmelding =
                 Inntektsmelding(
                     id = UUID.randomUUID(),
@@ -84,21 +93,33 @@ private fun Route.innsending(
                     aarsakInnsending = AarsakInnsending.Ny,
                     mottatt = OffsetDateTime.now(),
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
+                    avsenderSystem = avsenderSystem,
                 )
-            // TODO: transaction funker ikke nu, vi satser på at det går bra :)
+            // TODO: transaction funker ikke just nu, vi satser på at det går bra :)
             inntektsmeldingService.opprettInntektsmelding(
                 im = inntektsmelding,
                 systemNavn = request.avsender.systemNavn,
                 systemVersjon = request.avsender.systemVersjon,
                 innsendingStatus = InnsendingStatus.MOTTATT,
             )
-            innsendingService.lagreBakgrunsjobbInnsending(
+            val skjemaInntektsmelding =
                 SkjemaInntektsmelding(
                     forespoerselId = request.navReferanseId,
                     avsenderTlf = request.arbeidsgiverTlf,
                     agp = request.agp,
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
+                )
+            innsendingService.lagreBakgrunsjobbInnsending( // TODO lage en Innsending.fraInntektsmelding(im)-funksjon
+                Innsending(
+                    innsendingId = inntektsmelding.id,
+                    skjema = skjemaInntektsmelding,
+                    aarsakInnsending = AarsakInnsending.Ny, // TODO: denne skal nok settes i innkommende request
+                    type = Inntektsmelding.Type.Forespurt(request.navReferanseId),
+                    avsenderSystem = avsenderSystem,
+                    innsendtTid = OffsetDateTime.now(),
+                    kanal = Kanal.NAV_NO,
+                    versjon = 1,
                 ),
             )
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())

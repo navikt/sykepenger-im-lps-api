@@ -39,5 +39,11 @@
   "refusjon": null,
   "aarsakInnsending": "Ny",
   "mottatt": "2024-10-23T14:32:16.708400904+02:00",
-  "vedtaksperiodeId": "c6edb839-2fb5-4602-8f88-c70693f33015"
+  "vedtaksperiodeId": "c6edb839-2fb5-4602-8f88-c70693f33015",
+  "kanal": "NAV_NO",
+  "avsenderSystem": {
+    "orgnr": "889640782",
+    "avsenderSystemNavn": "NAV_PORTAL",
+    "avsenderSystemVersjon": "1.0"
+  }
 }
