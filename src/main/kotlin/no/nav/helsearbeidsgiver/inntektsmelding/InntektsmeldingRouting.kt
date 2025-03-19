@@ -98,8 +98,6 @@ private fun Route.innsending(
             // TODO: transaction funker ikke just nu, vi satser på at det går bra :)
             inntektsmeldingService.opprettInntektsmelding(
                 im = inntektsmelding,
-                systemNavn = request.avsender.systemNavn,
-                systemVersjon = request.avsender.systemVersjon,
                 innsendingStatus = InnsendingStatus.MOTTATT,
             )
             val skjemaInntektsmelding =

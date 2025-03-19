@@ -38,8 +38,6 @@ class InntektsmeldingService(
 
     fun opprettInntektsmelding(
         im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
-        systemNavn: String = "NAV_NO_SIMBA",
-        systemVersjon: String = "1.0",
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ) {
         runCatching {
@@ -50,8 +48,6 @@ class InntektsmeldingService(
                 sykmeldtFnr = im.sykmeldt.fnr.verdi,
                 innsendtDato = im.mottatt.toLocalDateTime(),
                 forespoerselID = im.type.id.toString(),
-                systemNavn = systemNavn,
-                systemVersjon = systemVersjon,
                 innsendingStatus = innsendingStatus,
             )
         }.onSuccess {

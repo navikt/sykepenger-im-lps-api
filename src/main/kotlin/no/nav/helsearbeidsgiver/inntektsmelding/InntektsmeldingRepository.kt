@@ -37,8 +37,6 @@ class InntektsmeldingRepository(
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,
         forespoerselID: String?,
-        systemNavn: String = "NAV_NO_SIMBA",
-        systemVersjon: String = "1.0",
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ): Int {
         sikkerLogger().info("Lagrer inntektsmelding")
@@ -54,8 +52,8 @@ class InntektsmeldingRepository(
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
                 it[versjon] = 1 // TODO: legges til i dokument-payload..?
-                it[avsenderSystemNavn] = systemNavn
-                it[avsenderSystemVersjon] = systemVersjon
+                it[avsenderSystemNavn] = im.avsenderSystem.avsenderSystemNavn
+                it[avsenderSystemVersjon] = im.avsenderSystem.avsenderSystemVersjon
                 it[status] = innsendingStatus
             }[InntektsmeldingEntitet.id]
         }

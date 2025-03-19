@@ -46,6 +46,7 @@ class InnsendtInntektsmeldingServiceTest {
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
                 innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
                 forespoerselID = inntektsmelding.type.id.toString(),
+                innsendingStatus = InnsendingStatus.GODKJENT,
             )
         }
     }
