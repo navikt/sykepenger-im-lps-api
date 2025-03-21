@@ -21,12 +21,14 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -85,6 +87,21 @@ class InntektsmeldingRepository(
                         (request.fraTid?.let { innsendt greaterEq it } ?: Op.TRUE) and
                         (request.tilTid?.let { innsendt lessEq it } ?: Op.TRUE)
                 }.map { it.toExposedInntektsmelding() }
+        }
+
+    // TODO : test
+    fun oppdaterStatus(
+        inntektsmelding: Inntektsmelding,
+        nyStatus: InnsendingStatus,
+    ): Int =
+        transaction(db) {
+            InntektsmeldingEntitet.update(
+                where = {
+                    innsendingId eq inntektsmelding.id
+                },
+            ) {
+                it[status] = nyStatus
+            }
         }
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =

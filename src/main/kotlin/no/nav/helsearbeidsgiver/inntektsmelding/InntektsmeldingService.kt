@@ -64,8 +64,7 @@ class InntektsmeldingService(
         inntektsmelding: Inntektsmelding,
         status: InnsendingStatus,
     ) {
-        // TODO : implementer
-        logger().info("Skal oppdatere ${inntektsmelding.id} med status: $status (ikke implementert enda)")
-        sikkerLogger().info("Skal oppdatere ${inntektsmelding.id} med status: $status (ikke implementert enda)")
+        val antall = inntektsmeldingRepository.oppdaterStatus(inntektsmelding, status)
+        logger().info("Oppdaterte ${inntektsmelding.id} med status: $status - antall rader: $antall")
     }
 }
