@@ -467,6 +467,9 @@ components:
     InntektsmeldingResponse:
       type: "object"
       properties:
+        id:
+          type: "string"
+          format: "uuid"
         navReferanseId:
           type: "string"
           format: "uuid"
@@ -508,6 +511,7 @@ components:
         statusMelding:
           type: "string"
       required:
+      - "id"
       - "navReferanseId"
       - "sykmeldtFnr"
       - "aarsakInnsending"
