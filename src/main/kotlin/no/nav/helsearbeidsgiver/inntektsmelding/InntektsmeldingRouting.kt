@@ -14,7 +14,6 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
@@ -30,6 +29,8 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.OffsetDateTime
 import java.util.UUID
+
+private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 fun Route.inntektsmeldingV1(
     inntektsmeldingService: InntektsmeldingService,
@@ -51,13 +52,11 @@ private fun Route.innsending(
         try {
             val request = this.call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr() // TODO Underenhet!
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr() // TODO Underenhet!?
             // Hvis tilgang gis til hovedenhet, må man gjøre noe med tilganger til underenheter etc...
 
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
-
-            val versjon = 1 // TODO: Skal denne settes / brukes?
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 call.respond(HttpStatusCode.BadRequest, it)
@@ -90,7 +89,7 @@ private fun Route.innsending(
                     agp = request.agp,
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
-                    aarsakInnsending = AarsakInnsending.Ny,
+                    aarsakInnsending = request.aarsakInnsending,
                     mottatt = OffsetDateTime.now(),
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
                     avsenderSystem = avsenderSystem,
@@ -112,12 +111,12 @@ private fun Route.innsending(
                 Innsending(
                     innsendingId = inntektsmelding.id,
                     skjema = skjemaInntektsmelding,
-                    aarsakInnsending = AarsakInnsending.Ny, // TODO: denne skal nok settes i innkommende request
+                    aarsakInnsending = request.aarsakInnsending,
                     type = Inntektsmelding.Type.Forespurt(request.navReferanseId),
                     avsenderSystem = avsenderSystem,
                     innsendtTid = OffsetDateTime.now(),
                     kanal = Kanal.NAV_NO,
-                    versjon = 1,
+                    versjon = VERSJON_1,
                 ),
             )
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
