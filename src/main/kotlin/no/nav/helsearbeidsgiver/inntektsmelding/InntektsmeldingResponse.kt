@@ -42,6 +42,7 @@ data class InntektsmeldingRequest( // Innsending slik APIet sender inn
     val refusjon: Refusjon?,
     val sykmeldtFnr: String,
     val arbeidsgiverTlf: String,
+    val aarsakInnsending: AarsakInnsending,
     val avsender: Avsender, // avsendersystem
 ) {
     fun valider(): Set<String> = SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, refusjon).valider()

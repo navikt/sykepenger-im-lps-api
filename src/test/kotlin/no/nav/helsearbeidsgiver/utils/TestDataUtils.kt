@@ -100,7 +100,7 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         refusjon = mockRefusjon(),
     )
 
-fun mockInntektsmeldingSkjema(): InntektsmeldingRequest =
+fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
     InntektsmeldingRequest(
         navReferanseId = UUID.randomUUID(),
         agp = mockArbeidsgiverperiode(),
@@ -108,6 +108,7 @@ fun mockInntektsmeldingSkjema(): InntektsmeldingRequest =
         refusjon = mockRefusjon(),
         sykmeldtFnr = Fnr.genererGyldig().toString(),
         arbeidsgiverTlf = "22222222",
+        aarsakInnsending = AarsakInnsending.Ny,
         avsender = Avsender("Tigersys", "3.0"),
     )
 
