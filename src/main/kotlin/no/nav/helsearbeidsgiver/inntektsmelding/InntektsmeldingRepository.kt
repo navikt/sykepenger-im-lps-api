@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderS
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
@@ -20,13 +21,16 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
+import java.util.UUID
 
 class InntektsmeldingRepository(
     private val db: Database,
@@ -37,13 +41,12 @@ class InntektsmeldingRepository(
         sykmeldtFnr: String,
         innsendtDato: LocalDateTime,
         forespoerselID: String?,
-        systemNavn: String = "NAV_NO_SIMBA",
-        systemVersjon: String = "1.0",
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
-    ): Int {
+    ): UUID {
         sikkerLogger().info("Lagrer inntektsmelding")
         return transaction(db) {
             InntektsmeldingEntitet.insert {
+                it[innsendingId] = im.id
                 it[dokument] = im
                 it[orgnr] = org
                 it[fnr] = sykmeldtFnr
@@ -53,11 +56,11 @@ class InntektsmeldingRepository(
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
-                it[versjon] = 1 // TODO: bør legges til i dokument-payload..
-                it[avsenderSystemNavn] = systemNavn
-                it[avsenderSystemVersjon] = systemVersjon
+                it[versjon] = 1 // TODO: legges til i dokument-payload..?
+                it[avsenderSystemNavn] = im.avsenderSystem.avsenderSystemNavn
+                it[avsenderSystemVersjon] = im.avsenderSystem.avsenderSystemVersjon
                 it[status] = innsendingStatus
-            }[InntektsmeldingEntitet.id]
+            }[innsendingId]
         }
     }
 
@@ -86,20 +89,36 @@ class InntektsmeldingRepository(
                 }.map { it.toExposedInntektsmelding() }
         }
 
+    // TODO : test
+    fun oppdaterStatus(
+        inntektsmelding: Inntektsmelding,
+        nyStatus: InnsendingStatus,
+    ): Int =
+        transaction(db) {
+            InntektsmeldingEntitet.update(
+                where = {
+                    innsendingId eq inntektsmelding.id
+                },
+            ) {
+                it[status] = nyStatus
+            }
+        }
+
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
-            sykmeldtFnr = this[fnr],
-            innsendtTid = this[innsendt],
-            aarsakInnsending = this[aarsakInnsending],
-            typeInnsending = this[typeInnsending],
-            versjon = this[versjon],
-            status = this[status],
-            statusMelding = this[statusMelding],
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,
             refusjon = this[skjema].refusjon,
-            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf), // TODO: Navn
-            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]), // TODO: orgnr - lps er ok, men hva med simba..
+            sykmeldtFnr = this[fnr],
+            aarsakInnsending = this[aarsakInnsending],
+            typeInnsending = this[typeInnsending],
+            innsendtTid = this[innsendt],
+            versjon = this[versjon],
+            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
+            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
+            status = this[status],
+            statusMelding = this[statusMelding],
+            id = this[innsendingId],
         )
 }

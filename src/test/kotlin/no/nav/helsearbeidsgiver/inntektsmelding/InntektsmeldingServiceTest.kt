@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
-class InnsendtInntektsmeldingServiceTest {
+class InntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
     private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
 
@@ -35,7 +35,7 @@ class InnsendtInntektsmeldingServiceTest {
                 innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
                 forespoerselID = inntektsmelding.type.id.toString(),
             )
-        } returns 1
+        } returns inntektsmelding.id
 
         inntektsmeldingService.opprettInntektsmelding(inntektsmelding)
 
@@ -46,6 +46,7 @@ class InnsendtInntektsmeldingServiceTest {
                 sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
                 innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
                 forespoerselID = inntektsmelding.type.id.toString(),
+                innsendingStatus = InnsendingStatus.GODKJENT,
             )
         }
     }
@@ -56,23 +57,25 @@ class InnsendtInntektsmeldingServiceTest {
         val fnr = "12345678901"
         val innsendt = LocalDateTime.now()
         val foresporselid = UUID.randomUUID()
+        val innsendingId = UUID.randomUUID()
         val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
         every { inntektsmeldingRepository.hent(orgnr) } returns
             listOf(
                 InntektsmeldingResponse(
-                    sykmeldtFnr = fnr,
-                    innsendtTid = innsendt,
-                    aarsakInnsending = AarsakInnsending.Ny,
-                    typeInnsending = InnsendingType.FORESPURT,
-                    versjon = 1,
-                    status = InnsendingStatus.MOTTATT,
-                    statusMelding = null,
                     navReferanseId = foresporselid,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
                     refusjon = skjema.refusjon,
+                    sykmeldtFnr = fnr,
+                    aarsakInnsending = AarsakInnsending.Ny,
+                    typeInnsending = InnsendingType.FORESPURT,
+                    innsendtTid = innsendt,
+                    versjon = 1,
                     arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
                     avsender = Avsender("", ""),
+                    status = InnsendingStatus.MOTTATT,
+                    statusMelding = null,
+                    id = innsendingId,
                 ),
             )
         val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
@@ -91,6 +94,7 @@ class InnsendtInntektsmeldingServiceTest {
     @Test
     fun `hentInntektsMeldingByRequest må kalle inntektsmeldingRepository`() {
         val foresporselid = UUID.randomUUID()
+        val innsendingId = UUID.randomUUID()
         val orgnr = "987654322"
         val fnr = "12345678901"
         val datoFra = LocalDateTime.now()
@@ -107,19 +111,20 @@ class InnsendtInntektsmeldingServiceTest {
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
                 InntektsmeldingResponse(
-                    sykmeldtFnr = fnr,
-                    innsendtTid = innsendt,
-                    aarsakInnsending = AarsakInnsending.Ny,
-                    typeInnsending = InnsendingType.FORESPURT,
-                    versjon = 1,
-                    status = InnsendingStatus.MOTTATT,
-                    statusMelding = null,
                     navReferanseId = foresporselid,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
                     refusjon = skjema.refusjon,
+                    sykmeldtFnr = fnr,
+                    aarsakInnsending = AarsakInnsending.Ny,
+                    typeInnsending = InnsendingType.FORESPURT,
+                    innsendtTid = innsendt,
+                    versjon = 1,
                     arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
                     avsender = Avsender("", ""),
+                    status = InnsendingStatus.MOTTATT,
+                    statusMelding = null,
+                    id = innsendingId,
                 ),
             )
         val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)

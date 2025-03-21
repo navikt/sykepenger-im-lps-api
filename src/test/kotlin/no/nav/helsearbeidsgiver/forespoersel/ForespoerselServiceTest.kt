@@ -1,11 +1,8 @@
+package no.nav.helsearbeidsgiver.forespoersel
+
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRequest
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
-import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test

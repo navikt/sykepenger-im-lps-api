@@ -1,10 +1,10 @@
 {
   "journalpostId":"671166582",
   "inntektsmeldingV1": {
-    "id": "69297657-fdbe-451b-b77e-43ae3aa90e29",
+    "id": "%%%INNTEKTSMELDING_ID%%%",
     "type": {
       "type": "Forespurt",
-      "id": "%%%FORESPOERSELID%%%"
+      "id": "%%%FORESPOERSEL_ID%%%"
     },
     "sykmeldt": {
       "fnr": "22518249472",

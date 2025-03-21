@@ -1,5 +1,4 @@
-
-import no.nav.helsearbeidsgiver.Env
+package no.nav.helsearbeidsgiver
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingDistribuertJson

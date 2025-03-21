@@ -17,8 +17,8 @@ object InnsendingKafka {
         EVENT_NAME,
         KONTEKST_ID,
         DATA,
-        SKJEMA_INNTEKTSMELDING,
         MOTTATT,
+        INNSENDING,
         ;
 
         override fun toString(): String =

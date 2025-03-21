@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.innsending
 import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
@@ -19,14 +19,14 @@ class InnsendingService(
     private val innsendingProducer: InnsendingProducer,
     private val bakgrunnsjobbService: LeaderElectedBakgrunnsjobbService,
 ) {
-    fun lagreBakgrunsjobbInnsending(skjema: SkjemaInntektsmelding) {
+    fun lagreBakgrunsjobbInnsending(innsending: Innsending) {
         bakgrunnsjobbService.opprettJobb<InnsendingProcessor>(
             maksAntallForsoek = 10,
-            data = Json.encodeToString(SkjemaInntektsmelding.serializer(), skjema),
+            data = Json.encodeToString(Innsending.serializer(), innsending),
         )
     }
 
-    fun sendInn(skjema: SkjemaInntektsmelding): Pair<UUID, LocalDateTime> {
+    fun sendInn(innsending: Innsending): Pair<UUID, LocalDateTime> {
         val mottatt = LocalDateTime.now()
         val kontekstId = UUID.randomUUID()
 
@@ -37,7 +37,7 @@ class InnsendingService(
                     InnsendingKafka.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
                     InnsendingKafka.Key.DATA to
                         mapOf(
-                            InnsendingKafka.Key.SKJEMA_INNTEKTSMELDING to skjema.toJson(SkjemaInntektsmelding.serializer()),
+                            InnsendingKafka.Key.INNSENDING to innsending.toJson(Innsending.serializer()),
                             InnsendingKafka.Key.MOTTATT to mottatt.toJson(LocalDateTimeSerializer),
                         ).toJson(),
                 ).getOrThrow()

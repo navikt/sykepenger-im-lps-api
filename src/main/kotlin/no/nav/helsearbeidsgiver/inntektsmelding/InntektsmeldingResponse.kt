@@ -19,6 +19,7 @@ import java.util.UUID
 
 @Serializable
 data class InntektsmeldingResponse(
+    val id: UUID,
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
@@ -42,6 +43,7 @@ data class InntektsmeldingRequest( // Innsending slik APIet sender inn
     val refusjon: Refusjon?,
     val sykmeldtFnr: String,
     val arbeidsgiverTlf: String,
+    val aarsakInnsending: AarsakInnsending,
     val avsender: Avsender, // avsendersystem
 ) {
     fun valider(): Set<String> = SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, refusjon).valider()
