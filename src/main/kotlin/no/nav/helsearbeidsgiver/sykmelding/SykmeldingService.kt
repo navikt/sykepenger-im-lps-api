@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import java.util.*
+import java.util.UUID
 
 class SykmeldingService(
     private val sykmeldingRepository: SykmeldingRepository,

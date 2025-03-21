@@ -18,7 +18,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.security.token.support.core.context.TokenValidationContext
-import java.util.*
+import java.util.UUID
 
 class SykmeldingRoutingTest :
     FunSpec({

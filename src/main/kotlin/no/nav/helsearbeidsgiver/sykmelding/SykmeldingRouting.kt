@@ -10,7 +10,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import java.util.*
+import java.util.UUID
 
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
