@@ -1,8 +1,8 @@
 {
-  "id": "d09b2674-9f2c-439f-9a60-9fe84ca117b5",
+  "id": "%%%INNTEKTSMELDING_ID%%%",
   "type": {
     "type": "Forespurt",
-    "id": "%%%FORESPOERSELID%%%"
+    "id": "%%%FORESPOERSEL_ID%%%"
   },
   "sykmeldt": {
     "fnr": "%%%SYKMELDT%%%",

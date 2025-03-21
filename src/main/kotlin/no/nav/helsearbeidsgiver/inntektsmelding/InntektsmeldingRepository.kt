@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderS
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
@@ -42,6 +43,7 @@ class InntektsmeldingRepository(
         sikkerLogger().info("Lagrer inntektsmelding")
         return transaction(db) {
             InntektsmeldingEntitet.insert {
+                it[innsendingId] = im.id
                 it[dokument] = im
                 it[orgnr] = org
                 it[fnr] = sykmeldtFnr
@@ -86,18 +88,19 @@ class InntektsmeldingRepository(
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
-            sykmeldtFnr = this[fnr],
-            innsendtTid = this[innsendt],
-            aarsakInnsending = this[aarsakInnsending],
-            typeInnsending = this[typeInnsending],
-            versjon = this[versjon],
-            status = this[status],
-            statusMelding = this[statusMelding],
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,
             refusjon = this[skjema].refusjon,
-            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf), // TODO: Navn
-            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]), // TODO: orgnr - lps er ok, men hva med simba..
+            sykmeldtFnr = this[fnr],
+            aarsakInnsending = this[aarsakInnsending],
+            typeInnsending = this[typeInnsending],
+            innsendtTid = this[innsendt],
+            versjon = this[versjon],
+            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
+            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
+            status = this[status],
+            statusMelding = this[statusMelding],
+            id = this[innsendingId],
         )
 }

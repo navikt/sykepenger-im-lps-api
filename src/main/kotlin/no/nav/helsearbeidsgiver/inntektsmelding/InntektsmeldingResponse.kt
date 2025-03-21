@@ -19,6 +19,7 @@ import java.util.UUID
 
 @Serializable
 data class InntektsmeldingResponse(
+    val id: UUID,
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,

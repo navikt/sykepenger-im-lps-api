@@ -28,7 +28,8 @@ import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
 
-private const val FORESPOERSELID = "%%%FORESPOERSELID%%%"
+private const val INNTEKTSMELDING_ID = "%%%INNTEKTSMELDING_ID%%%"
+private const val FORESPOERSEL_ID = "%%%FORESPOERSEL_ID%%%"
 private const val SYKMELDT_FNR = "%%%SYKMELDT%%%"
 private const val ORGNUMMER = "%%%ORGNR%%%"
 
@@ -39,19 +40,23 @@ fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
     SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
 
 fun buildInntektsmelding(
+    inntektsmeldingId: String = UUID.randomUUID().toString(),
     forespoerselId: String = UUID.randomUUID().toString(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
     orgNr: Orgnr = Orgnr(DEFAULT_ORG),
-): Inntektsmelding = jsonMapper.decodeFromString<Inntektsmelding>(buildInntektsmeldingJson(forespoerselId, sykemeldtFnr, orgNr))
+): Inntektsmelding =
+    jsonMapper.decodeFromString<Inntektsmelding>(buildInntektsmeldingJson(inntektsmeldingId, forespoerselId, sykemeldtFnr, orgNr))
 
 fun buildInntektsmeldingJson(
+    inntektsmeldingId: String = UUID.randomUUID().toString(),
     forespoerselId: String = UUID.randomUUID().toString(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
     orgNr: Orgnr = Orgnr(DEFAULT_ORG),
 ): String {
     val filePath = "im.json"
     return readJsonFromResources(filePath)
-        .replace(FORESPOERSELID, forespoerselId)
+        .replace(INNTEKTSMELDING_ID, inntektsmeldingId)
+        .replace(FORESPOERSEL_ID, forespoerselId)
         .replace(SYKMELDT_FNR, sykemeldtFnr.verdi)
         .replace(ORGNUMMER, orgNr.verdi)
 }
@@ -59,17 +64,19 @@ fun buildInntektsmeldingJson(
 fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
     val filePath = "forespoersel.json"
     return readJsonFromResources(filePath).replace(
-        FORESPOERSELID,
+        FORESPOERSEL_ID,
         forespoerselId,
     )
 }
 
-fun buildInntektsmeldingDistribuertJson(forespoerselId: String = UUID.randomUUID().toString()): String {
+fun buildInntektsmeldingDistribuertJson(
+    inntektsmeldingId: String = UUID.randomUUID().toString(),
+    forespoerselId: String = UUID.randomUUID().toString(),
+): String {
     val filePath = "inntektsmelding_distribuert.json"
-    return readJsonFromResources(filePath).replace(
-        FORESPOERSELID,
-        forespoerselId,
-    )
+    return readJsonFromResources(filePath)
+        .replace(INNTEKTSMELDING_ID, inntektsmeldingId)
+        .replace(FORESPOERSEL_ID, forespoerselId)
 }
 
 fun readJsonFromResources(fileName: String): String {

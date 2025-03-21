@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 
 object InntektsmeldingEntitet : Table("inntektsmelding") {
     val id = integer("id").autoIncrement()
+    val innsendingId = uuid("innsending_id")
     val dokument = json<Inntektsmelding>("dokument", jsonMapper) // TODO: Slett
     val orgnr = varchar("orgnr", length = 9)
     val fnr = varchar("fnr", length = 11)
