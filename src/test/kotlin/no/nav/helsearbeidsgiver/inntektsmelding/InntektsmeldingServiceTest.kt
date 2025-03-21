@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
-class InnsendtInntektsmeldingServiceTest {
+class InntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
     private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
 
@@ -35,7 +35,7 @@ class InnsendtInntektsmeldingServiceTest {
                 innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
                 forespoerselID = inntektsmelding.type.id.toString(),
             )
-        } returns 1
+        } returns inntektsmelding.id
 
         inntektsmeldingService.opprettInntektsmelding(inntektsmelding)
 

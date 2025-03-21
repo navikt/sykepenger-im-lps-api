@@ -11,14 +11,14 @@ import org.jetbrains.exposed.sql.json.json
 import java.time.LocalDateTime
 
 object InntektsmeldingEntitet : Table("inntektsmelding") {
-    val id = integer("id").autoIncrement()
-    val innsendingId = uuid("innsending_id")
-    val dokument = json<Inntektsmelding>("dokument", jsonMapper) // TODO: Slett
+    val id = integer("id").autoIncrement() // TODO: bytte navn til serienr?
+    val innsendingId = uuid("innsending_id") // TODO: kalle denne for id..?
+    val dokument = json<Inntektsmelding>("dokument", jsonMapper)
     val orgnr = varchar("orgnr", length = 9)
     val fnr = varchar("fnr", length = 11)
     val foresporselid = varchar("foresporselid", length = 40).nullable() // TODO: Slett, erstattes med nav_referanse_id
     val innsendt = datetime("innsendt").default(LocalDateTime.now())
-    val skjema = json<SkjemaInntektsmelding>("skjema", jsonMapper) // TODO bytt til InntektsmeldingSkjema
+    val skjema = json<SkjemaInntektsmelding>("skjema", jsonMapper)
     val aarsakInnsending = enumerationByName("aarsak_innsending", length = 7, AarsakInnsending::class)
     val typeInnsending = enumerationByName("type_innsending", length = 21, InnsendingType::class)
     val avsenderSystemNavn = varchar("avsender_system_navn", length = 32)

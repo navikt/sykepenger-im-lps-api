@@ -28,6 +28,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
+import java.util.UUID
 
 class InntektsmeldingRepository(
     private val db: Database,
@@ -39,7 +40,7 @@ class InntektsmeldingRepository(
         innsendtDato: LocalDateTime,
         forespoerselID: String?,
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
-    ): Int {
+    ): UUID {
         sikkerLogger().info("Lagrer inntektsmelding")
         return transaction(db) {
             InntektsmeldingEntitet.insert {
@@ -57,7 +58,7 @@ class InntektsmeldingRepository(
                 it[avsenderSystemNavn] = im.avsenderSystem.avsenderSystemNavn
                 it[avsenderSystemVersjon] = im.avsenderSystem.avsenderSystemVersjon
                 it[status] = innsendingStatus
-            }[InntektsmeldingEntitet.id]
+            }[innsendingId]
         }
     }
 
