@@ -10,19 +10,16 @@ class SykmeldingService(
         id: UUID,
         orgnr: String,
     ): SykmeldingResponse? {
-        runCatching {
-            sikkerLogger().info("Henter sykmeldinger: id: $id, orgnr: $orgnr")
-
-            sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
-        }.onSuccess {
-            if (it != null) {
-                sikkerLogger().info("Hentet ${it.id} sykmelding for orgnr: $orgnr")
+        try {
+            val response = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
+            if (response != null) {
+                sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
             } else {
-                sikkerLogger().info("Fant ingen sykmeldinger for id: $id, orgnr: $orgnr")
+                sikkerLogger().info("Fant ingen sykmeldinger $id for orgnr: $orgnr")
             }
-        }.onFailure {
-            sikkerLogger().warn("Feil ved henting av sykmelding id: $id, orgnr: $orgnr", it)
+            return response
+        } catch (e: Exception) {
+            throw RuntimeException("Feil ved henting av sykmelding id: $id, orgnr: $orgnr", e)
         }
-        throw RuntimeException("Feil ved henting av sykmelding id: $id, orgnr: $orgnr")
     }
 }
