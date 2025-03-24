@@ -10,5 +10,5 @@ data class SykmeldingResponse(
     val id: String,
     val fnr: String,
     val orgnr: String,
-//    val arbeidsgiverSykmelding: ArbeidsgiverSykmelding,
+    val arbeidsgiverSykmelding: ArbeidsgiverSykmelding,
 )

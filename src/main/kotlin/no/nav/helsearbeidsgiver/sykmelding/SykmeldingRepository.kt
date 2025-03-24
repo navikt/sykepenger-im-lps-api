@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
@@ -59,6 +60,6 @@ class SykmeldingRepository(
             id = this[sykmeldingId].toString(),
             orgnr = this[orgnr],
             fnr = this[fnr],
-//        arbeidsgiverSykmelding = this[arbeidsgiverSykmelding],
+            arbeidsgiverSykmelding = this[arbeidsgiverSykmelding],
         )
 }
