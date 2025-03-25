@@ -162,18 +162,30 @@ class InntektsmeldingRepositoryTest {
         val forespoerselId = UUID.randomUUID().toString()
         val inntektsmelding1 =
             buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        val inntektsmelding2 = buildInntektsmelding()
         repository.opprettInntektsmelding(
             im = inntektsmelding1,
             innsendingStatus = InnsendingStatus.MOTTATT,
         )
         repository.opprettInntektsmelding(
-            im = buildInntektsmelding(),
+            im = inntektsmelding2,
+            innsendingStatus = InnsendingStatus.MOTTATT,
         )
         val result = repository.hent(DEFAULT_ORG)
         result[0].status shouldBe InnsendingStatus.MOTTATT
         repository.oppdaterStatus(inntektsmelding1, nyStatus = InnsendingStatus.GODKJENT)
-        val oppdatertInntektsmelding = repository.hent(DEFAULT_ORG)[0]
+        val oppdatertInntektsmelding =
+            repository.hent(
+                DEFAULT_ORG,
+                request = InntektsmeldingFilterRequest(foresporselId = forespoerselId),
+            )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
+        val ikkeOppdatertInntektsmelding =
+            repository.hent(
+                DEFAULT_ORG,
+                request = InntektsmeldingFilterRequest(foresporselId = inntektsmelding2.type.id.toString()),
+            )[0]
+        ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }
 
     private fun generateTestData(

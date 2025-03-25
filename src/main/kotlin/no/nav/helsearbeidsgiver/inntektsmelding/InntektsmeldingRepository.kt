@@ -83,7 +83,6 @@ class InntektsmeldingRepository(
                 }.map { it.toExposedInntektsmelding() }
         }
 
-    // TODO : test
     fun oppdaterStatus(
         inntektsmelding: Inntektsmelding,
         nyStatus: InnsendingStatus,
