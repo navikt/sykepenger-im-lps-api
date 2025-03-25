@@ -491,6 +491,7 @@ components:
           enum:
           - "FORESPURT"
           - "ARBEIDSGIVER_INITIERT"
+          - "FORESPURT_EKSTERN"
         innsendtTid:
           type: "string"
           format: "date-time"
