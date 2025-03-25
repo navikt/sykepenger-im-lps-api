@@ -19,7 +19,7 @@ class SykmeldingService(
             }
             return response
         } catch (e: Exception) {
-            throw RuntimeException("Feil ved henting av sykmelding id: $id, orgnr: $orgnr", e)
+            throw RuntimeException("Feil ved henting av sykmelding $id orgnr: $orgnr", e)
         }
     }
 }
