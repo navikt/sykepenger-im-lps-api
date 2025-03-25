@@ -36,6 +36,7 @@ import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -62,6 +63,7 @@ data class Services(
     val inntektsmeldingService: InntektsmeldingService,
     val innsendingService: InnsendingService,
     val dialogportenService: IDialogportenService,
+    val sykmeldingService: SykmeldingService,
 )
 
 fun configureRepositories(db: Database): Repositories =
@@ -76,6 +78,7 @@ fun configureRepositories(db: Database): Repositories =
 fun configureServices(repositories: Repositories): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
+    val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =
         InnsendingProducer(
@@ -107,7 +110,7 @@ fun configureServices(repositories: Repositories): Services {
     // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
     val dialogportenService = IngenDialogportenService()
 
-    return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService)
+    return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
 
 fun Application.configureKafkaConsumers(
