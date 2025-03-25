@@ -30,10 +30,6 @@ class InntektsmeldingServiceTest {
         every {
             inntektsmeldingRepository.opprettInntektsmelding(
                 im = inntektsmelding,
-                org = inntektsmelding.avsender.orgnr.verdi,
-                sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
-                innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
-                forespoerselID = inntektsmelding.type.id.toString(),
             )
         } returns inntektsmelding.id
 
@@ -42,10 +38,6 @@ class InntektsmeldingServiceTest {
         verify {
             inntektsmeldingRepository.opprettInntektsmelding(
                 im = inntektsmelding,
-                org = inntektsmelding.avsender.orgnr.verdi,
-                sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
-                innsendtDato = inntektsmelding.mottatt.toLocalDateTime(),
-                forespoerselID = inntektsmelding.type.id.toString(),
                 innsendingStatus = InnsendingStatus.GODKJENT,
             )
         }

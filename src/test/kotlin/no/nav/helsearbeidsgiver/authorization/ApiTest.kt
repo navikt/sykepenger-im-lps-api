@@ -28,7 +28,6 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 /*
@@ -144,10 +143,6 @@ class ApiTest {
 
             inntektsmeldingRepo.opprettInntektsmelding(
                 im = im,
-                org = "810007842",
-                sykmeldtFnr = "12345678912",
-                innsendtDato = LocalDateTime.now(),
-                forespoerselID = forespoerselId,
             )
             val response =
                 client.get("/v1/inntektsmeldinger") {

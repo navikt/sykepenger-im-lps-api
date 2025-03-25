@@ -17,11 +17,10 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
@@ -29,7 +28,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import java.time.LocalDateTime
 import java.util.UUID
 
 class InntektsmeldingRepository(
@@ -37,21 +35,17 @@ class InntektsmeldingRepository(
 ) {
     fun opprettInntektsmelding(
         im: Inntektsmelding,
-        org: String,
-        sykmeldtFnr: String,
-        innsendtDato: LocalDateTime,
-        forespoerselID: String?,
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ): UUID {
-        sikkerLogger().info("Lagrer inntektsmelding")
+        logger().info("Lagrer inntektsmelding med id ${im.id}")
         return transaction(db) {
             InntektsmeldingEntitet.insert {
                 it[innsendingId] = im.id
                 it[dokument] = im
-                it[orgnr] = org
-                it[fnr] = sykmeldtFnr
-                it[foresporselid] = forespoerselID
-                it[innsendt] = innsendtDato
+                it[orgnr] = im.avsender.orgnr.verdi
+                it[fnr] = im.sykmeldt.fnr.verdi
+                it[foresporselid] = im.type.id.toString() // Kan fjernes
+                it[innsendt] = im.mottatt.toLocalDateTime()
                 it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)

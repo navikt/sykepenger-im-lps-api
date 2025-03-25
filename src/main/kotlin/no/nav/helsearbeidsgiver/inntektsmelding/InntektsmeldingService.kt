@@ -46,10 +46,6 @@ class InntektsmeldingService(
             sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
             inntektsmeldingRepository.opprettInntektsmelding(
                 im = im,
-                org = im.avsender.orgnr.verdi,
-                sykmeldtFnr = im.sykmeldt.fnr.verdi,
-                innsendtDato = im.mottatt.toLocalDateTime(),
-                forespoerselID = im.type.id.toString(),
                 innsendingStatus = innsendingStatus,
             )
         }.onSuccess {
