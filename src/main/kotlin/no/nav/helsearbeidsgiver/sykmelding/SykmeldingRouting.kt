@@ -34,11 +34,7 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
 
             val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId, sluttbrukerOrgnr)
 
-            if (sykmelding != null) {
-                call.respond(sykmelding)
-            } else {
-                throw ApiFeil(NotFound, "Ingen sykmelding funnet")
-            }
+            sykmelding?.let { call.respond(it) } ?: throw ApiFeil(NotFound, "Ingen sykmelding funnet")
         }
     }
 }
