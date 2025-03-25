@@ -16,7 +16,6 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
@@ -64,13 +63,13 @@ private fun Route.innsending(
             val avsenderSystem =
                 AvsenderSystem(
                     orgnr = Orgnr(lpsOrgnr),
-                    avsenderSystemNavn = request.avsender.systemNavn,
-                    avsenderSystemVersjon = request.avsender.systemVersjon,
+                    navn = request.avsender.systemNavn,
+                    versjon = request.avsender.systemVersjon,
                 )
             val inntektsmelding =
                 Inntektsmelding(
                     id = UUID.randomUUID(),
-                    type = Inntektsmelding.Type.Forespurt(request.navReferanseId),
+                    type = Inntektsmelding.Type.ForespurtEkstern(request.navReferanseId, avsenderSystem),
                     sykmeldt =
                         Sykmeldt(
                             Fnr(request.sykmeldtFnr),
@@ -91,7 +90,6 @@ private fun Route.innsending(
                     aarsakInnsending = request.aarsakInnsending,
                     mottatt = OffsetDateTime.now(),
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
-                    avsenderSystem = avsenderSystem,
                 )
             // TODO: transaction funker ikke just nu, vi satser på at det går bra :)
             inntektsmeldingService.opprettInntektsmelding(
@@ -112,9 +110,7 @@ private fun Route.innsending(
                     skjema = skjemaInntektsmelding,
                     aarsakInnsending = request.aarsakInnsending,
                     type = Inntektsmelding.Type.Forespurt(request.navReferanseId),
-                    avsenderSystem = avsenderSystem,
                     innsendtTid = OffsetDateTime.now(),
-                    kanal = Kanal.NAV_NO,
                     versjon = VERSJON_1,
                 ),
             )

@@ -4,14 +4,12 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Naturalytelse
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.NyStillingsprosent
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RedusertLoennIAgp
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
@@ -91,9 +89,7 @@ fun mockInnsending(): Innsending {
         skjema = skjema,
         aarsakInnsending = AarsakInnsending.Ny,
         type = Inntektsmelding.Type.Forespurt(skjema.forespoerselId),
-        avsenderSystem = AvsenderSystem(Orgnr(DEFAULT_ORG), "TigerSys", "1.0"),
         innsendtTid = OffsetDateTime.now(),
-        kanal = Kanal.NAV_NO,
         versjon = 1,
     )
 }

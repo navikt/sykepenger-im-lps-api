@@ -51,8 +51,8 @@ class InntektsmeldingRepository(
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
                 it[versjon] = 1 // TODO: legges til i dokument-payload..?
-                it[avsenderSystemNavn] = im.avsenderSystem.avsenderSystemNavn
-                it[avsenderSystemVersjon] = im.avsenderSystem.avsenderSystemVersjon
+                it[avsenderSystemNavn] = im.type.avsenderSystem.navn
+                it[avsenderSystemVersjon] = im.type.avsenderSystem.versjon
                 it[status] = innsendingStatus
             }[innsendingId]
         }

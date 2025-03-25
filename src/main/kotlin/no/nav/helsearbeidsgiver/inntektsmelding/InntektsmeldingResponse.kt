@@ -52,6 +52,7 @@ data class InntektsmeldingRequest( // Innsending slik APIet sender inn
 enum class InnsendingType {
     FORESPURT,
     ARBEIDSGIVER_INITIERT,
+    FORESPURT_EKSTERN,
     ;
 
     companion object {
@@ -59,6 +60,7 @@ enum class InnsendingType {
             when (type) {
                 is Inntektsmelding.Type.Forespurt -> FORESPURT
                 is Inntektsmelding.Type.Selvbestemt -> ARBEIDSGIVER_INITIERT
+                is Inntektsmelding.Type.ForespurtEkstern -> FORESPURT_EKSTERN
             }
     }
 }
