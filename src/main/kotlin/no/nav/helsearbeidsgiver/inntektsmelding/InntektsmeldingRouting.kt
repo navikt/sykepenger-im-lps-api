@@ -109,7 +109,7 @@ private fun Route.innsending(
                     innsendingId = inntektsmelding.id,
                     skjema = skjemaInntektsmelding,
                     aarsakInnsending = request.aarsakInnsending,
-                    type = Inntektsmelding.Type.Forespurt(request.navReferanseId),
+                    type = inntektsmelding.type,
                     innsendtTid = OffsetDateTime.now(),
                     versjon = VERSJON_1,
                 ),
