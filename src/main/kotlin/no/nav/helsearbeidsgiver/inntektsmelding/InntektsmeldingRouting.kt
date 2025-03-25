@@ -52,8 +52,7 @@ private fun Route.innsending(
         try {
             val request = this.call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr() // TODO Underenhet!?
-            // Hvis tilgang gis til hovedenhet, må man gjøre noe med tilganger til underenheter etc...
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
