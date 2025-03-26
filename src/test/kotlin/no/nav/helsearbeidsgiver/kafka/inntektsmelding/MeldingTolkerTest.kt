@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
@@ -31,12 +32,13 @@ class MeldingTolkerTest {
     val forespoerselRepository = ForespoerselRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
     val mottakRepository = MottakRepository(db)
-    val sykmeldingRepository = spyk(SykmeldingRepository(db))
+    val sykmeldingRepository = SykmeldingRepository(db)
+    val sykmeldingService = spyk(SykmeldingService(sykmeldingRepository))
 
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val mockDialogportenService = mockk<IDialogportenService>()
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository, mockDialogportenService)
-    val sykmeldingTolker = SykmeldingTolker(sykmeldingRepository)
+    val sykmeldingTolker = SykmeldingTolker(sykmeldingService)
 
     @Test
     fun kunLagreEventerSomMatcher() {
@@ -57,13 +59,13 @@ class MeldingTolkerTest {
     }
 
     @Test
-    fun `ta i mot og lagre gyldig sykmelding`() {
+    fun `sykmeldingTolker deserialiserer og lagrer gyldig sykmelding`() {
         sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
-        verify { sykmeldingRepository.lagreSykmelding(any()) }
+        verify { sykmeldingService.lagreSykmelding(any()) }
     }
 
     @Test
-    fun duplikat() {
+    fun `forespoerselTolker håndterer duplikater`() {
         every { mockDialogportenService.opprettDialog(any(), any()) } returns
             Result.success(
                 UUID.randomUUID().toString(),

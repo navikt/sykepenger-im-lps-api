@@ -18,6 +18,7 @@ class SykmeldingService(
     ): SykmeldingResponse? {
         try {
             val response = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
+
             if (response != null) {
                 sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
             } else {
