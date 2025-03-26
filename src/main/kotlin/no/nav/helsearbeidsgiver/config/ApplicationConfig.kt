@@ -6,7 +6,8 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import no.nav.hag.utils.bakgrunnsjobb.PostgresBakgrunnsjobbRepository
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
+import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
@@ -53,7 +54,7 @@ data class Repositories(
     val inntektsmeldingRepository: InntektsmeldingRepository,
     val forespoerselRepository: ForespoerselRepository,
     val mottakRepository: MottakRepository,
-    val bakgrunnsjobbRepository: PostgresBakgrunnsjobbRepository,
+    val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
     val sykmeldingRepository: SykmeldingRepository,
 )
 
@@ -69,7 +70,7 @@ fun configureRepositories(db: Database): Repositories =
         inntektsmeldingRepository = InntektsmeldingRepository(db),
         forespoerselRepository = ForespoerselRepository(db),
         mottakRepository = MottakRepository(db),
-        bakgrunnsjobbRepository = PostgresBakgrunnsjobbRepository(DbConfig.getDataSource()),
+        bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
         sykmeldingRepository = SykmeldingRepository(db),
     )
 

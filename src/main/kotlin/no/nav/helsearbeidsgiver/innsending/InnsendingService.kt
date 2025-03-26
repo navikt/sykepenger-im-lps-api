@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.innsending
 
-import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
@@ -22,7 +21,7 @@ class InnsendingService(
     fun lagreBakgrunsjobbInnsending(skjema: SkjemaInntektsmelding) {
         bakgrunnsjobbService.opprettJobb<InnsendingProcessor>(
             maksAntallForsoek = 10,
-            data = Json.encodeToString(SkjemaInntektsmelding.serializer(), skjema),
+            data = skjema.toJson(SkjemaInntektsmelding.serializer()),
         )
     }
 

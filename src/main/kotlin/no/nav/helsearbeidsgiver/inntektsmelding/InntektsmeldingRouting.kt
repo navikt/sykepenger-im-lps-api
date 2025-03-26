@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -86,21 +87,23 @@ private fun Route.innsending(
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
                 )
             // TODO: transaction funker ikke nu, vi satser på at det går bra :)
-            inntektsmeldingService.opprettInntektsmelding(
-                im = inntektsmelding,
-                systemNavn = request.avsender.systemNavn,
-                systemVersjon = request.avsender.systemVersjon,
-                innsendingStatus = InnsendingStatus.MOTTATT,
-            )
-            innsendingService.lagreBakgrunsjobbInnsending(
-                SkjemaInntektsmelding(
-                    forespoerselId = request.navReferanseId,
-                    avsenderTlf = request.arbeidsgiverTlf,
-                    agp = request.agp,
-                    inntekt = request.inntekt,
-                    refusjon = request.refusjon,
-                ),
-            )
+            transaction {
+                inntektsmeldingService.opprettInntektsmelding(
+                    im = inntektsmelding,
+                    systemNavn = request.avsender.systemNavn,
+                    systemVersjon = request.avsender.systemVersjon,
+                    innsendingStatus = InnsendingStatus.MOTTATT,
+                )
+                innsendingService.lagreBakgrunsjobbInnsending(
+                    SkjemaInntektsmelding(
+                        forespoerselId = request.navReferanseId,
+                        avsenderTlf = request.arbeidsgiverTlf,
+                        agp = request.agp,
+                        inntekt = request.inntekt,
+                        refusjon = request.refusjon,
+                    ),
+                )
+            }
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)

@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.bakgrunnsjobb
 
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.decodeFromJsonElement
 import no.nav.hag.utils.bakgrunnsjobb.Bakgrunnsjobb
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
@@ -17,8 +17,10 @@ class InnsendingProcessor(
     override val type: String get() = JOB_TYPE
 
     override fun prosesser(jobb: Bakgrunnsjobb) {
-        val skjemaInntektsmelding = Json.decodeFromString<SkjemaInntektsmelding>(jobb.data)
-        sikkerLogger().debug("Bakgrunnsjobb: sender inn Skjema Inntektsmelding Data: {}", skjemaInntektsmelding)
-        innsendingService.sendInn(skjemaInntektsmelding)
+        val skjema = jobb.dataJson?.let { decodeFromJsonElement(SkjemaInntektsmelding.serializer(), it) }
+        if (skjema != null) {
+            sikkerLogger().debug("Bakgrunnsjobb: sender inn Skjema Inntektsmelding Data: {}", skjema)
+            innsendingService.sendInn(skjema)
+        }
     }
 }
