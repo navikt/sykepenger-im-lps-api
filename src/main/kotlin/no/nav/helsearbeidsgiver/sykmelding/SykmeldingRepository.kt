@@ -32,7 +32,7 @@ class SykmeldingRepository(
                 }
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().warn("Klarte ikke å lagre sykmelding $id i database: ${e.message}")
+            sikkerLogger().error("Klarte ikke å lagre sykmelding $id i database: ${e.message}")
             throw e
         }
     }

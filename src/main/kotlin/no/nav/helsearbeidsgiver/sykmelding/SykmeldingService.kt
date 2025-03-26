@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import org.jetbrains.exposed.exceptions.ExposedSQLException
+import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import java.util.UUID
 
 class SykmeldingOrgnrManglerException(
@@ -30,28 +30,19 @@ class SykmeldingService(
     }
 
     fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage) {
-        try {
-            val a =
-                sykmeldingMessage.sykmelding.id
-                    .runCatching(UUID::fromString)
-                    ?.getOrNull()
-            val id = UUID.fromString(sykmeldingMessage.sykmelding.id).also { logger().info("Lagrer sykmelding $it.") }
-            val orgnr = sykmeldingMessage.event.arbeidsgiver?.orgnummer
+        val id = sykmeldingMessage.sykmelding.id.toUuidOrNull()
+        id ?: throw IllegalArgumentException("Sykmelding har ugyldig UUID ${sykmeldingMessage.sykmelding.id}")
 
-            if (orgnr == null) {
-                val feilmelding = "Lagret ikke sykmelding fordi den mangler orgnr [id: $id]".also { logger().error(it) }
-                throw SykmeldingOrgnrManglerException(feilmelding)
-            }
+        val orgnr = sykmeldingMessage.event.arbeidsgiver?.orgnummer
+        orgnr ?: throw SykmeldingOrgnrManglerException("Lagret ikke sykmelding fordi den mangler orgnr $id")
 
-            sykmeldingRepository.lagreSykmelding(
-                id = UUID.fromString(sykmeldingMessage.sykmelding.id),
-                fnr = sykmeldingMessage.kafkaMetadata.fnr,
-                orgnr = orgnr,
-                sykmelding = sykmeldingMessage.sykmelding,
-            )
-        } catch (e: ExposedSQLException) {
-            sikkerLogger().warn("SQL feil ved lagring av sykmelding [id: ${sykmeldingMessage.sykmelding.id}] message:${e.message}")
-            throw e
-        }
+        logger().info("Lagrer sykmelding $id")
+
+        sykmeldingRepository.lagreSykmelding(
+            id = id,
+            fnr = sykmeldingMessage.kafkaMetadata.fnr,
+            orgnr = orgnr,
+            sykmelding = sykmeldingMessage.sykmelding,
+        )
     }
 }
