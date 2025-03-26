@@ -24,11 +24,10 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingSkjema
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 /*
@@ -97,7 +96,7 @@ class ApiTest {
             val response2 = client.get("/v1/inntektsmeldinger")
             response2.status.value shouldBe 401
 
-            val requestBody = mockInntektsmeldingSkjema()
+            val requestBody = mockInntektsmeldingRequest()
             val response3 =
                 client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
@@ -121,7 +120,7 @@ class ApiTest {
                 }
             response2.status.value shouldBe 401
 
-            val requestBody = mockInntektsmeldingSkjema()
+            val requestBody = mockInntektsmeldingRequest()
             val response3 =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(ugyldigTokenManglerSystembruker())
@@ -144,10 +143,6 @@ class ApiTest {
 
             inntektsmeldingRepo.opprettInntektsmelding(
                 im = im,
-                org = "810007842",
-                sykmeldtFnr = "12345678912",
-                innsendtDato = LocalDateTime.now(),
-                forespoerselID = forespoerselId,
             )
             val response =
                 client.get("/v1/inntektsmeldinger") {
@@ -162,7 +157,7 @@ class ApiTest {
     @Test
     fun `send inn inntektsmelding`() =
         runTest {
-            val requestBody = mockInntektsmeldingSkjema()
+            val requestBody = mockInntektsmeldingRequest()
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())

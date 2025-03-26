@@ -15,7 +15,6 @@ import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
@@ -61,7 +60,7 @@ class RepositoryTransactionTest {
     fun lagreInntektsmelding(): String {
         val forespoerselID = UUID.randomUUID().toString()
         val generert = buildInntektsmelding(forespoerselID)
-        inntektsmeldingRepository.opprettInntektsmelding(generert, DEFAULT_ORG, DEFAULT_FNR, LocalDateTime.now(), forespoerselID)
+        inntektsmeldingRepository.opprettInntektsmelding(generert)
         return forespoerselID
     }
 }

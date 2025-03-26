@@ -69,7 +69,7 @@ object DbConfig {
 
     private fun embeddedH2(): HikariDataSource {
         val config = HikariConfig()
-        config.jdbcUrl = "jdbc:h2:mem:test"
+        config.jdbcUrl = "jdbc:h2:mem:test;MODE=PostgreSQL"
         config.username = "root"
         config.driverClassName = "org.h2.Driver"
         config.password = ""

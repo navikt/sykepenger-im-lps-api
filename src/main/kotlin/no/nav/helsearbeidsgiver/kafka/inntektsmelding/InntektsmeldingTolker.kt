@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
@@ -27,7 +29,13 @@ class InntektsmeldingTolker(
             }
         transaction {
             try {
-                inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
+                if (innsendtFraNavPortal(obj.inntektsmelding.type)) { // TODO: flytt denne sjekken inn i Service
+                    sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
+                    inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
+                } else {
+                    sikkerLogger.info("Mottok im sendt fra LPS - oppdaterer status")
+                    inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
+                }
                 mottakRepository.opprett(ExposedMottak(melding))
             } catch (e: Exception) {
                 rollback()
@@ -36,6 +44,9 @@ class InntektsmeldingTolker(
             }
         }
     }
+
+    private fun innsendtFraNavPortal(type: Inntektsmelding.Type): Boolean =
+        type is Inntektsmelding.Type.Forespurt || type is Inntektsmelding.Type.Selvbestemt
 
     private fun parseRecord(record: String): JournalfoertInntektsmelding = jsonMapper.decodeFromString<JournalfoertInntektsmelding>(record)
 }

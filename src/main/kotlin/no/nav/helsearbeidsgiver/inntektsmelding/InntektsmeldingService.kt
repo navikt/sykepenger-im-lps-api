@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class InntektsmeldingService(
@@ -37,21 +39,13 @@ class InntektsmeldingService(
     }
 
     fun opprettInntektsmelding(
-        im: no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding,
-        systemNavn: String = "NAV_NO_SIMBA",
-        systemVersjon: String = "1.0",
+        im: Inntektsmelding,
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ) {
         runCatching {
             sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
             inntektsmeldingRepository.opprettInntektsmelding(
                 im = im,
-                org = im.avsender.orgnr.verdi,
-                sykmeldtFnr = im.sykmeldt.fnr.verdi,
-                innsendtDato = im.mottatt.toLocalDateTime(),
-                forespoerselID = im.type.id.toString(),
-                systemNavn = systemNavn,
-                systemVersjon = systemVersjon,
                 innsendingStatus = innsendingStatus,
             )
         }.onSuccess {
@@ -60,5 +54,13 @@ class InntektsmeldingService(
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
             throw Exception("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
         }
+    }
+
+    fun oppdaterStatus(
+        inntektsmelding: Inntektsmelding,
+        status: InnsendingStatus,
+    ) {
+        val antall = inntektsmeldingRepository.oppdaterStatus(inntektsmelding, status)
+        logger().info("Oppdaterte ${inntektsmelding.id} med status: $status - antall rader: $antall")
     }
 }
