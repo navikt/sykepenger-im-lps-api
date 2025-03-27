@@ -92,21 +92,29 @@ private fun Route.innsending(
                     mottatt = OffsetDateTime.now(),
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
                 )
+
+            val skjemaInntektsmelding =
+                SkjemaInntektsmelding(
+                    forespoerselId = request.navReferanseId,
+                    avsenderTlf = request.arbeidsgiverTlf,
+                    agp = request.agp,
+                    inntekt = request.inntekt,
+                    refusjon = request.refusjon,
+                )
             // TODO: transaction funker ikke nu, vi satser på at det går bra :)
             transaction {
                 inntektsmeldingService.opprettInntektsmelding(
                     im = inntektsmelding,
-                    systemNavn = request.avsender.systemNavn,
-                    systemVersjon = request.avsender.systemVersjon,
                     innsendingStatus = InnsendingStatus.MOTTATT,
                 )
                 innsendingService.lagreBakgrunsjobbInnsending(
-                    SkjemaInntektsmelding(
-                        forespoerselId = request.navReferanseId,
-                        avsenderTlf = request.arbeidsgiverTlf,
-                        agp = request.agp,
-                        inntekt = request.inntekt,
-                        refusjon = request.refusjon,
+                    Innsending(
+                        innsendingId = inntektsmelding.id,
+                        skjema = skjemaInntektsmelding,
+                        aarsakInnsending = request.aarsakInnsending,
+                        type = inntektsmelding.type,
+                        innsendtTid = OffsetDateTime.now(),
+                        versjon = VERSJON_1,
                     ),
                 )
             }

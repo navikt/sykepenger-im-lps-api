@@ -17,7 +17,7 @@ class InnsendingProcessor(
     override val type: String get() = JOB_TYPE
 
     override fun prosesser(jobb: Bakgrunnsjobb) {
-        val skjema = jobb.dataJson?.let { decodeFromJsonElement(SkjemaInntektsmelding.serializer(), it) }
+        val skjema = jobb.dataJson?.let { decodeFromJsonElement(Innsending.serializer(), it) }
         if (skjema != null) {
             sikkerLogger().debug("Bakgrunnsjobb: sender inn Skjema Inntektsmelding Data: {}", skjema)
             innsendingService.sendInn(skjema)
