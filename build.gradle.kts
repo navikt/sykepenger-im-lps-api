@@ -21,6 +21,10 @@ val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
 val bakgrunnsjobbVersion: String by project
+val swaggerVersion: String by project
+val jaxbApiVersion: String by project
+val syfoXmlCodeGen: String by project
+
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
@@ -45,6 +49,13 @@ repositories {
             username = "x-access-token"
             password = githubPassword
         }
+    }
+}
+
+buildscript {
+    dependencies {
+        classpath("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
+        classpath("org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
     }
 }
 
@@ -80,6 +91,8 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
+    implementation("no.nav.helse.xml:sykmelding-arbeidsgiver:$syfoXmlCodeGen")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
@@ -93,6 +106,13 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
+
+    // XML testing
+    testImplementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+    testImplementation("org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
+    testImplementation("org.json:json:20250107")
+    testImplementation("no.nav.helse.xml:sykmelding-arbeidsgiver:$syfoXmlCodeGen")
+    testImplementation("org.skyscreamer:jsonassert:1.5.1")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
