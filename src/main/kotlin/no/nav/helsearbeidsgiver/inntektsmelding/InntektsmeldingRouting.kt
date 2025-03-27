@@ -101,7 +101,6 @@ private fun Route.innsending(
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
                 )
-            // TODO: transaction funker ikke nu, vi satser på at det går bra :)
             transaction {
                 inntektsmeldingService.opprettInntektsmelding(
                     im = inntektsmelding,
