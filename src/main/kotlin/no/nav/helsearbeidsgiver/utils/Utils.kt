@@ -12,6 +12,7 @@ import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 fun createHttpClient() =
     HttpClient(Apache5) {
@@ -20,6 +21,8 @@ fun createHttpClient() =
             json(jsonConfig)
         }
     }
+
+fun String.toUuidOrNull() = runCatching(UUID::fromString).getOrNull()
 
 class ApiFeil(
     val code: HttpStatusCode,
