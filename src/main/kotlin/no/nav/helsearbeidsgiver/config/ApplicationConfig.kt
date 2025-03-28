@@ -149,7 +149,7 @@ fun Application.configureKafkaConsumers(
             startKafkaConsumer(
                 topic = getProperty("kafkaConsumer.sykmelding.topic"),
                 consumer = sykmeldingKafkaConsumer,
-                meldingTolker = SykmeldingTolker(repositories.sykmeldingRepository),
+                meldingTolker = SykmeldingTolker(services.sykmeldingService),
             )
         }
     }

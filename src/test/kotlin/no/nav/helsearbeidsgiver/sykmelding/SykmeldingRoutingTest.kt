@@ -53,31 +53,22 @@ class SykmeldingRoutingTest :
             }
         }
 
-        test("skal returnere sykmelding") {
+        test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
-            val sykmeldingKafka = sykmeldingMock()
-            val sykmeldingId = UUID.fromString(sykmeldingKafka.event.sykmeldingId)
-            val sykmeldingResponse =
-                SykmeldingResponse(
-                    sykmeldingId.toString(),
-                    sykmeldingKafka.kafkaMetadata.fnr,
-                    sykmeldingKafka.event.arbeidsgiver!!.orgnummer,
-                    sykmeldingKafka.sykmelding,
-                )
+            val sykmeldingResponse = sykmeldingMock().toSykmeldingResponse()
+            val id = UUID.fromString(sykmeldingResponse.id)
 
-            every { sykmeldingService.hentSykmelding(sykmeldingId, any()) } returns sykmeldingResponse
+            every { sykmeldingService.hentSykmelding(id, any()) } returns sykmeldingResponse
 
             routingTestApplication {
-                val response = client.get("/v1/sykmelding/$sykmeldingId")
-
-                println("Fikk respons body:\n>>${response.bodyAsText()}<<")
+                val response = client.get("/v1/sykmelding/$id")
 
                 response.status shouldBe HttpStatusCode.OK
                 jsonMapper.decodeFromString<SykmeldingResponse>(response.bodyAsText()) shouldBe sykmeldingResponse
             }
         }
 
-        test("skal returnere feil om sykmelding ikke funnet") {
+        test("GET /v1/sykmelding/{id} skal returnere NotFound når sykmelding ikke finnes") {
 
             every { sykmeldingService.hentSykmelding(any(), any()) } returns null
 
@@ -89,11 +80,20 @@ class SykmeldingRoutingTest :
             }
         }
 
-        test("skal returnere feil om UUID er feil") {
+        test("GET /v1/sykmelding/{id} skal returnere BadRequest når UUID er ugyldig") {
             routingTestApplication {
                 val response = client.get("/v1/sykmelding/noe-helt-feil-og-ugyldig")
+
                 response.status shouldBe HttpStatusCode.BadRequest
                 response.bodyAsText() shouldBe "Ugyldig sykmelding ID parameter"
             }
         }
     })
+
+fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingResponse =
+    SykmeldingResponse(
+        event.sykmeldingId,
+        kafkaMetadata.fnr,
+        event.arbeidsgiver!!.orgnummer,
+        sykmelding,
+    )
