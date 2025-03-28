@@ -16,7 +16,7 @@ object InntektsmeldingEntitet : Table("inntektsmelding") {
     val dokument = json<Inntektsmelding>("dokument", jsonMapper)
     val orgnr = varchar("orgnr", length = 9)
     val fnr = varchar("fnr", length = 11)
-    val foresporselid = varchar("foresporselid", length = 40).nullable() // TODO: Slett, erstattes med nav_referanse_id
+    val foresporselid = uuid("foresporselid").nullable() // TODO: Slett, erstattes med nav_referanse_id
     val innsendt = datetime("innsendt").default(LocalDateTime.now())
     val skjema = json<SkjemaInntektsmelding>("skjema", jsonMapper)
     val aarsakInnsending = enumerationByName("aarsak_innsending", length = 7, AarsakInnsending::class)

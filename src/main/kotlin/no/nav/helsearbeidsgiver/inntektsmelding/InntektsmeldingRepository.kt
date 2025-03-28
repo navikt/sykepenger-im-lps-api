@@ -44,7 +44,7 @@ class InntektsmeldingRepository(
                 it[dokument] = im
                 it[orgnr] = im.avsender.orgnr.verdi
                 it[fnr] = im.sykmeldt.fnr.verdi
-                it[foresporselid] = im.type.id.toString() // Kan fjernes
+                it[foresporselid] = im.type.id // Kan fjernes
                 it[innsendt] = im.mottatt.toLocalDateTime()
                 it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
                 it[aarsakInnsending] = im.aarsakInnsending

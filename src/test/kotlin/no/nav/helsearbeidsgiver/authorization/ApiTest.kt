@@ -28,6 +28,7 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import java.util.UUID
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 /*
@@ -72,9 +73,11 @@ class ApiTest {
         runTest {
             val orgnr1 = "810007842"
             val orgnr2 = "810007843"
+            val forespoerselId1 = UUID.randomUUID()
+            val forespoerselId2 = UUID.randomUUID()
             val payload = forespoerselDokument(orgnr1, "123")
-            forespoerselRepo.lagreForespoersel("123", payload)
-            forespoerselRepo.lagreForespoersel("1234", forespoerselDokument(orgnr2, "123"))
+            forespoerselRepo.lagreForespoersel(forespoerselId1, payload)
+            forespoerselRepo.lagreForespoersel(forespoerselId1, forespoerselDokument(orgnr2, "123"))
 
             val response =
                 client.get("/v1/forespoersler") {
@@ -133,7 +136,7 @@ class ApiTest {
     @Test
     fun `hent inntektsmeldinger`() =
         runTest {
-            val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
+            val forespoerselId = UUID.fromString("13129b6c-e9f5-4b1c-a855-abca47ac3d7f")
             val im = buildInntektsmelding(forespoerselId = forespoerselId)
             client.get("/v1/inntektsmeldinger") {
                 // dette første kallet setter i gang apiModule() og database-cleanup *en ekstra gang* (!) og må kalles her fordi
