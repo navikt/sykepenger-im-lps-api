@@ -153,7 +153,7 @@ class ApiTest {
             inntektsmeldingFilterResponse.antall shouldBe 1
             inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe "810007842"
         }
-// TODO denne virker ikke med H2. FIkser i egen PR
+// TODO denne virker ikke med H2. Fikser i egen PR
 //    @Test
 //    fun `send inn inntektsmelding`() =
 //        runTest {
