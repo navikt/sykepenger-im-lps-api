@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderS
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
@@ -16,7 +17,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
@@ -26,38 +27,34 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
+import org.jetbrains.exposed.sql.update
+import java.util.UUID
 
 class InntektsmeldingRepository(
     private val db: Database,
 ) {
     fun opprettInntektsmelding(
         im: Inntektsmelding,
-        org: String,
-        sykmeldtFnr: String,
-        innsendtDato: LocalDateTime,
-        forespoerselID: String?,
-        systemNavn: String = "NAV_NO_SIMBA",
-        systemVersjon: String = "1.0",
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
-    ): Int {
-        sikkerLogger().info("Lagrer inntektsmelding")
+    ): UUID {
+        logger().info("Lagrer inntektsmelding med id ${im.id}")
         return transaction(db) {
             InntektsmeldingEntitet.insert {
+                it[innsendingId] = im.id
                 it[dokument] = im
-                it[orgnr] = org
-                it[fnr] = sykmeldtFnr
-                it[foresporselid] = forespoerselID
-                it[innsendt] = innsendtDato
+                it[orgnr] = im.avsender.orgnr.verdi
+                it[fnr] = im.sykmeldt.fnr.verdi
+                it[foresporselid] = im.type.id.toString() // Kan fjernes
+                it[innsendt] = im.mottatt.toLocalDateTime()
                 it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
-                it[versjon] = 1 // TODO: bør legges til i dokument-payload..
-                it[avsenderSystemNavn] = systemNavn
-                it[avsenderSystemVersjon] = systemVersjon
+                it[versjon] = 1 // TODO: legges til i dokument-payload..?
+                it[avsenderSystemNavn] = im.type.avsenderSystem.navn
+                it[avsenderSystemVersjon] = im.type.avsenderSystem.versjon
                 it[status] = innsendingStatus
-            }[InntektsmeldingEntitet.id]
+            }[innsendingId]
         }
     }
 
@@ -86,20 +83,35 @@ class InntektsmeldingRepository(
                 }.map { it.toExposedInntektsmelding() }
         }
 
+    fun oppdaterStatus(
+        inntektsmelding: Inntektsmelding,
+        nyStatus: InnsendingStatus,
+    ): Int =
+        transaction(db) {
+            InntektsmeldingEntitet.update(
+                where = {
+                    innsendingId eq inntektsmelding.id
+                },
+            ) {
+                it[status] = nyStatus
+            }
+        }
+
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
-            sykmeldtFnr = this[fnr],
-            innsendtTid = this[innsendt],
-            aarsakInnsending = this[aarsakInnsending],
-            typeInnsending = this[typeInnsending],
-            versjon = this[versjon],
-            status = this[status],
-            statusMelding = this[statusMelding],
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,
             refusjon = this[skjema].refusjon,
-            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf), // TODO: Navn
-            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]), // TODO: orgnr - lps er ok, men hva med simba..
+            sykmeldtFnr = this[fnr],
+            aarsakInnsending = this[aarsakInnsending],
+            typeInnsending = this[typeInnsending],
+            innsendtTid = this[innsendt],
+            versjon = this[versjon],
+            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
+            avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
+            status = this[status],
+            statusMelding = this[statusMelding],
+            id = this[innsendingId],
         )
 }

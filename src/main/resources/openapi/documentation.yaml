@@ -255,6 +255,8 @@ components:
       - "status"
       - "sykmeldingsperioder"
       - "egenmeldingsperioder"
+      - "arbeidsgiverperiodePaakrevd"
+      - "inntektPaakrevd"
     ForespoerselResponse:
       type: "object"
       properties:
@@ -266,6 +268,7 @@ components:
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
+      - "antall"
       - "forespoersler"
     ForespoerselRequest:
       type: "object"
@@ -305,6 +308,7 @@ components:
           - "StreikEllerLockout"
           - "TidligereVirksomhet"
       required:
+      - "beloep"
       - "begrunnelse"
     Arbeidsgiverperiode:
       type: "object"
@@ -355,6 +359,7 @@ components:
           format: "date"
       required:
       - "naturalytelse"
+      - "verdiBeloep"
       - "sluttdato"
     InntektEndringAarsak:
       type: "object"
@@ -379,6 +384,7 @@ components:
           items:
             $ref: "#/components/schemas/InntektEndringAarsak"
       required:
+      - "beloep"
       - "inntektsdato"
       - "naturalytelser"
     RefusjonEndring:
@@ -391,6 +397,7 @@ components:
           type: "string"
           format: "date"
       required:
+      - "beloep"
       - "startdato"
     Refusjon:
       type: "object"
@@ -406,6 +413,7 @@ components:
           type: "string"
           format: "date"
       required:
+      - "beloepPerMaaned"
       - "endringer"
     Avsender:
       type: "object"
@@ -433,12 +441,18 @@ components:
           type: "string"
         arbeidsgiverTlf:
           type: "string"
+        aarsakInnsending:
+          type: "string"
+          enum:
+          - "Ny"
+          - "Endring"
         avsender:
           $ref: "#/components/schemas/Avsender"
       required:
       - "navReferanseId"
       - "sykmeldtFnr"
       - "arbeidsgiverTlf"
+      - "aarsakInnsending"
       - "avsender"
     Arbeidsgiver:
       type: "object"
@@ -453,6 +467,9 @@ components:
     InntektsmeldingResponse:
       type: "object"
       properties:
+        id:
+          type: "string"
+          format: "uuid"
         navReferanseId:
           type: "string"
           format: "uuid"
@@ -474,6 +491,7 @@ components:
           enum:
           - "FORESPURT"
           - "ARBEIDSGIVER_INITIERT"
+          - "FORESPURT_EKSTERN"
         innsendtTid:
           type: "string"
           format: "date-time"
@@ -494,11 +512,13 @@ components:
         statusMelding:
           type: "string"
       required:
+      - "id"
       - "navReferanseId"
       - "sykmeldtFnr"
       - "aarsakInnsending"
       - "typeInnsending"
       - "innsendtTid"
+      - "versjon"
       - "arbeidsgiver"
       - "avsender"
       - "status"
@@ -513,6 +533,7 @@ components:
           items:
             $ref: "#/components/schemas/InntektsmeldingResponse"
       required:
+      - "antall"
       - "inntektsmeldinger"
     InntektsmeldingFilterRequest:
       type: "object"

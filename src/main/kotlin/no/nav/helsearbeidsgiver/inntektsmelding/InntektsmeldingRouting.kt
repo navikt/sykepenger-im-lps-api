@@ -14,10 +14,11 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -27,6 +28,8 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.OffsetDateTime
 import java.util.UUID
+
+private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 fun Route.inntektsmeldingV1(
     inntektsmeldingService: InntektsmeldingService,
@@ -48,22 +51,25 @@ private fun Route.innsending(
         try {
             val request = this.call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr() // TODO Underenhet!
-            // Hvis tilgang gis til hovedenhet, må man gjøre noe med tilganger til underenheter etc...
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
-
-            val versjon = 1
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 call.respond(HttpStatusCode.BadRequest, it)
                 return@post
             }
+            val avsenderSystem =
+                AvsenderSystem(
+                    orgnr = Orgnr(lpsOrgnr),
+                    navn = request.avsender.systemNavn,
+                    versjon = request.avsender.systemVersjon,
+                )
             val inntektsmelding =
                 Inntektsmelding(
                     id = UUID.randomUUID(),
-                    type = Inntektsmelding.Type.Forespurt(request.navReferanseId),
+                    type = Inntektsmelding.Type.ForespurtEkstern(request.navReferanseId, avsenderSystem),
                     sykmeldt =
                         Sykmeldt(
                             Fnr(request.sykmeldtFnr),
@@ -81,24 +87,31 @@ private fun Route.innsending(
                     agp = request.agp,
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
-                    aarsakInnsending = AarsakInnsending.Ny,
+                    aarsakInnsending = request.aarsakInnsending,
                     mottatt = OffsetDateTime.now(),
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
                 )
-            // TODO: transaction funker ikke nu, vi satser på at det går bra :)
+            // TODO: transaction funker ikke just nu, vi satser på at det går bra :)
             inntektsmeldingService.opprettInntektsmelding(
                 im = inntektsmelding,
-                systemNavn = request.avsender.systemNavn,
-                systemVersjon = request.avsender.systemVersjon,
                 innsendingStatus = InnsendingStatus.MOTTATT,
             )
-            innsendingService.lagreBakgrunsjobbInnsending(
+            val skjemaInntektsmelding =
                 SkjemaInntektsmelding(
                     forespoerselId = request.navReferanseId,
                     avsenderTlf = request.arbeidsgiverTlf,
                     agp = request.agp,
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
+                )
+            innsendingService.lagreBakgrunsjobbInnsending( // TODO lage en Innsending.fraInntektsmelding(im)-funksjon
+                Innsending(
+                    innsendingId = inntektsmelding.id,
+                    skjema = skjemaInntektsmelding,
+                    aarsakInnsending = request.aarsakInnsending,
+                    type = inntektsmelding.type,
+                    innsendtTid = OffsetDateTime.now(),
+                    versjon = VERSJON_1,
                 ),
             )
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
