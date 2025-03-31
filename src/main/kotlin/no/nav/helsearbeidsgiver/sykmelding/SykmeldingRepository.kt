@@ -4,7 +4,6 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeld
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
@@ -17,24 +16,23 @@ import java.util.UUID
 class SykmeldingRepository(
     private val db: Database,
 ) {
-    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): UUID {
+    fun lagreSykmelding(
+        id: UUID,
+        fnr: String,
+        orgnr: String,
+        sykmelding: ArbeidsgiverSykmelding,
+    ) {
         try {
-            logger().info("Lagrer sykmelding med id ${sykmeldingMessage.sykmelding.id}.")
-            val orgnummer =
-                sykmeldingMessage.event.arbeidsgiver?.orgnummer
-                    ?: logAndThrowSykmeldingOrgnrManglerException(sykmeldingMessage.sykmelding.id)
-            val dokument =
-                transaction(db) {
-                    SykmeldingEntitet.insert {
-                        it[sykmeldingId] = UUID.fromString(sykmeldingMessage.sykmelding.id)
-                        it[fnr] = sykmeldingMessage.kafkaMetadata.fnr
-                        it[orgnr] = orgnummer
-                        it[arbeidsgiverSykmelding] = sykmeldingMessage.sykmelding
-                    }
+            transaction(db) {
+                SykmeldingEntitet.insert {
+                    it[sykmeldingId] = id
+                    it[SykmeldingEntitet.fnr] = fnr
+                    it[SykmeldingEntitet.orgnr] = orgnr
+                    it[arbeidsgiverSykmelding] = sykmelding
                 }
-            return dokument[SykmeldingEntitet.sykmeldingId]
+            }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().warn("Klarte ikke å lagre sykmelding ${sykmeldingMessage.sykmelding.id} i database! ${e.message}")
+            sikkerLogger().error("Klarte ikke å lagre sykmelding $id i database: ${e.message}")
             throw e
         }
     }
@@ -47,13 +45,6 @@ class SykmeldingRepository(
                 .map { it.toSykmelding() }
                 .firstOrNull()
         }
-
-    private fun logAndThrowSykmeldingOrgnrManglerException(sykmeldingId: String): Nothing {
-        "Sykmelding med sykmeldingId $sykmeldingId ble ikke lagret fordi den mangler orgnr.".also {
-            logger().error(it)
-            throw SykmeldingOrgnrManglerException(it)
-        }
-    }
 
     private fun ResultRow.toSykmelding(): SykmeldingResponse =
         SykmeldingResponse(
