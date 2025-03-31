@@ -12,38 +12,36 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.Repositories
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
-import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
-/*
- Denne testen kan ikke brukes med postgresql-instans, fordi det ikke er mulig å rulle tilbake endringer.
- Flyway/H2 er satt opp til å gjøre clean ved Database.init(), slik at vi ikke får problemer med data som blir igjen
- TODO: Fiks disse testene skikkelig
- */
+
 class ApiTest {
-    private val db: ExposedDatabase
-    private val forespoerselRepo: ForespoerselRepository
-    private val inntektsmeldingRepo: InntektsmeldingRepository
+    private val repositories: Repositories
+    private val services: Services
 
     private val port = 33445
     private val mockOAuth2Server: MockOAuth2Server
@@ -51,11 +49,8 @@ class ApiTest {
     private val client: HttpClient
 
     init {
-        db = DbConfig.init()
-        val repositories = configureRepositories(db)
-        val services = configureServices(repositories)
-        forespoerselRepo = repositories.forespoerselRepository
-        inntektsmeldingRepo = repositories.inntektsmeldingRepository
+        repositories = mockk<Repositories>(relaxed = true)
+        services = configureServices(repositories)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -80,12 +75,8 @@ class ApiTest {
         runTest {
             val orgnr1 = "810007842"
             val orgnr2 = "810007843"
-            val forespoerselId1 = UUID.randomUUID()
-            val forespoerselId2 = UUID.randomUUID()
-            val payload = forespoerselDokument(orgnr1, "123")
-            forespoerselRepo.lagreForespoersel(forespoerselId1, payload)
-            forespoerselRepo.lagreForespoersel(forespoerselId2, forespoerselDokument(orgnr2, "123"))
-
+            val forespoerel1 = mockForespoersel()
+            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(orgnr1) } returns listOf(forespoerel1)
             val response =
                 client.get("/v1/forespoersler") {
                     bearerAuth(gyldigSystembrukerAuthToken())
@@ -145,15 +136,7 @@ class ApiTest {
         runTest {
             val forespoerselId = UUID.fromString("13129b6c-e9f5-4b1c-a855-abca47ac3d7f")
             val im = buildInntektsmelding(forespoerselId = forespoerselId)
-            client.get("/v1/inntektsmeldinger") {
-                // dette første kallet setter i gang apiModule() og database-cleanup *en ekstra gang* (!) og må kalles her fordi
-                // ellers skjer dette i client.get() - steget under (og databasen nukes før vi får hentet noe...) TODO: figure out.
-                bearerAuth(gyldigSystembrukerAuthToken())
-            }
-
-            inntektsmeldingRepo.opprettInntektsmelding(
-                im = im,
-            )
+            every { repositories.inntektsmeldingRepository.hent("810007842") } returns listOf(mockInntektsmeldingResponse(im))
             val response =
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(gyldigSystembrukerAuthToken())
@@ -165,16 +148,11 @@ class ApiTest {
         }
 
     @Test
-    fun `send inn inntektsmelding`() =
+    fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel = mockForespoersel().copy(forespoerselId = requestBody.navReferanseId, orgnr = "810007842")
-            val forespoerselDokument =
-                forespoerselDokument(
-                    forespoersel.orgnr,
-                    forespoersel.fnr,
-                ).copy(forespoerselId = forespoersel.forespoerselId)
-            forespoerselRepo.lagreForespoersel(forespoersel.forespoerselId, forespoerselDokument)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.forespoerselId) } returns forespoersel
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())
@@ -182,6 +160,35 @@ class ApiTest {
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response.status.value shouldBe 201
+        }
+
+    @Test
+    fun `innsending av inntektsmelding på feil orgnr gir feil`() =
+        runTest {
+            val requestBody = mockInntektsmeldingRequest()
+            val forespoersel = mockForespoersel().copy(forespoerselId = requestBody.navReferanseId, orgnr = Orgnr.genererGyldig().verdi)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.forespoerselId) } returns forespoersel
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(gyldigSystembrukerAuthToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status.value shouldBe 400
+        }
+
+    @Test
+    fun `innsending av inntektsmelding på forespoersel som ikke finnes gir feil`() =
+        runTest {
+            val requestBody = mockInntektsmeldingRequest()
+            every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns null
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(gyldigSystembrukerAuthToken())
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status.value shouldBe 400
         }
 
     @AfterAll

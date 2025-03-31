@@ -14,8 +14,12 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
+import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -110,6 +114,24 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         agp = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
         refusjon = mockRefusjon(),
+    )
+
+fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
+    InntektsmeldingResponse(
+        id = im.id,
+        navReferanseId = im.id,
+        agp = im.agp,
+        inntekt = im.inntekt,
+        refusjon = im.refusjon,
+        sykmeldtFnr = im.sykmeldt.fnr.verdi,
+        aarsakInnsending = im.aarsakInnsending,
+        typeInnsending = InnsendingType.from(im.type),
+        innsendtTid = im.mottatt.toLocalDateTime(),
+        versjon = 1,
+        arbeidsgiver = Arbeidsgiver(im.avsender.orgnr.verdi, im.avsender.tlf),
+        avsender = Avsender(im.type.avsenderSystem.navn, im.type.avsenderSystem.versjon),
+        status = InnsendingStatus.MOTTATT,
+        statusMelding = null,
     )
 
 fun mockForespoersel(): Forespoersel =
