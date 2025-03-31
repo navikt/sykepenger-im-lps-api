@@ -16,7 +16,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
@@ -36,8 +35,6 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import org.jetbrains.exposed.sql.Database as ExposedDatabase
-
 
 class ApiTest {
     private val repositories: Repositories
