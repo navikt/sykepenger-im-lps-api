@@ -1,9 +1,10 @@
 package no.nav.helsearbeidsgiver.sykmelding.altinnFormat
 
 import io.kotest.matchers.shouldBe
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
+import no.nav.helsearbeidsgiver.sykmelding.model.tilAltinnSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.sykmelding.model.tilJson
-import no.nav.helsearbeidsgiver.sykmelding.model.toAltinnSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.json.JSONObject
 import org.json.XML
@@ -11,55 +12,31 @@ import org.junit.jupiter.api.Test
 
 class SykmeldingAltinnFormatTest {
     @Test
-    fun `tilSykmeldingArbeidsgiver json er identisk til gamle XML formatet`() {
-        val periode = sykmeldingMock().sykmelding.sykmeldingsperioder.first()
+    fun `tilAltinnSykmeldingArbeidsgiver json er identisk til gammelt XML format`() {
+        val sykmeldingKafkaMessage = sykmeldingMock().dupliserPeriode()
+        val person = mockPerson(sykmeldingKafkaMessage.kafkaMetadata.fnr)
 
-        val sykmeldingKafkaMessage =
-            sykmeldingMock().copy(
-                sykmelding =
-                    sykmeldingMock().sykmelding.copy(
-                        sykmeldingsperioder =
-                            listOf(
-                                periode,
-                                periode.copy(
-                                    fom = periode.fom.plusDays(3),
-                                    tom = periode.tom.plusDays(3),
-                                    innspillTilArbeidsgiver = "Her kan mye gjøres",
-                                ),
-                            ),
-                    ),
-            )
-
-        val person =
-            Person(
-                fornavn = "Ola",
-                mellomnavn = null,
-                etternavn = "Nordmann",
-                aktorId = "aktorId",
-                fnr = sykmeldingKafkaMessage.kafkaMetadata.fnr,
-            )
-
-        val xmlSykmeldingArbeidsgiver =
-            SykmeldingArbeidsgiverMapper.toAltinnXMLSykmelding(
-                sendtSykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                person = person,
-                egenmeldingsdager = null,
-            )
-
+        // Gammel versjon fra Syfosmaltinn
+        val xmlMapper = SykmeldingArbeidsgiverMapper
+        val xmlSykmeldingArbeidsgiver = xmlMapper.toAltinnXMLSykmelding(sykmeldingKafkaMessage, person, null)
         val xmlString = JAXB.marshallSykmeldingArbeidsgiver(xmlSykmeldingArbeidsgiver)
-        val expectedJson = XML.toJSONObject(xmlString)
 
-        val sykmeldingArbeidsgiver =
-            toAltinnSykmeldingArbeidsgiver(
-                sendtSykmeldingKafkaMessage = sykmeldingKafkaMessage,
-                person = person,
-                egenmeldingsdager = null,
-            )
+        // ny implementasjon med @Serializable data class
+        val sykmeldingArbeidsgiver = tilAltinnSykmeldingArbeidsgiver(sykmeldingKafkaMessage, person, null)
+        val jsonString = sykmeldingArbeidsgiver.tilJson()
 
-        val actualJson = sykmeldingArbeidsgiver.tilJson()
-
-//        val expectedJson = JSONObject("""{value: "expected value", v2:"b"}  """)
-
-        JSONObject(actualJson).toString() shouldBe expectedJson.toString()
+        JSONObject(jsonString).toString() shouldBe XML.toJSONObject(xmlString).toString()
     }
 }
+
+fun SendSykmeldingAivenKafkaMessage.dupliserPeriode(): SendSykmeldingAivenKafkaMessage =
+    copy(sykmelding = sykmelding.copy(sykmeldingsperioder = List(2) { sykmelding.sykmeldingsperioder.first() }))
+
+fun mockPerson(fnr: String): Person =
+    Person(
+        fornavn = "Ola",
+        mellomnavn = null,
+        etternavn = "Nordmann",
+        aktorId = "aktorId",
+        fnr = fnr,
+    )

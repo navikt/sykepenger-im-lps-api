@@ -2,12 +2,12 @@
 
 package no.nav.helsearbeidsgiver.sykmelding.model
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmelding.*
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingOrgnrManglerException
+import no.nav.helsearbeidsgiver.utils.SykmeldingArbeidsgiverWrapper
+import no.nav.helsearbeidsgiver.utils.json
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.Optional.ofNullable
@@ -15,23 +15,12 @@ import java.util.function.Function
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-val json =
-    Json {
-        encodeDefaults = false
-        explicitNulls = false // ikke inkluder null verdier
-    }
-
-@Serializable
-private data class SykmeldingArbeidsgiverWrapper(
-    val sykmeldingArbeidsgiver: SykmeldingArbeidsgiver,
-)
-
 fun SykmeldingArbeidsgiver.tilJson(): String {
     val wrapper = SykmeldingArbeidsgiverWrapper(this)
     return json.encodeToString(wrapper)
 }
 
-fun toAltinnSykmeldingArbeidsgiver(
+fun tilAltinnSykmeldingArbeidsgiver(
     sendtSykmeldingKafkaMessage: SendSykmeldingAivenKafkaMessage,
     person: Person,
     egenmeldingsdager: List<LocalDate>?,
@@ -52,6 +41,7 @@ fun toAltinnSykmeldingArbeidsgiver(
             sendtSykmeldingKafkaMessage.event.arbeidsgiver.orgnummer
                 .toLong(),
         sykmelding = toXMLSykmelding(sendtSykmeldingKafkaMessage, person, egenmeldingsdager),
+        xmlns = "http://nav.no/melding/virksomhet/sykmeldingArbeidsgiver/v1/sykmeldingArbeidsgiver",
     )
 }
 

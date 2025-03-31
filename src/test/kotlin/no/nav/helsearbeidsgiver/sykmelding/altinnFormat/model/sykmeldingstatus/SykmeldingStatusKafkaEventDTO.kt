@@ -1,7 +1,7 @@
 package no.nav.syfo.model.sykmeldingstatus
 
-import java.time.OffsetDateTime
 import no.nav.syfo.model.sykmelding.model.TidligereArbeidsgiverDTO
+import java.time.OffsetDateTime
 
 data class SykmeldingStatusKafkaEventDTO(
     val sykmeldingId: String,

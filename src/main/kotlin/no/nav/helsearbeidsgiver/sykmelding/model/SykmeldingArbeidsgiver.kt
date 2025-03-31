@@ -1,18 +1,31 @@
-@file:UseSerializers(LocalDateTimeSerializer::class, LocalDateSerializer::class)
+@file:UseSerializers(
+    XMLLocalDateTimeSerializer::class,
+    LocalDateSerializer::class,
+)
 
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.utils.XMLLocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
+
+// TODO: Burde vi bytte Long med String for orgnr, juridiskOrgnr, telefonnummer, fnr?
+
+// TODO: Burde vi slette xmlns:ns2?
+
+// TODO: Bytte XMLLocalDateTimeSerializer med helsearbeidsgiver LocalDateTimeSerializer?
+// TODO: (XML har ekstra sekunder på slutten  :00  )
 
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class SykmeldingArbeidsgiver(
+    @SerialName("xmlns:ns2")
+    val xmlns: String,
     @field:Schema(description = "Sykmeldingen")
     val sykmelding: Sykmelding,
     @field:Schema(description = "Juridisk organisasjonsnummer for den bedriften den sykmeldte er knyttet til")
@@ -51,9 +64,9 @@ data class Sykmelding(
 @Schema(description = "Periode")
 data class Periode(
     @field:Schema(description = "Sykmeldingsperiodens fra og med dato")
-    val fom: LocalDate, // Consider using LocalDate
+    val fom: LocalDate,
     @field:Schema(description = "Sykmeldingsperiodens til og med dato")
-    val tom: LocalDate, // Consider using LocalDate
+    val tom: LocalDate,
     @field:Schema(description = "Om arbeidsrelatert aktivitet er mulig i perioden")
     val aktivitet: Aktivitet,
 )
@@ -97,7 +110,7 @@ data class Arbeidsutsikter(
     @field:Schema(description = "Gjelder de MED arbeidsgiver")
     val harEgetArbeidPaaSikt: Boolean? = null,
     @field:Schema(description = "Gjelder de UTEN arbeidsgiver")
-    val arbeidFom: String? = null, // Consider using LocalDate
+    val arbeidFom: String? = null,
     val harAnnetArbeidPaaSikt: Boolean? = null,
 )
 
