@@ -12,6 +12,8 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
@@ -43,7 +45,14 @@ fun buildInntektsmelding(
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
     orgNr: Orgnr = Orgnr(DEFAULT_ORG),
 ): Inntektsmelding =
-    jsonMapper.decodeFromString<Inntektsmelding>(buildInntektsmeldingJson(inntektsmeldingId, forespoerselId, sykemeldtFnr, orgNr))
+    jsonMapper.decodeFromString<Inntektsmelding>(
+        buildInntektsmeldingJson(
+            inntektsmeldingId,
+            forespoerselId,
+            sykemeldtFnr,
+            orgNr,
+        ),
+    )
 
 fun buildInntektsmeldingJson(
     inntektsmeldingId: UUID = UUID.randomUUID(),
@@ -101,6 +110,18 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         agp = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
         refusjon = mockRefusjon(),
+    )
+
+fun mockForespoersel(): Forespoersel =
+    Forespoersel(
+        forespoerselId = UUID.randomUUID(),
+        orgnr = DEFAULT_ORG,
+        fnr = Fnr.genererGyldig().toString(),
+        status = Status.AKTIV,
+        sykmeldingsperioder = emptyList(),
+        egenmeldingsperioder = emptyList(),
+        arbeidsgiverperiodePaakrevd = true,
+        inntektPaakrevd = true,
     )
 
 fun mockInntektsmeldingRequest(): InntektsmeldingRequest =

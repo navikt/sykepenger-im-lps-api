@@ -15,6 +15,9 @@ import io.ktor.server.testing.TestApplication
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
+import no.nav.helsearbeidsgiver.config.configureRepositories
+import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
@@ -24,6 +27,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
@@ -48,8 +52,10 @@ class ApiTest {
 
     init {
         db = DbConfig.init()
-        forespoerselRepo = ForespoerselRepository(db)
-        inntektsmeldingRepo = InntektsmeldingRepository(db)
+        val repositories = configureRepositories(db)
+        val services = configureServices(repositories)
+        forespoerselRepo = repositories.forespoerselRepository
+        inntektsmeldingRepo = repositories.inntektsmeldingRepository
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -57,7 +63,8 @@ class ApiTest {
         testApplication =
             TestApplication {
                 application {
-                    apiModule()
+                    apiModule(services = services)
+                    configureKafkaConsumers(services = services, repositories = repositories)
                 }
             }
         client =
@@ -77,7 +84,7 @@ class ApiTest {
             val forespoerselId2 = UUID.randomUUID()
             val payload = forespoerselDokument(orgnr1, "123")
             forespoerselRepo.lagreForespoersel(forespoerselId1, payload)
-            forespoerselRepo.lagreForespoersel(forespoerselId1, forespoerselDokument(orgnr2, "123"))
+            forespoerselRepo.lagreForespoersel(forespoerselId2, forespoerselDokument(orgnr2, "123"))
 
             val response =
                 client.get("/v1/forespoersler") {
@@ -161,6 +168,13 @@ class ApiTest {
     fun `send inn inntektsmelding`() =
         runTest {
             val requestBody = mockInntektsmeldingRequest()
+            val forespoersel = mockForespoersel().copy(forespoerselId = requestBody.navReferanseId, orgnr = "810007842")
+            val forespoerselDokument =
+                forespoerselDokument(
+                    forespoersel.orgnr,
+                    forespoersel.fnr,
+                ).copy(forespoerselId = forespoersel.forespoerselId)
+            forespoerselRepo.lagreForespoersel(forespoersel.forespoerselId, forespoerselDokument)
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(gyldigSystembrukerAuthToken())

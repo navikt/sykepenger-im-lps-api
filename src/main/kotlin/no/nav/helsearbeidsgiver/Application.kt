@@ -7,6 +7,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureAuth
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
@@ -20,32 +21,29 @@ fun main() {
 }
 
 fun startServer() {
+    sikkerLogger()
+    sikkerLogger().info("Setter opp database...")
+    val db = DbConfig.init()
+    sikkerLogger().info("Setter opp repositories og services...")
+    val repositories = configureRepositories(db)
+    val services = configureServices(repositories)
     embeddedServer(
         factory = Netty,
         port = 8080,
         module = {
-            apiModule()
+            apiModule(
+                services = services,
+            )
+            configureKafkaConsumers(services, repositories)
         },
     ).start(wait = true)
 }
 
-fun Application.apiModule() {
+fun Application.apiModule(services: Services) {
     logger().info("Starter applikasjon!")
-
-    logger().info("Setter opp database...")
-    val db = DbConfig.init()
-
-    sikkerLogger().info("Setter opp repositories og services...")
-    val repositories = configureRepositories(db)
-    val services = configureServices(repositories)
-
-    logger().info("Setter opp Kafka consumers...")
-    configureKafkaConsumers(services, repositories)
-
     install(ContentNegotiation) {
         json()
     }
-
     logger().info("Setter opp autentisering...")
     configureAuth()
 
