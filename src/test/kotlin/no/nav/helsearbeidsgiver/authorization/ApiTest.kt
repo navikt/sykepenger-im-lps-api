@@ -73,8 +73,7 @@ class ApiTest {
     @Test
     fun `hent forespørsler fra api`() =
         runTest {
-            val forespoerel1 = mockForespoersel()
-            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns listOf(forespoerel1)
+            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns listOf(mockForespoersel())
             val response =
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
