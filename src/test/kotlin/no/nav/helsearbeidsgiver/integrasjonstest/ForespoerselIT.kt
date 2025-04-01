@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.integrasjonstest
 
 import io.kotest.matchers.shouldBe
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
@@ -29,45 +28,35 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class ForespoerselIT {
-    private val db: Database
-    private val repositories: Repositories
-    private val services: Services
+    private val db: Database = DbConfig.init()
+    private val repositories: Repositories = configureRepositories(db)
+    private val services: Services = configureServices(repositories)
 
     private val port = 33445
-    private val mockOAuth2Server: MockOAuth2Server
-    private val testApplication: TestApplication
-    private val client: HttpClient
-    private val forespoerselTolker: ForespoerselTolker
-    private val dialogportenService: DialogportenService
+    private val mockOAuth2Server =
+        MockOAuth2Server().apply {
+            start(port = port)
+        }
+    private val testApplication =
+        TestApplication {
+            application {
+                apiModule(services = services)
+            }
+        }
+    private val client =
+        testApplication.createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+    private val dialogportenService: DialogportenService = mockk(relaxed = true)
 
-    init {
-        db = DbConfig.init()
-        repositories = configureRepositories(db)
-        services = configureServices(repositories)
-        dialogportenService = mockk(relaxed = true)
-        forespoerselTolker =
-            ForespoerselTolker(
-                forespoerselRepository = repositories.forespoerselRepository,
-                mottakRepository = repositories.mottakRepository,
-                dialogportenService = dialogportenService,
-            )
-        mockOAuth2Server =
-            MockOAuth2Server().apply {
-                start(port = port)
-            }
-        testApplication =
-            TestApplication {
-                application {
-                    apiModule(services = services)
-                }
-            }
-        client =
-            testApplication.createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-    }
+    private val forespoerselTolker =
+        ForespoerselTolker(
+            forespoerselRepository = repositories.forespoerselRepository,
+            mottakRepository = repositories.mottakRepository,
+            dialogportenService = dialogportenService,
+        )
 
     @Test
     fun `les forespoersel på kafka og les gjennom apiet`() {
