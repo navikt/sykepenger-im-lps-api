@@ -27,6 +27,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -100,11 +101,7 @@ private fun Route.innsending(
                     mottatt = OffsetDateTime.now(),
                     vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
                 )
-            // TODO: transaction funker ikke just nu, vi satser på at det går bra :)
-            inntektsmeldingService.opprettInntektsmelding(
-                im = inntektsmelding,
-                innsendingStatus = InnsendingStatus.MOTTATT,
-            )
+
             val skjemaInntektsmelding =
                 SkjemaInntektsmelding(
                     forespoerselId = request.navReferanseId,
@@ -113,16 +110,22 @@ private fun Route.innsending(
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
                 )
-            innsendingService.lagreBakgrunsjobbInnsending( // TODO lage en Innsending.fraInntektsmelding(im)-funksjon
-                Innsending(
-                    innsendingId = inntektsmelding.id,
-                    skjema = skjemaInntektsmelding,
-                    aarsakInnsending = request.aarsakInnsending,
-                    type = inntektsmelding.type,
-                    innsendtTid = OffsetDateTime.now(),
-                    versjon = VERSJON_1,
-                ),
-            )
+            transaction {
+                inntektsmeldingService.opprettInntektsmelding(
+                    im = inntektsmelding,
+                    innsendingStatus = InnsendingStatus.MOTTATT,
+                )
+                innsendingService.lagreBakgrunsjobbInnsending(
+                    Innsending(
+                        innsendingId = inntektsmelding.id,
+                        skjema = skjemaInntektsmelding,
+                        aarsakInnsending = request.aarsakInnsending,
+                        type = inntektsmelding.type,
+                        innsendtTid = OffsetDateTime.now(),
+                        versjon = VERSJON_1,
+                    ),
+                )
+            }
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
