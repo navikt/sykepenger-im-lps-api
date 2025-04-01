@@ -21,9 +21,10 @@ fun main() {
 }
 
 fun startServer() {
-    sikkerLogger().info("Setter opp database...")
+    val sikkerLogger = sikkerLogger()
+    sikkerLogger.info("Setter opp database...")
     val db = DbConfig.init()
-    sikkerLogger().info("Setter opp repositories og services...")
+    sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
     val services = configureServices(repositories)
     embeddedServer(
@@ -37,13 +38,14 @@ fun startServer() {
 }
 
 fun Application.apiModule(services: Services) {
-    logger().info("Starter applikasjon!")
+    val logger = logger()
+    logger.info("Starter applikasjon!")
     install(ContentNegotiation) {
         json()
     }
-    logger().info("Setter opp autentisering...")
+    logger.info("Setter opp autentisering...")
     configureAuth()
 
-    logger().info("Setter opp ruting...")
+    logger.info("Setter opp ruting...")
     configureRouting(services)
 }
