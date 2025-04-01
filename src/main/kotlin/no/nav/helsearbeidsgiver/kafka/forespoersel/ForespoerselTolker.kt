@@ -33,8 +33,14 @@ class ForespoerselTolker(
         try {
             sikkerLogger.info("Mottatt notis: ${obj.notis}")
 
-            when {
-                obj.notis == NotisType.FORESPØRSEL_MOTTATT -> {
+            val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
+            if (forespoerselId == null) {
+                logger().info("forespoerselId er null!")
+                mottakRepository.opprett(ExposedMottak(melding))
+                return
+            }
+            when (obj.notis) {
+                NotisType.FORESPØRSEL_MOTTATT -> {
                     val forespoersel = obj.forespoersel
                     if (forespoersel != null) {
                         transaction {
@@ -59,27 +65,23 @@ class ForespoerselTolker(
                         mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                     }
                 }
-                obj.forespoerselId == null -> {
-                    logger().info("forespoerselId er null!")
+
+                NotisType.FORESPOERSEL_BESVART -> {
+                    settBesvart(forespoerselId)
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
 
-                obj.notis == NotisType.FORESPOERSEL_BESVART -> {
-                    settBesvart(obj.forespoerselId)
+                NotisType.FORESPOERSEL_BESVART_SIMBA -> {
+                    settBesvart(forespoerselId)
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
 
-                obj.notis == NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                    settBesvart(obj.forespoerselId)
+                NotisType.FORESPOERSEL_FORKASTET -> {
+                    settForkastet(forespoerselId)
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
 
-                obj.notis == NotisType.FORESPOERSEL_FORKASTET -> {
-                    settForkastet(obj.forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
-
-                obj.notis == NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
+                NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
                     // TODO:: Skal vi håndtere kastet til infotrygd?
                     sikkerLogger.info("Forespørsel kastet til infotrygd - håndteres ikke")
                     mottakRepository.opprett(ExposedMottak(melding, false))
