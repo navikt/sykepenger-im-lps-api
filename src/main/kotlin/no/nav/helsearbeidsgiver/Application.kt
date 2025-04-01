@@ -21,7 +21,6 @@ fun main() {
 }
 
 fun startServer() {
-    sikkerLogger()
     sikkerLogger().info("Setter opp database...")
     val db = DbConfig.init()
     sikkerLogger().info("Setter opp repositories og services...")
@@ -31,10 +30,8 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            apiModule(
-                services = services,
-            )
-            configureKafkaConsumers(services, repositories)
+            apiModule(services = services)
+            configureKafkaConsumers(services = services, repositories = repositories)
         },
     ).start(wait = true)
 }

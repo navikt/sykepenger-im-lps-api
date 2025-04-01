@@ -70,7 +70,7 @@ class ForespoerselIT {
     }
 
     @Test
-    fun `les forespoersel på kafa og les gjennom apiet`() {
+    fun `les forespoersel på kafka og les gjennom apiet`() {
         runTest {
             forespoerselTolker.lesMelding(
                 TestData.FORESPOERSEL_MOTTATT,
