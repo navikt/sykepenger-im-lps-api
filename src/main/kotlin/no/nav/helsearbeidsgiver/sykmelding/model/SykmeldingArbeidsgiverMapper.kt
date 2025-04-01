@@ -3,9 +3,9 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.encodeToString
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmelding
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmelding.*
-import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingOrgnrManglerException
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingResponse
 import no.nav.helsearbeidsgiver.utils.SykmeldingArbeidsgiverWrapper
 import no.nav.helsearbeidsgiver.utils.json
 import java.time.LocalDate
@@ -21,43 +21,31 @@ fun SykmeldingArbeidsgiver.tilJson(): String {
 }
 
 fun tilAltinnSykmeldingArbeidsgiver(
-    sendtSykmeldingKafkaMessage: SendSykmeldingAivenKafkaMessage,
+    sykmelding: SykmeldingResponse,
     person: Person,
-    egenmeldingsdager: List<LocalDate>?,
-): SykmeldingArbeidsgiver {
-    if (sendtSykmeldingKafkaMessage.event.arbeidsgiver?.juridiskOrgnummer == null) {
-        throw SykmeldingOrgnrManglerException(
-            "Juridisk orgnummer mangler i sykmelding ${sendtSykmeldingKafkaMessage.sykmelding.id}",
-        )
-    }
-
-    return SykmeldingArbeidsgiver(
-        juridiskOrganisasjonsnummer =
-            sendtSykmeldingKafkaMessage.event.arbeidsgiver.juridiskOrgnummer
-                .toLong(),
-        mottattidspunkt = sendtSykmeldingKafkaMessage.sykmelding.mottattTidspunkt.toLocalDateTime(),
-        sykmeldingId = sendtSykmeldingKafkaMessage.sykmelding.id,
-        virksomhetsnummer =
-            sendtSykmeldingKafkaMessage.event.arbeidsgiver.orgnummer
-                .toLong(),
-        sykmelding = toXMLSykmelding(sendtSykmeldingKafkaMessage, person, egenmeldingsdager),
+): SykmeldingArbeidsgiver =
+    SykmeldingArbeidsgiver(
+        juridiskOrganisasjonsnummer = 0,
+        mottattidspunkt = sykmelding.arbeidsgiverSykmelding.mottattTidspunkt.toLocalDateTime(),
+        sykmeldingId = sykmelding.id,
+        virksomhetsnummer = sykmelding.orgnr.toLong(),
+        sykmelding = toXMLSykmelding(sykmelding.arbeidsgiverSykmelding, person, null), // TODO: Egenmeldingsdager
         xmlns = "http://nav.no/melding/virksomhet/sykmeldingArbeidsgiver/v1/sykmeldingArbeidsgiver",
     )
-}
 
 private fun toXMLSykmelding(
-    sendtSykmeldingKafkaMessage: SendSykmeldingAivenKafkaMessage,
+    sykmelding: ArbeidsgiverSykmelding,
     person: Person,
     egenmeldingsdager: List<LocalDate>?,
 ): Sykmelding {
-    val sendtSykmelding = sendtSykmeldingKafkaMessage.sykmelding
+    val sendtSykmelding = sykmelding
 
     return Sykmelding(
         arbeidsgiver = getArbeidsgiver(sendtSykmelding.arbeidsgiver),
         behandler = getBehandler(sendtSykmelding.behandler),
         kontaktMedPasient = getKontaktMedPasient(sendtSykmelding.behandletTidspunkt),
         meldingTilArbeidsgiver = getMeldingTilArbeidsgiver(sendtSykmelding.meldingTilArbeidsgiver),
-        pasient = getPasient(sendtSykmeldingKafkaMessage.kafkaMetadata, person),
+        pasient = getPasient(person.fnr, person),
         perioder = getPerioderAG(sendtSykmelding.sykmeldingsperioder),
         prognose = getPrognose(sendtSykmelding.prognose),
         syketilfelleFom = sendtSykmelding.syketilfelleStartDato,
@@ -155,7 +143,7 @@ private fun getGradertAktivitet(gradert: SykmeldingsperiodeAGDTO.GradertDTO?): G
     }
 
 private fun getPasient(
-    metadata: no.nav.helsearbeidsgiver.sykmelding.KafkaMetadataDTO,
+    fnr: String,
     person: Person,
 ): Pasient {
     val navn =
@@ -167,7 +155,7 @@ private fun getPasient(
 
     return Pasient(
         navn = navn,
-        ident = metadata.fnr,
+        ident = fnr,
     )
 }
 

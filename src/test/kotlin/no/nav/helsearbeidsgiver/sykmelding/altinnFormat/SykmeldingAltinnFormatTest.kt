@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
 import no.nav.helsearbeidsgiver.sykmelding.model.tilAltinnSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.sykmelding.model.tilJson
+import no.nav.helsearbeidsgiver.sykmelding.toSykmeldingResponse
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.json.JSONObject
 import org.json.XML
@@ -22,7 +23,7 @@ class SykmeldingAltinnFormatTest {
         val xmlString = JAXB.marshallSykmeldingArbeidsgiver(xmlSykmeldingArbeidsgiver)
 
         // ny implementasjon med @Serializable data class
-        val sykmeldingArbeidsgiver = tilAltinnSykmeldingArbeidsgiver(sykmeldingKafkaMessage, person, null)
+        val sykmeldingArbeidsgiver = tilAltinnSykmeldingArbeidsgiver(sykmeldingKafkaMessage.toSykmeldingResponse(), person)
         val jsonString = sykmeldingArbeidsgiver.tilJson()
 
         JSONObject(jsonString).toString() shouldBe XML.toJSONObject(xmlString).toString()

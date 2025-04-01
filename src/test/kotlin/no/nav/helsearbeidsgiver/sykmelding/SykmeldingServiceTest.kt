@@ -60,7 +60,7 @@ class SykmeldingServiceTest {
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
         val orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
 
-        sykmeldingService.hentSykmelding(id, orgnr)?.arbeidsgiverSykmelding shouldBe sykmeldingKafkaMessage.sykmelding
+        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.toSykmeldingResponse().toArbeidsgiverSykmelding()
     }
 
     @Test
