@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
@@ -68,7 +67,7 @@ class InnsendingServiceTest {
                 match { jobb ->
                     jobb.type == "innsendingsjobb" &&
                         jobb.maksAntallForsoek == 10 &&
-                        jobb.data == Json.encodeToString(Innsending.serializer(), innsendtSkjema)
+                        jobb.dataJson == innsendtSkjema.toJson(Innsending.serializer())
                 },
             )
         }

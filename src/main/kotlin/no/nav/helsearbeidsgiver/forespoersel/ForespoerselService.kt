@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
@@ -33,4 +35,6 @@ class ForespoerselService(
         }
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $consumerOrgnr")
     }
+
+    fun hentForespoersel(forespoerselId: UUID): Forespoersel? = runBlocking { forespoerselRepository.hentForespoersel(forespoerselId) }
 }

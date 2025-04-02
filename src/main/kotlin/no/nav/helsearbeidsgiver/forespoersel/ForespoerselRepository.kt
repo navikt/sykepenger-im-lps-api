@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.forespoerselId
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.utils.jsonMapper
@@ -18,12 +18,13 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
+import java.util.UUID
 
 class ForespoerselRepository(
     private val db: Database,
 ) {
     fun lagreForespoersel(
-        forespoerselId: String,
+        forespoerselId: UUID,
         payload: ForespoerselDokument,
     ) {
         val f = hentForespoersel(forespoerselId)
@@ -37,7 +38,7 @@ class ForespoerselRepository(
         val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {
-                it[this.forespoersel] = forespoerselId
+                it[this.forespoerselId] = forespoerselId
                 it[orgnr] = organisasjonsnummer
                 it[fnr] = foedselsnr
                 it[opprettet] = LocalDateTime.now()
@@ -48,11 +49,11 @@ class ForespoerselRepository(
         sikkerLogger().info("Forespørsel $forespoerselId lagret")
     }
 
-    fun hentForespoersel(forespoerselId: String): Forespoersel? =
+    fun hentForespoersel(forespoerselId: UUID): Forespoersel? =
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
-                .where { forespoersel eq forespoerselId }
+                .where { ForespoerselEntitet.forespoerselId eq forespoerselId }
                 .map {
                     it.toExposedforespoersel()
                 }.getOrNull(0)
@@ -79,25 +80,25 @@ class ForespoerselRepository(
                 .where {
                     (orgnr eq consumerOrgnr) and
                         (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
-                        (if (!request.forespoerselId.isNullOrBlank()) forespoersel eq request.forespoerselId else Op.TRUE) and
+                        (if (request.forespoerselId != null) forespoerselId eq request.forespoerselId else Op.TRUE) and
                         (if (request.status != null) status eq request.status else Op.TRUE)
                 }.map {
                     it.toExposedforespoersel()
                 }
         }
 
-    fun settBesvart(forespoerselId: String): Int = oppdaterStatus(forespoerselId, Status.MOTTATT)
+    fun settBesvart(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.MOTTATT)
 
-    fun settForkastet(forespoerselId: String): Int = oppdaterStatus(forespoerselId, Status.FORKASTET)
+    fun settForkastet(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.FORKASTET)
 
     private fun oppdaterStatus(
-        forespoerselId: String,
+        forespoerselId: UUID,
         status: Status,
     ): Int =
         transaction(db) {
             ForespoerselEntitet.update(
                 where = {
-                    (forespoersel eq forespoerselId)
+                    (ForespoerselEntitet.forespoerselId eq forespoerselId)
                 },
             ) {
                 it[ForespoerselEntitet.status] = status
@@ -107,7 +108,7 @@ class ForespoerselRepository(
     private fun ResultRow.toExposedforespoersel(): Forespoersel {
         val dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument])
         return Forespoersel(
-            forespoerselId = this[forespoersel],
+            forespoerselId = this[forespoerselId],
             orgnr = this[orgnr],
             fnr = this[fnr],
             status = this[status],

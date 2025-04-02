@@ -13,7 +13,11 @@ fun Application.configureRouting(services: Services) {
     routing {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         authenticate("systembruker-config") {
-            inntektsmeldingV1(inntektsmeldingService = services.inntektsmeldingService, innsendingService = services.innsendingService)
+            inntektsmeldingV1(
+                inntektsmeldingService = services.inntektsmeldingService,
+                innsendingService = services.innsendingService,
+                forespoerselService = services.forespoerselService,
+            )
             forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
         }

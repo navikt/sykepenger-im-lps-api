@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
@@ -30,9 +31,9 @@ class LeaderElectedBakgrunnsjobbService(
         kjoeretid: LocalDateTime = LocalDateTime.now(),
         forsoek: Int = 0,
         maksAntallForsoek: Int = 3,
-        data: String,
+        data: JsonElement,
     ) {
-        bakgrunnsjobbService.opprettJobb<T>(
+        bakgrunnsjobbService.opprettJobbJson<T>(
             kjoeretid = kjoeretid,
             forsoek = forsoek,
             maksAntallForsoek = maksAntallForsoek,
@@ -59,21 +60,28 @@ class LeaderElectedBakgrunnsjobbService(
 
     private fun getElectedLeaderId(): String =
         runBlocking {
-            val electorUrl = getPropertyOrNull("ELECTOR_GET_URL")
-            if (electorUrl != null) {
-                try {
-                    val electedPod: ElectedPod = httpClient.get(electorUrl).body()
-                    logger().debug("Elected leader: ${electedPod.name} and host: ${getHostName()}")
-                    electedPod.name
-                } catch (e: Exception) {
-                    logger().warn("feilet å hente elected leader", e)
+            if (leaderElectionEnabled()) {
+                val electorUrl = getPropertyOrNull("ELECTOR_GET_URL")
+                if (electorUrl != null) {
+                    try {
+                        val electedPod: ElectedPod = httpClient.get(electorUrl).body()
+                        logger().debug("Elected leader: ${electedPod.name} and host: ${getHostName()}")
+                        electedPod.name
+                    } catch (e: Exception) {
+                        logger().warn("feilet å hente elected leader", e)
+                        UNKNOWN_LEADER
+                    }
+                } else {
+                    logger().warn("ELECTOR_GET_URL er null")
                     UNKNOWN_LEADER
                 }
             } else {
-                logger().warn("ELECTOR_GET_URL er null")
-                UNKNOWN_LEADER
+                logger().debug("Leader election is disabled")
+                getHostName() ?: UNKNOWN_LEADER
             }
         }
+
+    private fun leaderElectionEnabled(): Boolean = getPropertyOrNull("application.leaderElection.enabled")?.toBoolean() ?: false
 
     private fun isElectedLeader(): Boolean {
         val electedLeaderId = getElectedLeaderId()

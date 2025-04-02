@@ -57,8 +57,8 @@ class RepositoryTransactionTest {
         assertEquals(100, inntektsmeldingRepository.hent(DEFAULT_ORG).count())
     }
 
-    fun lagreInntektsmelding(): String {
-        val forespoerselID = UUID.randomUUID().toString()
+    fun lagreInntektsmelding(): UUID {
+        val forespoerselID = UUID.randomUUID()
         val generert = buildInntektsmelding(forespoerselID)
         inntektsmeldingRepository.opprettInntektsmelding(generert)
         return forespoerselID
