@@ -49,7 +49,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
     val forespoersler =
         listOf(
             Forespoersel(
-                forespoerselId = UUID.randomUUID().toString(),
+                forespoerselId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 status = Status.AKTIV,
@@ -59,7 +59,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 inntektPaakrevd = true,
             ),
             Forespoersel(
-                forespoerselId = UUID.randomUUID().toString(),
+                forespoerselId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 status = Status.AKTIV,

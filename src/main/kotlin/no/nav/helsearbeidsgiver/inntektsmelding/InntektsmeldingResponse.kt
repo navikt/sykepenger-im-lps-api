@@ -80,7 +80,7 @@ data class Avsender(
 @Serializable
 data class InntektsmeldingFilterRequest(
     val fnr: String? = null,
-    val foresporselId: String? = null,
+    val foresporselId: UUID? = null,
     val fraTid: LocalDateTime? = null,
     val tilTid: LocalDateTime? = null,
 )

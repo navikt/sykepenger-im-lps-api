@@ -1,16 +1,17 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 class ForespoerselTolker(
     private val forespoerselRepository: ForespoerselRepository,
@@ -32,6 +33,12 @@ class ForespoerselTolker(
         try {
             sikkerLogger.info("Mottatt notis: ${obj.notis}")
 
+            val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
+            if (forespoerselId == null) {
+                logger().info("forespoerselId er null!")
+                mottakRepository.opprett(ExposedMottak(melding))
+                return
+            }
             when (obj.notis) {
                 NotisType.FORESPØRSEL_MOTTATT -> {
                     val forespoersel = obj.forespoersel
@@ -39,7 +46,7 @@ class ForespoerselTolker(
                         transaction {
                             try {
                                 forespoerselRepository.lagreForespoersel(
-                                    forespoerselId = forespoersel.forespoerselId.toString(),
+                                    forespoerselId = forespoersel.forespoerselId,
                                     payload = forespoersel,
                                 )
                                 mottakRepository.opprett(ExposedMottak(melding))
@@ -60,17 +67,17 @@ class ForespoerselTolker(
                 }
 
                 NotisType.FORESPOERSEL_BESVART -> {
-                    settBesvart(obj.forespoerselId.toString())
+                    settBesvart(forespoerselId)
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
 
                 NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                    settBesvart(obj.forespoerselId.toString())
+                    settBesvart(forespoerselId)
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
 
                 NotisType.FORESPOERSEL_FORKASTET -> {
-                    settForkastet(obj.forespoerselId.toString())
+                    settForkastet(forespoerselId)
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
 
@@ -88,37 +95,13 @@ class ForespoerselTolker(
 
     private fun parseRecord(record: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(record)
 
-    private fun settForkastet(forespoerselId: String) {
-        if (forespoerselId.isEmpty()) {
-            sikkerLogger.warn("ingen forespørselID")
-        } else {
-            val antall = forespoerselRepository.settForkastet(forespoerselId)
-            sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
-        }
+    private fun settForkastet(forespoerselId: UUID) {
+        val antall = forespoerselRepository.settForkastet(forespoerselId)
+        sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
     }
 
-    private fun settBesvart(forespoerselId: String) {
-        if (forespoerselId.isEmpty()) {
-            sikkerLogger.warn("ingen forespørselID")
-        } else {
-            val antall = forespoerselRepository.settBesvart(forespoerselId)
-            sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
-        }
-    }
-
-    @Serializable
-    data class PriMessage(
-        @SerialName("notis") val notis: NotisType,
-        @SerialName("forespoersel") val forespoersel: ForespoerselDokument? = null,
-        @SerialName("forespoerselId") val forespoerselId: String? = null,
-    )
-
-    @Serializable
-    enum class NotisType {
-        FORESPØRSEL_MOTTATT,
-        FORESPOERSEL_BESVART,
-        FORESPOERSEL_BESVART_SIMBA,
-        FORESPOERSEL_FORKASTET,
-        FORESPOERSEL_KASTET_TIL_INFOTRYGD,
+    private fun settBesvart(forespoerselId: UUID) {
+        val antall = forespoerselRepository.settBesvart(forespoerselId)
+        sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
     }
 }
