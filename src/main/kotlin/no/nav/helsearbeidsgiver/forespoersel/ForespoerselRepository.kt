@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.forespoerselId
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.utils.jsonMapper
@@ -24,12 +24,12 @@ class ForespoerselRepository(
     private val db: Database,
 ) {
     fun lagreForespoersel(
-        forespoerselId: UUID,
+        navReferanseId: UUID,
         payload: ForespoerselDokument,
     ) {
-        val f = hentForespoersel(forespoerselId)
+        val f = hentForespoersel(navReferanseId)
         if (f != null) {
-            sikkerLogger().warn("Duplikat id: $forespoerselId, kan ikke lagre")
+            sikkerLogger().warn("Duplikat id: $navReferanseId, kan ikke lagre")
             return
         }
         val organisasjonsnummer = payload.orgnr
@@ -38,7 +38,7 @@ class ForespoerselRepository(
         val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {
-                it[this.forespoerselId] = forespoerselId
+                it[this.navReferanseId] = navReferanseId
                 it[orgnr] = organisasjonsnummer
                 it[fnr] = foedselsnr
                 it[opprettet] = LocalDateTime.now()
@@ -46,14 +46,14 @@ class ForespoerselRepository(
                 it[dokument] = jsonString
             }
         }
-        sikkerLogger().info("Forespørsel $forespoerselId lagret")
+        sikkerLogger().info("Forespørsel $navReferanseId lagret")
     }
 
-    fun hentForespoersel(forespoerselId: UUID): Forespoersel? =
+    fun hentForespoersel(navReferanseId: UUID): Forespoersel? =
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
-                .where { ForespoerselEntitet.forespoerselId eq forespoerselId }
+                .where { ForespoerselEntitet.navReferanseId eq navReferanseId }
                 .map {
                     it.toExposedforespoersel()
                 }.getOrNull(0)
@@ -80,25 +80,25 @@ class ForespoerselRepository(
                 .where {
                     (orgnr eq consumerOrgnr) and
                         (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.forespoerselId != null) forespoerselId eq request.forespoerselId else Op.TRUE) and
+                        (if (request.navReferanseId != null) navReferanseId eq request.navReferanseId else Op.TRUE) and
                         (if (request.status != null) status eq request.status else Op.TRUE)
                 }.map {
                     it.toExposedforespoersel()
                 }
         }
 
-    fun settBesvart(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.MOTTATT)
+    fun settBesvart(navReferanseId: UUID): Int = oppdaterStatus(navReferanseId, Status.BESVART)
 
-    fun settForkastet(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.FORKASTET)
+    fun settForkastet(navReferanseId: UUID): Int = oppdaterStatus(navReferanseId, Status.FORKASTET)
 
     private fun oppdaterStatus(
-        forespoerselId: UUID,
+        navReferanseId: UUID,
         status: Status,
     ): Int =
         transaction(db) {
             ForespoerselEntitet.update(
                 where = {
-                    (ForespoerselEntitet.forespoerselId eq forespoerselId)
+                    (ForespoerselEntitet.navReferanseId eq navReferanseId)
                 },
             ) {
                 it[ForespoerselEntitet.status] = status
@@ -108,7 +108,7 @@ class ForespoerselRepository(
     private fun ResultRow.toExposedforespoersel(): Forespoersel {
         val dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument])
         return Forespoersel(
-            forespoerselId = this[forespoerselId],
+            navReferanseId = this[navReferanseId],
             orgnr = this[orgnr],
             fnr = this[fnr],
             status = this[status],
