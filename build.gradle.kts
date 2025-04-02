@@ -107,7 +107,7 @@ tasks {
         useJUnitPlatform()
     }
     test {
-        environment("database.embedded", "true")
+        environment("database.embedded", "false")
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
         environment("NAV_ARBEIDSGIVER_PORTAL_BASEURL", "https://arbeidsgiver.intern.dev.nav.no")
