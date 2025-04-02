@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.kafka.forespoersel
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
@@ -26,15 +27,21 @@ class ForespoerselTolker(
             try {
                 parseRecord(melding)
             } catch (e: Exception) {
-                "Ugyldig event, ignorerer melding".let {
-                    logger.error(it)
-                    sikkerLogger.error(it, e)
+                if (behovMelding(melding)) {
+                    logger.debug("Ignorerer behov-melding")
+                } else {
+                    mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 }
-                mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 return
             }
-        obj.notis?.let {
+        obj.notis.let {
             logger.info("Mottatt notis $it")
+        }
+        val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
+        if (forespoerselId == null) {
+            logger().error("forespoerselId er null!")
+            mottakRepository.opprett(ExposedMottak(melding, gyldig = false))
+            return
         }
         when (obj.notis) {
             NotisType.FORESPØRSEL_MOTTATT -> {
@@ -43,7 +50,7 @@ class ForespoerselTolker(
                     transaction {
                         try {
                             forespoerselRepository.lagreForespoersel(
-                                forespoerselId = forespoersel.forespoerselId.toString(),
+                                forespoerselId = forespoerselId,
                                 payload = forespoersel,
                             )
                             mottakRepository.opprett(ExposedMottak(melding))
@@ -63,33 +70,39 @@ class ForespoerselTolker(
                 }
             }
 
-                NotisType.FORESPOERSEL_BESVART -> {
-                    settBesvart(forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
+            NotisType.FORESPOERSEL_BESVART -> {
+                settBesvart(forespoerselId)
+                mottakRepository.opprett(ExposedMottak(melding))
+            }
 
-NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                    settBesvart(forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
+            NotisType.FORESPOERSEL_BESVART_SIMBA -> {
+                settBesvart(forespoerselId)
+                mottakRepository.opprett(ExposedMottak(melding))
+            }
 
-                NotisType.FORESPOERSEL_FORKASTET -> {
-                    settForkastet(forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
+            NotisType.FORESPOERSEL_FORKASTET -> {
+                settForkastet(forespoerselId)
+                mottakRepository.opprett(ExposedMottak(melding))
+            }
 
             NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
                 // TODO:: Skal vi håndtere kastet til infotrygd?
                 logger.info("Forespørsel kastet til infotrygd - håndteres ikke")
                 mottakRepository.opprett(ExposedMottak(melding, false))
             }
-            null -> {
-                // meldinger uten notis ignoreres - logges ikke, ikke lagre til mottak
-            }
         }
     }
 
     private fun parseRecord(record: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(record)
+
+    private fun behovMelding(record: String): Boolean {
+        try {
+            jsonMapper.decodeFromString<BehovMessage>(record)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
 
     private fun settForkastet(forespoerselId: UUID) {
         val antall = forespoerselRepository.settForkastet(forespoerselId)
