@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -35,17 +36,19 @@ private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 fun Route.inntektsmeldingV1(
     inntektsmeldingService: InntektsmeldingService,
     innsendingService: InnsendingService,
+    forespoerselService: ForespoerselService,
 ) {
     route("/v1") {
         filtrerInntektsmeldinger(inntektsmeldingService)
         inntektsmeldinger(inntektsmeldingService)
-        innsending(inntektsmeldingService, innsendingService)
+        innsending(inntektsmeldingService, innsendingService, forespoerselService)
     }
 }
 
 private fun Route.innsending(
     inntektsmeldingService: InntektsmeldingService,
     innsendingService: InnsendingService,
+    forespoerselService: ForespoerselService,
 ) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
@@ -59,6 +62,12 @@ private fun Route.innsending(
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 call.respond(HttpStatusCode.BadRequest, it)
+                return@post
+            }
+
+            val forespoersel = forespoerselService.hentForespoersel(request.navReferanseId)
+            if (forespoersel == null || forespoersel.orgnr != sluttbrukerOrgnr) {
+                call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
             val avsenderSystem =

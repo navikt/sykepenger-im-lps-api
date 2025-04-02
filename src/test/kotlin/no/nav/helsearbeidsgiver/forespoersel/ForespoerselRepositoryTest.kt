@@ -17,7 +17,7 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun lagreOgOppdaterForespoersel() {
-        val forespoerselID = UUID.randomUUID().toString()
+        val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
         val forespoersler = forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
         forespoersler.size shouldBe 1
@@ -28,7 +28,7 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun lagreForespoerselDuplikat() {
-        val forespoerselID = UUID.randomUUID().toString()
+        val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
@@ -38,7 +38,7 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun settForkastet() {
-        val forespoerselID = UUID.randomUUID().toString()
+        val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
         forespoerselRepository.settForkastet(forespoerselID)
@@ -47,8 +47,8 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun hentForespoerslerForOrgnr() {
-        val forespoerselID1 = UUID.randomUUID().toString()
-        val forespoerselID2 = UUID.randomUUID().toString()
+        val forespoerselID1 = UUID.randomUUID()
+        val forespoerselID2 = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID1, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
         forespoerselRepository.lagreForespoersel(forespoerselID2, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
@@ -58,8 +58,8 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun filtrerForespoersler() {
-        val forespoerselID1 = UUID.randomUUID().toString()
-        val forespoerselID2 = UUID.randomUUID().toString()
+        val forespoerselID1 = UUID.randomUUID()
+        val forespoerselID2 = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID1, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
         forespoerselRepository.lagreForespoersel(forespoerselID2, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
