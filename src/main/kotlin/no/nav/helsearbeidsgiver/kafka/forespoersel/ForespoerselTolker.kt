@@ -50,7 +50,7 @@ class ForespoerselTolker(
                     transaction {
                         try {
                             forespoerselRepository.lagreForespoersel(
-                                forespoerselId = forespoerselId,
+                                navReferanseId = forespoerselId,
                                 payload = forespoersel,
                             )
                             mottakRepository.opprett(ExposedMottak(melding))
