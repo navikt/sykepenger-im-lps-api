@@ -80,14 +80,14 @@ class ForespoerselRepository(
                 .where {
                     (orgnr eq consumerOrgnr) and
                         (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.forespoerselId != null) forespoerselId eq request.forespoerselId else Op.TRUE) and
+                        (if (request.navReferanseId != null) forespoerselId eq request.navReferanseId else Op.TRUE) and
                         (if (request.status != null) status eq request.status else Op.TRUE)
                 }.map {
                     it.toExposedforespoersel()
                 }
         }
 
-    fun settBesvart(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.MOTTATT)
+    fun settBesvart(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.BESVART)
 
     fun settForkastet(forespoerselId: UUID): Int = oppdaterStatus(forespoerselId, Status.FORKASTET)
 
@@ -108,7 +108,7 @@ class ForespoerselRepository(
     private fun ResultRow.toExposedforespoersel(): Forespoersel {
         val dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument])
         return Forespoersel(
-            forespoerselId = this[forespoerselId],
+            navReferanseId = this[forespoerselId],
             orgnr = this[orgnr],
             fnr = this[fnr],
             status = this[status],
