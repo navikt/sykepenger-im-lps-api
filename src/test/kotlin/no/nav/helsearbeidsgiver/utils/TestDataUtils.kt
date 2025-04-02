@@ -136,7 +136,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
 
 fun mockForespoersel(): Forespoersel =
     Forespoersel(
-        forespoerselId = UUID.randomUUID(),
+        navReferanseId = UUID.randomUUID(),
         orgnr = DEFAULT_ORG,
         fnr = Fnr.genererGyldig().toString(),
         status = Status.AKTIV,

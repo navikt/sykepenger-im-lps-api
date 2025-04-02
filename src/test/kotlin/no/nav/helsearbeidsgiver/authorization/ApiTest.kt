@@ -153,8 +153,8 @@ class ApiTest {
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
             val requestBody = mockInntektsmeldingRequest()
-            val forespoersel = mockForespoersel().copy(forespoerselId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
-            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.forespoerselId) } returns forespoersel
+            val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -170,10 +170,10 @@ class ApiTest {
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel =
                 mockForespoersel().copy(
-                    forespoerselId = requestBody.navReferanseId,
+                    navReferanseId = requestBody.navReferanseId,
                     orgnr = Orgnr.genererGyldig().verdi,
                 )
-            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.forespoerselId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))

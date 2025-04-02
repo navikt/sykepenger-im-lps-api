@@ -96,7 +96,7 @@ class InntektsmeldingServiceTest {
         val request =
             InntektsmeldingFilterRequest(
                 fnr = fnr,
-                foresporselId = foresporselid,
+                navReferanseId = foresporselid,
                 fraTid = datoFra,
                 tilTid = datoTil,
             )
@@ -149,7 +149,7 @@ class InntektsmeldingServiceTest {
         val request =
             InntektsmeldingFilterRequest(
                 fnr = fnr,
-                foresporselId = foresporselid,
+                navReferanseId = foresporselid,
                 fraTid = datoFra,
                 tilTid = datoTil,
             )

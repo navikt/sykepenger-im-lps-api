@@ -75,7 +75,7 @@ class InntektsmeldingRepository(
                 .where {
                     (orgnr eq orgNr) and
                         (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.foresporselId != null) navReferanseId eq request.foresporselId else Op.TRUE) and
+                        (if (request.navReferanseId != null) navReferanseId eq request.navReferanseId else Op.TRUE) and
                         (request.fraTid?.let { innsendt greaterEq it } ?: Op.TRUE) and
                         (request.tilTid?.let { innsendt lessEq it } ?: Op.TRUE)
                 }.map { it.toExposedInntektsmelding() }
