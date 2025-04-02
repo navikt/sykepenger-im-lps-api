@@ -1,13 +1,30 @@
 tasks.register("modifyOpenApi") {
     doLast {
         val openApiFile = file("src/main/resources/openapi/documentation.yaml")
+        val inntektEndringAarsakFile = file("src/main/resources/openapi/inntektEndringAarsak.yaml")
+
         if (!openApiFile.exists()) {
             logger.error("OpenApi fil ikke funnet!")
             return@doLast
         }
 
         var content = openApiFile.readText()
+
         var modified = false
+        val targetRegex = Regex(
+            """\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}"""
+        )
+
+        if (targetRegex.containsMatchIn(content)) {
+            val inntektEndring = inntektEndringAarsakFile.readText()
+            content =
+                content
+                    .replace(
+                        Regex("""\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}"""),
+                        Regex.escapeReplacement(inntektEndring))
+            println("lagt til InntektEndringAarsak.")
+            modified = true
+        }
 
         if (!content.contains("securitySchemes:")) {
             content =
