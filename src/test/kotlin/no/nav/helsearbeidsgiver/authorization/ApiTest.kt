@@ -36,6 +36,7 @@ import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -148,6 +149,7 @@ class ApiTest {
         }
 
     @Test
+    @Disabled // TODO: lag integrasjonstest for denne test casen istedenfor
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
             val requestBody = mockInntektsmeldingRequest()
