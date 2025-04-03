@@ -56,7 +56,8 @@ class ForespoerselTolker(
                             mottakRepository.opprett(ExposedMottak(melding))
                         } catch (e: Exception) {
                             rollback()
-                            sikkerLogger.error("Klarte ikke å lagre i database!", e)
+                            logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")
+                            sikkerLogger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId", e)
                             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
                         }
                     }
@@ -65,7 +66,7 @@ class ForespoerselTolker(
                         forespoerselId = forespoersel.forespoerselId,
                     )
                 } else {
-                    sikkerLogger.warn("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
+                    logger.error("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
                     mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 }
             }
@@ -106,11 +107,11 @@ class ForespoerselTolker(
 
     private fun settForkastet(forespoerselId: UUID) {
         val antall = forespoerselRepository.settForkastet(forespoerselId)
-        sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
+        logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
     }
 
     private fun settBesvart(forespoerselId: UUID) {
         val antall = forespoerselRepository.settBesvart(forespoerselId)
-        sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
+        logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
     }
 }
