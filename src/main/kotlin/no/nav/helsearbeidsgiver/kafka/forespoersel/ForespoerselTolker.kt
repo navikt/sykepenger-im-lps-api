@@ -27,7 +27,7 @@ class ForespoerselTolker(
             try {
                 parseRecord(melding)
             } catch (e: Exception) {
-                if (behovMelding(melding)) {
+                if (matcherBehovMelding(melding)) {
                     logger.debug("Ignorerer behov-melding")
                 } else {
                     mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
@@ -96,7 +96,8 @@ class ForespoerselTolker(
 
     private fun parseRecord(record: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(record)
 
-    private fun behovMelding(record: String): Boolean {
+    // Melding til / fra Bro med behov-felt er ikke relevant for denne klassen, så vi ignorerer disse
+    private fun matcherBehovMelding(record: String): Boolean {
         try {
             jsonMapper.decodeFromString<BehovMessage>(record)
             return true
