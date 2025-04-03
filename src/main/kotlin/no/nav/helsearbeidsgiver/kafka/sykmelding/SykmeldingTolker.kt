@@ -14,15 +14,19 @@ class SykmeldingTolker(
     private val sikkerLogger = sikkerLogger()
 
     override fun lesMelding(melding: String) {
-        val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
         try {
+            sikkerLogger.info("Gjør klar for lagring av mottatt sykmelding.")
+            val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
             val (sykmeldingId, orgnr) = sykmeldingService.lagreSykmelding(sykmeldingMessage = sykmeldingMessage)
             sikkerLogger.info("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}.")
 
-            dialogportenService.opprettNyDialogMedSykmelding(
-                orgnr = orgnr,
-                sykmeldingId = sykmeldingId,
-            )
+            if (orgnr == "315587336") {
+                dialogportenService.opprettNyDialogMedSykmelding(
+                    orgnr = orgnr,
+                    sykmeldingId = sykmeldingId,
+                )
+            }
+
             sikkerLogger.info("Opprettet dialog i Dialogporten med sykmelding for orgnr: $orgnr og sykmeldingId: $sykmeldingId.")
         } catch (e: Exception) {
             sikkerLogger.error("Klarte ikke å lagre og opprette dialog for sykmelding!", e)

@@ -135,7 +135,7 @@ object TestData {
                 "timestamp": "2020-04-30T13:57:48.302706Z",
                 "statusEvent": "SENDT",
                 "arbeidsgiver": {
-                    "orgnummer": "900668490",
+                    "orgnummer": "315587336",
                     "juridiskOrgnummer": "928497704",
                     "orgNavn": "Lama utleiren"
                 },
