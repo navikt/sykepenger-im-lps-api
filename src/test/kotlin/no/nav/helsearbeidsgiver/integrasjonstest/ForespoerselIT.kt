@@ -11,6 +11,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
@@ -30,7 +31,8 @@ import org.junit.jupiter.api.Test
 class ForespoerselIT {
     private val db: Database = DbConfig.init()
     private val repositories: Repositories = configureRepositories(db)
-    private val services: Services = configureServices(repositories)
+    private val authClient = mockk<AltinnAuthClient>(relaxed = true)
+    private val services: Services = configureServices(repositories, authClient)
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -40,7 +42,7 @@ class ForespoerselIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =

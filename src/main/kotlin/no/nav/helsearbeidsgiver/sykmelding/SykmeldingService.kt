@@ -30,12 +30,14 @@ class SykmeldingService(
         }
     }
 
-    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage) {
-        val id = sykmeldingMessage.sykmelding.id.toUuidOrNull()
-        id ?: throw IllegalArgumentException("Sykmelding har ugyldig UUID ${sykmeldingMessage.sykmelding.id}")
+    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): Pair<UUID, String> {
+        val id =
+            sykmeldingMessage.sykmelding.id.toUuidOrNull()
+                ?: throw IllegalArgumentException("SykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
-        val orgnr = sykmeldingMessage.event.arbeidsgiver?.orgnummer
-        orgnr ?: throw SykmeldingOrgnrManglerException("Lagret ikke sykmelding fordi den mangler orgnr $id")
+        val orgnr =
+            sykmeldingMessage.event.arbeidsgiver?.orgnummer
+                ?: throw SykmeldingOrgnrManglerException("Lagret ikke sykmelding fordi den mangler orgnr $id")
 
         logger().info("Lagrer sykmelding $id")
 
@@ -45,5 +47,7 @@ class SykmeldingService(
             orgnr = orgnr,
             sykmelding = sykmeldingMessage.sykmelding,
         )
+
+        return id to orgnr
     }
 }

@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
+import io.mockk.verifySequence
 import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
@@ -40,7 +41,7 @@ class MeldingTolkerTest {
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val mockDialogportenService = mockk<IDialogportenService>()
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository, mockDialogportenService)
-    val sykmeldingTolker = SykmeldingTolker(sykmeldingService)
+    val sykmeldingTolker = SykmeldingTolker(sykmeldingService, mockDialogportenService)
 
     @BeforeEach
     fun setup() {
@@ -66,9 +67,17 @@ class MeldingTolkerTest {
     }
 
     @Test
-    fun `sykmeldingTolker deserialiserer og lagrer gyldig sykmelding`() {
+    fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
+        every { mockDialogportenService.opprettNyDialogMedSykmelding(any(), any()) } returns
+            Result.success(
+                UUID.randomUUID().toString(),
+            )
+
         sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
-        verify { sykmeldingService.lagreSykmelding(any()) }
+        verifySequence {
+            sykmeldingService.lagreSykmelding(any())
+            mockDialogportenService.opprettNyDialogMedSykmelding(any(), any())
+        }
     }
 
     @Test

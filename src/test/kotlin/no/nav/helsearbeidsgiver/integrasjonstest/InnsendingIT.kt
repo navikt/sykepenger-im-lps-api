@@ -7,8 +7,10 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
@@ -27,7 +29,8 @@ import org.junit.jupiter.api.Test
 class InnsendingIT {
     private val db: Database = DbConfig.init()
     private val repositories: Repositories = configureRepositories(db)
-    private val services: Services = configureServices(repositories)
+    private val authClient = mockk<AltinnAuthClient>(relaxed = true)
+    private val services: Services = configureServices(repositories, authClient)
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -37,7 +40,7 @@ class InnsendingIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =

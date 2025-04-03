@@ -16,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
@@ -42,6 +43,7 @@ import java.util.UUID
 
 class ApiTest {
     private val repositories: Repositories
+    private val authClient: AltinnAuthClient
     private val services: Services
 
     private val port = 33445
@@ -51,7 +53,8 @@ class ApiTest {
 
     init {
         repositories = mockk<Repositories>(relaxed = true)
-        services = configureServices(repositories)
+        authClient = mockk<AltinnAuthClient>(relaxed = true)
+        services = configureServices(repositories, authClient)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -59,7 +62,7 @@ class ApiTest {
         testApplication =
             TestApplication {
                 application {
-                    apiModule(services = services)
+                    apiModule(services = services, authClient = authClient)
                     configureKafkaConsumers(services = services, repositories = repositories)
                 }
             }

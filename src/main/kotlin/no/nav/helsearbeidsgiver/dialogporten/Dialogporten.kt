@@ -12,6 +12,11 @@ interface IDialogportenService {
         orgnr: String,
         forespoerselId: UUID,
     ): Result<String>
+
+    fun opprettNyDialogMedSykmelding(
+        orgnr: String,
+        sykmeldingId: UUID,
+    ): Result<String>
 }
 
 class IngenDialogportenService : IDialogportenService {
@@ -28,12 +33,27 @@ class IngenDialogportenService : IDialogportenService {
         )
         return Result.success(generertId.toString())
     }
+
+    override fun opprettNyDialogMedSykmelding(
+        orgnr: String,
+        forespoerselId: UUID,
+    ): Result<String> {
+        val generertId = UUID.randomUUID()
+        sikkerLogger().info(
+            "Oppretter ikke dialog med sykmelding for : {}, på orgnr: {}, generertId: {}",
+            forespoerselId,
+            orgnr,
+            generertId,
+        )
+        return Result.success(generertId.toString())
+    }
 }
 
 class DialogportenService(
     val dialogportenClient: DialogportenClient,
 ) : IDialogportenService {
     private val navPortalBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_PORTAL_BASEURL")
+    private val navApiBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_API_BASEURL")
 
     override fun opprettDialog(
         orgnr: String,
@@ -49,6 +69,29 @@ class DialogportenService(
                     sikkerLogger().info(
                         "Opprettet dialog for forespoerselId: {}, på orgnr: {}, med dialogId: {}",
                         forespoerselId,
+                        orgnr,
+                        dialogId,
+                    )
+                }
+        }
+
+    override fun opprettNyDialogMedSykmelding(
+        orgnr: String,
+        sykmeldingId: UUID,
+    ): Result<String> =
+        runBlocking {
+            dialogportenClient
+                .opprettNyDialogMedSykmelding(
+                    orgnr = orgnr,
+                    dialogTittel = "tittel",
+                    dialogSammendrag = "sammendrag",
+                    sykmeldingId = sykmeldingId,
+                    sykmeldingJsonUrl = "$navApiBaseUrl/sykmelding/$sykmeldingId",
+                ).onFailure { e -> sikkerLogger().error("Fikk feil mot dialogporten", e) }
+                .onSuccess { dialogId ->
+                    sikkerLogger().info(
+                        "Opprettet dialog for sykmeldingId: {}, på orgnr: {}, med dialogId: {}",
+                        sykmeldingId,
                         orgnr,
                         dialogId,
                     )
