@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -20,7 +21,9 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.UUID
@@ -31,14 +34,18 @@ class MeldingTolkerTest {
     val inntektsmeldingRepository = InntektsmeldingRepository(db)
     val forespoerselRepository = ForespoerselRepository(db)
     val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
-    val mottakRepository = MottakRepository(db)
-    val sykmeldingRepository = SykmeldingRepository(db)
+    val mottakRepository = spyk(MottakRepository(db))
+    val sykmeldingRepository = spyk(SykmeldingRepository(db))
     val sykmeldingService = spyk(SykmeldingService(sykmeldingRepository))
-
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val mockDialogportenService = mockk<IDialogportenService>()
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository, mockDialogportenService)
     val sykmeldingTolker = SykmeldingTolker(sykmeldingService)
+
+    @BeforeEach
+    fun setup() {
+        clearAllMocks()
+    }
 
     @Test
     fun kunLagreEventerSomMatcher() {
@@ -72,5 +79,11 @@ class MeldingTolkerTest {
             )
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
         forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+    }
+
+    @Test
+    fun `trengerForespoersel-meldinger ignoreres uten å lagre til mottak`() {
+        forespoerselTolker.lesMelding(TRENGER_FORESPOERSEL)
+        verify(exactly = 0) { mottakRepository.opprett(any()) }
     }
 }
