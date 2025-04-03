@@ -34,9 +34,7 @@ class ForespoerselTolker(
                 }
                 return
             }
-        obj.notis.let {
-            logger.info("Mottatt notis $it")
-        }
+        logger.info("Mottatt notis ${obj.notis}")
         val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
         if (forespoerselId == null) {
             logger().error("forespoerselId er null!")
