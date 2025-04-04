@@ -22,47 +22,35 @@ fun tilSykmeldingArbeidsgiver(
         mottattidspunkt = sykmelding.arbeidsgiverSykmeldingKafka.mottattTidspunkt.toLocalDateTime(),
         sykmeldingId = sykmelding.id,
         virksomhetsnummer = sykmelding.orgnr.toLong(),
-        sykmelding = toXMLSykmelding(sykmelding.arbeidsgiverSykmeldingKafka, person, null), // TODO: Egenmeldingsdager
+        sykmelding = sykmelding.arbeidsgiverSykmeldingKafka.tilSykmelding(person, null), // TODO: Egenmeldingsdager
         xmlns = "http://nav.no/melding/virksomhet/sykmeldingArbeidsgiver/v1/sykmeldingArbeidsgiver",
     )
 
-private fun toXMLSykmelding(
-    sykmelding: ArbeidsgiverSykmeldingKafka,
+private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(
     person: Person,
     egenmeldingsdager: List<LocalDate>?,
-): Sykmelding {
-    val sendtSykmelding = sykmelding
-
-    return Sykmelding(
-        arbeidsgiver = getArbeidsgiver(sendtSykmelding.arbeidsgiver),
-        behandler = getBehandler(sendtSykmelding.behandler),
-        kontaktMedPasient = getKontaktMedPasient(sendtSykmelding.behandletTidspunkt),
-        meldingTilArbeidsgiver = getMeldingTilArbeidsgiver(sendtSykmelding.meldingTilArbeidsgiver),
-        pasient = getPasient(person.fnr, person),
-        perioder = getPerioderAG(sendtSykmelding.sykmeldingsperioder),
-        prognose = sendtSykmelding.prognose?.getPrognose(),
-        syketilfelleFom = sendtSykmelding.syketilfelleStartDato,
-        tiltak = getTiltak(sendtSykmelding.tiltakArbeidsplassen),
-        egenmeldingsdager = getEgenmeldingsdager(egenmeldingsdager),
+): Sykmelding =
+    Sykmelding(
+        arbeidsgiver = arbeidsgiver.tilArbeidsgiver(),
+        behandler = behandler.tilBehandler(),
+        kontaktMedPasient = behandletTidspunkt.tilKontaktMedPasient(),
+        meldingTilArbeidsgiver = meldingTilArbeidsgiver,
+        pasient = person.tilPasient(),
+        perioder = sykmeldingsperioder.tilPerioderAG(),
+        prognose = prognose?.getPrognose(),
+        syketilfelleFom = syketilfelleStartDato,
+        tiltak = tiltakArbeidsplassen?.tilTiltak(),
+        egenmeldingsdager = egenmeldingsdager.tilEgenmeldingsdager(),
     )
-}
 
-private fun getEgenmeldingsdager(egenmeldingsdager: List<LocalDate>?): Egenmeldingsdager? =
-    if (egenmeldingsdager.isNullOrEmpty()) {
+private fun List<LocalDate>?.tilEgenmeldingsdager(): Egenmeldingsdager? =
+    if (isNullOrEmpty()) {
         null
     } else {
-        Egenmeldingsdager(
-            dager = egenmeldingsdager,
-        )
+        Egenmeldingsdager(dager = this)
     }
 
-private fun getTiltak(tiltakArbeidsplassen: String?): Tiltak? =
-    when (tiltakArbeidsplassen) {
-        null -> null
-        else -> {
-            Tiltak(tiltakArbeidsplassen = tiltakArbeidsplassen)
-        }
-    }
+private fun String.tilTiltak(): Tiltak = Tiltak(tiltakArbeidsplassen = this)
 
 private fun PrognoseAGDTO.getPrognose(): Prognose =
     Prognose(
@@ -70,51 +58,31 @@ private fun PrognoseAGDTO.getPrognose(): Prognose =
         beskrivHensynArbeidsplassen = this.hensynArbeidsplassen,
     )
 
-private fun getPrognose(prognose: PrognoseAGDTO?): Prognose? =
-    when (prognose) {
-        null -> null
-        else -> {
-            Prognose(
-                erArbeidsfoerEtterEndtPeriode = prognose.arbeidsforEtterPeriode,
-                beskrivHensynArbeidsplassen = prognose.hensynArbeidsplassen,
-            )
-        }
-    }
-
-private fun getPerioderAG(sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>): List<Periode> =
-    sykmeldingsperioder.map {
+private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<Periode> =
+    map {
         Periode(
             fom = it.fom,
             tom = it.tom,
-            aktivitet = getAktivitet(it),
+            aktivitet = it.tilAktivitet(),
         )
     }
 
-private fun getAktivitet(it: SykmeldingsperiodeAGDTO): Aktivitet {
-    val harReisetilskudd = if (it.reisetilskudd) true else null
-
-    return Aktivitet(
-        avventendeSykmelding = it.innspillTilArbeidsgiver,
-        gradertSykmelding = it.gradert?.let { GradertSykmelding(it.grad, it.reisetilskudd) },
-        aktivitetIkkeMulig = getAktivitetIkkeMulig(it.aktivitetIkkeMulig),
-        harReisetilskudd = harReisetilskudd,
-        antallBehandlingsdagerUke = it.behandlingsdager,
+private fun SykmeldingsperiodeAGDTO.tilAktivitet(): Aktivitet =
+    Aktivitet(
+        avventendeSykmelding = innspillTilArbeidsgiver,
+        gradertSykmelding = gradert?.let { GradertSykmelding(it.grad, it.reisetilskudd) },
+        aktivitetIkkeMulig = aktivitetIkkeMulig?.tilAktivitetIkkeMulig(),
+        harReisetilskudd = if (this.reisetilskudd) true else null,
+        antallBehandlingsdagerUke = behandlingsdager,
     )
-}
 
-private fun getAktivitetIkkeMulig(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO?): AktivitetIkkeMulig? =
-    when (aktivitetIkkeMulig) {
-        null -> null
-        else -> {
-            AktivitetIkkeMulig(
-                manglendeTilretteleggingPaaArbeidsplassen =
-                    isMangledneTilrettelegging(aktivitetIkkeMulig),
-                beskrivelse = aktivitetIkkeMulig.arbeidsrelatertArsak?.beskrivelse,
-            )
-        }
-    }
+private fun SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
+    AktivitetIkkeMulig(
+        manglendeTilretteleggingPaaArbeidsplassen = erMangledneTilrettelegging(this),
+        beskrivelse = this.arbeidsrelatertArsak?.beskrivelse,
+    )
 
-private fun isMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO): Boolean? =
+private fun erMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO): Boolean? =
     aktivitetIkkeMulig.arbeidsrelatertArsak?.arsak?.any {
         it ==
             SykmeldingsperiodeAGDTO
@@ -124,35 +92,26 @@ private fun isMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGD
                 .MANGLENDE_TILRETTELEGGING
     }
 
-private fun getPasient(
-    fnr: String,
-    person: Person,
-): Pasient {
-    val navn =
-        Navn(
-            fornavn = person.fornavn,
-            mellomnavn = person.mellomnavn,
-            etternavn = person.etternavn,
-        )
-
-    return Pasient(
-        navn = navn,
+private fun Person.tilPasient(): Pasient =
+    Pasient(
+        navn =
+            Navn(
+                fornavn = fornavn,
+                mellomnavn = mellomnavn,
+                etternavn = etternavn,
+            ),
         ident = fnr,
     )
-}
 
-private fun getMeldingTilArbeidsgiver(meldingTilArbeidsgiver: String?): String? = meldingTilArbeidsgiver
+private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMedPasient(behandlet = this.toLocalDateTime())
 
-private fun getKontaktMedPasient(kontaktMedPasient: OffsetDateTime): KontaktMedPasient =
-    KontaktMedPasient(behandlet = kontaktMedPasient.toLocalDateTime())
-
-private fun getBehandler(behandler: BehandlerAGDTO?): Behandler =
+private fun BehandlerAGDTO?.tilBehandler(): Behandler =
     Behandler(
-        navn = getNavn(behandler),
-        telefonnummer = getTelefonnr(behandler?.tlf).toLong(),
+        navn = tilNavn(),
+        telefonnummer = hentTelefonnr(this?.tlf).toLong(),
     )
 
-private fun getTelefonnr(telefonnr: String?): String = ofNullable(telefonnr).map(removePrefix).orElseGet { telefonnr } ?: ""
+private fun hentTelefonnr(telefonnr: String?): String = ofNullable(telefonnr).map(removePrefix).orElseGet { telefonnr } ?: ""
 
 private val removePrefix =
     Function<String, String?> { kontaktinfo: String? ->
@@ -173,14 +132,14 @@ private val removePrefix =
             .orElse(kontaktinfo)
     }
 
-private fun getNavn(behandler: BehandlerAGDTO?): Navn =
+private fun BehandlerAGDTO?.tilNavn(): Navn =
     Navn(
-        fornavn = behandler?.fornavn ?: "",
-        etternavn = behandler?.etternavn ?: "",
-        mellomnavn = behandler?.mellomnavn ?: "",
+        fornavn = this?.fornavn ?: "",
+        etternavn = this?.etternavn ?: "",
+        mellomnavn = this?.mellomnavn ?: "",
     )
 
-private fun getArbeidsgiver(arbeidsgiver: ArbeidsgiverAGDTO): Arbeidsgiver? =
+private fun ArbeidsgiverAGDTO.tilArbeidsgiver(): Arbeidsgiver =
     Arbeidsgiver(
-        navn = arbeidsgiver.navn,
+        navn = this.navn,
     )
