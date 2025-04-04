@@ -40,7 +40,7 @@ private fun toXMLSykmelding(
         meldingTilArbeidsgiver = getMeldingTilArbeidsgiver(sendtSykmelding.meldingTilArbeidsgiver),
         pasient = getPasient(person.fnr, person),
         perioder = getPerioderAG(sendtSykmelding.sykmeldingsperioder),
-        prognose = getPrognose(sendtSykmelding.prognose),
+        prognose = sendtSykmelding.prognose?.getPrognose(),
         syketilfelleFom = sendtSykmelding.syketilfelleStartDato,
         tiltak = getTiltak(sendtSykmelding.tiltakArbeidsplassen),
         egenmeldingsdager = getEgenmeldingsdager(egenmeldingsdager),
@@ -63,6 +63,12 @@ private fun getTiltak(tiltakArbeidsplassen: String?): Tiltak? =
             Tiltak(tiltakArbeidsplassen = tiltakArbeidsplassen)
         }
     }
+
+private fun PrognoseAGDTO.getPrognose(): Prognose =
+    Prognose(
+        erArbeidsfoerEtterEndtPeriode = this.arbeidsforEtterPeriode,
+        beskrivHensynArbeidsplassen = this.hensynArbeidsplassen,
+    )
 
 private fun getPrognose(prognose: PrognoseAGDTO?): Prognose? =
     when (prognose) {
