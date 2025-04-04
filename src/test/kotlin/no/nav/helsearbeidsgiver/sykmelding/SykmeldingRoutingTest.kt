@@ -1,19 +1,17 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
-import io.ktor.util.pipeline.PipelineContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -37,7 +35,7 @@ class SykmeldingRoutingTest :
             every { mockTokenValidationContext.getSystembrukerOrgnr() } returns "810007843"
             every { mockTokenValidationContext.getConsumerOrgnr() } returns "810007842"
             every {
-                runBlocking { any<PipelineContext<Unit, ApplicationCall>>().tokenValidationContext() }
+                runBlocking { any<RoutingContext>().tokenValidationContext() }
             } returns mockTokenValidationContext
         }
 
