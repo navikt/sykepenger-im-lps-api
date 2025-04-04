@@ -1,4 +1,3 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
 
 package no.nav.helsearbeidsgiver.sykmelding.altinnFormat
 
@@ -17,7 +16,10 @@ import no.nav.helse.xml.sykmelding.arbeidsgiver.XMLPrognose
 import no.nav.helse.xml.sykmelding.arbeidsgiver.XMLSykmelding
 import no.nav.helse.xml.sykmelding.arbeidsgiver.XMLSykmeldingArbeidsgiver
 import no.nav.helse.xml.sykmelding.arbeidsgiver.XMLTiltak
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmelding.*
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
 import java.time.LocalDate

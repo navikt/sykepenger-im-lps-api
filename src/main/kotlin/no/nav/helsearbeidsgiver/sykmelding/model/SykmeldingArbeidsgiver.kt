@@ -6,13 +6,17 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.UseSerializers
-import no.nav.helsearbeidsgiver.utils.XMLLocalDateTimeSerializer
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 // TODO: Burde vi bytte Long med String for orgnr, juridiskOrgnr, telefonnummer, fnr?
 
@@ -179,3 +183,17 @@ data class Arbeidsgiver(
 data class Egenmeldingsdager(
     val dager: List<LocalDate>?,
 )
+
+@Serializer(forClass = LocalDateTime::class)
+object XMLLocalDateTimeSerializer : KSerializer<LocalDateTime> {
+    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
+    override fun serialize(
+        encoder: Encoder,
+        value: LocalDateTime,
+    ) {
+        encoder.encodeString(value.format(formatter))
+    }
+
+    override fun deserialize(decoder: Decoder): LocalDateTime = LocalDateTime.parse(decoder.decodeString(), formatter)
+}

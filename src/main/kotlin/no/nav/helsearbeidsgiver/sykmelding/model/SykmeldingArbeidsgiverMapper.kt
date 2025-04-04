@@ -1,13 +1,11 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
-
 package no.nav.helsearbeidsgiver.sykmelding.model
 
-import kotlinx.serialization.encodeToString
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmelding
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmelding.*
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingResponse
-import no.nav.helsearbeidsgiver.utils.SykmeldingArbeidsgiverWrapper
-import no.nav.helsearbeidsgiver.utils.json
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.Optional.ofNullable
@@ -15,26 +13,21 @@ import java.util.function.Function
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-fun SykmeldingArbeidsgiver.tilJson(): String {
-    val wrapper = SykmeldingArbeidsgiverWrapper(this)
-    return json.encodeToString(wrapper)
-}
-
-fun tilAltinnSykmeldingArbeidsgiver(
+fun tilSykmeldingArbeidsgiver(
     sykmelding: SykmeldingResponse,
     person: Person,
 ): SykmeldingArbeidsgiver =
     SykmeldingArbeidsgiver(
         juridiskOrganisasjonsnummer = 0,
-        mottattidspunkt = sykmelding.arbeidsgiverSykmelding.mottattTidspunkt.toLocalDateTime(),
+        mottattidspunkt = sykmelding.arbeidsgiverSykmeldingKafka.mottattTidspunkt.toLocalDateTime(),
         sykmeldingId = sykmelding.id,
         virksomhetsnummer = sykmelding.orgnr.toLong(),
-        sykmelding = toXMLSykmelding(sykmelding.arbeidsgiverSykmelding, person, null), // TODO: Egenmeldingsdager
+        sykmelding = toXMLSykmelding(sykmelding.arbeidsgiverSykmeldingKafka, person, null), // TODO: Egenmeldingsdager
         xmlns = "http://nav.no/melding/virksomhet/sykmeldingArbeidsgiver/v1/sykmeldingArbeidsgiver",
     )
 
 private fun toXMLSykmelding(
-    sykmelding: ArbeidsgiverSykmelding,
+    sykmelding: ArbeidsgiverSykmeldingKafka,
     person: Person,
     egenmeldingsdager: List<LocalDate>?,
 ): Sykmelding {
@@ -92,17 +85,11 @@ private fun getPerioderAG(sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>): L
     }
 
 private fun getAktivitet(it: SykmeldingsperiodeAGDTO): Aktivitet {
-    val harReisetilskudd =
-        it.reisetilskudd.let {
-            when (it) {
-                true -> true
-                else -> null
-            }
-        }
+    val harReisetilskudd = if (it.reisetilskudd) true else null
 
     return Aktivitet(
         avventendeSykmelding = it.innspillTilArbeidsgiver,
-        gradertSykmelding = getGradertAktivitet(it.gradert),
+        gradertSykmelding = it.gradert?.let { GradertSykmelding(it.grad, it.reisetilskudd) },
         aktivitetIkkeMulig = getAktivitetIkkeMulig(it.aktivitetIkkeMulig),
         harReisetilskudd = harReisetilskudd,
         antallBehandlingsdagerUke = it.behandlingsdager,
@@ -121,25 +108,14 @@ private fun getAktivitetIkkeMulig(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.Ak
         }
     }
 
-private fun isMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO?): Boolean? =
-    aktivitetIkkeMulig!!.arbeidsrelatertArsak?.arsak?.stream()?.anyMatch {
+private fun isMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO): Boolean? =
+    aktivitetIkkeMulig.arbeidsrelatertArsak?.arsak?.any {
         it ==
             SykmeldingsperiodeAGDTO
                 .AktivitetIkkeMuligAGDTO
                 .ArbeidsrelatertArsakDTO
                 .ArbeidsrelatertArsakTypeDTO
                 .MANGLENDE_TILRETTELEGGING
-    }
-
-private fun getGradertAktivitet(gradert: SykmeldingsperiodeAGDTO.GradertDTO?): GradertSykmelding? =
-    when (gradert) {
-        null -> null
-        else -> {
-            GradertSykmelding(
-                sykmeldingsgrad = gradert.grad,
-                harReisetilskudd = gradert.reisetilskudd,
-            )
-        }
     }
 
 private fun getPasient(

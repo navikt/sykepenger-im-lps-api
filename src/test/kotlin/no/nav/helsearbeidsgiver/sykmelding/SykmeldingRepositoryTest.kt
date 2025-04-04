@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DbConfig
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
@@ -26,7 +26,7 @@ class SykmeldingRepositoryTest {
 
         sykmeldingKafkaMessage.lagreSykmelding(sykmeldingRepository)
 
-        val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(arbeidsgiverSykmelding) }
+        val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(arbeidsgiverSykmeldingKafka) }
 
         lagretSykmelding shouldBe sykmeldingKafkaMessage.sykmelding
     }
@@ -39,7 +39,7 @@ class SykmeldingRepositoryTest {
 
         val sykmeldingValgt = sykmeldinger[2].sykmelding
 
-        sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingValgt.id))?.arbeidsgiverSykmelding shouldBe sykmeldingValgt
+        sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingValgt.id))?.arbeidsgiverSykmeldingKafka shouldBe sykmeldingValgt
     }
 }
 

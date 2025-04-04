@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
 import no.nav.helsearbeidsgiver.sykmelding.model.SykmeldingArbeidsgiver
-import no.nav.helsearbeidsgiver.sykmelding.model.tilAltinnSykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
@@ -31,7 +31,7 @@ class SykmeldingService(
 
             val person = mockHentPersonFraPDL(response.fnr) // TODO: Bruk ekte PDL
 
-            val sykmeldingArbeidsgiver = tilAltinnSykmeldingArbeidsgiver(response, person)
+            val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(response, person)
 
             return sykmeldingArbeidsgiver
         } catch (e: Exception) {

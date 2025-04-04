@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
@@ -23,7 +22,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.sykmelding.model.SykmeldingArbeidsgiver
-import no.nav.helsearbeidsgiver.sykmelding.model.tilAltinnSykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.security.token.support.core.context.TokenValidationContext
@@ -93,7 +92,7 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingResponse.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver = tilAltinnSykmeldingArbeidsgiver(this, mockHentPersonFraPDL(fnr))
+fun SykmeldingResponse.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(this, mockHentPersonFraPDL(fnr))
 
 fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingResponse =
     SykmeldingResponse(
