@@ -8,9 +8,9 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.upsert
 import java.util.UUID
 
 class SykmeldingRepository(
@@ -24,7 +24,10 @@ class SykmeldingRepository(
     ) {
         try {
             transaction(db) {
-                SykmeldingEntitet.insert {
+                SykmeldingEntitet.upsert(
+                    keys = arrayOf(sykmeldingId),
+                    onUpdateExclude = SykmeldingEntitet.columns, // Eksluderer alle kolonner fra oppdatering dersom sykmeldingen finnes fra før.
+                ) {
                     it[sykmeldingId] = id
                     it[SykmeldingEntitet.fnr] = fnr
                     it[SykmeldingEntitet.orgnr] = orgnr
