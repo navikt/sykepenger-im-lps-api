@@ -42,7 +42,7 @@ spec:
     scopes:
       exposes:
         - accessibleForAll: true
-          atMaxAge: 3600
+          atMaxAge: 600
           enabled: true
           product: helse
           separator: "/"
