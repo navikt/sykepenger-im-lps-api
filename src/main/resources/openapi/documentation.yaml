@@ -80,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SkjemaInntektsmelding"
+              $ref: "#/components/schemas/InntektsmeldingRequest"
         required: true
       responses:
         "401":
@@ -99,9 +99,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "array"
-                items:
-                  type: "string"
+                type: "object"
         "201":
           description: "Created"
           content:
@@ -137,7 +135,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingResponse"
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
         "404":
           description: "Not Found"
           content:
@@ -163,7 +161,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InntektsmeldingRequest"
+              $ref: "#/components/schemas/InntektsmeldingFilterRequest"
         required: true
       responses:
         "401":
@@ -182,7 +180,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingResponse"
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
         "404":
           description: "Not Found"
           content:
@@ -224,8 +222,9 @@ components:
     Forespoersel:
       type: "object"
       properties:
-        forespoersel_id:
+        navReferanseId:
           type: "string"
+          format: "uuid"
         orgnr:
           type: "string"
         fnr:
@@ -234,7 +233,7 @@ components:
           type: "string"
           enum:
           - "AKTIV"
-          - "MOTTATT"
+          - "BESVART"
           - "FORKASTET"
         sykmeldingsperioder:
           type: "array"
@@ -244,17 +243,19 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Periode"
-        arbeidsgiverperiode_paakrevd:
+        arbeidsgiverperiodePaakrevd:
           type: "boolean"
-        inntekt_paakrevd:
+        inntektPaakrevd:
           type: "boolean"
       required:
-      - "forespoersel_id"
+      - "navReferanseId"
       - "orgnr"
       - "fnr"
       - "status"
       - "sykmeldingsperioder"
       - "egenmeldingsperioder"
+      - "arbeidsgiverperiodePaakrevd"
+      - "inntektPaakrevd"
     ForespoerselResponse:
       type: "object"
       properties:
@@ -266,19 +267,21 @@ components:
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
+      - "antall"
       - "forespoersler"
     ForespoerselRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-        forespoersel_id:
+        navReferanseId:
           type: "string"
+          format: "uuid"
         status:
           type: "string"
           enum:
           - "AKTIV"
-          - "MOTTATT"
+          - "BESVART"
           - "FORKASTET"
     RedusertLoennIAgp:
       type: "object"
@@ -305,6 +308,7 @@ components:
           - "StreikEllerLockout"
           - "TidligereVirksomhet"
       required:
+      - "beloep"
       - "begrunnelse"
     Arbeidsgiverperiode:
       type: "object"
@@ -355,10 +359,156 @@ components:
           format: "date"
       required:
       - "naturalytelse"
+      - "verdiBeloep"
       - "sluttdato"
     InntektEndringAarsak:
       type: "object"
-      properties: {}
+      oneOf:
+        - $ref: "#/components/schemas/Bonus"
+        - $ref: "#/components/schemas/Feilregistrert"
+        - $ref: "#/components/schemas/Ferie"
+        - $ref: "#/components/schemas/Ferietrekk"
+        - $ref: "#/components/schemas/Nyansatt"
+        - $ref: "#/components/schemas/NyStilling"
+        - $ref: "#/components/schemas/NyStillingsprosent"
+        - $ref: "#/components/schemas/Permisjon"
+        - $ref: "#/components/schemas/Permittering"
+        - $ref: "#/components/schemas/Sykefravaer"
+        - $ref: "#/components/schemas/Tariffendring"
+        - $ref: "#/components/schemas/VarigLoennsendring"
+    Bonus:
+      title: "Bonus"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Bonus
+    Feilregistrert:
+      title: "Feilregistrert"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Feilregistrert
+    Tariffendring:
+      title: "Tariffendring"
+      required:
+        - gjelderFra
+        - bleKjent
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Tariffendring
+        gjelderFra:
+          type: string
+          format: date
+        bleKjent:
+          type: string
+          format: date
+    Sykefravaer:
+      title: "Sykefravaer"
+      required:
+        - sykefravaer
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Sykefravaer
+        sykefravaer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    Ferie:
+      title: "Ferie"
+      required:
+        - ferier
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Ferie
+        ferier:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    Ferietrekk:
+      title: "Ferietrekk"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Ferietrekk
+    Nyansatt:
+      title: "Nyansatt"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Nyansatt
+    NyStilling:
+      title: "NyStilling"
+      requred:
+        - gjelderFra
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - NyStilling
+        gjelderFra:
+          type: string
+          format: date
+    NyStillingsprosent:
+      title: "NyStillingsprosent"
+      required:
+        -gjelderFra
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - NyStillingsprosent
+        gjelderFra:
+          type: string
+          format: date
+    Permisjon:
+      title: "Permisjon"
+      required:
+        - permisjoner
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Permisjon
+        permisjoner:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    Permittering:
+      title: "Permittering"
+      required:
+        - permitteringer
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Permittering
+        permitteringer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    VarigLoennsendring:
+      title: "VarigLoennsendring"
+      required:
+        -gjelderFra
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - VarigLoennsendring
+        gjelderFra:
+          type: string
+          format: date
+
     Inntekt:
       type: "object"
       properties:
@@ -374,7 +524,12 @@ components:
             $ref: "#/components/schemas/Naturalytelse"
         endringAarsak:
           $ref: "#/components/schemas/InntektEndringAarsak"
+        endringAarsaker:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/InntektEndringAarsak"
       required:
+      - "beloep"
       - "inntektsdato"
       - "naturalytelser"
     RefusjonEndring:
@@ -387,6 +542,7 @@ components:
           type: "string"
           format: "date"
       required:
+      - "beloep"
       - "startdato"
     Refusjon:
       type: "object"
@@ -402,112 +558,116 @@ components:
           type: "string"
           format: "date"
       required:
+      - "beloepPerMaaned"
       - "endringer"
-    SkjemaInntektsmelding:
-      type: "object"
-      properties:
-        forespoerselId:
-          type: "string"
-          format: "uuid"
-        avsenderTlf:
-          type: "string"
-        agp:
-          $ref: "#/components/schemas/Arbeidsgiverperiode"
-        inntekt:
-          $ref: "#/components/schemas/Inntekt"
-        refusjon:
-          $ref: "#/components/schemas/Refusjon"
-      required:
-      - "forespoerselId"
-      - "avsenderTlf"
-    Type:
-      type: "object"
-      properties: {}
-    Sykmeldt:
-      type: "object"
-      properties:
-        navn:
-          type: "string"
-      required:
-      - "navn"
     Avsender:
       type: "object"
       properties:
-        orgNavn:
+        systemNavn:
           type: "string"
-        navn:
-          type: "string"
-        tlf:
+        systemVersjon:
           type: "string"
       required:
-      - "orgNavn"
-      - "navn"
-      - "tlf"
-    Inntektsmelding:
+      - "systemNavn"
+      - "systemVersjon"
+    InntektsmeldingRequest:
       type: "object"
       properties:
-        id:
+        navReferanseId:
           type: "string"
           format: "uuid"
-        type:
-          $ref: "#/components/schemas/Type"
-        sykmeldt:
-          $ref: "#/components/schemas/Sykmeldt"
-        avsender:
-          $ref: "#/components/schemas/Avsender"
-        sykmeldingsperioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
         agp:
           $ref: "#/components/schemas/Arbeidsgiverperiode"
         inntekt:
           $ref: "#/components/schemas/Inntekt"
         refusjon:
           $ref: "#/components/schemas/Refusjon"
+        sykmeldtFnr:
+          type: "string"
+        arbeidsgiverTlf:
+          type: "string"
         aarsakInnsending:
           type: "string"
           enum:
           - "Ny"
           - "Endring"
-        mottatt:
-          type: "string"
-          format: "date-time"
-        vedtaksperiodeId:
-          type: "string"
-          format: "uuid"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
       required:
-      - "id"
-      - "type"
-      - "sykmeldt"
-      - "avsender"
-      - "sykmeldingsperioder"
+      - "navReferanseId"
+      - "sykmeldtFnr"
+      - "arbeidsgiverTlf"
       - "aarsakInnsending"
-      - "mottatt"
-    InnsendtInntektsmelding:
+      - "avsender"
+    Arbeidsgiver:
       type: "object"
       properties:
-        dokument:
-          $ref: "#/components/schemas/Inntektsmelding"
         orgnr:
           type: "string"
-        fnr:
+        tlf:
           type: "string"
-        foresporsel_id:
-          type: "string"
-        innsendt_tid:
-          type: "string"
-          format: "date-time"
-        mottatt_tid:
-          type: "string"
-          format: "date-time"
       required:
-      - "dokument"
       - "orgnr"
-      - "fnr"
-      - "innsendt_tid"
-      - "mottatt_tid"
+      - "tlf"
     InntektsmeldingResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        navReferanseId:
+          type: "string"
+          format: "uuid"
+        agp:
+          $ref: "#/components/schemas/Arbeidsgiverperiode"
+        inntekt:
+          $ref: "#/components/schemas/Inntekt"
+        refusjon:
+          $ref: "#/components/schemas/Refusjon"
+        sykmeldtFnr:
+          type: "string"
+        aarsakInnsending:
+          type: "string"
+          enum:
+          - "Ny"
+          - "Endring"
+        typeInnsending:
+          type: "string"
+          enum:
+          - "FORESPURT"
+          - "ARBEIDSGIVER_INITIERT"
+          - "FORESPURT_EKSTERN"
+        innsendtTid:
+          type: "string"
+          format: "date-time"
+        versjon:
+          type: "integer"
+          format: "int32"
+        arbeidsgiver:
+          $ref: "#/components/schemas/Arbeidsgiver"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
+        status:
+          type: "string"
+          enum:
+          - "MOTTATT"
+          - "UNDER_BEHANDLING"
+          - "FEILET"
+          - "GODKJENT"
+        statusMelding:
+          type: "string"
+      required:
+      - "id"
+      - "navReferanseId"
+      - "sykmeldtFnr"
+      - "aarsakInnsending"
+      - "typeInnsending"
+      - "innsendtTid"
+      - "versjon"
+      - "arbeidsgiver"
+      - "avsender"
+      - "status"
+    InntektsmeldingFilterResponse:
       type: "object"
       properties:
         antall:
@@ -516,19 +676,21 @@ components:
         inntektsmeldinger:
           type: "array"
           items:
-            $ref: "#/components/schemas/InnsendtInntektsmelding"
+            $ref: "#/components/schemas/InntektsmeldingResponse"
       required:
+      - "antall"
       - "inntektsmeldinger"
-    InntektsmeldingRequest:
+    InntektsmeldingFilterRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-        foresporsel_id:
+        navReferanseId:
           type: "string"
-        fra_dato:
+          format: "uuid"
+        fraTid:
           type: "string"
           format: "date-time"
-        til_dato:
+        tilTid:
           type: "string"
           format: "date-time"

@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.innsending
 
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
+import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
@@ -14,22 +16,16 @@ import java.util.UUID
 
 class InnsendingService(
     private val innsendingProducer: InnsendingProducer,
-    private val innsendingRepository: InnsendingRepository,
+    private val bakgrunnsjobbService: LeaderElectedBakgrunnsjobbService,
 ) {
-    fun lagreInnsending(
-        organisasjonsNr: String,
-        lpsOrgnr: String,
-        skjema: SkjemaInntektsmelding,
-    ): UUID =
-        runCatching {
-            innsendingRepository.opprettInnsending(organisasjonsNr, lpsOrgnr, skjema)
-        }.onSuccess { uuid ->
-            sikkerLogger().info("Innsending lagret med id: $uuid")
-        }.onFailure { error ->
-            sikkerLogger().error("Feilet ved lagring av innsending skjema med forspørselId = ${skjema.forespoerselId} ", error)
-        }.getOrThrow()
+    fun lagreBakgrunsjobbInnsending(innsending: Innsending) {
+        bakgrunnsjobbService.opprettJobb<InnsendingProcessor>(
+            maksAntallForsoek = 10,
+            data = innsending.toJson(Innsending.serializer()),
+        )
+    }
 
-    fun sendInn(skjema: SkjemaInntektsmelding): Pair<UUID, LocalDateTime> {
+    fun sendInn(innsending: Innsending): Pair<UUID, LocalDateTime> {
         val mottatt = LocalDateTime.now()
         val kontekstId = UUID.randomUUID()
 
@@ -40,7 +36,7 @@ class InnsendingService(
                     InnsendingKafka.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
                     InnsendingKafka.Key.DATA to
                         mapOf(
-                            InnsendingKafka.Key.SKJEMA_INNTEKTSMELDING to skjema.toJson(SkjemaInntektsmelding.serializer()),
+                            InnsendingKafka.Key.INNSENDING to innsending.toJson(Innsending.serializer()),
                             InnsendingKafka.Key.MOTTATT to mottatt.toJson(LocalDateTimeSerializer),
                         ).toJson(),
                 ).getOrThrow()

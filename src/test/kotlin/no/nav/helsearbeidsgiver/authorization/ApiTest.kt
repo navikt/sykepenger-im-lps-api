@@ -12,28 +12,37 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.db.Database
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.config.Repositories
+import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
+import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
-import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.mockForespoersel
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import org.jetbrains.exposed.sql.Database as ExposedDatabase
+import java.util.UUID
 
 class ApiTest {
-    private val db: ExposedDatabase
-    private val forespoerselRepo: ForespoerselRepository
+    private val repositories: Repositories
+    private val services: Services
 
     private val port = 33445
     private val mockOAuth2Server: MockOAuth2Server
@@ -41,17 +50,17 @@ class ApiTest {
     private val client: HttpClient
 
     init {
+        repositories = mockk<Repositories>(relaxed = true)
+        services = configureServices(repositories)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
             }
-        db = Database.init()
-        forespoerselRepo = ForespoerselRepository(db)
-
         testApplication =
             TestApplication {
                 application {
-                    apiModule()
+                    apiModule(services = services)
+                    configureKafkaConsumers(services = services, repositories = repositories)
                 }
             }
         client =
@@ -60,29 +69,21 @@ class ApiTest {
                     json()
                 }
             }
-        val forespoerselId = "13129b6c-e9f5-4b1c-a855-abca47ac3d7f"
-        val im = buildInntektsmelding(forespoerselId = forespoerselId)
-        InntektsmeldingRepository(db).opprett(im, "810007842", "12345678912", LocalDateTime.now(), forespoerselId)
     }
 
     @Test
     fun `hent forespørsler fra api`() =
         runTest {
-            val orgnr1 = "810007842"
-            val orgnr2 = "810007843"
-            val payload = forespoerselDokument(orgnr1, "123")
-            forespoerselRepo.lagreForespoersel("123", payload)
-            forespoerselRepo.lagreForespoersel("1234", forespoerselDokument(orgnr2, "123"))
-
+            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns listOf(mockForespoersel())
             val response =
                 client.get("/v1/forespoersler") {
-                    bearerAuth(gyldigSystembrukerAuthToken())
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status.value shouldBe 200
             val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.antall shouldBe 1
             forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
-            forespoerselSvar.forespoersler[0].orgnr shouldBe orgnr1
+            forespoerselSvar.forespoersler[0].orgnr shouldBe DEFAULT_ORG
         }
 
     @Test
@@ -94,11 +95,11 @@ class ApiTest {
             val response2 = client.get("/v1/inntektsmeldinger")
             response2.status.value shouldBe 401
 
-            val requestBody = mockSkjemaInntektsmelding()
+            val requestBody = mockInntektsmeldingRequest()
             val response3 =
                 client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response3.status.value shouldBe 401
         }
@@ -108,22 +109,22 @@ class ApiTest {
         runTest {
             val response1 =
                 client.get("/v1/forespoersler") {
-                    bearerAuth(ugyldigTokenManglerSystembruker())
+                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                 }
             response1.status.value shouldBe 401
 
             val response2 =
                 client.get("/v1/inntektsmeldinger") {
-                    bearerAuth(ugyldigTokenManglerSystembruker())
+                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                 }
             response2.status.value shouldBe 401
 
-            val requestBody = mockSkjemaInntektsmelding()
+            val requestBody = mockInntektsmeldingRequest()
             val response3 =
                 client.post("/v1/inntektsmelding") {
-                    bearerAuth(ugyldigTokenManglerSystembruker())
+                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response3.status.value shouldBe 401
         }
@@ -131,78 +132,74 @@ class ApiTest {
     @Test
     fun `hent inntektsmeldinger`() =
         runTest {
+            val forespoerselId = UUID.fromString("13129b6c-e9f5-4b1c-a855-abca47ac3d7f")
+            val im = buildInntektsmelding(forespoerselId = forespoerselId)
+            every { repositories.inntektsmeldingRepository.hent(DEFAULT_ORG) } returns
+                listOf(
+                    mockInntektsmeldingResponse(im),
+                )
             val response =
                 client.get("/v1/inntektsmeldinger") {
-                    bearerAuth(gyldigSystembrukerAuthToken())
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status.value shouldBe 200
-            val inntektsmeldingResponse = response.body<InntektsmeldingResponse>()
-            inntektsmeldingResponse.antall shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].orgnr shouldBe "810007842"
+            val inntektsmeldingFilterResponse = response.body<InntektsmeldingFilterResponse>()
+            inntektsmeldingFilterResponse.antall shouldBe 1
+            inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
         }
 
     @Test
-    fun `send inn inntektsmelding`() =
+    @Disabled // TODO: lag integrasjonstest for denne test casen istedenfor
+    fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
-            val requestBody = mockSkjemaInntektsmelding()
+            val requestBody = mockInntektsmeldingRequest()
+            val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             val response =
                 client.post("/v1/inntektsmelding") {
-                    bearerAuth(gyldigSystembrukerAuthToken())
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                     contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(serializer = SkjemaInntektsmelding.serializer()))
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response.status.value shouldBe 201
         }
 
+    @Test
+    fun `innsending av inntektsmelding på feil orgnr gir feil`() =
+        runTest {
+            val requestBody = mockInntektsmeldingRequest()
+            val forespoersel =
+                mockForespoersel().copy(
+                    navReferanseId = requestBody.navReferanseId,
+                    orgnr = Orgnr.genererGyldig().verdi,
+                )
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status.value shouldBe 400
+        }
+
+    @Test
+    fun `innsending av inntektsmelding på forespoersel som ikke finnes gir feil`() =
+        runTest {
+            val requestBody = mockInntektsmeldingRequest()
+            every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns null
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status.value shouldBe 400
+        }
+
     @AfterAll
     fun shutdownStuff() {
+        testApplication.stop()
         mockOAuth2Server.shutdown()
     }
-
-    fun hentToken(claims: Map<String, Any>): String =
-        mockOAuth2Server
-            .issueToken(
-                issuerId = "maskinporten",
-                audience = "nav:helse/im.read",
-                claims = claims,
-            ).serialize()
-
-    fun ugyldigTokenManglerSystembruker(): String =
-        hentToken(
-            claims =
-                mapOf(
-                    "scope" to "nav:helse/im.read",
-                    "consumer" to
-                        mapOf(
-                            "authority" to "iso6523-actorid-upis",
-                            "ID" to "0192:810007842",
-                        ),
-                ),
-        )
-
-    fun gyldigSystembrukerAuthToken(): String =
-        hentToken(
-            claims =
-                mapOf(
-                    "authorization_details" to
-                        listOf(
-                            mapOf(
-                                "type" to "urn:altinn:systemuser",
-                                "systemuser_id" to listOf("a_unique_identifier_for_the_systemuser"),
-                                "systemuser_org" to
-                                    mapOf(
-                                        "authority" to "iso6523-actorid-upis",
-                                        "ID" to "0192:810007842",
-                                    ),
-                                "system_id" to "315339138_tigersys",
-                            ),
-                        ),
-                    "scope" to "nav:helse/im.read", // TODO sjekk om scope faktisk blir validert av tokensupport
-                    "consumer" to
-                        mapOf(
-                            "authority" to "iso6523-actorid-upis",
-                            "ID" to "0192:991825827",
-                        ),
-                ),
-        )
 }

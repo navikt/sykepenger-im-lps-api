@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.db.Database
+import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
@@ -12,23 +12,23 @@ import java.util.UUID
 
 @ExtendWith(TransactionalExtension::class)
 class ForespoerselRepositoryTest {
-    val db = Database.init()
+    val db = DbConfig.init()
     val forespoerselRepository = ForespoerselRepository(db)
 
     @Test
     fun lagreOgOppdaterForespoersel() {
-        val forespoerselID = UUID.randomUUID().toString()
+        val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
         val forespoersler = forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
         forespoersler.size shouldBe 1
         forespoersler[0].status shouldBe Status.AKTIV
         forespoerselRepository.settBesvart(forespoerselID)
-        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.MOTTATT
+        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.BESVART
     }
 
     @Test
     fun lagreForespoerselDuplikat() {
-        val forespoerselID = UUID.randomUUID().toString()
+        val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
@@ -38,7 +38,7 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun settForkastet() {
-        val forespoerselID = UUID.randomUUID().toString()
+        val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
         forespoerselRepository.settForkastet(forespoerselID)
@@ -47,8 +47,8 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun hentForespoerslerForOrgnr() {
-        val forespoerselID1 = UUID.randomUUID().toString()
-        val forespoerselID2 = UUID.randomUUID().toString()
+        val forespoerselID1 = UUID.randomUUID()
+        val forespoerselID2 = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID1, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
         forespoerselRepository.lagreForespoersel(forespoerselID2, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
@@ -58,15 +58,15 @@ class ForespoerselRepositoryTest {
 
     @Test
     fun filtrerForespoersler() {
-        val forespoerselID1 = UUID.randomUUID().toString()
-        val forespoerselID2 = UUID.randomUUID().toString()
+        val forespoerselID1 = UUID.randomUUID()
+        val forespoerselID2 = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID1, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
         forespoerselRepository.lagreForespoersel(forespoerselID2, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoersel_id = null,
+                navReferanseId = null,
                 status = null,
             )
         val forespoersler = forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request)

@@ -9,6 +9,7 @@ metadata:
   annotations:
     texas.nais.io/enabled: "true"
 spec:
+  leaderElection: true
   replicas:
     max: 2
     min: 2
@@ -42,6 +43,7 @@ spec:
     scopes:
       exposes:
         - accessibleForAll: true
+          atMaxAge: 600
           enabled: true
           product: helse
           separator: "/"

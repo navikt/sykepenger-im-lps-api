@@ -28,8 +28,6 @@ jobs:
         id: docker-build-push
         with:
           team: helsearbeidsgiver
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
       - name: Deploy to NAIS
         uses: nais/deploy/actions/deploy@v2
         env:

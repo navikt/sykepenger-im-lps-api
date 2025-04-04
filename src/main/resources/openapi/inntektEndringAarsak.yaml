@@ -1,0 +1,148 @@
+
+    InntektEndringAarsak:
+      type: "object"
+      oneOf:
+        - $ref: "#/components/schemas/Bonus"
+        - $ref: "#/components/schemas/Feilregistrert"
+        - $ref: "#/components/schemas/Ferie"
+        - $ref: "#/components/schemas/Ferietrekk"
+        - $ref: "#/components/schemas/Nyansatt"
+        - $ref: "#/components/schemas/NyStilling"
+        - $ref: "#/components/schemas/NyStillingsprosent"
+        - $ref: "#/components/schemas/Permisjon"
+        - $ref: "#/components/schemas/Permittering"
+        - $ref: "#/components/schemas/Sykefravaer"
+        - $ref: "#/components/schemas/Tariffendring"
+        - $ref: "#/components/schemas/VarigLoennsendring"
+    Bonus:
+      title: "Bonus"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Bonus
+    Feilregistrert:
+      title: "Feilregistrert"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Feilregistrert
+    Tariffendring:
+      title: "Tariffendring"
+      required:
+        - gjelderFra
+        - bleKjent
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Tariffendring
+        gjelderFra:
+          type: string
+          format: date
+        bleKjent:
+          type: string
+          format: date
+    Sykefravaer:
+      title: "Sykefravaer"
+      required:
+        - sykefravaer
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Sykefravaer
+        sykefravaer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    Ferie:
+      title: "Ferie"
+      required:
+        - ferier
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Ferie
+        ferier:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    Ferietrekk:
+      title: "Ferietrekk"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Ferietrekk
+    Nyansatt:
+      title: "Nyansatt"
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Nyansatt
+    NyStilling:
+      title: "NyStilling"
+      requred:
+        - gjelderFra
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - NyStilling
+        gjelderFra:
+          type: string
+          format: date
+    NyStillingsprosent:
+      title: "NyStillingsprosent"
+      required:
+        -gjelderFra
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - NyStillingsprosent
+        gjelderFra:
+          type: string
+          format: date
+    Permisjon:
+      title: "Permisjon"
+      required:
+        - permisjoner
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Permisjon
+        permisjoner:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    Permittering:
+      title: "Permittering"
+      required:
+        - permitteringer
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - Permittering
+        permitteringer:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periode'
+    VarigLoennsendring:
+      title: "VarigLoennsendring"
+      required:
+        -gjelderFra
+      properties:
+        aarsak:
+          type: "string"
+          enum:
+            - VarigLoennsendring
+        gjelderFra:
+          type: string
+          format: date

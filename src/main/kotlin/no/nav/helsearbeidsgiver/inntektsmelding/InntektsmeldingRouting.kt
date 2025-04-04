@@ -14,13 +14,123 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.OffsetDateTime
+import java.util.UUID
 
-fun Route.inntektsmeldingV1(inntektsmeldingService: InntektsmeldingService) {
+private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
+
+fun Route.inntektsmeldingV1(
+    inntektsmeldingService: InntektsmeldingService,
+    innsendingService: InnsendingService,
+    forespoerselService: ForespoerselService,
+) {
     route("/v1") {
         filtrerInntektsmeldinger(inntektsmeldingService)
         inntektsmeldinger(inntektsmeldingService)
+        innsending(inntektsmeldingService, innsendingService, forespoerselService)
+    }
+}
+
+private fun Route.innsending(
+    inntektsmeldingService: InntektsmeldingService,
+    innsendingService: InnsendingService,
+    forespoerselService: ForespoerselService,
+) {
+    // Send inn inntektsmelding
+    post("/inntektsmelding") {
+        try {
+            val request = this.call.receive<InntektsmeldingRequest>()
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            sikkerLogger().info("Mottatt innsending: $request")
+            sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
+
+            request.valider().takeIf { it.isNotEmpty() }?.let {
+                call.respond(HttpStatusCode.BadRequest, it)
+                return@post
+            }
+
+            val forespoersel = forespoerselService.hentForespoersel(request.navReferanseId)
+            if (forespoersel == null || forespoersel.orgnr != sluttbrukerOrgnr) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
+            val avsenderSystem =
+                AvsenderSystem(
+                    orgnr = Orgnr(lpsOrgnr),
+                    navn = request.avsender.systemNavn,
+                    versjon = request.avsender.systemVersjon,
+                )
+            val inntektsmelding =
+                Inntektsmelding(
+                    id = UUID.randomUUID(),
+                    type = Inntektsmelding.Type.ForespurtEkstern(request.navReferanseId, avsenderSystem),
+                    sykmeldt =
+                        Sykmeldt(
+                            Fnr(request.sykmeldtFnr),
+                            "",
+                        ),
+                    // TODO
+                    avsender =
+                        Avsender(
+                            Orgnr(sluttbrukerOrgnr),
+                            "",
+                            "",
+                            request.arbeidsgiverTlf,
+                        ),
+                    sykmeldingsperioder = emptyList(), // TODO hent fra forespørsel
+                    agp = request.agp,
+                    inntekt = request.inntekt,
+                    refusjon = request.refusjon,
+                    aarsakInnsending = request.aarsakInnsending,
+                    mottatt = OffsetDateTime.now(),
+                    vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
+                )
+
+            val skjemaInntektsmelding =
+                SkjemaInntektsmelding(
+                    forespoerselId = request.navReferanseId,
+                    avsenderTlf = request.arbeidsgiverTlf,
+                    agp = request.agp,
+                    inntekt = request.inntekt,
+                    refusjon = request.refusjon,
+                )
+            transaction {
+                inntektsmeldingService.opprettInntektsmelding(
+                    im = inntektsmelding,
+                    innsendingStatus = InnsendingStatus.MOTTATT,
+                )
+                innsendingService.lagreBakgrunsjobbInnsending(
+                    Innsending(
+                        innsendingId = inntektsmelding.id,
+                        skjema = skjemaInntektsmelding,
+                        aarsakInnsending = request.aarsakInnsending,
+                        type = inntektsmelding.type,
+                        innsendtTid = OffsetDateTime.now(),
+                        versjon = VERSJON_1,
+                    ),
+                )
+            }
+            call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
+            call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
+        }
     }
 }
 
@@ -28,7 +138,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
-            val request = call.receive<InntektsmeldingRequest>()
+            val request = call.receive<InntektsmeldingFilterRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("Mottatt request: $request")

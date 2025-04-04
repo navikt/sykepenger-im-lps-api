@@ -1,6 +1,6 @@
 {
   "notis": "FORESPØRSEL_MOTTATT",
-  "forespoerselId": "%%%FORESPOERSELID%%%",
+  "forespoerselId": "%%%FORESPOERSEL_ID%%%",
   "orgnr": "810007842",
   "fnr": "01447842099",
   "skal_ha_paaminnelse": true,
@@ -8,7 +8,7 @@
     "type": "KOMPLETT",
     "orgnr": "810007842",
     "fnr": "01447842099",
-    "forespoerselId": "%%%FORESPOERSELID%%%",
+    "forespoerselId": "%%%FORESPOERSEL_ID%%%",
     "vedtaksperiodeId": "70aeba59-ebe1-4e26-bf48-23765e037078",
     "egenmeldingsperioder": [],
     "sykmeldingsperioder": [

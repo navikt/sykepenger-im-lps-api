@@ -1,11 +1,8 @@
+package no.nav.helsearbeidsgiver.forespoersel
+
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRequest
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
-import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
@@ -35,7 +32,7 @@ class ForespoerselServiceTest {
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoersel_id = null,
+                navReferanseId = null,
                 status = null,
             )
 
@@ -52,24 +49,24 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
     val forespoersler =
         listOf(
             Forespoersel(
-                forespoersel_id = UUID.randomUUID().toString(),
+                navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 status = Status.AKTIV,
                 sykmeldingsperioder = emptyList(),
                 egenmeldingsperioder = emptyList(),
-                arbeidsgiverperiode_paakrevd = true,
-                inntekt_paakrevd = true,
+                arbeidsgiverperiodePaakrevd = true,
+                inntektPaakrevd = true,
             ),
             Forespoersel(
-                forespoersel_id = UUID.randomUUID().toString(),
+                navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 status = Status.AKTIV,
                 sykmeldingsperioder = emptyList(),
                 egenmeldingsperioder = emptyList(),
-                arbeidsgiverperiode_paakrevd = true,
-                inntekt_paakrevd = true,
+                arbeidsgiverperiodePaakrevd = true,
+                inntektPaakrevd = true,
             ),
         )
     return forespoersler

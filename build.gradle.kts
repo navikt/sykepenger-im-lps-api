@@ -19,7 +19,7 @@ val kafkaVersion: String by project
 val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
-
+val bakgrunnsjobbVersion: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
@@ -72,6 +72,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
+    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
     implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
