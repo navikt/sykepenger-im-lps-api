@@ -26,6 +26,9 @@ class SykmeldingRepository(
             transaction(db) {
                 SykmeldingEntitet.upsert(
                     keys = arrayOf(sykmeldingId),
+                    onUpdate = {
+                        it[sykmeldingId] = id
+                    },
                     // Eksluderer alle kolonner fra oppdatering dersom sykmeldingen finnes fra før.
                     onUpdateExclude = SykmeldingEntitet.columns,
                 ) {
