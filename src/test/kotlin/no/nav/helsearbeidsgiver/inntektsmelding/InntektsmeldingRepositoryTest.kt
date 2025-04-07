@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -18,35 +19,23 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.assertEquals
 
-@Testcontainers
+@WithPostgresContainer
 class InntektsmeldingRepositoryTest {
     lateinit var db: Database
-
-    companion object {
-        @Container
-        val postgresContainer =
-            PostgreSQLContainer("postgres:15-alpine")
-                .withDatabaseName("testdb")
-                .withUsername("testuser")
-                .withPassword("testpass")
-    }
 
     @BeforeAll
     fun setup() {
         db =
             DatabaseConfig(
-                jdbcUrl = postgresContainer.jdbcUrl,
-                username = postgresContainer.username,
-                password = postgresContainer.password,
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
             ).init()
     }
 

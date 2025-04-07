@@ -21,6 +21,8 @@ val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
 val bakgrunnsjobbVersion: String by project
+val testContainerVersion: String by project
+
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
@@ -93,9 +95,10 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
-    testImplementation("org.testcontainers:testcontainers:1.20.6")
-    testImplementation("org.testcontainers:postgresql:1.20.6")
-    testImplementation("org.testcontainers:junit-jupiter:1.20.6")
+    testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
+    testImplementation("org.testcontainers:kafka:$testContainerVersion")
+    testImplementation("org.testcontainers:postgresql:$testContainerVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testContainerVersion")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
@@ -107,9 +110,14 @@ tasks {
         useJUnitPlatform()
     }
     test {
-        environment("database.embedded", "false")
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+        environment("database.embedded", "true")
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
         environment("NAV_ARBEIDSGIVER_PORTAL_BASEURL", "https://arbeidsgiver.intern.dev.nav.no")
+        environment("TESTCONTAINERS_RYUK_DISABLED", "false")
+        environment("TESTCONTAINERS_REUSE_ENABLE", "false")
     }
 }

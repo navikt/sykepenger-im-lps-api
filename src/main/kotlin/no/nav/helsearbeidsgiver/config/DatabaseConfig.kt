@@ -7,10 +7,16 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 class DatabaseConfig(
-    val jdbcUrl: String = Env.getProperty("database.url"),
-    val username: String = Env.getProperty("database.username"),
-    val password: String = Env.getProperty("database.password"),
+    url: String? = Env.getPropertyOrNull("database.url"),
+    private val username: String? = Env.getProperty("database.username"),
+    private val password: String? = Env.getProperty("database.password"),
 ) {
+    private val dbName = Env.getProperty("database.name")
+    private val host = Env.getProperty("database.host")
+    private val port = Env.getProperty("database.port")
+
+    private val jdbcUrl = url ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
+
     fun init(): ExposedDatabase {
         val dataSource = postgresDataSource()
         runMigrate(dataSource)
