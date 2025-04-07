@@ -76,7 +76,7 @@ class MeldingTolkerTest {
         sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verifySequence {
             sykmeldingService.lagreSykmelding(any())
-            //mockDialogportenService.opprettNyDialogMedSykmelding(any(), any())
+            // mockDialogportenService.opprettNyDialogMedSykmelding(any(), any())
         }
     }
 
