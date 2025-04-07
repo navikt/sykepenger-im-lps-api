@@ -9,7 +9,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
@@ -17,17 +17,21 @@ import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
+@WithPostgresContainer
 class InnsendingIT {
-    private val db: Database = DbConfig.init()
-    private val repositories: Repositories = configureRepositories(db)
-    private val services: Services = configureServices(repositories)
+    private lateinit var db: Database
+    private lateinit var repositories: Repositories
+    private lateinit var services: Services
+    private lateinit var inntektsmeldingTolker: InntektsmeldingTolker
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -46,7 +50,19 @@ class InnsendingIT {
                 json()
             }
         }
-    val inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        repositories = configureRepositories(db)
+        services = configureServices(repositories)
+        inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
+    }
 
     @Test
     fun `les inntektsmelding på kafka og hent gjennom apiet`() {
