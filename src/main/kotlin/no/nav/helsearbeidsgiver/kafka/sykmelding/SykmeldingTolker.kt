@@ -20,7 +20,7 @@ class SykmeldingTolker(
             val (sykmeldingId, orgnr) = sykmeldingService.lagreSykmelding(sykmeldingMessage = sykmeldingMessage)
             sikkerLogger.info("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}.")
 
-            if (orgnr == "315587336") {
+            if (false && orgnr == "315587336") {
                 dialogportenService.opprettNyDialogMedSykmelding(
                     orgnr = orgnr,
                     sykmeldingId = sykmeldingId,
