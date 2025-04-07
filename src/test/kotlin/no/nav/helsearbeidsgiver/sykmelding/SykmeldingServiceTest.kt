@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.test.assertNull
 
@@ -31,6 +32,28 @@ class SykmeldingServiceTest {
         val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(arbeidsgiverSykmelding) }
 
         lagretSykmelding shouldBe sykmeldingKafkaMessage.sykmelding
+    }
+
+    @Test
+    fun `lagreSykmelding skal _ikke_ lagre sykmelding dersom den sykmeldingsiden allerede finnes i databasen`() {
+        val nowDate = LocalDate.now()
+        val sykmeldinger =
+            List(2) { nowDate }.mapIndexed { index, now ->
+                sykmeldingMock().copyWithSyketilfelleStartDato(
+                    now.minusDays(
+                        index.toLong(),
+                    ),
+                )
+            }
+
+        sykmeldingService.lagreSykmelding(sykmeldinger[0])
+        sykmeldingService.lagreSykmelding(sykmeldinger[1])
+
+        val lagredeSykmeldinger =
+            transaction(db) { SykmeldingEntitet.selectAll().mapNotNull { it.getOrNull(arbeidsgiverSykmelding) } }
+
+        lagredeSykmeldinger.size shouldBe 1
+        lagredeSykmeldinger[0].syketilfelleStartDato shouldBe sykmeldinger[0].sykmelding.syketilfelleStartDato
     }
 
     @Test
@@ -88,4 +111,7 @@ class SykmeldingServiceTest {
         val feilOrgnr = "feil-orgnr"
         assertNull(sykmeldingService.hentSykmelding(id, feilOrgnr))
     }
+
+    private fun SendSykmeldingAivenKafkaMessage.copyWithSyketilfelleStartDato(syketilfelleStartDato: LocalDate) =
+        copy(sykmelding = sykmelding.copy(syketilfelleStartDato = syketilfelleStartDato))
 }

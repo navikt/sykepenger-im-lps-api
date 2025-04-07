@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import java.util.UUID
@@ -30,7 +29,7 @@ class SykmeldingService(
         }
     }
 
-    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): Pair<UUID, String> {
+    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): Pair<UUID, String>? {
         val id =
             sykmeldingMessage.sykmelding.id.toUuidOrNull()
                 ?: throw IllegalArgumentException("SykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
@@ -39,15 +38,24 @@ class SykmeldingService(
             sykmeldingMessage.event.arbeidsgiver?.orgnummer
                 ?: throw SykmeldingOrgnrManglerException("Lagret ikke sykmelding fordi den mangler orgnr $id")
 
-        logger().info("Lagrer sykmelding $id")
+        sikkerLogger().info("Lagrer sykmelding $id")
 
-        sykmeldingRepository.lagreSykmelding(
-            id = id,
-            fnr = sykmeldingMessage.kafkaMetadata.fnr,
-            orgnr = orgnr,
-            sykmelding = sykmeldingMessage.sykmelding,
-        )
+        when (sykmeldingRepository.hentSykmelding(id)) {
+            null -> {
+                sikkerLogger().info("Sykmelding $id er ny og vil derfor lagres.")
+                sykmeldingRepository.lagreSykmelding(
+                    id = id,
+                    fnr = sykmeldingMessage.kafkaMetadata.fnr,
+                    orgnr = orgnr,
+                    sykmelding = sykmeldingMessage.sykmelding,
+                )
+                return id to orgnr
+            }
 
-        return id to orgnr
+            else -> {
+                sikkerLogger().info("Sykmelding $id finnes fra før og vil derfor ignoreres.")
+                return null
+            }
+        }
     }
 }

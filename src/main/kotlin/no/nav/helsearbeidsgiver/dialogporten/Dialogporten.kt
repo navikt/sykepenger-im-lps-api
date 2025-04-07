@@ -83,8 +83,8 @@ class DialogportenService(
             dialogportenClient
                 .opprettNyDialogMedSykmelding(
                     orgnr = orgnr,
-                    dialogTittel = "tittel",
-                    dialogSammendrag = "sammendrag",
+                    dialogTittel = "Sykepenger",
+                    dialogSammendrag = "Sykepengesak for",
                     sykmeldingId = sykmeldingId,
                     sykmeldingJsonUrl = "$navApiBaseUrl/sykmelding/$sykmeldingId",
                 ).onFailure { e -> sikkerLogger().error("Fikk feil mot dialogporten", e) }

@@ -17,14 +17,16 @@ class SykmeldingTolker(
         try {
             sikkerLogger.info("Gjør klar for lagring av mottatt sykmelding.")
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val (sykmeldingId, orgnr) = sykmeldingService.lagreSykmelding(sykmeldingMessage = sykmeldingMessage)
-            sikkerLogger.info("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}.")
+            val lagretSykmeldingIdOrgnrPair = sykmeldingService.lagreSykmelding(sykmeldingMessage = sykmeldingMessage)
 
-            if (false && orgnr == "315587336") {
-                dialogportenService.opprettNyDialogMedSykmelding(
-                    orgnr = orgnr,
-                    sykmeldingId = sykmeldingId,
-                )
+            if (lagretSykmeldingIdOrgnrPair != null && false) {
+                val (sykmeldingId, orgnr) = lagretSykmeldingIdOrgnrPair
+                if (orgnr == "315587336") {
+                    dialogportenService.opprettNyDialogMedSykmelding(
+                        orgnr = orgnr,
+                        sykmeldingId = sykmeldingId,
+                    )
+                }
                 sikkerLogger.info("Opprettet dialog i Dialogporten med sykmelding for orgnr: $orgnr og sykmeldingId: $sykmeldingId.")
             }
         } catch (e: Exception) {
