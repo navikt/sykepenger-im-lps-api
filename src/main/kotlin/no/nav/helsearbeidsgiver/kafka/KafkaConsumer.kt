@@ -17,6 +17,7 @@ suspend fun startKafkaConsumer(
     consumer.subscribe(listOf(topic))
     consumer.asFlow().collect { record ->
         try {
+            sikkerLogger().info("Lagrer melding med offset: ${record.offset()}, key: ${record.key()} og value: ${record.value()}")
             meldingTolker.lesMelding(record.value())
             consumer.commitSync()
         } catch (e: Exception) {
