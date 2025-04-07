@@ -17,8 +17,13 @@ suspend fun startKafkaConsumer(
     consumer.subscribe(listOf(topic))
     consumer.asFlow().collect { record ->
         try {
-            sikkerLogger().info("Lagrer melding med offset: ${record.offset()}, key: ${record.key()} og value: ${record.value()}")
-            meldingTolker.lesMelding(record.value())
+            // Obs: record.value() kan være null fordi Apache kafka er skrevet i java
+            val value: String? = record.value()
+            if (value != null) {
+                meldingTolker.lesMelding(value)
+            } else {
+                sikkerLogger().warn("Melding med null value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}")
+            }
             consumer.commitSync()
         } catch (e: Exception) {
             "Feil ved polling / lagring, avslutter!".let {
