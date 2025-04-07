@@ -25,9 +25,8 @@ class SykmeldingTolker(
                     orgnr = orgnr,
                     sykmeldingId = sykmeldingId,
                 )
+                sikkerLogger.info("Opprettet dialog i Dialogporten med sykmelding for orgnr: $orgnr og sykmeldingId: $sykmeldingId.")
             }
-
-            sikkerLogger.info("Opprettet dialog i Dialogporten med sykmelding for orgnr: $orgnr og sykmeldingId: $sykmeldingId.")
         } catch (e: Exception) {
             sikkerLogger.error("Klarte ikke å lagre og opprette dialog for sykmelding!", e)
             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
