@@ -68,7 +68,7 @@ class MeldingTolkerTest {
 
     @Test
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
-        every { mockDialogportenService.opprettNyDialogMedSykmelding(any(), any()) } returns
+        every { mockDialogportenService.opprettNyDialogMedSykmelding(any(), any(), any()) } returns
             Result.success(
                 UUID.randomUUID().toString(),
             )

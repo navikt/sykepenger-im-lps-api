@@ -25,6 +25,7 @@ class SykmeldingTolker(
                     dialogportenService.opprettNyDialogMedSykmelding(
                         orgnr = orgnr,
                         sykmeldingId = sykmeldingId,
+                        sykmeldingMessage = sykmeldingMessage,
                     )
                 }
                 sikkerLogger.info("Opprettet dialog i Dialogporten med sykmelding for orgnr: $orgnr og sykmeldingId: $sykmeldingId.")

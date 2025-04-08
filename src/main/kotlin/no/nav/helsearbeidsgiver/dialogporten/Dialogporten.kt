@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.getDialogportenToken
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
@@ -16,6 +17,7 @@ interface IDialogportenService {
     fun opprettNyDialogMedSykmelding(
         orgnr: String,
         sykmeldingId: UUID,
+        sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
     ): Result<String>
 }
 
@@ -37,6 +39,7 @@ class IngenDialogportenService : IDialogportenService {
     override fun opprettNyDialogMedSykmelding(
         orgnr: String,
         forespoerselId: UUID,
+        sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
     ): Result<String> {
         val generertId = UUID.randomUUID()
         sikkerLogger().info(
@@ -78,13 +81,14 @@ class DialogportenService(
     override fun opprettNyDialogMedSykmelding(
         orgnr: String,
         sykmeldingId: UUID,
+        sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
     ): Result<String> =
         runBlocking {
             dialogportenClient
                 .opprettNyDialogMedSykmelding(
                     orgnr = orgnr,
-                    dialogTittel = "Sykepenger",
-                    dialogSammendrag = "Sykepengesak for",
+                    dialogTittel = "Sykepenger for X Y (f. Z)",
+                    dialogSammendrag = sykmeldingMessage.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmeldingId,
                     sykmeldingJsonUrl = "$navApiBaseUrl/sykmelding/$sykmeldingId",
                 ).onFailure { e -> sikkerLogger().error("Fikk feil mot dialogporten", e) }
@@ -98,6 +102,13 @@ class DialogportenService(
                 }
         }
 }
+
+private fun SendSykmeldingAivenKafkaMessage.getSykmeldingsPerioderString(): String =
+    when (this.sykmelding.sykmeldingsperioder.size) {
+        0 -> "Ingen sykmeldingsperioder" // TODO: Håndtere dette tilfellet. Kaste feil?
+        1 -> "Sykmeldingsperiode ${this.sykmelding.sykmeldingsperioder[0].fom} - ${this.sykmelding.sykmeldingsperioder[0].tom}"
+        else -> "Sykmeldingsperioder ${this.sykmelding.sykmeldingsperioder.first().fom} - (...) - ${this.sykmelding.sykmeldingsperioder.last().tom}"
+    }
 
 fun lagDialogportenClient(authClient: AltinnAuthClient) =
     DialogportenClient(
