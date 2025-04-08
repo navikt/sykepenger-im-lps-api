@@ -11,7 +11,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
@@ -20,17 +20,21 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
+@WithPostgresContainer
 class ForespoerselIT {
-    private val db: Database = DbConfig.init()
-    private val repositories: Repositories = configureRepositories(db)
-    private val services: Services = configureServices(repositories)
+    private lateinit var db: Database
+    private lateinit var repositories: Repositories
+    private lateinit var services: Services
+    private lateinit var forespoerselTolker: ForespoerselTolker
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -51,12 +55,23 @@ class ForespoerselIT {
         }
     private val dialogportenService: DialogportenService = mockk(relaxed = true)
 
-    private val forespoerselTolker =
-        ForespoerselTolker(
-            forespoerselRepository = repositories.forespoerselRepository,
-            mottakRepository = repositories.mottakRepository,
-            dialogportenService = dialogportenService,
-        )
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        repositories = configureRepositories(db)
+        services = configureServices(repositories)
+        forespoerselTolker =
+            ForespoerselTolker(
+                forespoerselRepository = repositories.forespoerselRepository,
+                mottakRepository = repositories.mottakRepository,
+                dialogportenService = dialogportenService,
+            )
+    }
 
     @Test
     fun `les forespoersel på kafka og les gjennom apiet`() {

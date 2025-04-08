@@ -4,5 +4,6 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 fun main() {
     sikkerLogger().info("*** Starter server lokalt***")
+    genererKafkaMeldinger()
     startServer()
 }

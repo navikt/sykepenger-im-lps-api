@@ -1,8 +1,9 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -12,7 +13,10 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.junit.jupiter.api.BeforeEach
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -21,12 +25,25 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.assertEquals
 
+@WithPostgresContainer
 class InntektsmeldingRepositoryTest {
     lateinit var db: Database
 
-    @BeforeEach
-    fun beforeEach() {
-        db = DbConfig.init()
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        transaction(db) {
+            InntektsmeldingEntitet.deleteAll()
+        }
     }
 
     @Test

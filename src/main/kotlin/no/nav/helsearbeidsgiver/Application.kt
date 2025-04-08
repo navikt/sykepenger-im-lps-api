@@ -6,7 +6,7 @@ import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureAuth
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
@@ -23,7 +23,7 @@ fun main() {
 fun startServer() {
     val sikkerLogger = sikkerLogger()
     sikkerLogger.info("Setter opp database...")
-    val db = DbConfig.init()
+    val db = DatabaseConfig().init()
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
     val services = configureServices(repositories)
