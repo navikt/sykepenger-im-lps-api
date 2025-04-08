@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -24,15 +25,17 @@ fun startServer() {
     val sikkerLogger = sikkerLogger()
     sikkerLogger.info("Setter opp database...")
     val db = DatabaseConfig().init()
+    sikkerLogger.info("Setter opp unleash...")
+    val unleashFeatureToggles = UnleashFeatureToggles()
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
-    val services = configureServices(repositories)
+    val services = configureServices(repositories, unleashFeatureToggles)
     embeddedServer(
         factory = Netty,
         port = 8080,
         module = {
             apiModule(services = services)
-            configureKafkaConsumers(services = services, repositories = repositories)
+            configureKafkaConsumers(services = services, repositories = repositories, unleashFeatureToggles = unleashFeatureToggles)
         },
     ).start(wait = true)
 }

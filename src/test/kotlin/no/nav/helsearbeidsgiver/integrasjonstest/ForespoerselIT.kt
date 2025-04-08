@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
@@ -54,6 +55,7 @@ class ForespoerselIT {
             }
         }
     private val dialogportenService: DialogportenService = mockk(relaxed = true)
+    private val unleashFeatureToggles: UnleashFeatureToggles = mockk(relaxed = true)
 
     @BeforeAll
     fun setup() {
@@ -64,7 +66,7 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories)
+        services = configureServices(repositories, unleashFeatureToggles)
         forespoerselTolker =
             ForespoerselTolker(
                 forespoerselRepository = repositories.forespoerselRepository,

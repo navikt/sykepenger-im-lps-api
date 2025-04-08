@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,8 +40,9 @@ class MeldingTolkerTest {
     val sykmeldingService = spyk(SykmeldingService(sykmeldingRepository))
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val mockDialogportenService = mockk<IDialogportenService>()
+    val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository, mockDialogportenService)
-    val sykmeldingTolker = SykmeldingTolker(sykmeldingService)
+    val sykmeldingTolker = SykmeldingTolker(sykmeldingService, mockUnleashFeatureToggles)
 
     @BeforeEach
     fun setup() {
