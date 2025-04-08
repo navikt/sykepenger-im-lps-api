@@ -117,7 +117,7 @@ tasks {
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
         environment("NAV_ARBEIDSGIVER_PORTAL_BASEURL", "https://arbeidsgiver.intern.dev.nav.no")
-        environment("TESTCONTAINERS_RYUK_DISABLED", "false")
-        environment("TESTCONTAINERS_REUSE_ENABLE", "false")
+        environment("TESTCONTAINERS_RYUK_DISABLED", "true")
+        environment("TESTCONTAINERS_REUSE_ENABLE", "true")
     }
 }
