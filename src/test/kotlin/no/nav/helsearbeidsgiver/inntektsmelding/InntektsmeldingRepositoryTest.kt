@@ -127,7 +127,7 @@ class InntektsmeldingRepositoryTest {
                 DEFAULT_ORG,
                 InntektsmeldingFilterRequest(
                     fnr = DEFAULT_FNR,
-                    foresporselId = forespoerselId,
+                    navReferanseId = forespoerselId,
                     fraTid = innsendtDato.minusDays(1),
                     tilTid = innsendtDato.plusDays(1),
                 ),
@@ -163,7 +163,7 @@ class InntektsmeldingRepositoryTest {
                 org2.verdi,
                 InntektsmeldingFilterRequest(
                     fnr = null,
-                    foresporselId = null,
+                    navReferanseId = null,
                     fraTid = null,
                     tilTid = null,
                 ),
@@ -194,13 +194,13 @@ class InntektsmeldingRepositoryTest {
         val oppdatertInntektsmelding =
             repository.hent(
                 DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(foresporselId = forespoerselId),
+                request = InntektsmeldingFilterRequest(navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
         val ikkeOppdatertInntektsmelding =
             repository.hent(
                 DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(foresporselId = inntektsmelding2.type.id),
+                request = InntektsmeldingFilterRequest(navReferanseId = inntektsmelding2.type.id),
             )[0]
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }

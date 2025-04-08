@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.kafka.forespoersel
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
@@ -19,89 +20,97 @@ class ForespoerselTolker(
     private val dialogportenService: IDialogportenService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
+    private val logger = logger()
 
     override fun lesMelding(melding: String) {
-        sikkerLogger.info("Mottatt event: $melding")
         val obj =
             try {
                 parseRecord(melding)
             } catch (e: Exception) {
-                sikkerLogger.info("Ugyldig event, ignorerer melding")
-                mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
+                if (matcherBehovMelding(melding)) {
+                    logger.debug("Ignorerer behov-melding")
+                } else {
+                    mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
+                }
                 return
             }
-        try {
-            sikkerLogger.info("Mottatt notis: ${obj.notis}")
-
-            val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
-            if (forespoerselId == null) {
-                logger().info("forespoerselId er null!")
-                mottakRepository.opprett(ExposedMottak(melding))
-                return
-            }
-            when (obj.notis) {
-                NotisType.FORESPØRSEL_MOTTATT -> {
-                    val forespoersel = obj.forespoersel
-                    if (forespoersel != null) {
-                        transaction {
-                            try {
-                                forespoerselRepository.lagreForespoersel(
-                                    forespoerselId = forespoersel.forespoerselId,
-                                    payload = forespoersel,
-                                )
-                                mottakRepository.opprett(ExposedMottak(melding))
-                            } catch (e: Exception) {
-                                rollback()
-                                sikkerLogger.error("Klarte ikke å lagre i database!", e)
-                                throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
-                            }
+        logger.info("Mottatt notis ${obj.notis}")
+        val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
+        if (forespoerselId == null) {
+            logger().error("forespoerselId er null!")
+            mottakRepository.opprett(ExposedMottak(melding, gyldig = false))
+            return
+        }
+        when (obj.notis) {
+            NotisType.FORESPØRSEL_MOTTATT -> {
+                val forespoersel = obj.forespoersel
+                if (forespoersel != null) {
+                    transaction {
+                        try {
+                            forespoerselRepository.lagreForespoersel(
+                                navReferanseId = forespoerselId,
+                                payload = forespoersel,
+                            )
+                            mottakRepository.opprett(ExposedMottak(melding))
+                        } catch (e: Exception) {
+                            rollback()
+                            logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")
+                            sikkerLogger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId", e)
+                            throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
                         }
-                        dialogportenService.opprettDialog(
-                            orgnr = forespoersel.orgnr,
-                            forespoerselId = forespoersel.forespoerselId,
-                        )
-                    } else {
-                        sikkerLogger.warn("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
-                        mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                     }
-                }
-
-                NotisType.FORESPOERSEL_BESVART -> {
-                    settBesvart(forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
-
-                NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                    settBesvart(forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
-
-                NotisType.FORESPOERSEL_FORKASTET -> {
-                    settForkastet(forespoerselId)
-                    mottakRepository.opprett(ExposedMottak(melding))
-                }
-
-                NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
-                    // TODO:: Skal vi håndtere kastet til infotrygd?
-                    sikkerLogger.info("Forespørsel kastet til infotrygd - håndteres ikke")
-                    mottakRepository.opprett(ExposedMottak(melding, false))
+                    dialogportenService.opprettDialog(
+                        orgnr = forespoersel.orgnr,
+                        forespoerselId = forespoersel.forespoerselId,
+                    )
+                } else {
+                    logger.error("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
+                    mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 }
             }
-        } catch (e: Exception) {
-            sikkerLogger.warn("feil - $e")
-            throw e // sørg for at vi ikke committer offset på kafka ved ikke-håndterte feil
+
+            NotisType.FORESPOERSEL_BESVART -> {
+                settBesvart(forespoerselId)
+                mottakRepository.opprett(ExposedMottak(melding))
+            }
+
+            NotisType.FORESPOERSEL_BESVART_SIMBA -> {
+                settBesvart(forespoerselId)
+                mottakRepository.opprett(ExposedMottak(melding))
+            }
+
+            NotisType.FORESPOERSEL_FORKASTET -> {
+                settForkastet(forespoerselId)
+                mottakRepository.opprett(ExposedMottak(melding))
+            }
+
+            NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
+                // TODO:: Skal vi håndtere kastet til infotrygd?
+                logger.info("Forespørsel kastet til infotrygd - håndteres ikke")
+                mottakRepository.opprett(ExposedMottak(melding, false))
+            }
         }
     }
 
     private fun parseRecord(record: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(record)
 
+    // Melding til / fra Bro med behov-felt er ikke relevant for denne klassen, så vi ignorerer disse
+    private fun matcherBehovMelding(record: String): Boolean {
+        try {
+            jsonMapper.decodeFromString<BehovMessage>(record)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
     private fun settForkastet(forespoerselId: UUID) {
         val antall = forespoerselRepository.settForkastet(forespoerselId)
-        sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
+        logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
     }
 
     private fun settBesvart(forespoerselId: UUID) {
         val antall = forespoerselRepository.settBesvart(forespoerselId)
-        sikkerLogger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
+        logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
     }
 }

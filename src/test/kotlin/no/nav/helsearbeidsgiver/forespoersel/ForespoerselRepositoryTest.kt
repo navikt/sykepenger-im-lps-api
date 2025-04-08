@@ -23,7 +23,7 @@ class ForespoerselRepositoryTest {
         forespoersler.size shouldBe 1
         forespoersler[0].status shouldBe Status.AKTIV
         forespoerselRepository.settBesvart(forespoerselID)
-        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.MOTTATT
+        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.BESVART
     }
 
     @Test
@@ -66,7 +66,7 @@ class ForespoerselRepositoryTest {
         val request =
             ForespoerselRequest(
                 fnr = DEFAULT_FNR,
-                forespoerselId = null,
+                navReferanseId = null,
                 status = null,
             )
         val forespoersler = forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request)

@@ -99,9 +99,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "array"
-                items:
-                  type: "string"
+                type: "object"
         "201":
           description: "Created"
           content:
@@ -224,8 +222,9 @@ components:
     Forespoersel:
       type: "object"
       properties:
-        forespoerselId:
+        navReferanseId:
           type: "string"
+          format: "uuid"
         orgnr:
           type: "string"
         fnr:
@@ -234,7 +233,7 @@ components:
           type: "string"
           enum:
           - "AKTIV"
-          - "MOTTATT"
+          - "BESVART"
           - "FORKASTET"
         sykmeldingsperioder:
           type: "array"
@@ -249,7 +248,7 @@ components:
         inntektPaakrevd:
           type: "boolean"
       required:
-      - "forespoerselId"
+      - "navReferanseId"
       - "orgnr"
       - "fnr"
       - "status"
@@ -275,13 +274,14 @@ components:
       properties:
         fnr:
           type: "string"
-        forespoerselId:
+        navReferanseId:
           type: "string"
+          format: "uuid"
         status:
           type: "string"
           enum:
           - "AKTIV"
-          - "MOTTATT"
+          - "BESVART"
           - "FORKASTET"
     RedusertLoennIAgp:
       type: "object"
@@ -685,8 +685,9 @@ components:
       properties:
         fnr:
           type: "string"
-        foresporselId:
+        navReferanseId:
           type: "string"
+          format: "uuid"
         fraTid:
           type: "string"
           format: "date-time"
