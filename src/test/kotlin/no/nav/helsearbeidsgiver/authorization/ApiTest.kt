@@ -16,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
@@ -24,6 +25,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -35,40 +37,45 @@ import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
+@WithPostgresContainer
 class ApiTest {
-    private val repositories: Repositories
-    private val services: Services
+    private lateinit var db: Database
+    private var repositories: Repositories = mockk<Repositories>(relaxed = true)
+    private var services: Services = configureServices(repositories)
 
     private val port = 33445
-    private val mockOAuth2Server: MockOAuth2Server
-    private val testApplication: TestApplication
-    private val client: HttpClient
+    private val mockOAuth2Server: MockOAuth2Server =
+        MockOAuth2Server().apply {
+            start(port = port)
+        }
+    private val testApplication: TestApplication =
+        TestApplication {
+            application {
+                apiModule(services = services)
+                configureKafkaConsumers(services = services, repositories = repositories)
+            }
+        }
+    private val client: HttpClient =
+        testApplication.createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
 
-    init {
-        repositories = mockk<Repositories>(relaxed = true)
-        services = configureServices(repositories)
-        mockOAuth2Server =
-            MockOAuth2Server().apply {
-                start(port = port)
-            }
-        testApplication =
-            TestApplication {
-                application {
-                    apiModule(services = services)
-                    configureKafkaConsumers(services = services, repositories = repositories)
-                }
-            }
-        client =
-            testApplication.createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
     }
 
     @Test
@@ -149,7 +156,6 @@ class ApiTest {
         }
 
     @Test
-    @Disabled // TODO: lag integrasjonstest for denne test casen istedenfor
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
             val requestBody = mockInntektsmeldingRequest()
