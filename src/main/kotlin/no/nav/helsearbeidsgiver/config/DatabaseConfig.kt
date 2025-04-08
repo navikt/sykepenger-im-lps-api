@@ -7,7 +7,7 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 class DatabaseConfig(
-    private val url: String? = Env.getPropertyOrNull("database.url"),
+    url: String? = Env.getPropertyOrNull("database.url"),
     private val username: String? = Env.getProperty("database.username"),
     private val password: String? = Env.getProperty("database.password"),
 ) {
