@@ -111,7 +111,7 @@ tasks {
     }
     test {
         testLogging {
-            events("passed", "skipped", "failed")
+            events("failed")
         }
         environment("database.embedded", "true")
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
