@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.kafka.KafkaContainer
+import org.testcontainers.kafka.ConfluentKafkaContainer
 import org.testcontainers.utility.DockerImageName
 
 @Target(AnnotationTarget.CLASS)
@@ -24,7 +24,7 @@ class PostgresTestExtension :
     AfterAllCallback {
     companion object {
         private val postgresContainer =
-            PostgreSQLContainer("postgres:15-alpine")
+            PostgreSQLContainer("postgres:16")
                 .withDatabaseName("testdb")
                 .withUsername("testuser")
                 .withPassword("testpass")
@@ -47,7 +47,7 @@ class KafkaTestExtension :
     BeforeAllCallback,
     AfterAllCallback {
     companion object {
-        private val kafkaContainer = KafkaContainer(DockerImageName.parse("apache/kafka:latest"))
+        private val kafkaContainer = ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.8.0"))
     }
 
     override fun beforeAll(context: ExtensionContext) {
