@@ -17,7 +17,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
@@ -56,7 +55,7 @@ class ApiTest {
 
     init {
         repositories = mockk<Repositories>(relaxed = true)
-        services = spyk(configureServices(repositories))
+        services = configureServices(repositories)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
