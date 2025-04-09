@@ -10,20 +10,17 @@ class UnleashFeatureToggles {
     private val apiUrl = Env.getProperty("UNLEASH_SERVER_API_URL") + "/api"
     private val apiEnv = Env.getProperty("UNLEASH_SERVER_API_ENV")
 
-    private val defaultUnleash: DefaultUnleash
-
-    init {
-        defaultUnleash =
-            DefaultUnleash(
-                UnleashConfig
-                    .builder()
-                    .appName("sykepenger-im-lps-api")
-                    .instanceId("sykepenger-im-lps-api")
-                    .unleashAPI(apiUrl)
-                    .apiKey(apiKey)
-                    .environment(apiEnv)
-                    .build(),
-            ).also { sikkerLogger().info("Unleash koblet opp apiUrl: $apiUrl and apiEnv: $apiEnv") }
+    private val defaultUnleash: DefaultUnleash by lazy {
+        DefaultUnleash(
+            UnleashConfig
+                .builder()
+                .appName("sykepenger-im-lps-api")
+                .instanceId("sykepenger-im-lps-api")
+                .unleashAPI(apiUrl)
+                .apiKey(apiKey)
+                .environment(apiEnv)
+                .build(),
+        ).also { sikkerLogger().info("Unleash koblet opp apiUrl: $apiUrl and apiEnv: $apiEnv") }
     }
 
     fun skalOppretteDialogVedMottattSykmelding(): Boolean =

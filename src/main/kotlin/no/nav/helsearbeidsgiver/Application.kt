@@ -29,7 +29,7 @@ fun startServer() {
     val unleashFeatureToggles = UnleashFeatureToggles()
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
-    val services = configureServices(repositories, unleashFeatureToggles)
+    val services = configureServices(repositories)
     embeddedServer(
         factory = Netty,
         port = 8080,

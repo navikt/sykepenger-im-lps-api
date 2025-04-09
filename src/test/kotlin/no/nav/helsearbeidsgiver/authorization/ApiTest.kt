@@ -54,7 +54,7 @@ class ApiTest {
     init {
         repositories = mockk<Repositories>(relaxed = true)
         unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
-        services = configureServices(repositories, unleashFeatureToggles)
+        services = configureServices(repositories)
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)

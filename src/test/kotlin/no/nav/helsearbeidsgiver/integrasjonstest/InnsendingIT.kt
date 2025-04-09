@@ -7,7 +7,6 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -20,7 +19,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
@@ -34,8 +32,6 @@ class InnsendingIT {
     private lateinit var repositories: Repositories
     private lateinit var services: Services
     private lateinit var inntektsmeldingTolker: InntektsmeldingTolker
-
-    private val unleashFeatureToggles: UnleashFeatureToggles = mockk(relaxed = true)
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -64,7 +60,7 @@ class InnsendingIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, unleashFeatureToggles)
+        services = configureServices(repositories)
         inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
     }
 

@@ -77,10 +77,7 @@ fun configureRepositories(db: Database): Repositories =
         sykmeldingRepository = SykmeldingRepository(db),
     )
 
-fun configureServices(
-    repositories: Repositories,
-    unleashFeatureToggles: UnleashFeatureToggles,
-): Services {
+fun configureServices(repositories: Repositories): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
