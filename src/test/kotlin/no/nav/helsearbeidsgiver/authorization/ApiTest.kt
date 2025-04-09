@@ -25,7 +25,6 @@ import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -44,7 +43,6 @@ import java.util.UUID
 class ApiTest {
     private val repositories: Repositories
     private val services: Services
-    private val unleashFeatureToggles: UnleashFeatureToggles
 
     private val port = 33445
     private val mockOAuth2Server: MockOAuth2Server
@@ -53,7 +51,6 @@ class ApiTest {
 
     init {
         repositories = mockk<Repositories>(relaxed = true)
-        unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
         services = configureServices(repositories)
         mockOAuth2Server =
             MockOAuth2Server().apply {
@@ -63,7 +60,11 @@ class ApiTest {
             TestApplication {
                 application {
                     apiModule(services = services)
-                    configureKafkaConsumers(services = services, repositories = repositories, unleashFeatureToggles = unleashFeatureToggles)
+                    configureKafkaConsumers(
+                        services = services,
+                        repositories = repositories,
+                        unleashFeatureToggles = mockk(),
+                    )
                 }
             }
         client =

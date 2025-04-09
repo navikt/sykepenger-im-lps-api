@@ -21,10 +21,10 @@ class SykmeldingTolker(
 
             if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
                 sikkerLogger()
-                    .info("Uleash toggle for å opprette Dialogporten dialog er skrudd på (dialogopprettelse ikke implementert ennå).")
+                    .info("Unleash toggle for å opprette Dialogporten dialog er skrudd på (dialogopprettelse ikke implementert ennå).")
             } else {
                 sikkerLogger()
-                    .info("Uleash toggle for å opprette Dialogporten dialog er skrudd av.")
+                    .info("Unleash toggle for å opprette Dialogporten dialog er skrudd av.")
             }
         } catch (e: Exception) {
             sikkerLogger.error("Klarte ikke å lagre sykmelding i database!", e)

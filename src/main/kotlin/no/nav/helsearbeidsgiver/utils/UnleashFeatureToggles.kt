@@ -9,7 +9,7 @@ class UnleashFeatureToggles {
     private val apiUrl = Env.getProperty("UNLEASH_SERVER_API_URL") + "/api"
     private val apiEnv = Env.getProperty("UNLEASH_SERVER_API_ENV")
 
-    private val defaultUnleash: DefaultUnleash by lazy {
+    private val defaultUnleash: DefaultUnleash =
         DefaultUnleash(
             UnleashConfig
                 .builder()
@@ -20,7 +20,6 @@ class UnleashFeatureToggles {
                 .environment(apiEnv)
                 .build(),
         )
-    }
 
     fun skalOppretteDialogVedMottattSykmelding(): Boolean =
         defaultUnleash.isEnabled(
