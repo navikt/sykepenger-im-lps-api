@@ -17,6 +17,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
@@ -159,7 +160,7 @@ class ApiTest {
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
             // Nødvendig pga transaction rundt service kall
-            mockkStatic("no.nav.helsearbeidsgiver.utils.ServicesUtilsKt")
+            mockkStatic(Services::opprettImTransaction)
             every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
@@ -177,6 +178,7 @@ class ApiTest {
                     match { it.type.id == requestBody.navReferanseId },
                 )
             }
+            unmockkStatic(Services::opprettImTransaction)
         }
 
     @Test

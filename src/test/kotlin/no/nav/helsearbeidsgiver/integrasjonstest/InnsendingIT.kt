@@ -123,7 +123,7 @@ class InnsendingIT {
                     timeout = LocalDateTime.now(),
                     tilstander = setOf(BakgrunnsjobbStatus.OPPRETTET),
                     alle = true,
-                )[0]
+                ).first()
                 .type shouldBe InnsendingProcessor.JOB_TYPE
         }
 
