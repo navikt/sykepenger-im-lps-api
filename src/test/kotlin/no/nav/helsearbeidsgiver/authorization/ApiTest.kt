@@ -9,6 +9,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
@@ -87,7 +88,7 @@ class ApiTest {
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-            response.status.value shouldBe 200
+            response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.antall shouldBe 1
             forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
@@ -98,10 +99,10 @@ class ApiTest {
     fun `gir 401 når token mangler`() =
         runTest {
             val response1 = client.get("/v1/forespoersler")
-            response1.status.value shouldBe 401
+            response1.status shouldBe HttpStatusCode.Unauthorized
 
             val response2 = client.get("/v1/inntektsmeldinger")
-            response2.status.value shouldBe 401
+            response2.status shouldBe HttpStatusCode.Unauthorized
 
             val requestBody = mockInntektsmeldingRequest()
             val response3 =
@@ -109,7 +110,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response3.status.value shouldBe 401
+            response3.status shouldBe HttpStatusCode.Unauthorized
         }
 
     @Test
@@ -119,13 +120,13 @@ class ApiTest {
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                 }
-            response1.status.value shouldBe 401
+            response1.status shouldBe HttpStatusCode.Unauthorized
 
             val response2 =
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                 }
-            response2.status.value shouldBe 401
+            response2.status shouldBe HttpStatusCode.Unauthorized
 
             val requestBody = mockInntektsmeldingRequest()
             val response3 =
@@ -134,7 +135,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response3.status.value shouldBe 401
+            response3.status shouldBe HttpStatusCode.Unauthorized
         }
 
     @Test
@@ -150,7 +151,7 @@ class ApiTest {
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-            response.status.value shouldBe 200
+            response.status shouldBe HttpStatusCode.OK
             val inntektsmeldingFilterResponse = response.body<InntektsmeldingFilterResponse>()
             inntektsmeldingFilterResponse.antall shouldBe 1
             inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
@@ -171,7 +172,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 201
+            response.status shouldBe HttpStatusCode.Created
             verify {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
@@ -197,7 +198,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 400
+            response.status shouldBe HttpStatusCode.BadRequest
         }
 
     @Test
@@ -211,7 +212,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 400
+            response.status shouldBe HttpStatusCode.BadRequest
         }
 
     @AfterAll

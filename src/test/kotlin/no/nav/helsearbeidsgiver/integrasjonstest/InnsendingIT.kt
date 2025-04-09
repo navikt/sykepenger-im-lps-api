@@ -8,6 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
@@ -87,7 +88,7 @@ class InnsendingIT {
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
-            response.status.value shouldBe 200
+            response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<InntektsmeldingFilterResponse>()
             forespoerselSvar.antall shouldBe 1
             forespoerselSvar.inntektsmeldinger[0].status shouldBe InnsendingStatus.GODKJENT
@@ -113,7 +114,7 @@ class InnsendingIT {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 201
+            response.status shouldBe HttpStatusCode.Created
             repositories.inntektsmeldingRepository
                 .hent(requestBody.navReferanseId)
                 .first()
