@@ -25,7 +25,7 @@ fun startServer() {
     val sikkerLogger = sikkerLogger()
     sikkerLogger.info("Setter opp database...")
     val db = DatabaseConfig().init()
-    sikkerLogger.info("Setter opp unleash...")
+    sikkerLogger.info("Setter opp Unleash...")
     val unleashFeatureToggles = UnleashFeatureToggles()
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)

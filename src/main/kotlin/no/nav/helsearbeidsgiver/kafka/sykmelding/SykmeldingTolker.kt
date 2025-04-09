@@ -14,18 +14,18 @@ class SykmeldingTolker(
     private val sikkerLogger = sikkerLogger()
 
     override fun lesMelding(melding: String) {
-        try {
-            val skalOppretteDialogVedMottattSykmelding = unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()
-            sikkerLogger()
-                .info("Unleash feature toggle for opprett dialog ved mottatt sykmelding: $skalOppretteDialogVedMottattSykmelding")
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved sjekk av Unleash feature toggle", e)
-        }
-
         val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
         try {
             sykmeldingService.lagreSykmelding(sykmeldingMessage)
             sikkerLogger.error("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}")
+
+            if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
+                sikkerLogger()
+                    .info("Uleash toggle for å opprette Dialogporten dialog er skrudd på (dialogopprettelse ikke implementert ennå).")
+            } else {
+                sikkerLogger()
+                    .info("Uleash toggle for å opprette Dialogporten dialog er skrudd av.")
+            }
         } catch (e: Exception) {
             sikkerLogger.error("Klarte ikke å lagre sykmelding i database!", e)
             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
