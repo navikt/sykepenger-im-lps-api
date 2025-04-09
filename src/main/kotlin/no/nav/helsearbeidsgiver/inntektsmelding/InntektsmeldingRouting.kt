@@ -14,42 +14,32 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
-import no.nav.helsearbeidsgiver.innsending.InnsendingService
-import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.OffsetDateTime
 import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
-fun Route.inntektsmeldingV1(
-    inntektsmeldingService: InntektsmeldingService,
-    innsendingService: InnsendingService,
-    forespoerselService: ForespoerselService,
-) {
+fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
-        filtrerInntektsmeldinger(inntektsmeldingService)
-        inntektsmeldinger(inntektsmeldingService)
-        innsending(inntektsmeldingService, innsendingService, forespoerselService)
+        filtrerInntektsmeldinger(services.inntektsmeldingService)
+        inntektsmeldinger(services.inntektsmeldingService)
+        innsending(services)
     }
 }
 
-private fun Route.innsending(
-    inntektsmeldingService: InntektsmeldingService,
-    innsendingService: InnsendingService,
-    forespoerselService: ForespoerselService,
-) {
+private fun Route.innsending(services: Services) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
@@ -65,7 +55,7 @@ private fun Route.innsending(
                 return@post
             }
 
-            val forespoersel = forespoerselService.hentForespoersel(request.navReferanseId)
+            val forespoersel = services.forespoerselService.hentForespoersel(request.navReferanseId)
             if (forespoersel == null || forespoersel.orgnr != sluttbrukerOrgnr) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
@@ -110,12 +100,9 @@ private fun Route.innsending(
                     inntekt = request.inntekt,
                     refusjon = request.refusjon,
                 )
-            transaction {
-                inntektsmeldingService.opprettInntektsmelding(
-                    im = inntektsmelding,
-                    innsendingStatus = InnsendingStatus.MOTTATT,
-                )
-                innsendingService.lagreBakgrunsjobbInnsending(
+            services.opprettImTransaction(
+                inntektsmelding = inntektsmelding,
+                innsending =
                     Innsending(
                         innsendingId = inntektsmelding.id,
                         skjema = skjemaInntektsmelding,
@@ -124,8 +111,7 @@ private fun Route.innsending(
                         innsendtTid = OffsetDateTime.now(),
                         versjon = VERSJON_1,
                     ),
-                )
-            }
+            )
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)

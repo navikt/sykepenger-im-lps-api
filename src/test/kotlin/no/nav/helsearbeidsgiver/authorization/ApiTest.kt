@@ -12,8 +12,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.Repositories
@@ -31,12 +36,12 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -51,7 +56,7 @@ class ApiTest {
 
     init {
         repositories = mockk<Repositories>(relaxed = true)
-        services = configureServices(repositories)
+        services = spyk(configureServices(repositories))
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -74,7 +79,10 @@ class ApiTest {
     @Test
     fun `hent forespørsler fra api`() =
         runTest {
-            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns listOf(mockForespoersel())
+            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns
+                listOf(
+                    mockForespoersel(),
+                )
             val response =
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -149,9 +157,11 @@ class ApiTest {
         }
 
     @Test
-    @Disabled // TODO: lag integrasjonstest for denne test casen istedenfor
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
+            // Nødvendig pga transaction rundt service kall
+            mockkStatic("no.nav.helsearbeidsgiver.utils.ServicesUtilsKt")
+            every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
@@ -162,6 +172,12 @@ class ApiTest {
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response.status.value shouldBe 201
+            verify {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
         }
 
     @Test
