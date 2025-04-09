@@ -1,26 +1,42 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 import kotlin.test.assertNull
 
+@WithPostgresContainer
 class SykmeldingServiceTest {
-    val db = DbConfig.init()
-    val sykmeldingRepository = SykmeldingRepository(db)
-    val sykmeldingService = SykmeldingService(sykmeldingRepository)
+    private lateinit var db: Database
+    private lateinit var sykmeldingService: SykmeldingService
+    private lateinit var sykmeldingRepository: SykmeldingRepository
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        sykmeldingRepository = SykmeldingRepository(db)
+        sykmeldingService = SykmeldingService(sykmeldingRepository)
+    }
 
     @BeforeEach
-    fun setup() {
+    fun cleanDb() {
         transaction(db) { SykmeldingEntitet.deleteAll() }
     }
 

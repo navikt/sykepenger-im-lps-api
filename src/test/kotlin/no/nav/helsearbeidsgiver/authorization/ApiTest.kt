@@ -19,8 +19,10 @@ import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.config.Tolkers
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureServices
+import no.nav.helsearbeidsgiver.config.configureTolkers
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
@@ -46,8 +48,9 @@ import java.util.UUID
 @WithPostgresContainer
 class ApiTest {
     private lateinit var db: Database
-    private var repositories: Repositories = mockk<Repositories>(relaxed = true)
-    private var services: Services = configureServices(repositories)
+    private val repositories: Repositories = mockk<Repositories>(relaxed = true)
+    private val services: Services = configureServices(repositories)
+    private val tolkers: Tolkers = configureTolkers(services, repositories)
 
     private val port = 33445
     private val mockOAuth2Server: MockOAuth2Server =
@@ -58,7 +61,7 @@ class ApiTest {
         TestApplication {
             application {
                 apiModule(services = services)
-                configureKafkaConsumers(services = services, repositories = repositories)
+                configureKafkaConsumers(tolkers)
             }
         }
     private val client: HttpClient =

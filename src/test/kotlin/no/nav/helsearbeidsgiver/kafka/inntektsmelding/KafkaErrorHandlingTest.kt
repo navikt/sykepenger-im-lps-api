@@ -5,25 +5,42 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_JSON
+import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
+@WithPostgresContainer
 class KafkaErrorHandlingTest {
-    val db = DbConfig.init()
+    private lateinit var db: Database
+    private lateinit var forespoerselRepository: ForespoerselRepository
 
-    val forespoerselRepository = ForespoerselRepository(db)
     val mockMottakRepository = mockk<MottakRepository>()
     val mockDialogportenService = mockk<IDialogportenService>()
-    val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository, mockDialogportenService)
+
+    private lateinit var forespoerselTolker: ForespoerselTolker
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        forespoerselRepository = ForespoerselRepository(db)
+        forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository, mockDialogportenService)
+    }
 
     @BeforeEach
     fun init() {

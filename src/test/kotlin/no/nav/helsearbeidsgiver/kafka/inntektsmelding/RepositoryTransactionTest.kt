@@ -10,18 +10,15 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
-import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.util.UUID
 import kotlin.test.assertEquals
 
 @WithPostgresContainer
-@ExtendWith(TransactionalExtension::class)
 class RepositoryTransactionTest {
     private lateinit var db: Database
     private lateinit var repositories: Repositories
