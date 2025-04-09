@@ -51,6 +51,6 @@ fun Application.apiModule(services: Services) {
     logger.info("Setter opp autentisering...")
     configureAuth()
 
-    logger.info("Setter opp ruting...")
+    logger.info("Setter opp routing...")
     configureRouting(services)
 }
