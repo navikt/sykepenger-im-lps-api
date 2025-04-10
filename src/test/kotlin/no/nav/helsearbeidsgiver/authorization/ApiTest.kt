@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureServices
+import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
@@ -52,6 +53,7 @@ class ApiTest {
     init {
         repositories = mockk<Repositories>(relaxed = true)
         services = configureServices(repositories)
+        val tolkere = configureTolkere(services, repositories, mockk(relaxed = true))
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -61,9 +63,7 @@ class ApiTest {
                 application {
                     apiModule(services = services)
                     configureKafkaConsumers(
-                        services = services,
-                        repositories = repositories,
-                        unleashFeatureToggles = mockk(),
+                        tolkere = tolkere,
                     )
                 }
             }

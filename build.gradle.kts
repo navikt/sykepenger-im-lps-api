@@ -15,7 +15,6 @@ val exposedVersion: String by project
 val flywayCoreVersion: String by project
 val hikariVersion: String by project
 val postgresqlVersion: String by project
-val h2_version: String by project
 val kafkaVersion: String by project
 val coroutineVersion: String by project
 val pdpClientVersion: String by project
@@ -96,7 +95,6 @@ dependencies {
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("com.h2database:h2:$h2_version")
     testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
