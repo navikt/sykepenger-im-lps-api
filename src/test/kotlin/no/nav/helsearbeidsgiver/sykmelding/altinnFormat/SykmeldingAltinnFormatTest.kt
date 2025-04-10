@@ -20,7 +20,7 @@ class SykmeldingAltinnFormatTest {
         val sykmeldingKafkaMessage = sykmeldingMock().dupliserPeriode()
         val person = mockPerson(sykmeldingKafkaMessage.kafkaMetadata.fnr)
 
-        // ny implementasjon med @Serializable data class
+        // vår ny implementasjon med @Serializable data class
         val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(sykmeldingKafkaMessage.toSykmeldingResponse(), person)
         val jsonString = sykmeldingArbeidsgiver.tilJson()
 

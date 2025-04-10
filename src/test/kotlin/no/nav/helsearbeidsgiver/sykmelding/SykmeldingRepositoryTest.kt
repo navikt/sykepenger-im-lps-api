@@ -1,22 +1,38 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.config.DbConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeldingKafka
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
+@WithPostgresContainer
 class SykmeldingRepositoryTest {
-    val db = DbConfig.init()
-    val sykmeldingRepository = SykmeldingRepository(db)
+    private lateinit var db: Database
+
+    private lateinit var sykmeldingRepository: SykmeldingRepository
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        sykmeldingRepository = SykmeldingRepository(db)
+    }
 
     @BeforeEach
-    fun setup() {
+    fun cleanDb() {
         transaction(db) { SykmeldingEntitet.deleteAll() }
     }
 
