@@ -148,19 +148,13 @@ fun configureServices(repositories: Repositories): Services {
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
 
-fun Application.configureKafkaConsumers(
-    services: Services,
-    repositories: Repositories,
-) {
+fun Application.configureKafkaConsumers(tolkere: Tolkere) {
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(
             getProperty("kafkaConsumer.inntektsmelding.topic"),
             inntektsmeldingKafkaConsumer,
-            InntektsmeldingTolker(
-                services.inntektsmeldingService,
-                repositories.mottakRepository,
-            ),
+            tolkere.inntektsmeldingTolker,
         )
     }
 
@@ -169,11 +163,7 @@ fun Application.configureKafkaConsumers(
         startKafkaConsumer(
             getProperty("kafkaConsumer.forespoersel.topic"),
             forespoerselKafkaConsumer,
-            ForespoerselTolker(
-                repositories.forespoerselRepository,
-                repositories.mottakRepository,
-                services.dialogportenService,
-            ),
+            tolkere.forespoerselTolker,
         )
     }
 
