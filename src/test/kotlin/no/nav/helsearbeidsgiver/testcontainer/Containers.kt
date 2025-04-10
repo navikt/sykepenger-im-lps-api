@@ -30,7 +30,7 @@ class PostgresTestExtension :
                 .withUsername("testuser")
                 .withPassword("testpass")
                 .waitingFor(Wait.forListeningPort())
-                .withStartupTimeout(Duration.ofSeconds(10))
+                .withStartupTimeout(Duration.ofSeconds(60))
     }
 
     override fun beforeAll(context: ExtensionContext) {
