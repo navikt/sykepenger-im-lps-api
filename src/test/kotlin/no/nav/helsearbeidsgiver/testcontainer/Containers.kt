@@ -10,7 +10,6 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.kafka.ConfluentKafkaContainer
 import org.testcontainers.utility.DockerImageName
-import java.time.Duration
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -35,7 +34,6 @@ class PostgresTestExtension :
                     .withUsername("testuser")
                     .withPassword("testpass")
                     .waitingFor(Wait.forListeningPort())
-                    .withStartupTimeout(Duration.ofSeconds(60))
             }
         }
     }
