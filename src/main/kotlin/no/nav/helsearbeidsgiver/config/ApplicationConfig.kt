@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
 import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.kafka.innsending.IngenInnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
@@ -82,13 +83,17 @@ fun configureServices(repositories: Repositories): Services {
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =
-        InnsendingProducer(
-            KafkaProducer(
-                createKafkaProducerConfig(producerName = "api-innsending-producer"),
-                StringSerializer(),
-                InnsendingSerializer(),
-            ),
-        )
+        if (isLocal() || isDev()) {
+            InnsendingProducer(
+                KafkaProducer(
+                    createKafkaProducerConfig(producerName = "api-innsending-producer"),
+                    StringSerializer(),
+                    InnsendingSerializer(),
+                ),
+            )
+        } else {
+            IngenInnsendingProducer()
+        }
 
     val bakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
