@@ -123,33 +123,33 @@ fun Application.configureKafkaConsumers(
     services: Services,
     repositories: Repositories,
 ) {
-    // Ta bare imot dev kafka meldinger da repo er i testfase
+    val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            getProperty("kafkaConsumer.inntektsmelding.topic"),
+            inntektsmeldingKafkaConsumer,
+            InntektsmeldingTolker(
+                services.inntektsmeldingService,
+                repositories.mottakRepository,
+            ),
+        )
+    }
+
+    val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            getProperty("kafkaConsumer.forespoersel.topic"),
+            forespoerselKafkaConsumer,
+            ForespoerselTolker(
+                repositories.forespoerselRepository,
+                repositories.mottakRepository,
+                services.dialogportenService,
+            ),
+        )
+    }
+
+    // Ta bare imot dev kafka sykmeldinger da repo er i testfase
     if (isLocal() || isDev()) {
-        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                getProperty("kafkaConsumer.inntektsmelding.topic"),
-                inntektsmeldingKafkaConsumer,
-                InntektsmeldingTolker(
-                    services.inntektsmeldingService,
-                    repositories.mottakRepository,
-                ),
-            )
-        }
-
-        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                getProperty("kafkaConsumer.forespoersel.topic"),
-                forespoerselKafkaConsumer,
-                ForespoerselTolker(
-                    repositories.forespoerselRepository,
-                    repositories.mottakRepository,
-                    services.dialogportenService,
-                ),
-            )
-        }
-
         val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
