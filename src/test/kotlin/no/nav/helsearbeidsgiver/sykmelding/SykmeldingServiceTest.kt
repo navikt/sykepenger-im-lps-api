@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.Database
