@@ -15,7 +15,7 @@ class SykmeldingTolker(
         val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
         try {
             sykmeldingService.lagreSykmelding(sykmeldingMessage)
-            sikkerLogger.error("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}")
+            sikkerLogger.info("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}")
         } catch (e: Exception) {
             sikkerLogger.error("Klarte ikke å lagre sykmelding i database!", e)
             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
