@@ -24,6 +24,7 @@ val bakgrunnsjobbVersion: String by project
 val swaggerVersion: String by project
 val jaxbApiVersion: String by project
 val syfoXmlCodeGen: String by project
+val testContainerVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -106,6 +107,10 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("com.h2database:h2:$h2_version")
+    testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
+    testImplementation("org.testcontainers:kafka:$testContainerVersion")
+    testImplementation("org.testcontainers:postgresql:$testContainerVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testContainerVersion")
 
     // XML testing
     testImplementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
@@ -113,6 +118,7 @@ dependencies {
     testImplementation("org.json:json:20250107")
     testImplementation("no.nav.helse.xml:sykmelding-arbeidsgiver:$syfoXmlCodeGen")
     testImplementation("org.skyscreamer:jsonassert:1.5.1")
+    
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
@@ -124,6 +130,9 @@ tasks {
         useJUnitPlatform()
     }
     test {
+        testLogging {
+            events("failed")
+        }
         environment("database.embedded", "true")
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")

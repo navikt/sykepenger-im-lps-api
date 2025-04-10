@@ -7,7 +7,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.foresporselid
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
@@ -44,7 +43,6 @@ class InntektsmeldingRepository(
                 it[dokument] = im
                 it[orgnr] = im.avsender.orgnr.verdi
                 it[fnr] = im.sykmeldt.fnr.verdi
-                it[foresporselid] = im.type.id.toString() // Kan fjernes
                 it[innsendt] = im.mottatt.toLocalDateTime()
                 it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
                 it[aarsakInnsending] = im.aarsakInnsending
@@ -77,7 +75,7 @@ class InntektsmeldingRepository(
                 .where {
                     (orgnr eq orgNr) and
                         (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.foresporselId != null) foresporselid eq request.foresporselId else Op.TRUE) and
+                        (if (request.navReferanseId != null) navReferanseId eq request.navReferanseId else Op.TRUE) and
                         (request.fraTid?.let { innsendt greaterEq it } ?: Op.TRUE) and
                         (request.tilTid?.let { innsendt lessEq it } ?: Op.TRUE)
                 }.map { it.toExposedInntektsmelding() }
