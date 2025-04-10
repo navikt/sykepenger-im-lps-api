@@ -522,8 +522,6 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Naturalytelse"
-        endringAarsak:
-          $ref: "#/components/schemas/InntektEndringAarsak"
         endringAarsaker:
           type: "array"
           items:
@@ -532,6 +530,7 @@ components:
       - "beloep"
       - "inntektsdato"
       - "naturalytelser"
+      - "endringAarsaker"
     RefusjonEndring:
       type: "object"
       properties:
