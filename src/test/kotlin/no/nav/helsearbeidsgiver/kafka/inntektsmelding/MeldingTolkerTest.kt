@@ -40,7 +40,7 @@ class MeldingTolkerTest {
     val inntektsmeldingTolker = InntektsmeldingTolker(inntektsmeldingService, mottakRepository)
     val mockDialogportenService = mockk<IDialogportenService>()
     val forespoerselTolker = ForespoerselTolker(forespoerselRepository, mottakRepository, mockDialogportenService)
-    val sykmeldingTolker = SykmeldingTolker(sykmeldingService)
+    val sykmeldingTolker = SykmeldingTolker(sykmeldingService, mockk(relaxed = true))
 
     @BeforeEach
     fun setup() {

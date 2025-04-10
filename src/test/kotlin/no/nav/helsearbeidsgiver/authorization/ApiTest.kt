@@ -60,7 +60,11 @@ class ApiTest {
             TestApplication {
                 application {
                     apiModule(services = services)
-                    configureKafkaConsumers(services = services, repositories = repositories)
+                    configureKafkaConsumers(
+                        services = services,
+                        repositories = repositories,
+                        unleashFeatureToggles = mockk(),
+                    )
                 }
             }
         client =
