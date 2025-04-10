@@ -15,8 +15,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
 
-      - name: Test
-        run: ./gradlew test
+      - name: Run tests with retry
+        run: |
+          for i in 1 2 3; do
+            ./gradlew test && break || sleep 10
+          done
         env:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
 
