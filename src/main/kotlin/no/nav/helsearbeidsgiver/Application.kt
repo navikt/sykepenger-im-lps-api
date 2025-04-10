@@ -31,7 +31,7 @@ fun startServer() {
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
     val services = configureServices(repositories)
-    val tolkere = configureTolkere(services, repositories)
+    val tolkere = configureTolkere(services = services, repositories = repositories, unleashFeatureToggles = unleashFeatureToggles)
 
     embeddedServer(
         factory = Netty,

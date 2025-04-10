@@ -78,6 +78,7 @@ data class Tolkere(
 fun configureTolkere(
     services: Services,
     repositories: Repositories,
+    unleashFeatureToggles: UnleashFeatureToggles,
 ): Tolkere {
     val inntektsmeldingTolker =
         InntektsmeldingTolker(
@@ -93,6 +94,7 @@ fun configureTolkere(
     val sykmeldingTolker =
         SykmeldingTolker(
             sykmeldingService = services.sykmeldingService,
+            unleashFeatureToggles = unleashFeatureToggles,
         )
 
     return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker)
@@ -149,11 +151,7 @@ fun configureServices(repositories: Repositories): Services {
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
 
-fun Application.configureKafkaConsumers(
-    services: Services,
-    repositories: Repositories,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Application.configureKafkaConsumers(tolkere: Tolkere) {
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(

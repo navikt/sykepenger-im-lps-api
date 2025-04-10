@@ -66,7 +66,7 @@ class MeldingTolkerTest {
                 dialogportenService = mockk<IDialogportenService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
             )
-        tolkere = configureTolkere(service, repositories)
+        tolkere = configureTolkere(service, repositories, mockk(relaxed = true))
     }
 
     @BeforeEach
