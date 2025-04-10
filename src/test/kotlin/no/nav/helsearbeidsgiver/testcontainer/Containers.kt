@@ -2,6 +2,9 @@ package no.nav.helsearbeidsgiver.testcontainer
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.apache.kafka.clients.admin.AdminClient
+import org.apache.kafka.clients.admin.AdminClientConfig
+import org.apache.kafka.clients.admin.NewTopic
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtendWith
@@ -10,6 +13,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.kafka.ConfluentKafkaContainer
 import org.testcontainers.utility.DockerImageName
+import java.util.Properties
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
@@ -58,7 +62,24 @@ class KafkaTestExtension :
     }
 
     override fun beforeAll(context: ExtensionContext) {
-        kafkaContainer.start()
+        kafkaContainer
+            .also { it.start() }
+            .let {
+                Properties().apply {
+                    setProperty(
+                        AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+                        it.bootstrapServers,
+                    )
+                }
+            }.let(AdminClient::create)
+            .createTopics(
+                listOf(
+                    NewTopic("helsearbeidsgiver.inntektsmelding", 1, 1.toShort()),
+                    NewTopic("helsearbeidsgiver.pri", 1, 1.toShort()),
+                    NewTopic("teamsykmelding.syfo-sendt-sykmelding", 1, 1.toShort()),
+                    NewTopic("helsearbeidsgiver.api-innsending", 1, 1.toShort()),
+                ),
+            )
         System.setProperty("KAFKA_BOOTSTRAP_SERVERS", kafkaContainer.bootstrapServers)
     }
 

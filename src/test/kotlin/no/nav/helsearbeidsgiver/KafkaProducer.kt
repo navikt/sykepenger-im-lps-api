@@ -1,4 +1,5 @@
 package no.nav.helsearbeidsgiver
+
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingDistribuertJson
@@ -7,6 +8,10 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
+
+fun main() {
+    genererKafkaMeldinger()
+}
 
 fun genererKafkaMeldinger() {
     val inntektsmeldingDistribuertJson = buildInntektsmeldingDistribuertJson()
@@ -28,7 +33,7 @@ fun genererKafkaMeldinger() {
 object Producer {
     val props =
         Properties().apply {
-            put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+            put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("KAFKA_BOOTSTRAP_SERVERS") ?: "localhost:9092")
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
         }
