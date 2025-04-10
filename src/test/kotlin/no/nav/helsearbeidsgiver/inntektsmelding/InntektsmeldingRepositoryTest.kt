@@ -216,4 +216,22 @@ class InntektsmeldingRepositoryTest {
             im = inntektsmeldingJson,
         )
     }
+
+    @Test
+    fun `hent should return list of inntektsmeldinger by navReferanseId`() {
+        val repository = InntektsmeldingRepository(db)
+        val forespoerselId = UUID.randomUUID()
+        val inntektsmeldingId = UUID.randomUUID()
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        repository.opprettInntektsmelding(
+            inntektsmeldingJson,
+        )
+        val result = repository.hent(navReferanseId = forespoerselId)
+        assertEquals(1, result.size)
+        assertEquals(DEFAULT_ORG, result[0].arbeidsgiver.orgnr)
+        assertEquals(DEFAULT_FNR, result[0].sykmeldtFnr)
+        assertEquals(inntektsmeldingId, result[0].id)
+        assertEquals(forespoerselId, result[0].navReferanseId)
+    }
 }
