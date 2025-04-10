@@ -89,6 +89,14 @@ class InntektsmeldingRepository(
                 .map { it.toExposedInntektsmelding() }
         }
 
+    fun hentSkjemaInntetksmeldingByNavReferanseId(navReferanseId: UUID): List<SkjemaInntektsmelding> =
+        transaction(db) {
+            InntektsmeldingEntitet
+                .selectAll()
+                .where { InntektsmeldingEntitet.navReferanseId eq navReferanseId }
+                .map { it[skjema] }
+        }
+
     fun oppdaterStatus(
         inntektsmelding: Inntektsmelding,
         nyStatus: InnsendingStatus,

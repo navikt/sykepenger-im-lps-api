@@ -182,6 +182,32 @@ class ApiTest {
             unmockkStatic(Services::opprettImTransaction)
         }
 
+
+
+    @Test
+    fun `innsending av inntektsmelding uten gyldig forespørsel gir bad request`() =
+        runTest {
+            // Nødvendig pga transaction rundt service kall
+            mockkStatic(Services::opprettImTransaction)
+            every { services.opprettImTransaction(any(), any()) } just Runs
+            val requestBody = mockInntektsmeldingRequest()
+            every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns null
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+            verify(exactly = 0) {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
+            unmockkStatic(Services::opprettImTransaction)
+        }
+
     @Test
     fun `innsending av inntektsmelding på feil orgnr gir feil`() =
         runTest {

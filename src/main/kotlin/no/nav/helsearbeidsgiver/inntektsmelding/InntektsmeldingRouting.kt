@@ -15,19 +15,13 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
-import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.tilInnsending
+import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.time.OffsetDateTime
-import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
@@ -60,57 +54,21 @@ private fun Route.innsending(services: Services) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
-            val avsenderSystem =
-                AvsenderSystem(
-                    orgnr = Orgnr(lpsOrgnr),
-                    navn = request.avsender.systemNavn,
-                    versjon = request.avsender.systemVersjon,
-                )
-            val inntektsmelding =
-                Inntektsmelding(
-                    id = UUID.randomUUID(),
-                    type = Inntektsmelding.Type.ForespurtEkstern(request.navReferanseId, avsenderSystem),
-                    sykmeldt =
-                        Sykmeldt(
-                            Fnr(request.sykmeldtFnr),
-                            "",
-                        ),
-                    // TODO
-                    avsender =
-                        Avsender(
-                            Orgnr(sluttbrukerOrgnr),
-                            "",
-                            "",
-                            request.arbeidsgiverTlf,
-                        ),
-                    sykmeldingsperioder = emptyList(), // TODO hent fra forespørsel
-                    agp = request.agp,
-                    inntekt = request.inntekt,
-                    refusjon = request.refusjon,
-                    aarsakInnsending = request.aarsakInnsending,
-                    mottatt = OffsetDateTime.now(),
-                    vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
-                )
+            val sisteInntektsmelding = services.inntektsmeldingService.hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
 
-            val skjemaInntektsmelding =
-                SkjemaInntektsmelding(
-                    forespoerselId = request.navReferanseId,
-                    avsenderTlf = request.arbeidsgiverTlf,
-                    agp = request.agp,
-                    inntekt = request.inntekt,
-                    refusjon = request.refusjon,
-                )
+            val inntektsmelding = request.tilInntektsmelding(
+                sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
+                lpsOrgnr = Orgnr(lpsOrgnr),
+                forespoersel = forespoersel,
+            )
+            if (sisteInntektsmelding != null) {
+                inntektsmelding.erDuplikat(sisteInntektsmelding)
+
+            }
+            val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
             services.opprettImTransaction(
                 inntektsmelding = inntektsmelding,
-                innsending =
-                    Innsending(
-                        innsendingId = inntektsmelding.id,
-                        skjema = skjemaInntektsmelding,
-                        aarsakInnsending = request.aarsakInnsending,
-                        type = inntektsmelding.type,
-                        innsendtTid = OffsetDateTime.now(),
-                        versjon = VERSJON_1,
-                    ),
+                innsending = innsending
             )
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
