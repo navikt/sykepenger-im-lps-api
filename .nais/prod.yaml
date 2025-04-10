@@ -33,9 +33,10 @@ spec:
 #    - https://sykepenger-im-lps-api.ekstern.nav.no
   image: {{image}}
   port: 8080
-#  accessPolicy:
-#    outbound:
-#      external:
+  accessPolicy:
+    outbound:
+      external:
+        - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
 #        - host: platform.altinn.no
   maskinporten:
     enabled: true
@@ -61,7 +62,8 @@ spec:
             value: 'write'
         databases:
           - name: hag-lps
-#  envFrom:
+  envFrom:
+    - secret: sykepenger-im-lps-api-unleash-api-token
 #    - secret: altinn-subscription
   env:
     - name: EKSPONERT_MASKINPORTEN_SCOPES

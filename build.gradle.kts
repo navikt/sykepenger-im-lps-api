@@ -25,6 +25,7 @@ val swaggerVersion: String by project
 val jaxbApiVersion: String by project
 val syfoXmlCodeGen: String by project
 val testContainerVersion: String by project
+val unleashVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -86,6 +87,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
+    implementation("no.nav.helse.xml:sykmelding-arbeidsgiver:$syfoXmlCodeGen")
+    implementation("io.getunleash:unleash-client-java:$unleashVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
