@@ -67,16 +67,16 @@ data class Services(
     val sykmeldingService: SykmeldingService,
 )
 
-data class Tolkers(
+data class Tolkere(
     val inntektsmeldingTolker: InntektsmeldingTolker,
     val forespoerselTolker: ForespoerselTolker,
     val sykmeldingTolker: SykmeldingTolker,
 )
 
-fun configureTolkers(
+fun configureTolkere(
     services: Services,
     repositories: Repositories,
-): Tolkers {
+): Tolkere {
     val inntektsmeldingTolker =
         InntektsmeldingTolker(
             inntektsmeldingService = services.inntektsmeldingService,
@@ -93,7 +93,7 @@ fun configureTolkers(
             sykmeldingService = services.sykmeldingService,
         )
 
-    return Tolkers(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker)
+    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker)
 }
 
 fun configureRepositories(db: Database): Repositories =
@@ -143,7 +143,7 @@ fun configureServices(repositories: Repositories): Services {
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
 
-fun Application.configureKafkaConsumers(tolkers: Tolkers) {
+fun Application.configureKafkaConsumers(tolkere: Tolkere) {
     // Ta bare imot dev kafka meldinger da repo er i testfase
     if (isLocal() || isDev()) {
         val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
@@ -151,7 +151,7 @@ fun Application.configureKafkaConsumers(tolkers: Tolkers) {
             startKafkaConsumer(
                 getProperty("kafkaConsumer.inntektsmelding.topic"),
                 inntektsmeldingKafkaConsumer,
-                tolkers.inntektsmeldingTolker,
+                tolkere.inntektsmeldingTolker,
             )
         }
 
@@ -160,7 +160,7 @@ fun Application.configureKafkaConsumers(tolkers: Tolkers) {
             startKafkaConsumer(
                 getProperty("kafkaConsumer.forespoersel.topic"),
                 forespoerselKafkaConsumer,
-                tolkers.forespoerselTolker,
+                tolkere.forespoerselTolker,
             )
         }
 
@@ -169,7 +169,7 @@ fun Application.configureKafkaConsumers(tolkers: Tolkers) {
             startKafkaConsumer(
                 topic = getProperty("kafkaConsumer.sykmelding.topic"),
                 consumer = sykmeldingKafkaConsumer,
-                meldingTolker = tolkers.sykmeldingTolker,
+                meldingTolker = tolkere.sykmeldingTolker,
             )
         }
     }

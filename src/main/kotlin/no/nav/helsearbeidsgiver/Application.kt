@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.config.configureAuth
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
-import no.nav.helsearbeidsgiver.config.configureTolkers
+import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -30,14 +30,14 @@ fun startServer() {
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
     val services = configureServices(repositories)
-    val tolkers = configureTolkers(services, repositories)
+    val tolkere = configureTolkere(services, repositories)
 
     embeddedServer(
         factory = Netty,
         port = 8080,
         module = {
             apiModule(services = services)
-            configureKafkaConsumers(tolkers)
+            configureKafkaConsumers(tolkere)
         },
     ).start(wait = true)
 }

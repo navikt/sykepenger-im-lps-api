@@ -8,8 +8,8 @@ import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
-import no.nav.helsearbeidsgiver.config.Tolkers
-import no.nav.helsearbeidsgiver.config.configureTolkers
+import no.nav.helsearbeidsgiver.config.Tolkere
+import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
@@ -38,7 +38,7 @@ class MeldingTolkerTest {
     private lateinit var db: Database
     private lateinit var repositories: Repositories
     private lateinit var service: Services
-    private lateinit var tolkers: Tolkers
+    private lateinit var tolkere: Tolkere
 
     @BeforeAll
     fun setup() {
@@ -66,7 +66,7 @@ class MeldingTolkerTest {
                 dialogportenService = mockk<IDialogportenService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
             )
-        tolkers = configureTolkers(service, repositories)
+        tolkere = configureTolkere(service, repositories)
     }
 
     @BeforeEach
@@ -81,20 +81,20 @@ class MeldingTolkerTest {
                 UUID.randomUUID().toString(),
             )
         // Test at kjente payloads ikke kræsjer:
-        tolkers.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
         verify { service.dialogportenService.opprettDialog(any(), any()) }
 
-        tolkers.forespoerselTolker.lesMelding(FORESPOERSEL_BESVART)
-        tolkers.inntektsmeldingTolker.lesMelding(IM_MOTTATT)
-        tolkers.inntektsmeldingTolker.lesMelding(ARBEIDSGIVER_INITIERT_IM_MOTTATT)
+        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_BESVART)
+        tolkere.inntektsmeldingTolker.lesMelding(IM_MOTTATT)
+        tolkere.inntektsmeldingTolker.lesMelding(ARBEIDSGIVER_INITIERT_IM_MOTTATT)
 
         // Skal ikke lagre:
-        tolkers.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
+        tolkere.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
     }
 
     @Test
     fun `sykmeldingTolker deserialiserer og lagrer gyldig sykmelding`() {
-        tolkers.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
+        tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verify { service.sykmeldingService.lagreSykmelding(any()) }
     }
 
@@ -104,13 +104,13 @@ class MeldingTolkerTest {
             Result.success(
                 UUID.randomUUID().toString(),
             )
-        tolkers.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
-        tolkers.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
     }
 
     @Test
     fun `trengerForespoersel-meldinger ignoreres uten å lagre til mottak`() {
-        tolkers.forespoerselTolker.lesMelding(TRENGER_FORESPOERSEL)
+        tolkere.forespoerselTolker.lesMelding(TRENGER_FORESPOERSEL)
         verify(exactly = 0) { repositories.mottakRepository.opprett(any()) }
     }
 }
