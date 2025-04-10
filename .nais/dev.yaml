@@ -38,6 +38,7 @@ spec:
     outbound:
       external:
         - host: platform.tt02.altinn.no
+        - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
   maskinporten:
     enabled: true
     scopes:
@@ -60,6 +61,7 @@ spec:
           - name: hag-lps
   envFrom:
     - secret: altinn-subscription
+    - secret: sykepenger-im-lps-api-unleash-api-token
   env:
     - name: EKSPONERT_MASKINPORTEN_SCOPES
       value: "nav:helse/im.read"

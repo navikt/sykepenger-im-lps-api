@@ -39,6 +39,7 @@ import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -122,6 +123,7 @@ fun configureServices(repositories: Repositories): Services {
 fun Application.configureKafkaConsumers(
     services: Services,
     repositories: Repositories,
+    unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
     launch(Dispatchers.Default) {
@@ -155,7 +157,7 @@ fun Application.configureKafkaConsumers(
             startKafkaConsumer(
                 topic = getProperty("kafkaConsumer.sykmelding.topic"),
                 consumer = sykmeldingKafkaConsumer,
-                meldingTolker = SykmeldingTolker(services.sykmeldingService),
+                meldingTolker = SykmeldingTolker(services.sykmeldingService, unleashFeatureToggles),
             )
         }
     }
