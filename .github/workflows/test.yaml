@@ -16,7 +16,6 @@ jobs:
 
       - name: Test
         run: ./gradlew test
-
         env:
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
 
