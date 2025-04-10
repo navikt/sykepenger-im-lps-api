@@ -148,7 +148,7 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    // Ta bare imot dev kafka sykmeldinger da repo er i testfase
+    // Ta bare imot sykmeldinger i dev inntil videre
     if (isLocal() || isDev()) {
         val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
         launch(Dispatchers.Default) {
