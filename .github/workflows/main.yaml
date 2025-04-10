@@ -36,6 +36,13 @@ jobs:
         id: docker-build-push
         with:
           team: helsearbeidsgiver
+
+      - name: deploy new Unleash Apikey to dev
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/unleash-apitoken-dev.yaml
+
       - name: Deploy to NAIS
         uses: nais/deploy/actions/deploy@v2
         env:
