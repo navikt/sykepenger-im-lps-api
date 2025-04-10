@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flow
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.slf4j.LoggerFactory
 import java.time.Duration
 
 suspend fun startKafkaConsumer(
@@ -12,13 +13,17 @@ suspend fun startKafkaConsumer(
     consumer: KafkaConsumer<String, String>,
     meldingTolker: MeldingTolker,
 ) {
+    val logger = LoggerFactory.getLogger(KafkaConsumer::class.java)
     consumer.subscribe(listOf(topic))
     consumer.asFlow().collect { record ->
         try {
             meldingTolker.lesMelding(record.value())
             consumer.commitSync()
         } catch (e: Exception) {
-            sikkerLogger().error("Feil ved polling / lagring, avslutter!", e)
+            "Feil ved polling / lagring, avslutter!".let {
+                logger.error(it)
+                sikkerLogger().error(it, e)
+            }
             // TODO; Forsøk igjen noen ganger først, disable evt lesing fra kafka i en periode.
             // Kan evt restarte med en gang, hvis vi har flere noder (exit går utover API ellers)
             throw e

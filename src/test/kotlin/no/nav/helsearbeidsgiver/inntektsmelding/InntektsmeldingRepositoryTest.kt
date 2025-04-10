@@ -1,8 +1,9 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -12,7 +13,10 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.junit.jupiter.api.BeforeEach
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -21,19 +25,32 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.assertEquals
 
+@WithPostgresContainer
 class InntektsmeldingRepositoryTest {
     lateinit var db: Database
 
-    @BeforeEach
-    fun beforeEach() {
-        db = DbConfig.init()
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        transaction(db) {
+            InntektsmeldingEntitet.deleteAll()
+        }
     }
 
     @Test
     fun `opprett should insert a ny inntektsmelding`() {
         val repository = InntektsmeldingRepository(db)
-        val inntektsmeldingId = UUID.randomUUID().toString()
-        val forespoerselId = UUID.randomUUID().toString()
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
         val inntektsmeldingJson = buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
         val forventetSkjema = inntektsmeldingJson.tilSkjema()
         repository.opprettInntektsmelding(
@@ -54,8 +71,8 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `opprett skal ikke kunne lagre samme inntektsmelding (id) to ganger`() {
         val repository = InntektsmeldingRepository(db)
-        val inntektsmeldingId = UUID.randomUUID().toString()
-        val forespoerselId = UUID.randomUUID().toString()
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
         val inntektsmeldingJson = buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
 
         repository.opprettInntektsmelding(
@@ -81,7 +98,7 @@ class InntektsmeldingRepositoryTest {
         val forespoerselId = UUID.randomUUID()
         val inntektsmeldingId = UUID.randomUUID()
         val inntektsmeldingJson =
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId.toString(), forespoerselId = forespoerselId.toString())
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
         repository.opprettInntektsmelding(
             inntektsmeldingJson,
         )
@@ -98,7 +115,7 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr and request`() {
         val repository = InntektsmeldingRepository(db)
-        val forespoerselId = UUID.randomUUID().toString()
+        val forespoerselId = UUID.randomUUID()
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId)
         val innsendtDato = LocalDateTime.now()
         repository.opprettInntektsmelding(
@@ -110,7 +127,7 @@ class InntektsmeldingRepositoryTest {
                 DEFAULT_ORG,
                 InntektsmeldingFilterRequest(
                     fnr = DEFAULT_FNR,
-                    foresporselId = forespoerselId,
+                    navReferanseId = forespoerselId,
                     fraTid = innsendtDato.minusDays(1),
                     tilTid = innsendtDato.plusDays(1),
                 ),
@@ -119,13 +136,13 @@ class InntektsmeldingRepositoryTest {
         assertEquals(1, result.size)
         assertEquals(DEFAULT_ORG, result[0].arbeidsgiver.orgnr)
         assertEquals(DEFAULT_FNR, result[0].sykmeldtFnr)
-        assertEquals(forespoerselId, result[0].navReferanseId.toString())
+        assertEquals(forespoerselId, result[0].navReferanseId)
     }
 
     @Test
     fun `hent should return list av inntektsmeldinger by orgNr and request with no match`() {
         val repository = InntektsmeldingRepository(db)
-        val forespoerselId1 = UUID.randomUUID().toString()
+        val forespoerselId1 = UUID.randomUUID()
         generateTestData(
             org = Orgnr(DEFAULT_ORG),
             sykmeldtFnr = Fnr(DEFAULT_FNR),
@@ -134,7 +151,7 @@ class InntektsmeldingRepositoryTest {
 
         val org2 = Orgnr.genererGyldig()
         val sykmeldtFnr2 = Fnr.genererGyldig()
-        val forespoerselId2 = UUID.randomUUID().toString()
+        val forespoerselId2 = UUID.randomUUID()
         generateTestData(
             org = org2,
             sykmeldtFnr = sykmeldtFnr2,
@@ -146,7 +163,7 @@ class InntektsmeldingRepositoryTest {
                 org2.verdi,
                 InntektsmeldingFilterRequest(
                     fnr = null,
-                    foresporselId = null,
+                    navReferanseId = null,
                     fraTid = null,
                     tilTid = null,
                 ),
@@ -158,8 +175,8 @@ class InntektsmeldingRepositoryTest {
     @Test
     fun `oppdater inntektsmelding med ny status`() {
         val repository = InntektsmeldingRepository(db)
-        val inntektsmeldingId = UUID.randomUUID().toString()
-        val forespoerselId = UUID.randomUUID().toString()
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
         val inntektsmelding1 =
             buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
         val inntektsmelding2 = buildInntektsmelding()
@@ -177,13 +194,13 @@ class InntektsmeldingRepositoryTest {
         val oppdatertInntektsmelding =
             repository.hent(
                 DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(foresporselId = forespoerselId),
+                request = InntektsmeldingFilterRequest(navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
         val ikkeOppdatertInntektsmelding =
             repository.hent(
                 DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(foresporselId = inntektsmelding2.type.id.toString()),
+                request = InntektsmeldingFilterRequest(navReferanseId = inntektsmelding2.type.id),
             )[0]
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }
@@ -191,7 +208,7 @@ class InntektsmeldingRepositoryTest {
     private fun generateTestData(
         org: Orgnr,
         sykmeldtFnr: Fnr,
-        forespoerselId: String,
+        forespoerselId: UUID,
     ) {
         val repository = InntektsmeldingRepository(db)
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId, orgNr = org, sykemeldtFnr = sykmeldtFnr)

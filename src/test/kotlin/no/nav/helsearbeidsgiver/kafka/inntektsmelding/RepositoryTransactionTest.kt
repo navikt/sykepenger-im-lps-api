@@ -2,28 +2,40 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.config.DbConfig
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.Repositories
+import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
-import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.readJsonFromResources
+import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.UUID
 import kotlin.test.assertEquals
 
+@WithPostgresContainer
 @ExtendWith(TransactionalExtension::class)
 class RepositoryTransactionTest {
-    val db = DbConfig.init()
-    val inntektsmeldingRepository = InntektsmeldingRepository(db)
-    val forespoerselRepository = ForespoerselRepository(db)
-    val mottakRepository = MottakRepository(db)
+    private lateinit var db: Database
+    private lateinit var repositories: Repositories
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        repositories = configureRepositories(db)
+    }
 
     @Test
     fun handleRecord() {
@@ -35,32 +47,32 @@ class RepositoryTransactionTest {
                 ).replace("%%%FORESPORSELID%%%", UUID.randomUUID().toString())
             for (i in 1..100) {
                 launch {
-                    inntektsmeldingRepository.hent(DEFAULT_ORG)
-                    mottakRepository.opprett(ExposedMottak(event))
-                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
+                    repositories.mottakRepository.opprett(ExposedMottak(event))
+                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
                 }
                 launch {
                     val forespoerselID = lagreInntektsmelding()
-                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-                    forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
-                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-                    forespoerselRepository.settBesvart(forespoerselID)
-                    inntektsmeldingRepository.hent(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
+                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.forespoerselRepository.settBesvart(forespoerselID)
+                    repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
                 launch {
-                    forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-                    inntektsmeldingRepository.hent(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
             }
         }
-        assertEquals(100, forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG).count())
-        assertEquals(100, inntektsmeldingRepository.hent(DEFAULT_ORG).count())
+        assertEquals(100, repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG).count())
+        assertEquals(100, repositories.inntektsmeldingRepository.hent(DEFAULT_ORG).count())
     }
 
-    fun lagreInntektsmelding(): String {
-        val forespoerselID = UUID.randomUUID().toString()
+    fun lagreInntektsmelding(): UUID {
+        val forespoerselID = UUID.randomUUID()
         val generert = buildInntektsmelding(forespoerselID)
-        inntektsmeldingRepository.opprettInntektsmelding(generert)
+        repositories.inntektsmeldingRepository.opprettInntektsmelding(generert)
         return forespoerselID
     }
 }

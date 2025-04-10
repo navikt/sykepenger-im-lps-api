@@ -178,6 +178,62 @@ object TestData {
         }
         """
 
+    const val TRENGER_FORESPOERSEL =
+        """
+        {
+            "@behov": "TRENGER_FORESPØRSEL",
+            "@løsning": {
+                "forespoerselId": "d1ca7cce-d236-47e9-b0eb-37dc95511e4e",
+                "resultat": {
+                    "type": "KOMPLETT",
+                    "orgnr": "810007842",
+                    "fnr": "10107400090",
+                    "forespoerselId": "d1ca7cce-d236-47e9-b0eb-37dc95511e4e",
+                    "vedtaksperiodeId": "d8d2a8d2-8c64-42b6-b23d-0c688ca8cb17",
+                    "egenmeldingsperioder": [],
+                    "sykmeldingsperioder": [
+                        {
+                            "fom": "2025-02-26",
+                            "tom": "2025-03-07"
+                        },
+                        {
+                            "fom": "2025-03-08",
+                            "tom": "2025-03-14"
+                        }
+                    ],
+                    "bestemmendeFravaersdager": {
+                        "983491251": "2025-02-26"
+                    },
+                    "forespurtData": {
+                        "arbeidsgiverperiode": {
+                            "paakrevd": true
+                        },
+                        "inntekt": {
+                            "paakrevd": true,
+                            "forslag": null
+                        },
+                        "refusjon": {
+                            "paakrevd": true,
+                            "forslag": {
+                                "perioder": [],
+                                "opphoersdato": null
+                            }
+                        }
+                    },
+                    "erBesvart": false,
+                    "opprettetUpresisIkkeBruk": "2025-03-20"
+                },
+                "boomerang": {
+                    "@event_name": "TRENGER_REQUESTED",
+                    "kontekst_id": "827dd05d-bfc6-441d-a1ca-2b09346fb2f1",
+                    "data": {
+                        "forespoersel_id": "d1ca7cce-d236-47e9-b0eb-37dc95511e4e"
+                    }
+                }
+            }
+        }
+    """
+
     fun forespoerselDokument(
         orgnr: String,
         fnr: String,

@@ -12,7 +12,7 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val forespoerselId: String,
+    val navReferanseId: UUID,
     val orgnr: String,
     val fnr: String,
     val status: Status,
@@ -25,7 +25,7 @@ data class Forespoersel(
 @Serializable
 enum class Status {
     AKTIV,
-    MOTTATT,
+    BESVART,
     FORKASTET,
 }
 
@@ -37,7 +37,7 @@ enum class Type {
 @Serializable
 data class ForespoerselRequest(
     val fnr: String? = null,
-    val forespoerselId: String? = null,
+    val navReferanseId: UUID? = null,
     val status: Status? = null,
 )
 

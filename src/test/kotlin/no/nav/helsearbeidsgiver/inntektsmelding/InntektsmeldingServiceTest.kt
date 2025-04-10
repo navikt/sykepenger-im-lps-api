@@ -50,7 +50,7 @@ class InntektsmeldingServiceTest {
         val innsendt = LocalDateTime.now()
         val foresporselid = UUID.randomUUID()
         val innsendingId = UUID.randomUUID()
-        val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
+        val skjema = buildInntektsmelding(forespoerselId = foresporselid).tilSkjema()
         every { inntektsmeldingRepository.hent(orgnr) } returns
             listOf(
                 InntektsmeldingResponse(
@@ -92,11 +92,11 @@ class InntektsmeldingServiceTest {
         val datoFra = LocalDateTime.now()
         val datoTil = datoFra.plusDays(1)
         val innsendt = LocalDateTime.now()
-        val skjema = buildInntektsmelding(forespoerselId = foresporselid.toString()).tilSkjema()
+        val skjema = buildInntektsmelding(forespoerselId = foresporselid).tilSkjema()
         val request =
             InntektsmeldingFilterRequest(
                 fnr = fnr,
-                foresporselId = foresporselid.toString(),
+                navReferanseId = foresporselid,
                 fraTid = datoFra,
                 tilTid = datoTil,
             )
@@ -143,13 +143,13 @@ class InntektsmeldingServiceTest {
     fun `hentInntektsMeldingByRequest should return empty list on failure`() {
         val orgnr = "987654322"
         val fnr = "12345678901"
-        val foresporselid = "123456789"
+        val foresporselid = UUID.randomUUID()
         val datoFra = LocalDateTime.now()
         val datoTil = datoFra.plusDays(1)
         val request =
             InntektsmeldingFilterRequest(
                 fnr = fnr,
-                foresporselId = foresporselid,
+                navReferanseId = foresporselid,
                 fraTid = datoFra,
                 tilTid = datoTil,
             )
