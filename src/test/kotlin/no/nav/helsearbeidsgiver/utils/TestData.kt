@@ -253,4 +253,7 @@ object TestData {
 
     fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
         jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(sykmeldingMottattMelding)
+
+    @Suppress("ktlint:standard:max-line-length")
+    const val XML_ARBEIDSGIVERPERIODE = """{"ns2:sykmeldingArbeidsgiver":{"xmlns:ns2":"http://nav.no/melding/virksomhet/sykmeldingArbeidsgiver/v1/sykmeldingArbeidsgiver","juridiskOrganisasjonsnummer":0,"mottattidspunkt":"2020-03-14T23:00:00","sykmelding":{"pasient":{"ident":"01447842099","navn":{"etternavn":"Nordmann","fornavn":"Ola"}},"syketilfelleFom":"2020-03-15","perioder":[{"tom":"2020-04-15","fom":"2020-03-15","aktivitet":{"aktivitetIkkeMulig":{"manglendeTilretteleggingPaaArbeidsplassen":false,"beskrivelse":"andre årsaker til sykefravær"}}},{"tom":"2020-04-15","fom":"2020-03-15","aktivitet":{"aktivitetIkkeMulig":{"manglendeTilretteleggingPaaArbeidsplassen":false,"beskrivelse":"andre årsaker til sykefravær"}}}],"behandler":{"navn":{"etternavn":"Frost","mellomnavn":"Perma","fornavn":"Frida"},"telefonnummer":1234678},"arbeidsgiver":{"navn":"LOMMEN BARNEHAVE"},"tiltak":{"tiltakArbeidsplassen":"Fortsett som sist."},"prognose":{"beskrivHensynArbeidsplassen":"Må ta det pent","erArbeidsfoerEtterEndtPeriode":true},"kontaktMedPasient":{"behandlet":"2020-03-14T23:00:00"}},"virksomhetsnummer":900668490,"sykmeldingId":"b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d"}}"""
 }

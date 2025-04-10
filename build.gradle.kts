@@ -23,7 +23,6 @@ val dialogportenClientVersion: String by project
 val bakgrunnsjobbVersion: String by project
 val swaggerVersion: String by project
 val jaxbApiVersion: String by project
-val syfoXmlCodeGen: String by project
 val testContainerVersion: String by project
 val unleashVersion: String by project
 
@@ -87,7 +86,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
-    implementation("no.nav.helse.xml:sykmelding-arbeidsgiver:$syfoXmlCodeGen")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
@@ -106,14 +104,7 @@ dependencies {
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testContainerVersion")
-
-    // XML testing
-    testImplementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
-    testImplementation("org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
     testImplementation("org.json:json:20250107")
-    testImplementation("no.nav.helse.xml:sykmelding-arbeidsgiver:$syfoXmlCodeGen")
-    testImplementation("org.skyscreamer:jsonassert:1.5.1")
-    
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {

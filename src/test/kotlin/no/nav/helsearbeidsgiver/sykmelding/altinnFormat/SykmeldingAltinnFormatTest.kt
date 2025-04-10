@@ -1,13 +1,17 @@
 package no.nav.helsearbeidsgiver.sykmelding.altinnFormat
 
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
+import no.nav.helsearbeidsgiver.sykmelding.model.SykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.sykmelding.toSykmeldingResponse
+import no.nav.helsearbeidsgiver.utils.TestData.XML_ARBEIDSGIVERPERIODE
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.json.JSONObject
-import org.json.XML
 import org.junit.jupiter.api.Test
 
 class SykmeldingAltinnFormatTest {
@@ -16,16 +20,11 @@ class SykmeldingAltinnFormatTest {
         val sykmeldingKafkaMessage = sykmeldingMock().dupliserPeriode()
         val person = mockPerson(sykmeldingKafkaMessage.kafkaMetadata.fnr)
 
-        // Gammel versjon fra Syfosmaltinn
-        val xmlMapper = SykmeldingArbeidsgiverMapper
-        val xmlSykmeldingArbeidsgiver = xmlMapper.toAltinnXMLSykmelding(sykmeldingKafkaMessage, person, null)
-        val xmlString = JAXB.marshallSykmeldingArbeidsgiver(xmlSykmeldingArbeidsgiver)
-
         // ny implementasjon med @Serializable data class
         val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(sykmeldingKafkaMessage.toSykmeldingResponse(), person)
         val jsonString = sykmeldingArbeidsgiver.tilJson()
 
-        JSONObject(jsonString).toString() shouldBe XML.toJSONObject(xmlString).toString()
+        JSONObject(jsonString).toString() shouldBe XML_ARBEIDSGIVERPERIODE
     }
 }
 
@@ -40,3 +39,20 @@ fun mockPerson(fnr: String): Person =
         aktorId = "aktorId",
         fnr = fnr,
     )
+
+val json =
+    Json {
+        encodeDefaults = false
+        explicitNulls = false // ikke inkluder null verdier
+    }
+
+fun SykmeldingArbeidsgiver.tilJson(): String {
+    val wrapper = SykmeldingArbeidsgiverWrapper(this)
+    return json.encodeToString(wrapper)
+}
+
+@Serializable
+data class SykmeldingArbeidsgiverWrapper(
+    @SerialName("ns2:sykmeldingArbeidsgiver")
+    val sykmeldingArbeidsgiver: SykmeldingArbeidsgiver,
+)
