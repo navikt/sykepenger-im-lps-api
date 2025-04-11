@@ -20,6 +20,7 @@ val coroutineVersion: String by project
 val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
 val bakgrunnsjobbVersion: String by project
+val swaggerVersion: String by project
 val testContainerVersion: String by project
 val unleashVersion: String by project
 
@@ -82,6 +83,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")

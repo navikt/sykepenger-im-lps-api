@@ -2,12 +2,11 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -42,9 +41,9 @@ class SykmeldingRepositoryTest {
 
         sykmeldingKafkaMessage.lagreSykmelding(sykmeldingRepository)
 
-        val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(arbeidsgiverSykmelding) }
+        val lagretSykmelding = sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingKafkaMessage.sykmelding.id))
 
-        lagretSykmelding shouldBe sykmeldingKafkaMessage.sykmelding
+        lagretSykmelding?.sendSykmeldingAivenKafkaMessage shouldBe sykmeldingKafkaMessage
     }
 
     @Test
@@ -53,9 +52,10 @@ class SykmeldingRepositoryTest {
 
         sykmeldinger.forEach { it.lagreSykmelding(sykmeldingRepository) }
 
-        val sykmeldingValgt = sykmeldinger[2].sykmelding
+        val sykmeldingValgt = sykmeldinger[2]
 
-        sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingValgt.id))?.arbeidsgiverSykmelding shouldBe sykmeldingValgt
+        sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingValgt.sykmelding.id))?.sendSykmeldingAivenKafkaMessage shouldBe
+            sykmeldingValgt
     }
 }
 
@@ -66,6 +66,6 @@ private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository
         id = UUID.fromString(sykmelding.id),
         fnr = kafkaMetadata.fnr,
         orgnr = event.arbeidsgiver!!.orgnummer,
-        sykmelding = sykmelding,
+        sykmelding = this,
     )
 }

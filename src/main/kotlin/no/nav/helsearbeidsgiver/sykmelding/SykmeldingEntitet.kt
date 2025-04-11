@@ -10,11 +10,11 @@ object SykmeldingEntitet : Table("sykmelding") {
     val sykmeldingId = uuid("sykmelding_id")
     val fnr = varchar("fnr", length = 11)
     val orgnr = varchar("orgnr", length = 9)
-    val arbeidsgiverSykmelding =
-        jsonb<ArbeidsgiverSykmelding>(
+    val sendSykmeldingAivenKafkaMessage =
+        jsonb<SendSykmeldingAivenKafkaMessage>(
             name = "arbeidsgiver_sykmelding",
             jsonConfig = jsonConfig,
-            kSerializer = ArbeidsgiverSykmelding.serializer(),
+            kSerializer = SendSykmeldingAivenKafkaMessage.serializer(),
         )
     val opprettet = datetime("opprettet")
 }

@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -20,7 +20,7 @@ class SykmeldingRepository(
         id: UUID,
         fnr: String,
         orgnr: String,
-        sykmelding: ArbeidsgiverSykmelding,
+        sykmelding: SendSykmeldingAivenKafkaMessage,
     ) {
         try {
             transaction(db) {
@@ -28,7 +28,7 @@ class SykmeldingRepository(
                     it[sykmeldingId] = id
                     it[SykmeldingEntitet.fnr] = fnr
                     it[SykmeldingEntitet.orgnr] = orgnr
-                    it[arbeidsgiverSykmelding] = sykmelding
+                    it[sendSykmeldingAivenKafkaMessage] = sykmelding
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -37,7 +37,7 @@ class SykmeldingRepository(
         }
     }
 
-    fun hentSykmelding(id: UUID): SykmeldingResponse? =
+    fun hentSykmelding(id: UUID): SykmeldingDTO? =
         transaction(db) {
             SykmeldingEntitet
                 .selectAll()
@@ -46,11 +46,11 @@ class SykmeldingRepository(
                 .firstOrNull()
         }
 
-    private fun ResultRow.toSykmelding(): SykmeldingResponse =
-        SykmeldingResponse(
+    private fun ResultRow.toSykmelding(): SykmeldingDTO =
+        SykmeldingDTO(
             id = this[sykmeldingId].toString(),
             orgnr = this[orgnr],
             fnr = this[fnr],
-            arbeidsgiverSykmelding = this[arbeidsgiverSykmelding],
+            sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
         )
 }
