@@ -10,19 +10,19 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 fun tilSykmeldingArbeidsgiver(
-    sykmelding: SendSykmeldingAivenKafkaMessage,
+    sykmeldingDTO: SendSykmeldingAivenKafkaMessage,
     person: Person,
 ): SykmeldingArbeidsgiver =
     SykmeldingArbeidsgiver(
         juridiskOrganisasjonsnummer = 0,
         mottattidspunkt =
-            sykmelding.sykmelding.mottattTidspunkt
+            sykmeldingDTO.sykmelding.mottattTidspunkt
                 .toLocalDateTime(),
-        sykmeldingId = sykmelding.sykmelding.id,
+        sykmeldingId = sykmeldingDTO.sykmelding.id,
         virksomhetsnummer =
-            sykmelding.event.arbeidsgiver.orgnummer
+            sykmeldingDTO.event.arbeidsgiver.orgnummer
                 .toLong(),
-        sykmelding = sykmelding.sykmelding.tilSykmelding(person, null), // TODO: Egenmeldingsdager
+        sykmelding = sykmeldingDTO.sykmelding.tilSykmelding(person, null), // TODO: Egenmeldingsdager
     )
 
 private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(
