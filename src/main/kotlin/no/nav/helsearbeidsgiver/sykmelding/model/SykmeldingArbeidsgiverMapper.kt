@@ -23,7 +23,6 @@ fun tilSykmeldingArbeidsgiver(
         sykmeldingId = sykmelding.id,
         virksomhetsnummer = sykmelding.orgnr.toLong(),
         sykmelding = sykmelding.arbeidsgiverSykmeldingKafka.tilSykmelding(person, null), // TODO: Egenmeldingsdager
-        xmlns = "http://nav.no/melding/virksomhet/sykmeldingArbeidsgiver/v1/sykmeldingArbeidsgiver",
     )
 
 private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(

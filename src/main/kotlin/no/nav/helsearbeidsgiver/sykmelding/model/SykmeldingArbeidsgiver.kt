@@ -6,7 +6,6 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.swagger.v3.oas.annotations.media.Schema
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -17,8 +16,6 @@ import java.time.LocalDateTime
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class SykmeldingArbeidsgiver(
-    @SerialName("xmlns:ns2")
-    val xmlns: String,
     @field:Schema(description = "Sykmeldingen")
     val sykmelding: Sykmelding,
     @field:Schema(description = "Juridisk organisasjonsnummer for den bedriften den sykmeldte er knyttet til")
