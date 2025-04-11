@@ -103,11 +103,11 @@ private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMe
 private fun BehandlerAGDTO?.tilBehandler(): Behandler =
     Behandler(
         navn = tilNavn(),
-        telefonnummer = hentTelefonnr(this?.tlf).toLong(),
+        telefonnummer = this?.tlf.tolkTelefonNr().toLong(),
     )
 
-fun hentTelefonnr(telefonnr: String?): String =
-    telefonnr
+fun String?.tolkTelefonNr(): String =
+    this
         ?.lowercase()
         ?.trim()
         ?.removePrefix("tel:")
