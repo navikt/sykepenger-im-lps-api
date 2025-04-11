@@ -52,7 +52,7 @@ class SykmeldingService(
             id = id,
             fnr = sykmeldingMessage.kafkaMetadata.fnr,
             orgnr = orgnr,
-            sykmelding = sykmeldingMessage.sykmelding,
+            sykmelding = sykmeldingMessage,
         )
     }
 }
