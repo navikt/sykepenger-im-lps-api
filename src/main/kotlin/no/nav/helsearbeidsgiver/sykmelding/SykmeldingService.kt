@@ -31,7 +31,7 @@ class SykmeldingService(
 
             val person = mockHentPersonFraPDL(response.fnr) // TODO: Bruk ekte PDL
 
-            val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(response, person)
+            val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(response.sendSykmeldingAivenKafkaMessage, person)
 
             return sykmeldingArbeidsgiver
         } catch (e: Exception) {
@@ -43,15 +43,12 @@ class SykmeldingService(
         val id = sykmeldingMessage.sykmelding.id.toUuidOrNull()
         id ?: throw IllegalArgumentException("Sykmelding har ugyldig UUID ${sykmeldingMessage.sykmelding.id}")
 
-        val orgnr = sykmeldingMessage.event.arbeidsgiver?.orgnummer
-        orgnr ?: throw SykmeldingOrgnrManglerException("Lagret ikke sykmelding fordi den mangler orgnr $id")
-
         logger().info("Lagrer sykmelding $id")
 
         sykmeldingRepository.lagreSykmelding(
             id = id,
             fnr = sykmeldingMessage.kafkaMetadata.fnr,
-            orgnr = orgnr,
+            orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
             sykmelding = sykmeldingMessage,
         )
     }

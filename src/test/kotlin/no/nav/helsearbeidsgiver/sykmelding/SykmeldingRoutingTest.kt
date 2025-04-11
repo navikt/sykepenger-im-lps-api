@@ -92,7 +92,8 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingDTO.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(this, mockHentPersonFraPDL(fnr))
+fun SykmeldingDTO.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver =
+    tilSykmeldingArbeidsgiver(this.sendSykmeldingAivenKafkaMessage, mockHentPersonFraPDL(fnr))
 
 fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
     SykmeldingDTO(

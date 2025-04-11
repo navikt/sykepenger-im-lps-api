@@ -5,22 +5,24 @@ import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.Arbeidsgi
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
 fun tilSykmeldingArbeidsgiver(
-    sykmelding: SykmeldingDTO,
+    sykmelding: SendSykmeldingAivenKafkaMessage,
     person: Person,
 ): SykmeldingArbeidsgiver =
     SykmeldingArbeidsgiver(
         juridiskOrganisasjonsnummer = 0,
         mottattidspunkt =
-            sykmelding.sendSykmeldingAivenKafkaMessage.sykmelding.mottattTidspunkt
+            sykmelding.sykmelding.mottattTidspunkt
                 .toLocalDateTime(),
-        sykmeldingId = sykmelding.id,
-        virksomhetsnummer = sykmelding.orgnr.toLong(),
-        sykmelding = sykmelding.sendSykmeldingAivenKafkaMessage.sykmelding.tilSykmelding(person, null), // TODO: Egenmeldingsdager
+        sykmeldingId = sykmelding.sykmelding.id,
+        virksomhetsnummer =
+            sykmelding.event.arbeidsgiver.orgnummer
+                .toLong(),
+        sykmelding = sykmelding.sykmelding.tilSykmelding(person, null), // TODO: Egenmeldingsdager
     )
 
 private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(

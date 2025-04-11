@@ -14,8 +14,9 @@ class SykmeldingTolker(
     private val sikkerLogger = sikkerLogger()
 
     override fun lesMelding(melding: String) {
-        val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
         try {
+            val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
+
             sykmeldingService.lagreSykmelding(sykmeldingMessage)
             sikkerLogger.error("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}")
 
