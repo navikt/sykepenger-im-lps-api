@@ -21,7 +21,6 @@ val pdpClientVersion: String by project
 val dialogportenClientVersion: String by project
 val bakgrunnsjobbVersion: String by project
 val swaggerVersion: String by project
-val jaxbApiVersion: String by project
 val testContainerVersion: String by project
 val unleashVersion: String by project
 
@@ -102,7 +101,6 @@ dependencies {
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:junit-jupiter:$testContainerVersion")
-    testImplementation("org.json:json:20250107")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
