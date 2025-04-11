@@ -92,10 +92,10 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingResponse.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(this, mockHentPersonFraPDL(fnr))
+fun SykmeldingDTO.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(this, mockHentPersonFraPDL(fnr))
 
-fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingResponse =
-    SykmeldingResponse(
+fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
+    SykmeldingDTO(
         event.sykmeldingId,
         kafkaMetadata.fnr,
         event.arbeidsgiver!!.orgnummer,

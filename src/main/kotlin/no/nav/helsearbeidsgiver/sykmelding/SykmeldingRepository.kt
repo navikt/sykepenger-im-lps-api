@@ -37,7 +37,7 @@ class SykmeldingRepository(
         }
     }
 
-    fun hentSykmelding(id: UUID): SykmeldingResponse? =
+    fun hentSykmelding(id: UUID): SykmeldingDTO? =
         transaction(db) {
             SykmeldingEntitet
                 .selectAll()
@@ -46,8 +46,8 @@ class SykmeldingRepository(
                 .firstOrNull()
         }
 
-    private fun ResultRow.toSykmelding(): SykmeldingResponse =
-        SykmeldingResponse(
+    private fun ResultRow.toSykmelding(): SykmeldingDTO =
+        SykmeldingDTO(
             id = this[sykmeldingId].toString(),
             orgnr = this[orgnr],
             fnr = this[fnr],

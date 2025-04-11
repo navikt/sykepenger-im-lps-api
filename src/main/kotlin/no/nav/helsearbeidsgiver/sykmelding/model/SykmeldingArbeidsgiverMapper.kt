@@ -5,16 +5,12 @@ import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.Arbeidsgi
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingResponse
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import java.util.Optional.ofNullable
-import java.util.function.Function
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 fun tilSykmeldingArbeidsgiver(
-    sykmelding: SykmeldingResponse,
+    sykmelding: SykmeldingDTO,
     person: Person,
 ): SykmeldingArbeidsgiver =
     SykmeldingArbeidsgiver(
@@ -110,26 +106,12 @@ private fun BehandlerAGDTO?.tilBehandler(): Behandler =
         telefonnummer = hentTelefonnr(this?.tlf).toLong(),
     )
 
-private fun hentTelefonnr(telefonnr: String?): String = ofNullable(telefonnr).map(removePrefix).orElseGet { telefonnr } ?: ""
-
-private val removePrefix =
-    Function<String, String?> { kontaktinfo: String? ->
-        ofNullable(kontaktinfo)
-            .map { s: String? ->
-                Pattern
-                    .compile(
-                        "(tel|fax):(\\d+)",
-                        Pattern.CASE_INSENSITIVE,
-                    ).matcher(s)
-            }.filter { obj: Matcher -> obj.matches() }
-            .filter { matcher: Matcher -> matcher.groupCount() == 2 }
-            .map { matcher: Matcher ->
-                matcher.group(
-                    2,
-                )
-            }.map { obj: String -> obj.trim { it <= ' ' } }
-            .orElse(kontaktinfo)
-    }
+fun hentTelefonnr(telefonnr: String?): String =
+    telefonnr
+        ?.lowercase()
+        ?.trim()
+        ?.removePrefix("tel:")
+        ?.removePrefix("fax:") ?: ""
 
 private fun BehandlerAGDTO?.tilNavn(): Navn =
     Navn(
