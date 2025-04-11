@@ -15,10 +15,12 @@ fun tilSykmeldingArbeidsgiver(
 ): SykmeldingArbeidsgiver =
     SykmeldingArbeidsgiver(
         juridiskOrganisasjonsnummer = 0,
-        mottattidspunkt = sykmelding.arbeidsgiverSykmeldingKafka.mottattTidspunkt.toLocalDateTime(),
+        mottattidspunkt =
+            sykmelding.sendSykmeldingAivenKafkaMessage.sykmelding.mottattTidspunkt
+                .toLocalDateTime(),
         sykmeldingId = sykmelding.id,
         virksomhetsnummer = sykmelding.orgnr.toLong(),
-        sykmelding = sykmelding.arbeidsgiverSykmeldingKafka.tilSykmelding(person, null), // TODO: Egenmeldingsdager
+        sykmelding = sykmelding.sendSykmeldingAivenKafkaMessage.sykmelding.tilSykmelding(person, null), // TODO: Egenmeldingsdager
     )
 
 private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(

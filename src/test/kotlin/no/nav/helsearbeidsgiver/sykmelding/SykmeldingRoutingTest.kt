@@ -99,5 +99,5 @@ fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
         event.sykmeldingId,
         kafkaMetadata.fnr,
         event.arbeidsgiver!!.orgnummer,
-        sykmelding,
+        this,
     )
