@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 class SykmeldingHentTelefonnrTest {
     @Test
-    fun `returnerer hentTelefonnr det samme som gammel regex versjon`() {
+    fun `returnerer tolkTelefonNr forventet strings`() {
         listOf(
             "12345678" to "12345678",
             " tel:12345678" to "12345678",
