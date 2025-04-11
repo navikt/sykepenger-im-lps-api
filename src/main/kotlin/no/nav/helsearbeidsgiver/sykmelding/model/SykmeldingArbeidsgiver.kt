@@ -14,13 +14,6 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-// TODO: Burde vi bytte Long med String for orgnr, juridiskOrgnr, telefonnummer, fnr?
-
-// TODO: Burde vi slette xmlns:ns2?
-
-// TODO: Bytte XMLLocalDateTimeSerializer med helsearbeidsgiver LocalDateTimeSerializer?
-// TODO: (XML har ekstra sekunder på slutten  :00  )
-
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class SykmeldingArbeidsgiver(
