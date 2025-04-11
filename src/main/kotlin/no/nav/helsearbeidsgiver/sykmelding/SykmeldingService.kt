@@ -20,18 +20,18 @@ class SykmeldingService(
         orgnr: String,
     ): SykmeldingArbeidsgiver? {
         try {
-            val response = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
+            val sykmeldingDTO = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
 
-            if (response == null) {
+            if (sykmeldingDTO == null) {
                 logger().info("Fant ingen sykmeldinger $id for orgnr: $orgnr")
                 return null
             }
 
             sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
 
-            val person = mockHentPersonFraPDL(response.fnr) // TODO: Bruk ekte PDL
+            val person = mockHentPersonFraPDL(sykmeldingDTO.fnr) // TODO: Bruk ekte PDL
 
-            val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(response.sendSykmeldingAivenKafkaMessage, person)
+            val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(sykmeldingDTO.sendSykmeldingAivenKafkaMessage, person)
 
             return sykmeldingArbeidsgiver
         } catch (e: Exception) {
