@@ -8,36 +8,42 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.OffsetDateTime
 import java.util.UUID
 
-fun Inntektsmelding.erDuplikat(other: Inntektsmelding) =
-    this == other.copy(
-        avsender = avsender,
-        mottatt = mottatt,
-        aarsakInnsending = aarsakInnsending,
-    )
+fun SkjemaInntektsmelding.erDuplikat(other: SkjemaInntektsmelding) =
+    this ==
+        other.copy(
+            avsenderTlf = avsenderTlf,
+        )
 
-fun InntektsmeldingRequest.tilInntektsmelding(sluttbrukerOrgnr: Orgnr, lpsOrgnr: Orgnr, forespoersel: Forespoersel): Inntektsmelding =
+fun InntektsmeldingRequest.tilInntektsmelding(
+    sluttbrukerOrgnr: Orgnr,
+    lpsOrgnr: Orgnr,
+    forespoersel: Forespoersel,
+): Inntektsmelding =
     Inntektsmelding(
         id = UUID.randomUUID(),
-        type = Inntektsmelding.Type.ForespurtEkstern(
-            navReferanseId,
-            AvsenderSystem(
-                lpsOrgnr,
-                avsender.systemNavn,
-                avsender.systemVersjon,
-            )
-        ),
+        type =
+            Inntektsmelding.Type.ForespurtEkstern(
+                navReferanseId,
+                AvsenderSystem(
+                    lpsOrgnr,
+                    avsender.systemNavn,
+                    avsender.systemVersjon,
+                ),
+            ),
         sykmeldt = Sykmeldt(Fnr(sykmeldtFnr), ""),
-        avsender = Avsender(
-            sluttbrukerOrgnr,
-            "",
-            "",
-            arbeidsgiverTlf
-        ),
+        avsender =
+            Avsender(
+                sluttbrukerOrgnr,
+                "",
+                "",
+                arbeidsgiverTlf,
+            ),
         sykmeldingsperioder = forespoersel.sykmeldingsperioder,
         agp = agp,
         inntekt = inntekt,
@@ -47,7 +53,10 @@ fun InntektsmeldingRequest.tilInntektsmelding(sluttbrukerOrgnr: Orgnr, lpsOrgnr:
         vedtaksperiodeId = null,
     )
 
-fun InntektsmeldingRequest.tilInnsending(type: Inntektsmelding.Type, versjon: Int): Innsending {
+fun InntektsmeldingRequest.tilInnsending(
+    type: Inntektsmelding.Type,
+    versjon: Int,
+): Innsending {
     val skjemaInntektsmelding =
         SkjemaInntektsmelding(
             forespoerselId = navReferanseId,
@@ -62,6 +71,15 @@ fun InntektsmeldingRequest.tilInnsending(type: Inntektsmelding.Type, versjon: In
         aarsakInnsending = aarsakInnsending,
         type = type,
         innsendtTid = OffsetDateTime.now(),
-        versjon = versjon
+        versjon = versjon,
     )
 }
+
+fun InntektsmeldingResponse.tilSkjemaInntektsmelding() =
+    SkjemaInntektsmelding(
+        forespoerselId = navReferanseId,
+        avsenderTlf = arbeidsgiver.tlf,
+        agp = agp,
+        inntekt = inntekt,
+        refusjon = refusjon,
+    )

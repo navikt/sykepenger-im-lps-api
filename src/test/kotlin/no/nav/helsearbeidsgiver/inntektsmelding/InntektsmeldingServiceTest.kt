@@ -168,40 +168,40 @@ class InntektsmeldingServiceTest {
         val innsendingId2 = UUID.randomUUID()
         val skjema = buildInntektsmelding(forespoerselId = foresporselid).tilSkjema()
         every { inntektsmeldingRepository.hent(foresporselid) } returns
-                listOf(
-                    InntektsmeldingResponse(
-                        navReferanseId = foresporselid,
-                        agp = skjema.agp,
-                        inntekt = skjema.inntekt,
-                        refusjon = skjema.refusjon,
-                        sykmeldtFnr = fnr,
-                        aarsakInnsending = AarsakInnsending.Ny,
-                        typeInnsending = InnsendingType.FORESPURT,
-                        innsendtTid = innsendt1,
-                        versjon = 1,
-                        arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
-                        avsender = Avsender("", ""),
-                        status = InnsendingStatus.MOTTATT,
-                        statusMelding = null,
-                        id = innsendingId1,
-                    ),
-                    InntektsmeldingResponse(
-                        navReferanseId = foresporselid,
-                        agp = skjema.agp,
-                        inntekt = skjema.inntekt,
-                        refusjon = skjema.refusjon,
-                        sykmeldtFnr = fnr,
-                        aarsakInnsending = AarsakInnsending.Endring,
-                        typeInnsending = InnsendingType.FORESPURT,
-                        innsendtTid = innsendt2,
-                        versjon = 1,
-                        arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
-                        avsender = Avsender("", ""),
-                        status = InnsendingStatus.MOTTATT,
-                        statusMelding = null,
-                        id = innsendingId2,
-                    ),
-                )
+            listOf(
+                InntektsmeldingResponse(
+                    navReferanseId = foresporselid,
+                    agp = skjema.agp,
+                    inntekt = skjema.inntekt,
+                    refusjon = skjema.refusjon,
+                    sykmeldtFnr = fnr,
+                    aarsakInnsending = AarsakInnsending.Ny,
+                    typeInnsending = InnsendingType.FORESPURT,
+                    innsendtTid = innsendt1,
+                    versjon = 1,
+                    arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
+                    avsender = Avsender("", ""),
+                    status = InnsendingStatus.MOTTATT,
+                    statusMelding = null,
+                    id = innsendingId1,
+                ),
+                InntektsmeldingResponse(
+                    navReferanseId = foresporselid,
+                    agp = skjema.agp,
+                    inntekt = skjema.inntekt,
+                    refusjon = skjema.refusjon,
+                    sykmeldtFnr = fnr,
+                    aarsakInnsending = AarsakInnsending.Endring,
+                    typeInnsending = InnsendingType.FORESPURT,
+                    innsendtTid = innsendt2,
+                    versjon = 1,
+                    arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
+                    avsender = Avsender("", ""),
+                    status = InnsendingStatus.MOTTATT,
+                    statusMelding = null,
+                    id = innsendingId2,
+                ),
+            )
         val hentInntektsmelding = inntektsmeldingService.hentNyesteInntektsmeldingByNavRefernaseId(foresporselid)
 
         verify {
@@ -213,5 +213,4 @@ class InntektsmeldingServiceTest {
         assertEquals(foresporselid, hentInntektsmelding?.navReferanseId)
         assertEquals(innsendt2, hentInntektsmelding?.innsendtTid)
     }
-
 }

@@ -9,11 +9,10 @@ import java.util.UUID
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-
-    fun hentNyesteSkjemaInntektsmeldingByNavRefernaseId(navReferanseId: UUID): InntektsmeldingResponse? {
+    fun hentNyesteInntektsmeldingByNavRefernaseId(navReferanseId: UUID): InntektsmeldingResponse? {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for forespoerelId: $navReferanseId")
-            inntektsmeldingRepository.hentSkjemaInntetksmeldingByNavReferanseId(navReferanseId).maxByOrNull {it }
+            inntektsmeldingRepository.hent(navReferanseId).maxByOrNull { it.innsendtTid }
         }.onSuccess {
             sikkerLogger().info("Hentet siste Inntektsmelding for forespoerselId: $navReferanseId")
             return it
@@ -22,6 +21,7 @@ class InntektsmeldingService(
         }
         throw RuntimeException("Feil ved henting av siste inntektsmelding for forespoerselId: $navReferanseId")
     }
+
     fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingFilterResponse {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")

@@ -27,12 +27,15 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
@@ -162,7 +165,6 @@ class ApiTest {
         }
 
     @Test
-    @Disabled // TODO: lag integrasjonstest for denne test casen istedenfor
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
             // Nødvendig pga transaction rundt service kall
@@ -171,6 +173,7 @@ class ApiTest {
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -187,8 +190,6 @@ class ApiTest {
             unmockkStatic(Services::opprettImTransaction)
         }
 
-
-
     @Test
     fun `innsending av inntektsmelding uten gyldig forespørsel gir bad request`() =
         runTest {
@@ -204,6 +205,45 @@ class ApiTest {
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
+            verify(exactly = 0) {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
+            unmockkStatic(Services::opprettImTransaction)
+        }
+
+    @Test
+    fun `innsending av duplikat inntektsmelding gyldig forespørsel gir conflict`() =
+        runTest {
+            // Nødvendig pga transaction rundt service kall
+            mockkStatic(Services::opprettImTransaction)
+            every { services.opprettImTransaction(any(), any()) } just Runs
+            val requestBody = mockInntektsmeldingRequest()
+            buildInntektsmelding()
+            val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns listOf(
+                mockInntektsmeldingResponse().copy(
+                    id = UUID.randomUUID(),
+                    navReferanseId = requestBody.navReferanseId,
+                    arbeidsgiver = Arbeidsgiver(DEFAULT_ORG, requestBody.arbeidsgiverTlf),
+                    inntekt = requestBody.inntekt,
+                    refusjon = requestBody.refusjon,
+                    agp = requestBody.agp,
+                )
+            )
+            val im = buildInntektsmelding(forespoerselId = forespoersel.navReferanseId)
+            every { repositories.inntektsmeldingRepository.hent(DEFAULT_ORG) } returns
+                listOf(mockInntektsmeldingResponse(im))
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status shouldBe HttpStatusCode.Conflict
             verify(exactly = 0) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },

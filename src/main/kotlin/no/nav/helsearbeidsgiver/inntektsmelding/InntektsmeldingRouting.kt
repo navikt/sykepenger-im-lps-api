@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.tilInnsending
 import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
+import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
@@ -54,21 +55,28 @@ private fun Route.innsending(services: Services) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@post
             }
-            val sisteInntektsmelding = services.inntektsmeldingService.hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
+            val sisteInntektsmelding =
+                services.inntektsmeldingService.hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
 
-            val inntektsmelding = request.tilInntektsmelding(
-                sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
-                lpsOrgnr = Orgnr(lpsOrgnr),
-                forespoersel = forespoersel,
-            )
-            if (sisteInntektsmelding != null) {
-                inntektsmelding.erDuplikat(sisteInntektsmelding)
-
-            }
+            val inntektsmelding =
+                request.tilInntektsmelding(
+                    sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
+                    lpsOrgnr = Orgnr(lpsOrgnr),
+                    forespoersel = forespoersel,
+                )
             val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
+            if (
+                sisteInntektsmelding != null &&
+                innsending.skjema.erDuplikat(
+                    sisteInntektsmelding.tilSkjemaInntektsmelding(),
+                )
+            ) {
+                call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
+                return@post
+            }
             services.opprettImTransaction(
                 inntektsmelding = inntektsmelding,
-                innsending = innsending
+                innsending = innsending,
             )
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
