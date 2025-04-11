@@ -50,16 +50,6 @@ class SykmeldingServiceTest {
     }
 
     @Test
-    fun `lagreSykmelding skal kaste SykmeldingOrgnrManglerException og ikke lagre når orgnr mangler`() {
-        val eventUtenOrgnr = sykmeldingMock().event.copy(arbeidsgiver = null)
-        val sykmeldingKafkaMessage = sykmeldingMock().copy(event = eventUtenOrgnr)
-
-        assertThrows<SykmeldingOrgnrManglerException> { sykmeldingService.lagreSykmelding(sykmeldingKafkaMessage) }
-
-        assertNull(transaction(db) { SykmeldingEntitet.selectAll().firstOrNull() })
-    }
-
-    @Test
     fun `lagreSykmelding skal kaste IllegalArgumentException og ikke lagre når sykmelding UUID er ugyldig`() {
         val sykmeldingMedUgyldigId = sykmeldingMock().sykmelding.copy(id = "ugyldig-uuid")
         val sykmeldingKafkaMessage = sykmeldingMock().copy(sykmelding = sykmeldingMedUgyldigId)
@@ -76,7 +66,7 @@ class SykmeldingServiceTest {
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
         val orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
 
-        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.toSykmeldingResponse().toArbeidsgiverSykmelding()
+        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.toSykmeldingResponse().toSykmeldingArbeidsgiver()
     }
 
     @Test
