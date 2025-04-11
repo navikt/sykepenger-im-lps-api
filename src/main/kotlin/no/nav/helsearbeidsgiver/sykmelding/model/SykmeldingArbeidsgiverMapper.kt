@@ -35,7 +35,8 @@ fun tilSykmeldingArbeidsgiver(
 private fun List<SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Egenmeldingsdager? =
     this
         ?.find { it.shortName == SykmeldingStatusKafkaEventDTO.ShortNameDTO.EGENMELDINGSDAGER }
-        ?.let { Json.decodeFromString<List<@kotlinx.serialization.Serializable LocalDate>>(it.svar) }
+        ?.let { Json.decodeFromString<List<String>>(it.svar) }
+        ?.map { LocalDate.parse(it) }
         ?.let { Egenmeldingsdager(it) }
 
 private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(person: Person): Sykmelding =
