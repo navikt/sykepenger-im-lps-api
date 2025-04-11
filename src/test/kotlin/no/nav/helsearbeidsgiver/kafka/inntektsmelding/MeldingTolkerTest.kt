@@ -4,6 +4,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.serialization.SerializationException
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
@@ -27,10 +28,12 @@ import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
+import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 @WithPostgresContainer
@@ -112,5 +115,23 @@ class MeldingTolkerTest {
     fun `trengerForespoersel-meldinger ignoreres uten å lagre til mottak`() {
         tolkere.forespoerselTolker.lesMelding(TRENGER_FORESPOERSEL)
         verify(exactly = 0) { repositories.mottakRepository.opprett(any()) }
+    }
+
+    @Test
+    fun `SykmeldingTolker lesMelding kaster exception om arbeidsgiver er null`() {
+        val mockJsonMedArbeidsgiverNull =
+            SYKMELDING_MOTTATT.removeJsonWhitespace().replace(
+                """
+                "arbeidsgiver": {
+                    "orgnummer": "900668490",
+                    "juridiskOrgnummer": "928497704",
+                    "orgNavn": "Lama utleiren"
+                }""".removeJsonWhitespace(),
+                """"arbeidsgiver":null""",
+            )
+
+        assertThrows<SerializationException> {
+            tolkere.sykmeldingTolker.lesMelding(mockJsonMedArbeidsgiverNull)
+        }
     }
 }
