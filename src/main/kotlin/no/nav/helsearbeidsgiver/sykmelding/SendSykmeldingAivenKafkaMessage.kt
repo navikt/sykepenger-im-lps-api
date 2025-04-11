@@ -11,13 +11,13 @@ import java.time.OffsetDateTime
 
 @Serializable
 data class SendSykmeldingAivenKafkaMessage(
-    val sykmelding: ArbeidsgiverSykmelding,
+    val sykmelding: ArbeidsgiverSykmeldingKafka,
     val kafkaMetadata: KafkaMetadataDTO,
     val event: SykmeldingStatusKafkaEventDTO,
 )
 
 @Serializable
-data class ArbeidsgiverSykmelding(
+data class ArbeidsgiverSykmeldingKafka(
     val id: String,
     val mottattTidspunkt: OffsetDateTime,
     val syketilfelleStartDato: LocalDate? = null,
