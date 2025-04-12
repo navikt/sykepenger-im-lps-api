@@ -16,26 +16,19 @@ import java.time.LocalDateTime
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class SykmeldingArbeidsgiver(
-    @field:Schema(description = "Sykmeldingen")
-    val sykmelding: Sykmelding,
-    @field:Schema(description = "Juridisk organisasjonsnummer for den bedriften den sykmeldte er knyttet til")
-    val juridiskOrganisasjonsnummer: Long,
-    @field:Schema(description = "Virksomhetsnummer (undernummer/bedriftsnummer) for den bedriften den sykmeldte er knyttet til")
-    val virksomhetsnummer: Long,
+    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
+    val orgnrHovedenhet: String?,
+    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
+    val orgnr: String,
     @field:Schema(description = "Sykmeldingens unike id")
     val sykmeldingId: String,
     @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
     val mottattidspunkt: LocalDateTime,
     val egenmeldingsdager: Egenmeldingsdager? = null,
-)
-
-@Serializable
-@Schema(description = "Sykmelding")
-data class Sykmelding(
     @field:Schema(description = "Når startet syketilfellet")
     val syketilfelleFom: LocalDate?,
-    @field:Schema(description = "Pasient")
-    val pasient: Pasient,
+    val sykmeldtFnr: String,
+    val sykmeldtNavn: Navn,
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
     val arbeidsgiver: Arbeidsgiver? = null,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
@@ -154,7 +147,7 @@ data class Behandler(
     @field:Schema(description = "Behandlers navn")
     val navn: Navn,
     @field:Schema(description = "Behandlers kontaktinformasjon")
-    val telefonnummer: Long,
+    val telefonnummer: String,
 )
 
 @Serializable

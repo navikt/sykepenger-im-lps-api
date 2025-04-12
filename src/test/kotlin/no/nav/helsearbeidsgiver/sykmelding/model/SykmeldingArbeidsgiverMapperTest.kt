@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.kotest.matchers.shouldBe
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
 import no.nav.helsearbeidsgiver.sykmelding.mockHentPersonFraPDL
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
@@ -21,10 +22,15 @@ class SykmeldingArbeidsgiverMapperTest {
             )
 
         val sykmeldingArbeidsgiver =
-            tilSykmeldingArbeidsgiver(
-                sykmeldingDTO = sykmeldingMock.copy(event = sykmeldingMock.event.copy(sporsmals = listOf(egenmeldingSvar))),
-                person = mockHentPersonFraPDL(sykmeldingMock.kafkaMetadata.fnr),
-            )
+            SykmeldingDTO(
+                id = "",
+                fnr = "",
+                orgnr = "",
+                sendSykmeldingAivenKafkaMessage =
+                    sykmeldingMock.copy(
+                        event = sykmeldingMock.event.copy(sporsmals = listOf(egenmeldingSvar)),
+                    ),
+            ).tilSykmeldingArbeidsgiver(mockHentPersonFraPDL(""))
 
         sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
             Egenmeldingsdager(

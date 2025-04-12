@@ -57,7 +57,7 @@ class SykmeldingRoutingTest :
         test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
             val sykmeldingResponse = sykmeldingMock().toSykmeldingResponse()
-            val sykmeldingArbeidsgiver = sykmeldingResponse.toSykmeldingArbeidsgiver()
+            val sykmeldingArbeidsgiver = sykmeldingResponse.toMockSykmeldingArbeidsgiver()
             val id = UUID.fromString(sykmeldingResponse.id)
 
             every { sykmeldingService.hentSykmelding(id, any()) } returns sykmeldingArbeidsgiver
@@ -92,8 +92,7 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingDTO.toSykmeldingArbeidsgiver(): SykmeldingArbeidsgiver =
-    tilSykmeldingArbeidsgiver(this.sendSykmeldingAivenKafkaMessage, mockHentPersonFraPDL(fnr))
+fun SykmeldingDTO.toMockSykmeldingArbeidsgiver(): SykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(mockHentPersonFraPDL(fnr))
 
 fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
     SykmeldingDTO(
