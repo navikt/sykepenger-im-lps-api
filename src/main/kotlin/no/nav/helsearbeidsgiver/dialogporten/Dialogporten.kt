@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.getDialogportenToken
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.util.UUID
 
 interface IDialogportenService {
@@ -87,7 +88,7 @@ class DialogportenService(
             dialogportenClient
                 .opprettNyDialogMedSykmelding(
                     orgnr = orgnr,
-                    dialogTittel = "Sykepenger for X Y (f. Z)",
+                    dialogTittel = "Sykepenger for Fornavn Etternavnsen (f. ${sykmeldingMessage.getFoedselsdatoString()})",
                     dialogSammendrag = sykmeldingMessage.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmeldingId,
                     sykmeldingJsonUrl = "$navApiBaseUrl/sykmelding/$sykmeldingId",
@@ -111,6 +112,17 @@ private fun SendSykmeldingAivenKafkaMessage.getSykmeldingsPerioderString(): Stri
             "Sykmeldingsperioder ${this.sykmelding.sykmeldingsperioder.first().fom} - (...) - " +
                 "${this.sykmelding.sykmeldingsperioder.last().tom}"
     }
+
+// Støtter d-nummer
+private fun SendSykmeldingAivenKafkaMessage.getFoedselsdatoString(): String {
+    val fnr = Fnr(this.kafkaMetadata.fnr)
+    val foersteSiffer = fnr.verdi.first().digitToInt()
+    return if (foersteSiffer < 4) {
+        fnr.verdi.take(6)
+    } else {
+        (foersteSiffer - 4).toString() + fnr.verdi.substring(1, 6)
+    }
+}
 
 fun lagDialogportenClient(authClient: AltinnAuthClient) =
     DialogportenClient(
