@@ -27,12 +27,10 @@ class SykmeldingArbeidsgiverMapperTest {
             )
 
         sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
-            Egenmeldingsdager(
-                listOf(
-                    LocalDate.of(2025, 3, 27),
-                    LocalDate.of(2025, 3, 29),
-                    LocalDate.of(2025, 3, 26),
-                ),
+            listOf(
+                LocalDate.of(2025, 3, 27),
+                LocalDate.of(2025, 3, 29),
+                LocalDate.of(2025, 3, 26),
             )
     }
 }
