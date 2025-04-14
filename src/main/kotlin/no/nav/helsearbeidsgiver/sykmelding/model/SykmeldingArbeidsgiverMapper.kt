@@ -3,7 +3,6 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.Json
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
