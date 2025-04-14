@@ -55,14 +55,16 @@ private fun Route.innsending(services: Services) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             }
 
-            val sisteInntektsmelding = services.inntektsmeldingService
-                .hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
+            val sisteInntektsmelding =
+                services.inntektsmeldingService
+                    .hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
 
-            val inntektsmelding = request.tilInntektsmelding(
-                sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
-                lpsOrgnr = Orgnr(lpsOrgnr),
-                forespoersel = forespoersel
-            )
+            val inntektsmelding =
+                request.tilInntektsmelding(
+                    sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
+                    lpsOrgnr = Orgnr(lpsOrgnr),
+                    forespoersel = forespoersel,
+                )
             val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
 
             when {
@@ -70,9 +72,10 @@ private fun Route.innsending(services: Services) {
                     return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
                 sisteInntektsmelding != null && innsending.aarsakInnsending == AarsakInnsending.Ny ->
                     return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
-                sisteInntektsmelding != null && innsending.skjema.erDuplikat(
-                    sisteInntektsmelding.tilSkjemaInntektsmelding()
-                ) -> return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
+                sisteInntektsmelding != null &&
+                    innsending.skjema.erDuplikat(
+                        sisteInntektsmelding.tilSkjemaInntektsmelding(),
+                    ) -> return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
