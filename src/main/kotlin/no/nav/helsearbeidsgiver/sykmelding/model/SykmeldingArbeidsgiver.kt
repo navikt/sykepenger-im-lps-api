@@ -133,15 +133,6 @@ data class Navn(
 )
 
 @Serializable
-@Schema(description = "Pasient")
-data class Pasient(
-    @field:Schema(description = "Pasientens navn")
-    val navn: Navn,
-    @field:Schema(description = "Pasientens fnr/dnr")
-    val ident: String,
-)
-
-@Serializable
 @Schema(description = "Behandler")
 data class Behandler(
     @field:Schema(description = "Behandlers navn")
