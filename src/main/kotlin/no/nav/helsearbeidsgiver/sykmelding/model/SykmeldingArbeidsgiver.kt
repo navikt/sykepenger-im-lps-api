@@ -26,7 +26,7 @@ data class SykmeldingArbeidsgiver(
     val sykmeldingId: String,
     @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
     val mottattidspunkt: LocalDateTime,
-    val egenmeldingsdager: List<LocalDate>,
+    val egenmeldingsdager: Set<LocalDate>,
 )
 
 @Serializable

@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.list
+import no.nav.helsearbeidsgiver.utils.json.serializer.set
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -33,12 +33,12 @@ fun tilSykmeldingArbeidsgiver(
         egenmeldingsdager = sykmeldingDTO.event.sporsmals.tilEgenmeldingsdager(),
     )
 
-private fun List<SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): List<LocalDate> =
+private fun List<SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
     this
         ?.find { it.shortName == SykmeldingStatusKafkaEventDTO.ShortNameDTO.EGENMELDINGSDAGER }
         ?.svar
-        ?.fromJson(LocalDateSerializer.list())
-        ?: emptyList()
+        ?.fromJson(LocalDateSerializer.set())
+        ?: emptySet()
 
 private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(person: Person): Sykmelding =
     Sykmelding(
