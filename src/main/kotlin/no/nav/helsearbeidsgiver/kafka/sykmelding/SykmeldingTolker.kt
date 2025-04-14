@@ -6,7 +6,9 @@ import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
@@ -14,26 +16,37 @@ class SykmeldingTolker(
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
+    private val logger = logger()
 
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val lagretSykmeldingIdOrgnrPair = sykmeldingService.lagreSykmelding(sykmeldingMessage)
-            sikkerLogger.info("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}")
 
-            if (lagretSykmeldingIdOrgnrPair != null && unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
-                val (sykmeldingId, orgnr) = lagretSykmeldingIdOrgnrPair
+            val sykmeldingId =
+                sykmeldingMessage.sykmelding.id.toUuidOrNull()
+                    ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
+
+            val lagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage)
+
+            logger.info("Lagret sykmelding til database med id: $sykmeldingId")
+
+            if (lagretSykmelding && unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
                 dialogportenService.opprettNyDialogMedSykmelding(
-                    orgnr = orgnr,
+                    orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
                     sykmeldingId = sykmeldingId,
                     sykmeldingMessage = sykmeldingMessage,
                 )
             } else {
-                sikkerLogger()
-                    .info("Unleash toggle for å opprette Dialogporten dialog er skrudd av.")
+                logger
+                    .info(
+                        "Unleash toggle for å opprette Dialogporten dialog er skrudd av. Oppretter derfor ingen dialog for sykmelding $sykmeldingId.",
+                    )
             }
         } catch (e: Exception) {
-            sikkerLogger.error("Klarte ikke å lagre sykmelding og opprette dialog!", e)
+            "Klarte ikke å lagre sykmelding og opprette Dialogporten-dialog!".also {
+                logger.error(it)
+                sikkerLogger.error(it, e)
+            }
             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
         }
     }

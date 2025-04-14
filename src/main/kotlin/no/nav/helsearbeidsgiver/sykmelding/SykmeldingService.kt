@@ -40,7 +40,7 @@ class SykmeldingService(
         }
     }
 
-    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): Pair<UUID, String>? {
+    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage): Boolean {
         val id =
             sykmeldingMessage.sykmelding.id.toUuidOrNull()
                 ?: throw IllegalArgumentException("SykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
@@ -49,20 +49,19 @@ class SykmeldingService(
 
         when (sykmeldingRepository.hentSykmelding(id)) {
             null -> {
-                sikkerLogger().info("Sykmelding $id er ny og vil derfor lagres.")
-                val orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer
+                logger().info("Sykmelding $id er ny og vil derfor lagres.")
                 sykmeldingRepository.lagreSykmelding(
                     id = id,
                     fnr = sykmeldingMessage.kafkaMetadata.fnr,
                     orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
                     sykmelding = sykmeldingMessage,
                 )
-                return id to orgnr
+                return true
             }
 
             else -> {
                 logger().info("Sykmelding $id finnes fra før og vil derfor ignoreres.")
-                return null
+                return false
             }
         }
     }
