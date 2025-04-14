@@ -17,6 +17,7 @@ import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
@@ -173,8 +174,7 @@ class AuthApiTest : ApiTest() {
             // Nødvendig pga transaction rundt service kall
             mockkStatic(Services::opprettImTransaction)
             every { services.opprettImTransaction(any(), any()) } just Runs
-            val requestBody = mockInntektsmeldingRequest()
-            buildInntektsmelding()
+            val requestBody = mockInntektsmeldingRequest().copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns

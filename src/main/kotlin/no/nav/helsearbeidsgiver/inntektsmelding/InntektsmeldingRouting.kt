@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -38,7 +39,7 @@ private fun Route.innsending(services: Services) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
-            val request = this.call.receive<InntektsmeldingRequest>()
+            val request = call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
@@ -46,38 +47,35 @@ private fun Route.innsending(services: Services) {
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
-                call.respond(HttpStatusCode.BadRequest, it)
-                return@post
+                return@post call.respond(HttpStatusCode.BadRequest, it)
             }
 
             val forespoersel = services.forespoerselService.hentForespoersel(request.navReferanseId)
             if (forespoersel == null || forespoersel.orgnr != sluttbrukerOrgnr) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@post
+                return@post call.respond(HttpStatusCode.BadRequest)
             }
-            val sisteInntektsmelding =
-                services.inntektsmeldingService.hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
 
-            val inntektsmelding =
-                request.tilInntektsmelding(
-                    sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
-                    lpsOrgnr = Orgnr(lpsOrgnr),
-                    forespoersel = forespoersel,
-                )
-            val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
-            if (
-                sisteInntektsmelding != null &&
-                innsending.skjema.erDuplikat(
-                    sisteInntektsmelding.tilSkjemaInntektsmelding(),
-                )
-            ) {
-                call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
-                return@post
-            }
-            services.opprettImTransaction(
-                inntektsmelding = inntektsmelding,
-                innsending = innsending,
+            val sisteInntektsmelding = services.inntektsmeldingService
+                .hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
+
+            val inntektsmelding = request.tilInntektsmelding(
+                sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
+                lpsOrgnr = Orgnr(lpsOrgnr),
+                forespoersel = forespoersel
             )
+            val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
+
+            when {
+                sisteInntektsmelding == null && innsending.aarsakInnsending == AarsakInnsending.Endring ->
+                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
+                sisteInntektsmelding != null && innsending.aarsakInnsending == AarsakInnsending.Ny ->
+                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
+                sisteInntektsmelding != null && innsending.skjema.erDuplikat(
+                    sisteInntektsmelding.tilSkjemaInntektsmelding()
+                ) -> return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
+            }
+
+            services.opprettImTransaction(inntektsmelding, innsending)
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
