@@ -33,12 +33,10 @@ class SykmeldingArbeidsgiverMapperTest {
             ).tilSykmeldingArbeidsgiver(mockHentPersonFraPDL(""))
 
         sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
-            Egenmeldingsdager(
-                listOf(
-                    LocalDate.of(2025, 3, 27),
-                    LocalDate.of(2025, 3, 29),
-                    LocalDate.of(2025, 3, 26),
-                ),
+            setOf(
+                LocalDate.of(2025, 3, 27),
+                LocalDate.of(2025, 3, 29),
+                LocalDate.of(2025, 3, 26),
             )
     }
 }
