@@ -1,17 +1,16 @@
 package no.nav.helsearbeidsgiver.auth
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v2.TokenValidationContextPrincipal
 
-suspend fun PipelineContext<Unit, ApplicationCall>.tokenValidationContext(): TokenValidationContext {
+suspend fun RoutingContext.tokenValidationContext(): TokenValidationContext {
     val principal = call.principal<TokenValidationContextPrincipal>()
     val tokenValidationContext = principal?.context
     if (tokenValidationContext == null) {
