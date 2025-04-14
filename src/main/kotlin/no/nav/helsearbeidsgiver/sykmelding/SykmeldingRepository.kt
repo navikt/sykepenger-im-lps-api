@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -20,7 +20,7 @@ class SykmeldingRepository(
         id: UUID,
         fnr: String,
         orgnr: String,
-        sykmelding: ArbeidsgiverSykmeldingKafka,
+        sykmelding: SendSykmeldingAivenKafkaMessage,
     ) {
         try {
             transaction(db) {
@@ -28,7 +28,7 @@ class SykmeldingRepository(
                     it[sykmeldingId] = id
                     it[SykmeldingEntitet.fnr] = fnr
                     it[SykmeldingEntitet.orgnr] = orgnr
-                    it[arbeidsgiverSykmeldingKafka] = sykmelding
+                    it[sendSykmeldingAivenKafkaMessage] = sykmelding
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -51,6 +51,6 @@ class SykmeldingRepository(
             id = this[sykmeldingId].toString(),
             orgnr = this[orgnr],
             fnr = this[fnr],
-            arbeidsgiverSykmeldingKafka = this[arbeidsgiverSykmeldingKafka],
+            sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
         )
 }

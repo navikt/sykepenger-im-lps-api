@@ -107,7 +107,9 @@ private fun SendSykmeldingAivenKafkaMessage.getSykmeldingsPerioderString(): Stri
     when (this.sykmelding.sykmeldingsperioder.size) {
         0 -> "Ingen sykmeldingsperioder" // TODO: Håndtere dette tilfellet. Kaste feil?
         1 -> "Sykmeldingsperiode ${this.sykmelding.sykmeldingsperioder[0].fom} - ${this.sykmelding.sykmeldingsperioder[0].tom}"
-        else -> "Sykmeldingsperioder ${this.sykmelding.sykmeldingsperioder.first().fom} - (...) - ${this.sykmelding.sykmeldingsperioder.last().tom}"
+        else ->
+            "Sykmeldingsperioder ${this.sykmelding.sykmeldingsperioder.first().fom} - (...) - " +
+                "${this.sykmelding.sykmeldingsperioder.last().tom}"
     }
 
 fun lagDialogportenClient(authClient: AltinnAuthClient) =

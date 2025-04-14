@@ -20,18 +20,19 @@ class SykmeldingService(
         orgnr: String,
     ): SykmeldingArbeidsgiver? {
         try {
-            val response = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
+            val sykmeldingDTO = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
 
-            if (response == null) {
+            if (sykmeldingDTO == null) {
                 logger().info("Fant ingen sykmeldinger $id for orgnr: $orgnr")
                 return null
             }
 
             sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
 
-            val person = mockHentPersonFraPDL(response.fnr) // TODO: Bruk ekte PDL
+            val person = mockHentPersonFraPDL(sykmeldingDTO.fnr) // TODO: Bruk ekte PDL
 
-            val sykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(response, person)
+            val sykmeldingArbeidsgiver =
+                tilSykmeldingArbeidsgiver(sykmeldingDTO.sendSykmeldingAivenKafkaMessage, person)
 
             return sykmeldingArbeidsgiver
         } catch (e: Exception) {
@@ -44,26 +45,23 @@ class SykmeldingService(
             sykmeldingMessage.sykmelding.id.toUuidOrNull()
                 ?: throw IllegalArgumentException("SykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
-        val orgnr =
-            sykmeldingMessage.event.arbeidsgiver?.orgnummer
-                ?: throw SykmeldingOrgnrManglerException("Lagret ikke sykmelding fordi den mangler orgnr $id")
-
-        sikkerLogger().info("Lagrer sykmelding $id")
+        logger().info("Lagrer sykmelding $id")
 
         when (sykmeldingRepository.hentSykmelding(id)) {
             null -> {
                 sikkerLogger().info("Sykmelding $id er ny og vil derfor lagres.")
+                val orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer
                 sykmeldingRepository.lagreSykmelding(
                     id = id,
                     fnr = sykmeldingMessage.kafkaMetadata.fnr,
-                    orgnr = orgnr,
-                    sykmelding = sykmeldingMessage.sykmelding,
+                    orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
+                    sykmelding = sykmeldingMessage,
                 )
                 return id to orgnr
             }
 
             else -> {
-                sikkerLogger().info("Sykmelding $id finnes fra før og vil derfor ignoreres.")
+                logger().info("Sykmelding $id finnes fra før og vil derfor ignoreres.")
                 return null
             }
         }
