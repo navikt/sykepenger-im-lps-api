@@ -9,11 +9,17 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
@@ -21,6 +27,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureServices
+import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
@@ -32,12 +39,12 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -55,6 +62,8 @@ class ApiTest {
         repositories = mockk<Repositories>(relaxed = true)
         authClient = mockk<AltinnAuthClient>(relaxed = true)
         services = configureServices(repositories, authClient)
+        val tolkere = configureTolkere(services, repositories, mockk(relaxed = true))
+
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -63,7 +72,7 @@ class ApiTest {
             TestApplication {
                 application {
                     apiModule(services = services, authClient = authClient)
-                    configureKafkaConsumers(services = services, repositories = repositories)
+                    configureKafkaConsumers(tolkere = tolkere)
                 }
             }
         client =
@@ -77,12 +86,15 @@ class ApiTest {
     @Test
     fun `hent forespørsler fra api`() =
         runTest {
-            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns listOf(mockForespoersel())
+            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns
+                listOf(
+                    mockForespoersel(),
+                )
             val response =
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-            response.status.value shouldBe 200
+            response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.antall shouldBe 1
             forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
@@ -93,10 +105,10 @@ class ApiTest {
     fun `gir 401 når token mangler`() =
         runTest {
             val response1 = client.get("/v1/forespoersler")
-            response1.status.value shouldBe 401
+            response1.status shouldBe HttpStatusCode.Unauthorized
 
             val response2 = client.get("/v1/inntektsmeldinger")
-            response2.status.value shouldBe 401
+            response2.status shouldBe HttpStatusCode.Unauthorized
 
             val requestBody = mockInntektsmeldingRequest()
             val response3 =
@@ -104,7 +116,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response3.status.value shouldBe 401
+            response3.status shouldBe HttpStatusCode.Unauthorized
         }
 
     @Test
@@ -114,13 +126,13 @@ class ApiTest {
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                 }
-            response1.status.value shouldBe 401
+            response1.status shouldBe HttpStatusCode.Unauthorized
 
             val response2 =
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
                 }
-            response2.status.value shouldBe 401
+            response2.status shouldBe HttpStatusCode.Unauthorized
 
             val requestBody = mockInntektsmeldingRequest()
             val response3 =
@@ -129,7 +141,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response3.status.value shouldBe 401
+            response3.status shouldBe HttpStatusCode.Unauthorized
         }
 
     @Test
@@ -145,16 +157,18 @@ class ApiTest {
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-            response.status.value shouldBe 200
+            response.status shouldBe HttpStatusCode.OK
             val inntektsmeldingFilterResponse = response.body<InntektsmeldingFilterResponse>()
             inntektsmeldingFilterResponse.antall shouldBe 1
             inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
         }
 
     @Test
-    @Disabled // TODO: lag integrasjonstest for denne test casen istedenfor
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
+            // Nødvendig pga transaction rundt service kall
+            mockkStatic(Services::opprettImTransaction)
+            every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
@@ -164,7 +178,14 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 201
+            response.status shouldBe HttpStatusCode.Created
+            verify {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
+            unmockkStatic(Services::opprettImTransaction)
         }
 
     @Test
@@ -183,7 +204,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 400
+            response.status shouldBe HttpStatusCode.BadRequest
         }
 
     @Test
@@ -197,7 +218,7 @@ class ApiTest {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status.value shouldBe 400
+            response.status shouldBe HttpStatusCode.BadRequest
         }
 
     @AfterAll

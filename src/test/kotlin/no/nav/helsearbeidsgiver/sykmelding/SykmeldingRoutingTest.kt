@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
@@ -22,6 +21,8 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.sykmelding.model.SykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.security.token.support.core.context.TokenValidationContext
@@ -56,15 +57,16 @@ class SykmeldingRoutingTest :
         test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
             val sykmeldingResponse = sykmeldingMock().toSykmeldingResponse()
+            val sykmeldingArbeidsgiver = sykmeldingResponse.toArbeidsgiverSykmelding()
             val id = UUID.fromString(sykmeldingResponse.id)
 
-            every { sykmeldingService.hentSykmelding(id, any()) } returns sykmeldingResponse
+            every { sykmeldingService.hentSykmelding(id, any()) } returns sykmeldingArbeidsgiver
 
             routingTestApplication {
                 val response = client.get("/v1/sykmelding/$id")
 
                 response.status shouldBe HttpStatusCode.OK
-                jsonMapper.decodeFromString<SykmeldingResponse>(response.bodyAsText()) shouldBe sykmeldingResponse
+                jsonMapper.decodeFromString<SykmeldingArbeidsgiver>(response.bodyAsText()) shouldBe sykmeldingArbeidsgiver
             }
         }
 
@@ -90,8 +92,10 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingResponse =
-    SykmeldingResponse(
+fun SykmeldingDTO.toArbeidsgiverSykmelding(): SykmeldingArbeidsgiver = tilSykmeldingArbeidsgiver(this, mockHentPersonFraPDL(fnr))
+
+fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
+    SykmeldingDTO(
         event.sykmeldingId,
         kafkaMetadata.fnr,
         event.arbeidsgiver!!.orgnummer,

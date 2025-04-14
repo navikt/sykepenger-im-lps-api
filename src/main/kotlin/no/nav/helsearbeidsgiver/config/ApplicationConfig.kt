@@ -27,6 +27,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
 import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.kafka.innsending.IngenInnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
@@ -40,6 +41,7 @@ import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -69,6 +71,38 @@ data class Services(
     val sykmeldingService: SykmeldingService,
 )
 
+data class Tolkere(
+    val inntektsmeldingTolker: InntektsmeldingTolker,
+    val forespoerselTolker: ForespoerselTolker,
+    val sykmeldingTolker: SykmeldingTolker,
+)
+
+fun configureTolkere(
+    services: Services,
+    repositories: Repositories,
+    unleashFeatureToggles: UnleashFeatureToggles,
+): Tolkere {
+    val inntektsmeldingTolker =
+        InntektsmeldingTolker(
+            inntektsmeldingService = services.inntektsmeldingService,
+            mottakRepository = repositories.mottakRepository,
+        )
+    val forespoerselTolker =
+        ForespoerselTolker(
+            forespoerselRepository = repositories.forespoerselRepository,
+            mottakRepository = repositories.mottakRepository,
+            dialogportenService = services.dialogportenService,
+        )
+    val sykmeldingTolker =
+        SykmeldingTolker(
+            sykmeldingService = services.sykmeldingService,
+            dialogportenService = services.dialogportenService,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
+
+    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker)
+}
+
 fun configureRepositories(db: Database): Repositories =
     Repositories(
         inntektsmeldingRepository = InntektsmeldingRepository(db),
@@ -87,13 +121,17 @@ fun configureServices(
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =
-        InnsendingProducer(
-            KafkaProducer(
-                createKafkaProducerConfig(producerName = "api-innsending-producer"),
-                StringSerializer(),
-                InnsendingSerializer(),
-            ),
-        )
+        if (isLocal() || isDev()) {
+            InnsendingProducer(
+                KafkaProducer(
+                    createKafkaProducerConfig(producerName = "api-innsending-producer"),
+                    StringSerializer(),
+                    InnsendingSerializer(),
+                ),
+            )
+        } else {
+            IngenInnsendingProducer()
+        }
 
     val bakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
@@ -120,43 +158,33 @@ fun configureServices(
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
 
-fun Application.configureKafkaConsumers(
-    services: Services,
-    repositories: Repositories,
-) {
-    // Ta bare imot dev kafka meldinger da repo er i testfase
+fun Application.configureKafkaConsumers(tolkere: Tolkere) {
+    val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            getProperty("kafkaConsumer.inntektsmelding.topic"),
+            inntektsmeldingKafkaConsumer,
+            tolkere.inntektsmeldingTolker,
+        )
+    }
+
+    val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            getProperty("kafkaConsumer.forespoersel.topic"),
+            forespoerselKafkaConsumer,
+            tolkere.forespoerselTolker,
+        )
+    }
+
+    // Ta bare imot sykmeldinger i dev inntil videre
     if (isLocal() || isDev()) {
-        val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                getProperty("kafkaConsumer.inntektsmelding.topic"),
-                inntektsmeldingKafkaConsumer,
-                InntektsmeldingTolker(
-                    services.inntektsmeldingService,
-                    repositories.mottakRepository,
-                ),
-            )
-        }
-
-        val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                getProperty("kafkaConsumer.forespoersel.topic"),
-                forespoerselKafkaConsumer,
-                ForespoerselTolker(
-                    repositories.forespoerselRepository,
-                    repositories.mottakRepository,
-                    services.dialogportenService,
-                ),
-            )
-        }
-
         val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 topic = getProperty("kafkaConsumer.sykmelding.topic"),
                 consumer = sykmeldingKafkaConsumer,
-                meldingTolker = SykmeldingTolker(services.sykmeldingService, services.dialogportenService),
+                meldingTolker = tolkere.sykmeldingTolker,
             )
         }
     }

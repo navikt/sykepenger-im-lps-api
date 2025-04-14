@@ -3,8 +3,8 @@ package no.nav.helsearbeidsgiver.innsending
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
@@ -32,10 +32,8 @@ class InnsendingServiceTest {
     init {
         every {
             innsendingProducer.send(*anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
-        } returns toResult("".toJson(String.serializer()))
+        } returns JsonNull
     }
-
-    private fun toResult(toJson: JsonElement): Result<JsonElement> = runCatching { toJson }
 
     @Test
     fun `sendInn kaller innsendingproducer sin send-metode med forventede nøkler og verdier`() {

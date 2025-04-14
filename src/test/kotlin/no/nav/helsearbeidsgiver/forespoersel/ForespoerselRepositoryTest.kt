@@ -1,19 +1,35 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.config.DbConfig
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.configureRepositories
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
+import org.jetbrains.exposed.sql.Database
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.UUID
 
+@WithPostgresContainer
 @ExtendWith(TransactionalExtension::class)
 class ForespoerselRepositoryTest {
-    val db = DbConfig.init()
-    val forespoerselRepository = ForespoerselRepository(db)
+    private lateinit var db: Database
+    private lateinit var forespoerselRepository: ForespoerselRepository
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        forespoerselRepository = configureRepositories(db).forespoerselRepository
+    }
 
     @Test
     fun lagreOgOppdaterForespoersel() {

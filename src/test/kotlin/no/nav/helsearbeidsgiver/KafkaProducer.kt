@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
 
-fun main() {
+fun genererKafkaMeldinger() {
     val inntektsmeldingDistribuertJson = buildInntektsmeldingDistribuertJson()
     val forespoerselJson = buildForespoerselMottattJson()
     val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")

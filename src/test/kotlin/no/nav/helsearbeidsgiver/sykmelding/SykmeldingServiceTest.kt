@@ -1,13 +1,16 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.config.DbConfig
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmelding
+import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.arbeidsgiverSykmeldingKafka
+import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -15,13 +18,26 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.test.assertNull
 
+@WithPostgresContainer
 class SykmeldingServiceTest {
-    val db = DbConfig.init()
-    val sykmeldingRepository = SykmeldingRepository(db)
-    val sykmeldingService = SykmeldingService(sykmeldingRepository)
+    private lateinit var db: Database
+    private lateinit var sykmeldingService: SykmeldingService
+    private lateinit var sykmeldingRepository: SykmeldingRepository
+
+    @BeforeAll
+    fun setup() {
+        db =
+            DatabaseConfig(
+                System.getProperty("database.url"),
+                System.getProperty("database.username"),
+                System.getProperty("database.password"),
+            ).init()
+        sykmeldingRepository = SykmeldingRepository(db)
+        sykmeldingService = SykmeldingService(sykmeldingRepository)
+    }
 
     @BeforeEach
-    fun setup() {
+    fun cleanDb() {
         transaction(db) { SykmeldingEntitet.deleteAll() }
     }
 
@@ -29,7 +45,7 @@ class SykmeldingServiceTest {
     fun `lagreSykmelding skal lagre sykmelding`() {
         val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it) }
 
-        val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(arbeidsgiverSykmelding) }
+        val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(arbeidsgiverSykmeldingKafka) }
 
         lagretSykmelding shouldBe sykmeldingKafkaMessage.sykmelding
     }
@@ -50,7 +66,7 @@ class SykmeldingServiceTest {
         sykmeldingService.lagreSykmelding(sykmeldinger[1])
 
         val lagredeSykmeldinger =
-            transaction(db) { SykmeldingEntitet.selectAll().mapNotNull { it.getOrNull(arbeidsgiverSykmelding) } }
+            transaction(db) { SykmeldingEntitet.selectAll().mapNotNull { it.getOrNull(arbeidsgiverSykmeldingKafka) } }
 
         lagredeSykmeldinger.size shouldBe 1
         lagredeSykmeldinger[0].syketilfelleStartDato shouldBe sykmeldinger[0].sykmelding.syketilfelleStartDato
@@ -83,7 +99,7 @@ class SykmeldingServiceTest {
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
         val orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
 
-        sykmeldingService.hentSykmelding(id, orgnr)?.arbeidsgiverSykmelding shouldBe sykmeldingKafkaMessage.sykmelding
+        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.toSykmeldingResponse().toArbeidsgiverSykmelding()
     }
 
     @Test
