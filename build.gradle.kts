@@ -23,6 +23,8 @@ val bakgrunnsjobbVersion: String by project
 val swaggerVersion: String by project
 val testContainerVersion: String by project
 val unleashVersion: String by project
+val pdlKlientVersion: String by project
+val tokenProviderVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -54,7 +56,7 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-client-apache5")
-    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-auth")
@@ -78,6 +80,8 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
+//    implementation("no.nav.helsearbeidsgiver:pdl-client:$pdlKlientVersion")
+//    implementation("no.nav.helsearbeidsgiver:tokenprovider:$tokenProviderVersion")
     implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
@@ -85,6 +89,8 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
+    testImplementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

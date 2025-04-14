@@ -42,7 +42,7 @@ class SykmeldingServiceTest {
 
     @Test
     fun `lagreSykmelding skal lagre sykmelding`() {
-        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it) }
+        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, "") }
 
         val lagretSykmelding = transaction(db) { SykmeldingEntitet.selectAll().firstOrNull()?.getOrNull(sendSykmeldingAivenKafkaMessage) }
 
@@ -54,14 +54,14 @@ class SykmeldingServiceTest {
         val sykmeldingMedUgyldigId = sykmeldingMock().sykmelding.copy(id = "ugyldig-uuid")
         val sykmeldingKafkaMessage = sykmeldingMock().copy(sykmelding = sykmeldingMedUgyldigId)
 
-        assertThrows<IllegalArgumentException> { sykmeldingService.lagreSykmelding(sykmeldingKafkaMessage) }
+        assertThrows<IllegalArgumentException> { sykmeldingService.lagreSykmelding(sykmeldingKafkaMessage, "") }
 
         assertNull(transaction(db) { SykmeldingEntitet.selectAll().firstOrNull() })
     }
 
     @Test
     fun `hentSykmelding skal hente sykmelding`() {
-        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it) }
+        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, "") }
 
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
         val orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
@@ -71,7 +71,7 @@ class SykmeldingServiceTest {
 
     @Test
     fun `hentSykmelding skal returnere null når id ikke eksisterer`() {
-        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it) }
+        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, "") }
 
         val feilId = UUID.randomUUID()
 
@@ -85,7 +85,7 @@ class SykmeldingServiceTest {
 
     @Test
     fun `hentSykmelding skal returnere null når id eksisterer men orgnr ikke matcher`() {
-        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it) }
+        val sykmeldingKafkaMessage = sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, "") }
 
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
         val riktigOrgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer

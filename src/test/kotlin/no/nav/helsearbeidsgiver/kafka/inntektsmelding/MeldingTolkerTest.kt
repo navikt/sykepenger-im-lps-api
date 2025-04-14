@@ -98,7 +98,7 @@ class MeldingTolkerTest {
     @Test
     fun `sykmeldingTolker deserialiserer og lagrer gyldig sykmelding`() {
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
-        verify { service.sykmeldingService.lagreSykmelding(any()) }
+        verify { service.sykmeldingService.lagreSykmelding(any(), any()) }
     }
 
     @Test

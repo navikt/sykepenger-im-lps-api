@@ -39,7 +39,10 @@ class SykmeldingService(
         }
     }
 
-    fun lagreSykmelding(sykmeldingMessage: SendSykmeldingAivenKafkaMessage) {
+    fun lagreSykmelding(
+        sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
+        sykmeldtNavn: String,
+    ) {
         val id = sykmeldingMessage.sykmelding.id.toUuidOrNull()
         id ?: throw IllegalArgumentException("Sykmelding har ugyldig UUID ${sykmeldingMessage.sykmelding.id}")
 
@@ -50,6 +53,7 @@ class SykmeldingService(
             fnr = sykmeldingMessage.kafkaMetadata.fnr,
             orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
             sykmelding = sykmeldingMessage,
+            sykmeldtNavn = sykmeldtNavn,
         )
     }
 }

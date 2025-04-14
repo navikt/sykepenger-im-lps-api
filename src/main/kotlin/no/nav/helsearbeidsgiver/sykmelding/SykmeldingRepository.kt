@@ -21,6 +21,7 @@ class SykmeldingRepository(
         fnr: String,
         orgnr: String,
         sykmelding: SendSykmeldingAivenKafkaMessage,
+        sykmeldtNavn: String,
     ) {
         try {
             transaction(db) {
@@ -28,6 +29,7 @@ class SykmeldingRepository(
                     it[sykmeldingId] = id
                     it[SykmeldingEntitet.fnr] = fnr
                     it[SykmeldingEntitet.orgnr] = orgnr
+                    it[SykmeldingEntitet.sykmeldtNavn] = sykmeldtNavn
                     it[sendSykmeldingAivenKafkaMessage] = sykmelding
                 }
             }
