@@ -1,11 +1,18 @@
+@file:UseSerializers(LocalDateSerializer::class)
+
 package no.nav.helsearbeidsgiver.sykmelding.model
 
+import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
+import no.nav.helsearbeidsgiver.utils.json.fromJson
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.set
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -22,13 +29,18 @@ fun tilSykmeldingArbeidsgiver(
         virksomhetsnummer =
             sykmeldingDTO.event.arbeidsgiver.orgnummer
                 .toLong(),
-        sykmelding = sykmeldingDTO.sykmelding.tilSykmelding(person, null), // TODO: Egenmeldingsdager
+        sykmelding = sykmeldingDTO.sykmelding.tilSykmelding(person),
+        egenmeldingsdager = sykmeldingDTO.event.sporsmals.tilEgenmeldingsdager(),
     )
 
-private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(
-    person: Person,
-    egenmeldingsdager: List<LocalDate>?,
-): Sykmelding =
+private fun List<SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
+    this
+        ?.find { it.shortName == SykmeldingStatusKafkaEventDTO.ShortNameDTO.EGENMELDINGSDAGER }
+        ?.svar
+        ?.fromJson(LocalDateSerializer.set())
+        ?: emptySet()
+
+private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(person: Person): Sykmelding =
     Sykmelding(
         arbeidsgiver = arbeidsgiver.tilArbeidsgiver(),
         behandler = behandler.tilBehandler(),
@@ -39,15 +51,7 @@ private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(
         prognose = prognose?.getPrognose(),
         syketilfelleFom = syketilfelleStartDato,
         tiltak = tiltakArbeidsplassen?.tilTiltak(),
-        egenmeldingsdager = egenmeldingsdager.tilEgenmeldingsdager(),
     )
-
-private fun List<LocalDate>?.tilEgenmeldingsdager(): Egenmeldingsdager? =
-    if (isNullOrEmpty()) {
-        null
-    } else {
-        Egenmeldingsdager(dager = this)
-    }
 
 private fun String.tilTiltak(): Tiltak = Tiltak(tiltakArbeidsplassen = this)
 
