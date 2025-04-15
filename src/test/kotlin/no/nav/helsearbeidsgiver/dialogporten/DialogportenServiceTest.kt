@@ -46,7 +46,7 @@ class DialogportenServiceTest {
                 any(),
                 any(),
             )
-        } throws DialogportenClientException()
+        } throws DialogportenClientException("Noe gikk galt")
 
         shouldThrow<DialogportenClientException> {
             dialogportenService.opprettNyDialogMedSykmelding(
