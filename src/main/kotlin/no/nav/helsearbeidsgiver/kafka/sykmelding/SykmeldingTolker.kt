@@ -39,7 +39,7 @@ class SykmeldingTolker(
             } else {
                 logger
                     .info(
-                        "Unleash toggle for å opprette Dialogporten dialog er skrudd av. Oppretter derfor ingen dialog for sykmelding $sykmeldingId.",
+                        "Oppretter ikke dialog for sykmelding $sykmeldingId, enten fordi sykmeldingen ikke ble lagret eller fordi dialogopprettelse er skrudd av.",
                     )
             }
         } catch (e: Exception) {
