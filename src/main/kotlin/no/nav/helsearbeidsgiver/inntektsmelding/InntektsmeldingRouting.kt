@@ -51,10 +51,14 @@ private fun Route.innsending(services: Services) {
             }
 
             val forespoersel = services.forespoerselService.hentForespoersel(request.navReferanseId)
-            if (forespoersel == null || forespoersel.orgnr != sluttbrukerOrgnr) {
+
+            if (forespoersel == null ||
+                forespoersel.orgnr != sluttbrukerOrgnr ||
+                (forespoersel.inntektPaakrevd && request.inntekt == null) ||
+                (!forespoersel.inntektPaakrevd && request.inntekt != null)
+            ) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             }
-
             val sisteInntektsmelding =
                 services.inntektsmeldingService
                     .hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
