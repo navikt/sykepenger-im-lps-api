@@ -25,7 +25,7 @@ class DialogportenServiceTest {
                 any(),
                 any(),
             )
-        } returns Result.success(forventetDialogId.toString())
+        } returns forventetDialogId.toString()
 
         dialogportenService.opprettNyDialogMedSykmelding(
             orgnr,
@@ -46,7 +46,7 @@ class DialogportenServiceTest {
                 any(),
                 any(),
             )
-        } returns Result.failure(DialogportenClientException())
+        } throws DialogportenClientException()
 
         shouldThrow<DialogportenClientException> {
             dialogportenService.opprettNyDialogMedSykmelding(
