@@ -48,17 +48,7 @@ class DialogportenService(
                     dialogSammendrag = sykmeldingMessage.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmeldingId,
                     sykmeldingJsonUrl = "$navApiBaseUrl/sykmelding/$sykmeldingId",
-                ).onSuccess { dialogId ->
-                    sikkerLogger().info(
-                        "Opprettet dialog for sykmeldingId: $sykmeldingId, på orgnr: $orgnr, med dialogId: $dialogId",
-                    )
-                }.getOrElse { e ->
-                    sikkerLogger().error(
-                        "Klarte ikke å opprette dialog med sykmelding for sykmeldingId: $sykmeldingId, på orgnr: $orgnr",
-                        e,
-                    )
-                    throw e
-                }
+                )
         }
 }
 

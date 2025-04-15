@@ -36,6 +36,7 @@ class SykmeldingTolker(
                     sykmeldingId = sykmeldingId,
                     sykmeldingMessage = sykmeldingMessage,
                 )
+                logger.info("Opprettet dialog for sykmelding $sykmeldingId")
             } else {
                 logger
                     .info(
