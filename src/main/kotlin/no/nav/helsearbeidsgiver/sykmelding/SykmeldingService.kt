@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
-import no.nav.helsearbeidsgiver.sykmelding.model.SykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -18,7 +18,7 @@ class SykmeldingService(
     fun hentSykmelding(
         id: UUID,
         orgnr: String,
-    ): SykmeldingArbeidsgiver? {
+    ): Sykmelding? {
         try {
             val sykmeldingDTO = sykmeldingRepository.hentSykmelding(id).takeIf { it?.orgnr == orgnr }
 
@@ -31,8 +31,7 @@ class SykmeldingService(
 
             val person = mockHentPersonFraPDL(sykmeldingDTO.fnr) // TODO: Bruk ekte PDL
 
-            val sykmeldingArbeidsgiver =
-                tilSykmeldingArbeidsgiver(sykmeldingDTO.sendSykmeldingAivenKafkaMessage, person)
+            val sykmeldingArbeidsgiver = sykmeldingDTO.tilSykmeldingArbeidsgiver(person)
 
             return sykmeldingArbeidsgiver
         } catch (e: Exception) {

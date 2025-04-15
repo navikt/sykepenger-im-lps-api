@@ -136,7 +136,7 @@ object TestData {
                 "statusEvent": "SENDT",
                 "arbeidsgiver": {
                     "orgnummer": "315587336",
-                    "juridiskOrgnummer": "928497704",
+                    "juridiskOrgnummer": "744372453",
                     "orgNavn": "Lama utleiren"
                 },
                 "sporsmals": [
