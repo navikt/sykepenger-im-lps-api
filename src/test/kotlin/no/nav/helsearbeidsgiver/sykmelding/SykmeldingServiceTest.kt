@@ -50,7 +50,7 @@ class SykmeldingServiceTest {
     }
 
     @Test
-    fun `lagreSykmelding skal _ikke_ lagre sykmelding dersom den sykmeldingsiden allerede finnes i databasen`() {
+    fun `lagreSykmelding skal _ikke_ lagre sykmelding dersom den sykmeldingsIDen allerede finnes i databasen`() {
         val nowDate = LocalDate.now()
         val sykmeldinger =
             List(2) { nowDate }.mapIndexed { index, now ->

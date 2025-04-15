@@ -153,7 +153,6 @@ fun configureServices(
 
     val dialogportenService =
         if (isDev()) DialogportenService(lagDialogportenClient(authClient = authClient)) else IngenDialogportenService()
-    // val dialogportenService = IngenDialogportenService()
 
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
