@@ -3,55 +3,49 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
-import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.set
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-fun tilSykmeldingArbeidsgiver(
-    sykmeldingDTO: SendSykmeldingAivenKafkaMessage,
-    person: Person,
-): SykmeldingArbeidsgiver =
-    SykmeldingArbeidsgiver(
-        juridiskOrganisasjonsnummer = 0,
-        mottattidspunkt =
-            sykmeldingDTO.sykmelding.mottattTidspunkt
-                .toLocalDateTime(),
-        sykmeldingId = sykmeldingDTO.sykmelding.id,
-        virksomhetsnummer =
-            sykmeldingDTO.event.arbeidsgiver.orgnummer
-                .toLong(),
-        sykmelding = sykmeldingDTO.sykmelding.tilSykmelding(person),
-        egenmeldingsdager = sykmeldingDTO.event.sporsmals.tilEgenmeldingsdager(),
+fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
+    val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
+    val event = sendSykmeldingAivenKafkaMessage.event
+    return Sykmelding(
+        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let { Orgnr(it) },
+        mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
+        sykmeldingId = sykmelding.id,
+        orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
+        egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
+        arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
+        behandler = sykmelding.behandler.tilBehandler(),
+        kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
+        meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
+        sykmeldtFnr = Fnr(person.fnr),
+        sykmeldtNavn = person.tilNavn(),
+        perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
+        prognose = sykmelding.prognose?.getPrognose(),
+        syketilfelleFom = sykmelding.syketilfelleStartDato,
+        tiltak = sykmelding.tiltakArbeidsplassen?.tilTiltak(),
     )
+}
 
-private fun List<SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
+private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
     this
-        ?.find { it.shortName == SykmeldingStatusKafkaEventDTO.ShortNameDTO.EGENMELDINGSDAGER }
+        ?.find { it.shortName == ShortNameDTO.EGENMELDINGSDAGER }
         ?.svar
         ?.fromJson(LocalDateSerializer.set())
         ?: emptySet()
-
-private fun ArbeidsgiverSykmeldingKafka.tilSykmelding(person: Person): Sykmelding =
-    Sykmelding(
-        arbeidsgiver = arbeidsgiver.tilArbeidsgiver(),
-        behandler = behandler.tilBehandler(),
-        kontaktMedPasient = behandletTidspunkt.tilKontaktMedPasient(),
-        meldingTilArbeidsgiver = meldingTilArbeidsgiver,
-        pasient = person.tilPasient(),
-        perioder = sykmeldingsperioder.tilPerioderAG(),
-        prognose = prognose?.getPrognose(),
-        syketilfelleFom = syketilfelleStartDato,
-        tiltak = tiltakArbeidsplassen?.tilTiltak(),
-    )
 
 private fun String.tilTiltak(): Tiltak = Tiltak(tiltakArbeidsplassen = this)
 
@@ -95,15 +89,11 @@ private fun erMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGD
                 .MANGLENDE_TILRETTELEGGING
     }
 
-private fun Person.tilPasient(): Pasient =
-    Pasient(
-        navn =
-            Navn(
-                fornavn = fornavn,
-                mellomnavn = mellomnavn,
-                etternavn = etternavn,
-            ),
-        ident = fnr,
+private fun Person.tilNavn(): Navn =
+    Navn(
+        fornavn = fornavn,
+        mellomnavn = mellomnavn,
+        etternavn = etternavn,
     )
 
 private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMedPasient(behandlet = this.toLocalDateTime())
@@ -111,7 +101,7 @@ private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMe
 private fun BehandlerAGDTO?.tilBehandler(): Behandler =
     Behandler(
         navn = tilNavn(),
-        telefonnummer = this?.tlf.tolkTelefonNr().toLong(),
+        telefonnummer = this?.tlf.tolkTelefonNr(),
     )
 
 fun String?.tolkTelefonNr(): String =
