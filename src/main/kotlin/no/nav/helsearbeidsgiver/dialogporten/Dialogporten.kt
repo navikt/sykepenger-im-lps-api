@@ -10,46 +10,22 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.util.UUID
 
 interface IDialogportenService {
-    fun opprettDialog(
-        orgnr: String,
-        forespoerselId: UUID,
-    ): Result<String>
-
     fun opprettNyDialogMedSykmelding(
         orgnr: String,
         sykmeldingId: UUID,
         sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
-    ): Result<String>
+    ): String
 }
 
 class IngenDialogportenService : IDialogportenService {
-    override fun opprettDialog(
-        orgnr: String,
-        forespoerselId: UUID,
-    ): Result<String> {
-        val generertId = UUID.randomUUID()
-        sikkerLogger().info(
-            "Oppretter ikke dialog for forespoerselId: {}, på orgnr: {}, generertId: {}",
-            forespoerselId,
-            orgnr,
-            generertId,
-        )
-        return Result.success(generertId.toString())
-    }
-
     override fun opprettNyDialogMedSykmelding(
         orgnr: String,
         forespoerselId: UUID,
         sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
-    ): Result<String> {
+    ): String {
         val generertId = UUID.randomUUID()
-        sikkerLogger().info(
-            "Oppretter ikke dialog med sykmelding for : {}, på orgnr: {}, generertId: {}",
-            forespoerselId,
-            orgnr,
-            generertId,
-        )
-        return Result.success(generertId.toString())
+        sikkerLogger().info("Oppretter ikke dialog med sykmelding for : $forespoerselId, på orgnr: $orgnr, generertId: $generertId")
+        return generertId.toString()
     }
 }
 
@@ -59,31 +35,11 @@ class DialogportenService(
     private val navPortalBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_PORTAL_BASEURL")
     private val navApiBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_API_BASEURL")
 
-    override fun opprettDialog(
-        orgnr: String,
-        forespoerselId: UUID,
-    ): Result<String> =
-        runBlocking {
-            dialogportenClient
-                .opprettDialog(
-                    orgnr = orgnr,
-                    url = "$navPortalBaseUrl/im-dialog/$forespoerselId",
-                ).onFailure { e -> sikkerLogger().error("Fikk feil mot dialogporten", e) }
-                .onSuccess { dialogId ->
-                    sikkerLogger().info(
-                        "Opprettet dialog for forespoerselId: {}, på orgnr: {}, med dialogId: {}",
-                        forespoerselId,
-                        orgnr,
-                        dialogId,
-                    )
-                }
-        }
-
     override fun opprettNyDialogMedSykmelding(
         orgnr: String,
         sykmeldingId: UUID,
         sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
-    ): Result<String> =
+    ): String =
         runBlocking {
             dialogportenClient
                 .opprettNyDialogMedSykmelding(
@@ -92,14 +48,16 @@ class DialogportenService(
                     dialogSammendrag = sykmeldingMessage.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmeldingId,
                     sykmeldingJsonUrl = "$navApiBaseUrl/sykmelding/$sykmeldingId",
-                ).onFailure { e -> sikkerLogger().error("Fikk feil mot dialogporten", e) }
-                .onSuccess { dialogId ->
+                ).onSuccess { dialogId ->
                     sikkerLogger().info(
-                        "Opprettet dialog for sykmeldingId: {}, på orgnr: {}, med dialogId: {}",
-                        sykmeldingId,
-                        orgnr,
-                        dialogId,
+                        "Opprettet dialog for sykmeldingId: $sykmeldingId, på orgnr: $orgnr, med dialogId: $dialogId",
                     )
+                }.getOrElse { e ->
+                    sikkerLogger().error(
+                        "Klarte ikke å opprette dialog med sykmelding for sykmeldingId: $sykmeldingId, på orgnr: $orgnr",
+                        e,
+                    )
+                    throw e
                 }
         }
 }

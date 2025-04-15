@@ -8,7 +8,6 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
@@ -82,8 +81,6 @@ class ForespoerselIT {
                 TestData.FORESPOERSEL_MOTTATT,
             )
             val orgnr1 = "810007982"
-            verify { dialogportenService.opprettDialog(any(), any()) }
-
             val response =
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))

@@ -1,9 +1,10 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -16,16 +17,43 @@ class DialogportenServiceTest {
         val orgnr = "1234"
         val forespoereslId = UUID.randomUUID()
         val forventetDialogId = UUID.randomUUID()
-        coEvery { mockDialogportenClient.opprettDialog(any(), any()) } returns Result.success(forventetDialogId.toString())
+        coEvery {
+            mockDialogportenClient.opprettNyDialogMedSykmelding(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns Result.success(forventetDialogId.toString())
 
-        dialogportenService.opprettDialog(orgnr, forespoereslId).getOrThrow() shouldBe forventetDialogId.toString()
+        dialogportenService.opprettNyDialogMedSykmelding(
+            orgnr,
+            forespoereslId,
+            sykmeldingMessage = sykmeldingMock(),
+        ) shouldBe forventetDialogId.toString()
     }
 
     @Test
-    fun `dialogporten service kaster ikke feil`() {
+    fun `dialogporten service kaster feil dersom opprettelse av dialog går galt`() {
         val orgnr = "1234"
         val forespoereslId = UUID.randomUUID()
-        coEvery { mockDialogportenClient.opprettDialog(any(), any()) } returns Result.failure(DialogportenClientException())
-        shouldNotThrow<DialogportenClientException> { dialogportenService.opprettDialog(orgnr, forespoereslId) }
+        coEvery {
+            mockDialogportenClient.opprettNyDialogMedSykmelding(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns Result.failure(DialogportenClientException())
+
+        shouldThrow<DialogportenClientException> {
+            dialogportenService.opprettNyDialogMedSykmelding(
+                orgnr,
+                forespoereslId,
+                sykmeldingMessage = sykmeldingMock(),
+            )
+        }
     }
 }
