@@ -52,11 +52,11 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-apache5")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache5:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-auth")
     implementation("io.ktor:ktor-server-swagger")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
@@ -86,7 +86,8 @@ dependencies {
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-    testImplementation("io.ktor:ktor-server-tests-jvm")
+//    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
