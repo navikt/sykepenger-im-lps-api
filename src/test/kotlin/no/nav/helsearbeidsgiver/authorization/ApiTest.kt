@@ -17,20 +17,22 @@ abstract class ApiTest {
     val services: Services = configureServices(repositories)
 
     private val port = 33445
-    val mockOAuth2Server: MockOAuth2Server = MockOAuth2Server().apply {
-        start(port = port)
-    }
+    val mockOAuth2Server: MockOAuth2Server =
+        MockOAuth2Server().apply {
+            start(port = port)
+        }
     private val testApplication: TestApplication =
         TestApplication {
             application {
                 apiModule(services = services)
             }
         }
-    val client: HttpClient = testApplication.createClient {
-        install(ContentNegotiation) {
-            json()
+    val client: HttpClient =
+        testApplication.createClient {
+            install(ContentNegotiation) {
+                json()
+            }
         }
-    }
 
     @AfterAll
     fun shutdownStuff() {

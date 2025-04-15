@@ -119,7 +119,7 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     @Test
-    fun `innsending av inntektsmelding med feil aarsak til innsending gir bad request`() =
+    fun `innsending av inntektsmelding med aarsak Ny der tidligere innsending finnes gir bad request`() =
         runTest {
             val requestBody = mockInntektsmeldingRequest().copy(aarsakInnsending = AarsakInnsending.Ny)
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
@@ -136,6 +136,31 @@ class InnsendingRouteTest : ApiTest() {
                         aarsakInnsending = AarsakInnsending.Ny,
                     ),
                 )
+            val im = buildInntektsmelding(forespoerselId = forespoersel.navReferanseId)
+            every { repositories.inntektsmeldingRepository.hent(DEFAULT_ORG) } returns
+                listOf(mockInntektsmeldingResponse(im))
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+            verify(exactly = 0) {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
+        }
+
+    @Test
+    fun `innsending av inntektsmelding med aarsak ending uten tidligere innsending gir bad request`() =
+        runTest {
+            val requestBody = mockInntektsmeldingRequest().copy(aarsakInnsending = AarsakInnsending.Endring)
+            val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val im = buildInntektsmelding(forespoerselId = forespoersel.navReferanseId)
             every { repositories.inntektsmeldingRepository.hent(DEFAULT_ORG) } returns
                 listOf(mockInntektsmeldingResponse(im))
