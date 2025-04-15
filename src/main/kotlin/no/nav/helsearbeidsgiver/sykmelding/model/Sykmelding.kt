@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 @Schema(description = "SykmeldingArbeidsgiver")
 data class Sykmelding(
     @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
-    val orgnrHovedenhet: String?,
+    val orgnrHovedenhet: Orgnr?,
     @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
     val orgnr: Orgnr,
     @field:Schema(description = "Sykmeldingens unike id")

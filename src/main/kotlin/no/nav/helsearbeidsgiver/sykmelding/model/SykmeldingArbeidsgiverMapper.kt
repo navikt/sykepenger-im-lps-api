@@ -22,10 +22,10 @@ fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
     return Sykmelding(
-        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer,
+        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let { Orgnr(it) },
         mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
         sykmeldingId = sykmelding.id,
-        orgnr = Orgnr(event.arbeidsgiver.orgnummer),
+        orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
         arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
         behandler = sykmelding.behandler.tilBehandler(),
