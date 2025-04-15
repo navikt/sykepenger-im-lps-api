@@ -29,16 +29,21 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class InnsendingRouteTest : ApiTest() {
+    @BeforeEach
+    fun setup() {
+        mockkStatic(Services::opprettImTransaction)
+        every { services.opprettImTransaction(any(), any()) } just Runs
+    }
+
     @Test
     fun `innsending av inntektsmelding på gyldig forespørsel`() =
         runTest {
-            // Nødvendig pga transaction rundt service kall
-            mockkStatic(Services::opprettImTransaction)
-            every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest()
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
@@ -56,15 +61,11 @@ class InnsendingRouteTest : ApiTest() {
                     match { it.type.id == requestBody.navReferanseId },
                 )
             }
-            unmockkStatic(Services::opprettImTransaction)
         }
 
     @Test
     fun `innsending av inntektsmelding uten gyldig forespørsel gir bad request`() =
         runTest {
-            // Nødvendig pga transaction rundt service kall
-            mockkStatic(Services::opprettImTransaction)
-            every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest()
             every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns null
             val response =
@@ -80,15 +81,11 @@ class InnsendingRouteTest : ApiTest() {
                     match { it.type.id == requestBody.navReferanseId },
                 )
             }
-            unmockkStatic(Services::opprettImTransaction)
         }
 
     @Test
     fun `innsending av duplikat inntektsmelding gyldig forespørsel gir conflict`() =
         runTest {
-            // Nødvendig pga transaction rundt service kall
-            mockkStatic(Services::opprettImTransaction)
-            every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest().copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
@@ -119,15 +116,11 @@ class InnsendingRouteTest : ApiTest() {
                     match { it.type.id == requestBody.navReferanseId },
                 )
             }
-            unmockkStatic(Services::opprettImTransaction)
         }
 
     @Test
     fun `innsending av inntektsmelding med feil aarsak til innsending gir bad request`() =
         runTest {
-            // Nødvendig pga transaction rundt service kall
-            mockkStatic(Services::opprettImTransaction)
-            every { services.opprettImTransaction(any(), any()) } just Runs
             val requestBody = mockInntektsmeldingRequest().copy(aarsakInnsending = AarsakInnsending.Ny)
             val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
@@ -159,7 +152,6 @@ class InnsendingRouteTest : ApiTest() {
                     match { it.type.id == requestBody.navReferanseId },
                 )
             }
-            unmockkStatic(Services::opprettImTransaction)
         }
 
     @Test
@@ -194,4 +186,9 @@ class InnsendingRouteTest : ApiTest() {
                 }
             response.status shouldBe HttpStatusCode.BadRequest
         }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkStatic(Services::opprettImTransaction)
+    }
 }
