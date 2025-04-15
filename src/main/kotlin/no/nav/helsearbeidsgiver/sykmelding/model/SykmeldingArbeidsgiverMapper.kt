@@ -8,27 +8,30 @@ import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.Behandler
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.set
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): SykmeldingArbeidsgiver {
+fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
-    return SykmeldingArbeidsgiver(
+    return Sykmelding(
         orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer,
         mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
         sykmeldingId = sykmelding.id,
-        orgnr = event.arbeidsgiver.orgnummer,
+        orgnr = Orgnr(event.arbeidsgiver.orgnummer),
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
         arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
         behandler = sykmelding.behandler.tilBehandler(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
         meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
-        sykmeldtFnr = person.fnr,
+        sykmeldtFnr = Fnr(person.fnr),
         sykmeldtNavn = person.tilNavn(),
         perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
         prognose = sykmelding.prognose?.getPrognose(),
@@ -37,9 +40,9 @@ fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): SykmeldingArbeidsgi
     )
 }
 
-private fun List<SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
+private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
     this
-        ?.find { it.shortName == no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO.EGENMELDINGSDAGER }
+        ?.find { it.shortName == ShortNameDTO.EGENMELDINGSDAGER }
         ?.svar
         ?.fromJson(LocalDateSerializer.set())
         ?: emptySet()

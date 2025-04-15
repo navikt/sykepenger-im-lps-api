@@ -10,16 +10,18 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
-data class SykmeldingArbeidsgiver(
+data class Sykmelding(
     @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
     val orgnrHovedenhet: String?,
     @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
-    val orgnr: String,
+    val orgnr: Orgnr,
     @field:Schema(description = "Sykmeldingens unike id")
     val sykmeldingId: String,
     @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
@@ -27,7 +29,7 @@ data class SykmeldingArbeidsgiver(
     val egenmeldingsdager: Set<LocalDate>,
     @field:Schema(description = "Når startet syketilfellet")
     val syketilfelleFom: LocalDate?,
-    val sykmeldtFnr: String,
+    val sykmeldtFnr: Fnr,
     val sykmeldtNavn: Navn,
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
     val arbeidsgiver: Arbeidsgiver? = null,

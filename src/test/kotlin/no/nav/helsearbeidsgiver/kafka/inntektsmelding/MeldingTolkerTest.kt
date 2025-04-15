@@ -121,12 +121,7 @@ class MeldingTolkerTest {
     fun `SykmeldingTolker lesMelding kaster exception om arbeidsgiver er null`() {
         val mockJsonMedArbeidsgiverNull =
             SYKMELDING_MOTTATT.removeJsonWhitespace().replace(
-                """
-                "arbeidsgiver": {
-                    "orgnummer": "900668490",
-                    "juridiskOrgnummer": "928497704",
-                    "orgNavn": "Lama utleiren"
-                }""".removeJsonWhitespace(),
+                """"arbeidsgiver":\{[^}]*}""".toRegex(),
                 """"arbeidsgiver":null""",
             )
 
