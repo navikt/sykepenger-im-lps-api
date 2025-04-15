@@ -27,9 +27,9 @@ val unleashVersion: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.12"
+    id("io.ktor.plugin") version "3.1.2"
     id("org.jmailen.kotlinter")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 group = "no.nav.helsearbeidsgiver"
@@ -52,11 +52,11 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache5:$ktorVersion")
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-apache5")
     implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-core-jvm")
+    implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-auth")
     implementation("io.ktor:ktor-server-swagger")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
@@ -78,16 +78,14 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
-    implementation("no.nav.security:token-validation-ktor-v2:$tokenSupportVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
+    implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-serialization-jackson")
+    implementation("io.ktor:ktor-server-core")
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
-//    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
-
+    testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")

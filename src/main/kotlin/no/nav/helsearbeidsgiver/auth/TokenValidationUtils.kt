@@ -8,7 +8,7 @@ import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.v2.TokenValidationContextPrincipal
+import no.nav.security.token.support.v3.TokenValidationContextPrincipal
 
 suspend fun RoutingContext.tokenValidationContext(): TokenValidationContext {
     val principal = call.principal<TokenValidationContextPrincipal>()
