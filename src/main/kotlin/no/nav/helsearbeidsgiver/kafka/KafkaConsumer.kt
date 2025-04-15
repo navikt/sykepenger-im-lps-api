@@ -17,12 +17,13 @@ suspend fun startKafkaConsumer(
     consumer.subscribe(listOf(topic))
     consumer.asFlow().collect { record ->
         try {
-            // Obs: record.value() kan være null fordi Apache kafka er skrevet i java
-            val value: String? = record.value()
-            if (value != null) {
-                meldingTolker.lesMelding(value)
-            } else {
-                sikkerLogger().warn("Melding med null value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}")
+            // Obs: record.value() kan være null fordi det er implementert i Java
+            when (val value: String? = record.value()) {
+                null ->
+                    logger.warn(
+                        "Mottok melding med null som value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}",
+                    )
+                else -> meldingTolker.lesMelding(value)
             }
             consumer.commitSync()
         } catch (e: Exception) {
