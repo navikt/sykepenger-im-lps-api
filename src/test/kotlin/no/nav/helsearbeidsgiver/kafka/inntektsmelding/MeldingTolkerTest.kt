@@ -99,7 +99,7 @@ class MeldingTolkerTest {
 
     @Test
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
-        every { service.sykmeldingService.lagreSykmelding(any()) } returns true
+        every { service.sykmeldingService.lagreSykmelding(any(), any()) } returns true
 
         every { unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding() } returns true
 
@@ -108,7 +108,7 @@ class MeldingTolkerTest {
 
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verifySequence {
-            service.sykmeldingService.lagreSykmelding(any())
+            service.sykmeldingService.lagreSykmelding(any(), any())
             service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any())
         }
     }

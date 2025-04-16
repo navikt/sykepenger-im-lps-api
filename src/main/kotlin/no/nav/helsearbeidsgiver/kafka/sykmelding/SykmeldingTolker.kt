@@ -26,7 +26,7 @@ class SykmeldingTolker(
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
-            val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage)
+            val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId)
 
             logger.info("Lagret sykmelding til database med id: $sykmeldingId")
 
