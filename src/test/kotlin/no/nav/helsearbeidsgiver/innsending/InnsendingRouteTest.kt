@@ -67,8 +67,8 @@ class InnsendingRouteTest : ApiTest() {
             response.status shouldBe HttpStatusCode.BadRequest
             verify(exactly = 0) {
                 services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    any(),
+                    any(),
                 )
             }
         }
