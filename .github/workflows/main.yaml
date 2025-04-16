@@ -5,6 +5,9 @@ on:
       - main
       - 'dev/**'
 
+concurrency:
+  group: deploy-dev
+
 env:
   ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
 
