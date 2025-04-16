@@ -19,7 +19,7 @@ class SykmeldingTolker(
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
 
             runBlocking {
-                val sykmeldtNavn = "abc"
+                val sykmeldtNavn = "abcd"
 
                 sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldtNavn)
                 sikkerLogger.error("Lagret sykmelding til database med id: ${sykmeldingMessage.sykmelding.id}")
