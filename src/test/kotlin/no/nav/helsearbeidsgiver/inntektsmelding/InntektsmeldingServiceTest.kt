@@ -158,7 +158,7 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentNyesteInntektsmeldingByNavRefernaseId burde returnere nyeste inntektsmelding`() {
+    fun `hentNyesteInntektsmeldingByNavRefernaseId returnerer nyeste inntektsmelding`() {
         val orgnr = "123456789"
         val fnr = "12345678901"
         val innsendt1 = LocalDateTime.now().minusWeeks(1)
