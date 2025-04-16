@@ -50,7 +50,7 @@ class InnsendingRouteTest : ApiTest() {
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
-            verify {
+            verify(exactly = 1) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
                     match { it.type.id == requestBody.navReferanseId },
