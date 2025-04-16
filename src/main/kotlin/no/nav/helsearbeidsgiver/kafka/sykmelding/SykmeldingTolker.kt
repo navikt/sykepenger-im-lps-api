@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.sykmelding
 
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.pdl.Behandlingsgrunnlag
 import no.nav.helsearbeidsgiver.pdl.PdlService
@@ -25,7 +25,8 @@ class SykmeldingTolker(
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val sykmeldtNavn = runBlocking { pdlService.hentPersonFulltNavn(sykmeldingMessage.kafkaMetadata.fnr, Behandlingsgrunnlag.SYKMELDING)}
+            val sykmeldtNavn =
+                runBlocking { pdlService.hentPersonFulltNavn(sykmeldingMessage.kafkaMetadata.fnr, Behandlingsgrunnlag.SYKMELDING) }
             val sykmeldingId =
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
