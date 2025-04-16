@@ -1,13 +1,14 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.kotest.matchers.shouldBe
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
-import no.nav.helsearbeidsgiver.sykmelding.mockHentPersonFraPDL
+import no.nav.helsearbeidsgiver.sykmelding.toMockSykmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class SykmeldingArbeidsgiverMapperTest {
+class SykmeldingMapperTest {
     @Test
     fun `tilEgenmeldingsdager leser SporsmalOgSvarDTO riktig`() {
         val sykmeldingMock = sykmeldingMock()
@@ -21,10 +22,15 @@ class SykmeldingArbeidsgiverMapperTest {
             )
 
         val sykmeldingArbeidsgiver =
-            tilSykmeldingArbeidsgiver(
-                sykmeldingDTO = sykmeldingMock.copy(event = sykmeldingMock.event.copy(sporsmals = listOf(egenmeldingSvar))),
-                person = mockHentPersonFraPDL(sykmeldingMock.kafkaMetadata.fnr),
-            )
+            SykmeldingDTO(
+                id = "",
+                fnr = "05117920005",
+                orgnr = "220460274",
+                sendSykmeldingAivenKafkaMessage =
+                    sykmeldingMock.copy(
+                        event = sykmeldingMock.event.copy(sporsmals = listOf(egenmeldingSvar)),
+                    ),
+            ).toMockSykmeldingArbeidsgiver()
 
         sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
             setOf(
