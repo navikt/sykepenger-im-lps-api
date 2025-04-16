@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -48,7 +48,7 @@ class DialogportenServiceTest {
             )
         } throws DialogportenClientException("Noe gikk galt")
 
-        shouldThrow<DialogportenClientException> {
+        shouldThrowExactly<DialogportenClientException> {
             dialogportenService.opprettNyDialogMedSykmelding(
                 orgnr,
                 forespoereslId,

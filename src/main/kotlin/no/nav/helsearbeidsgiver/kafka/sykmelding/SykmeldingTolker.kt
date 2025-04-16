@@ -26,11 +26,11 @@ class SykmeldingTolker(
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
-            val lagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage)
+            val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage)
 
             logger.info("Lagret sykmelding til database med id: $sykmeldingId")
 
-            if (lagretSykmelding && unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
+            if (harLagretSykmelding && unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
                 dialogportenService.opprettNyDialogMedSykmelding(
                     orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
                     sykmeldingId = sykmeldingId,

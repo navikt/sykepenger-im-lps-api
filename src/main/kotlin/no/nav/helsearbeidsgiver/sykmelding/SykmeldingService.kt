@@ -59,7 +59,7 @@ class SykmeldingService(
             }
 
             else -> {
-                logger().info("Sykmelding $id finnes fra før og vil derfor ignoreres.")
+                logger().warn("Sykmelding $id finnes fra før og vil derfor ignoreres.")
                 return false
             }
         }
