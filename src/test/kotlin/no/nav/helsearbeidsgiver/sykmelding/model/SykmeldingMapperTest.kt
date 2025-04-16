@@ -30,6 +30,7 @@ class SykmeldingMapperTest {
                     sykmeldingMock.copy(
                         event = sykmeldingMock.event.copy(sporsmals = listOf(egenmeldingSvar)),
                     ),
+                sykmeldtNavn = "",
             ).toMockSykmeldingArbeidsgiver()
 
         sykmeldingArbeidsgiver.egenmeldingsdager shouldBe

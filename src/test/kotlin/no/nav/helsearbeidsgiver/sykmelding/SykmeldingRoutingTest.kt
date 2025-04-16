@@ -99,4 +99,5 @@ fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
         kafkaMetadata.fnr,
         event.arbeidsgiver.orgnummer,
         this,
+        mockHentPersonFraPDL(kafkaMetadata.fnr).fornavn,
     )

@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
@@ -54,5 +55,6 @@ class SykmeldingRepository(
             orgnr = this[orgnr],
             fnr = this[fnr],
             sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
+            sykmeldtNavn = this[sykmeldtNavn],
         )
 }
