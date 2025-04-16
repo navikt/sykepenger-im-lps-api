@@ -32,7 +32,6 @@ spec:
     pool: nav-dev
   ingresses:
     - https://sykepenger-im-lps-api.ekstern.dev.nav.no
-    - https://helsearbeidsgiver-im-pdl.intern.dev.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:
@@ -40,7 +39,6 @@ spec:
       external:
         - host: platform.tt02.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
-        - host: pdl-api.dev-fss-pub.nais.io
   maskinporten:
     enabled: true
     scopes:
@@ -76,9 +74,4 @@ spec:
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
-      value: "https://arbeidsgiver.intern.dev.nav.no"
-    - name: PDL_URL
-      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
-    - name: PDL_SCOPE
-      value: "api://prod-fss.pdl.pdl-api/.default"
-
+      value: "https://arbeidsgiver.intern.dev.nav.no

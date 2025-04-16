@@ -23,8 +23,6 @@ val bakgrunnsjobbVersion: String by project
 val swaggerVersion: String by project
 val testContainerVersion: String by project
 val unleashVersion: String by project
-val pdlKlientVersion: String by project
-val tokenProviderVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -80,8 +78,6 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
-    implementation("no.nav.helsearbeidsgiver:pdl-client:$pdlKlientVersion")
-    implementation("no.nav.helsearbeidsgiver:tokenprovider:$tokenProviderVersion")
     implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-core")
