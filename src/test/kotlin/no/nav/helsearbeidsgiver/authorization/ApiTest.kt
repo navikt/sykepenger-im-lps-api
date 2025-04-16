@@ -58,8 +58,9 @@ class ApiTest {
 
     init {
         repositories = mockk<Repositories>(relaxed = true)
-        services = configureServices(repositories)
+        services = configureServices(repositories, mockk())
         val tolkere = configureTolkere(services, repositories, mockk(relaxed = true))
+
         mockOAuth2Server =
             MockOAuth2Server().apply {
                 start(port = port)
@@ -67,10 +68,8 @@ class ApiTest {
         testApplication =
             TestApplication {
                 application {
-                    apiModule(services = services)
-                    configureKafkaConsumers(
-                        tolkere = tolkere,
-                    )
+                    apiModule(services = services, authClient = mockk())
+                    configureKafkaConsumers(tolkere = tolkere)
                 }
             }
         client =

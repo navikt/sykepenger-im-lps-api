@@ -17,7 +17,14 @@ suspend fun startKafkaConsumer(
     consumer.subscribe(listOf(topic))
     consumer.asFlow().collect { record ->
         try {
-            meldingTolker.lesMelding(record.value())
+            // Obs: record.value() kan være null fordi det er implementert i Java
+            when (val value: String? = record.value()) {
+                null ->
+                    logger.warn(
+                        "Mottok melding med null som value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}",
+                    )
+                else -> meldingTolker.lesMelding(value)
+            }
             consumer.commitSync()
         } catch (e: Exception) {
             "Feil ved polling / lagring, avslutter!".let {

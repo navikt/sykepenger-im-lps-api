@@ -28,7 +28,7 @@ class PdpService(
                     systembruker,
                     orgnr,
                 )
-            }.getOrDefault(false) // TODO: håndter feil ved å svare status 500 / 502 tilbake til bruker
+            }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
         }
 }
 
