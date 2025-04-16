@@ -81,7 +81,6 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
     implementation("no.nav.helsearbeidsgiver:pdl-client:$pdlKlientVersion")
-    implementation("no.nav.helsearbeidsgiver:tokenprovider:$tokenProviderVersion")
     implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-core")
