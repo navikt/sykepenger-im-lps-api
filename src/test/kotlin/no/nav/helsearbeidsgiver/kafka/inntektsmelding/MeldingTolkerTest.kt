@@ -4,6 +4,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -18,6 +19,7 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -68,6 +70,7 @@ class MeldingTolkerTest {
                 innsendingService = mockk<InnsendingService>(),
                 dialogportenService = mockk<IDialogportenService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
+                pdlService = mockk<PdlService>(),
             )
         tolkere = configureTolkere(service, repositories, mockk(relaxed = true))
     }
@@ -97,6 +100,7 @@ class MeldingTolkerTest {
 
     @Test
     fun `sykmeldingTolker deserialiserer og lagrer gyldig sykmelding`() {
+        every { runBlocking { service.pdlService.hentPersonFulltNavn(any(), any()) } } returns ""
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verify { service.sykmeldingService.lagreSykmelding(any(), any()) }
     }
