@@ -15,19 +15,15 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
-import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.tilInnsending
+import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
+import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.time.OffsetDateTime
-import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
@@ -43,7 +39,7 @@ private fun Route.innsending(services: Services) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
-            val request = this.call.receive<InntektsmeldingRequest>()
+            val request = call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
@@ -51,67 +47,42 @@ private fun Route.innsending(services: Services) {
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
-                call.respond(HttpStatusCode.BadRequest, it)
-                return@post
+                return@post call.respond(HttpStatusCode.BadRequest, it)
             }
 
             val forespoersel = services.forespoerselService.hentForespoersel(request.navReferanseId)
-            if (forespoersel == null || forespoersel.orgnr != sluttbrukerOrgnr) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@post
-            }
-            val avsenderSystem =
-                AvsenderSystem(
-                    orgnr = Orgnr(lpsOrgnr),
-                    navn = request.avsender.systemNavn,
-                    versjon = request.avsender.systemVersjon,
-                )
-            val inntektsmelding =
-                Inntektsmelding(
-                    id = UUID.randomUUID(),
-                    type = Inntektsmelding.Type.ForespurtEkstern(request.navReferanseId, avsenderSystem),
-                    sykmeldt =
-                        Sykmeldt(
-                            Fnr(request.sykmeldtFnr),
-                            "",
-                        ),
-                    // TODO
-                    avsender =
-                        Avsender(
-                            Orgnr(sluttbrukerOrgnr),
-                            "",
-                            "",
-                            request.arbeidsgiverTlf,
-                        ),
-                    sykmeldingsperioder = emptyList(), // TODO hent fra forespørsel
-                    agp = request.agp,
-                    inntekt = request.inntekt,
-                    refusjon = request.refusjon,
-                    aarsakInnsending = request.aarsakInnsending,
-                    mottatt = OffsetDateTime.now(),
-                    vedtaksperiodeId = null, // TODO: slå opp fra forespørsel
-                )
 
-            val skjemaInntektsmelding =
-                SkjemaInntektsmelding(
-                    forespoerselId = request.navReferanseId,
-                    avsenderTlf = request.arbeidsgiverTlf,
-                    agp = request.agp,
-                    inntekt = request.inntekt,
-                    refusjon = request.refusjon,
+            if (forespoersel == null ||
+                forespoersel.orgnr != sluttbrukerOrgnr ||
+                (forespoersel.inntektPaakrevd && request.inntekt == null) ||
+                (!forespoersel.inntektPaakrevd && request.inntekt != null)
+            ) {
+                return@post call.respond(HttpStatusCode.BadRequest)
+            }
+            val sisteInntektsmelding =
+                services.inntektsmeldingService
+                    .hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
+
+            val inntektsmelding =
+                request.tilInntektsmelding(
+                    sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
+                    lpsOrgnr = Orgnr(lpsOrgnr),
+                    forespoersel = forespoersel,
                 )
-            services.opprettImTransaction(
-                inntektsmelding = inntektsmelding,
-                innsending =
-                    Innsending(
-                        innsendingId = inntektsmelding.id,
-                        skjema = skjemaInntektsmelding,
-                        aarsakInnsending = request.aarsakInnsending,
-                        type = inntektsmelding.type,
-                        innsendtTid = OffsetDateTime.now(),
-                        versjon = VERSJON_1,
-                    ),
-            )
+            val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
+
+            when {
+                sisteInntektsmelding == null && innsending.aarsakInnsending == AarsakInnsending.Endring ->
+                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
+                sisteInntektsmelding != null && innsending.aarsakInnsending == AarsakInnsending.Ny ->
+                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
+                sisteInntektsmelding != null &&
+                    innsending.skjema.erDuplikat(
+                        sisteInntektsmelding.tilSkjemaInntektsmelding(),
+                    ) -> return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
+            }
+
+            services.opprettImTransaction(inntektsmelding, innsending)
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
