@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
-import ConsumerFactory.createConsumerRecord
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -56,11 +55,18 @@ class KafkaCommitOffsetTest {
             )
         val topicPartition = TopicPartition("test", 0)
         val mockRecord =
-            ConsumerRecords(mapOf(topicPartition to listOf(createConsumerRecord())))
+            ConsumerRecords(
+                mapOf(
+                    topicPartition to
+                        listOf(
+                            ConsumerRecord<String, String>("", 0, 0L, "key", null),
+                        ),
+                ),
+            )
 
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
 
-        every { kafkaConsumer.poll(any<Duration>()) } returnsMany listOf(mockRecord as ConsumerRecords<String, String>) andThenThrows
+        every { kafkaConsumer.poll(any<Duration>()) } returnsMany listOf(mockRecord) andThenThrows
             Exception(
                 "au",
             )
