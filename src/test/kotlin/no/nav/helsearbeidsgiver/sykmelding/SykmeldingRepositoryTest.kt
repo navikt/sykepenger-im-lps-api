@@ -65,6 +65,7 @@ private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository
         id = UUID.fromString(sykmelding.id),
         fnr = kafkaMetadata.fnr,
         orgnr = event.arbeidsgiver.orgnummer,
+        sykmeldtNavn = "",
         sykmelding = this,
     )
 }

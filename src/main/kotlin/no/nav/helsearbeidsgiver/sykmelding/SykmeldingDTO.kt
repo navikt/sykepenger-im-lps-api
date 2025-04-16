@@ -8,4 +8,5 @@ data class SykmeldingDTO(
     val fnr: String,
     val orgnr: String,
     val sendSykmeldingAivenKafkaMessage: SendSykmeldingAivenKafkaMessage,
+    val sykmeldtNavn: String,
 )

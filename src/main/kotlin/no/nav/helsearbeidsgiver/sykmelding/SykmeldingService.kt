@@ -41,6 +41,7 @@ class SykmeldingService(
     fun lagreSykmelding(
         sykmeldingMessage: SendSykmeldingAivenKafkaMessage,
         sykmeldingId: UUID,
+        sykmeldtNavn: String,
     ): Boolean {
         logger().info("Lagrer sykmelding $sykmeldingId")
 
@@ -52,6 +53,7 @@ class SykmeldingService(
                     fnr = sykmeldingMessage.kafkaMetadata.fnr,
                     orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
                     sykmelding = sykmeldingMessage,
+                    sykmeldtNavn = sykmeldtNavn,
                 )
                 return true
             }

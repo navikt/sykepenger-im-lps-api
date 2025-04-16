@@ -21,12 +21,12 @@ class SykmeldingTolker(
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-
+            val sykmeldtNavn = "TODO: Hente navn fra PDL"
             val sykmeldingId =
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
-            val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId)
+            val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, sykmeldtNavn)
 
             logger.info("Lagret sykmelding til database med id: $sykmeldingId")
 
