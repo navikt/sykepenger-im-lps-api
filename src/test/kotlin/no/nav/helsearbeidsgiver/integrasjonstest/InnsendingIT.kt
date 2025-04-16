@@ -12,9 +12,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
 import no.nav.helsearbeidsgiver.apiModule
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
@@ -45,6 +47,7 @@ class InnsendingIT {
     private lateinit var repositories: Repositories
     private lateinit var services: Services
     private lateinit var inntektsmeldingTolker: InntektsmeldingTolker
+    private val authClient = mockk<AltinnAuthClient>(relaxed = true)
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -54,7 +57,7 @@ class InnsendingIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -73,7 +76,7 @@ class InnsendingIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories)
+        services = configureServices(repositories, authClient)
         inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
     }
 

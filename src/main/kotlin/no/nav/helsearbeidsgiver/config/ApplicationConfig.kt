@@ -15,8 +15,10 @@ import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.lagDialogportenClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
@@ -94,6 +96,7 @@ fun configureTolkere(
     val sykmeldingTolker =
         SykmeldingTolker(
             sykmeldingService = services.sykmeldingService,
+            dialogportenService = services.dialogportenService,
             unleashFeatureToggles = unleashFeatureToggles,
         )
 
@@ -109,7 +112,10 @@ fun configureRepositories(db: Database): Repositories =
         sykmeldingRepository = SykmeldingRepository(db),
     )
 
-fun configureServices(repositories: Repositories): Services {
+fun configureServices(
+    repositories: Repositories,
+    authClient: AltinnAuthClient,
+): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
@@ -145,8 +151,8 @@ fun configureServices(repositories: Repositories): Services {
             startAsync(true)
         }
 
-    // val dialogService = if (isDev()) DialogportenService(lagDialogportenClient(authClient)) else IngenDialogportenService()
-    val dialogportenService = IngenDialogportenService()
+    val dialogportenService =
+        if (isDev()) DialogportenService(lagDialogportenClient(authClient = authClient)) else IngenDialogportenService()
 
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService)
 }
@@ -183,8 +189,7 @@ fun Application.configureKafkaConsumers(tolkere: Tolkere) {
     }
 }
 
-fun Application.configureAuth() {
-    val authClient = AltinnAuthClient()
+fun Application.configureAuth(authClient: AltinnAuthClient) {
     val pdpService = configurePdpService(authClient)
 
     install(Authentication) {
