@@ -6,10 +6,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
@@ -29,12 +28,12 @@ class ApiFeil(
     val feilMelding: String,
 ) : Exception(feilMelding)
 
-suspend fun PipelineContext<Unit, ApplicationCall>.fangFeil(
+suspend fun RoutingContext.fangFeil(
     melding: String,
-    block: suspend PipelineContext<Unit, ApplicationCall>.() -> Unit,
+    block: suspend RoutingContext.() -> Unit,
 ) {
     try {
-        this.block()
+        block()
     } catch (e: ApiFeil) {
         sikkerLogger().error(e.feilMelding, e)
         call.respond(e.code, e.feilMelding)
