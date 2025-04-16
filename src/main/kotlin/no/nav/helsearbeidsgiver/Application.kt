@@ -6,6 +6,7 @@ import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureAuth
@@ -30,27 +31,37 @@ fun startServer() {
     val unleashFeatureToggles = UnleashFeatureToggles()
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
-    val services = configureServices(repositories)
-    val tolkere = configureTolkere(services = services, repositories = repositories, unleashFeatureToggles = unleashFeatureToggles)
+
+    val authClient = AltinnAuthClient()
+    val services = configureServices(repositories, authClient)
+    val tolkere =
+        configureTolkere(
+            services = services,
+            repositories = repositories,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
 
     embeddedServer(
         factory = Netty,
         port = 8080,
         module = {
-            apiModule(services = services)
+            apiModule(services = services, authClient = authClient)
             configureKafkaConsumers(tolkere)
         },
     ).start(wait = true)
 }
 
-fun Application.apiModule(services: Services) {
+fun Application.apiModule(
+    services: Services,
+    authClient: AltinnAuthClient,
+) {
     val logger = logger()
     logger.info("Starter applikasjon!")
     install(ContentNegotiation) {
         json()
     }
     logger.info("Setter opp autentisering...")
-    configureAuth()
+    configureAuth(authClient)
 
     logger.info("Setter opp routing...")
     configureRouting(services)

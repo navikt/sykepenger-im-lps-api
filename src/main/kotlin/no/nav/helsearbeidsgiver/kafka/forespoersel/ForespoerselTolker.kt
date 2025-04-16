@@ -59,10 +59,6 @@ class ForespoerselTolker(
                             throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
                         }
                     }
-                    dialogportenService.opprettDialog(
-                        orgnr = forespoersel.orgnr,
-                        forespoerselId = forespoersel.forespoerselId,
-                    )
                 } else {
                     logger.error("Ugyldige eller manglende verdier i ${NotisType.FORESPØRSEL_MOTTATT}!")
                     mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))

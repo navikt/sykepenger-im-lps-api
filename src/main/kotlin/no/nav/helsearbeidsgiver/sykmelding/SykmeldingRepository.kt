@@ -41,7 +41,7 @@ class SykmeldingRepository(
         transaction(db) {
             SykmeldingEntitet
                 .selectAll()
-                .where { SykmeldingEntitet.sykmeldingId eq id }
+                .where { sykmeldingId eq id }
                 .map { it.toSykmelding() }
                 .firstOrNull()
         }
