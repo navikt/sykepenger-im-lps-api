@@ -74,4 +74,4 @@ spec:
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
-      value: "https://arbeidsgiver.intern.dev.nav.no
+      value: "https://arbeidsgiver.intern.dev.nav.no"
