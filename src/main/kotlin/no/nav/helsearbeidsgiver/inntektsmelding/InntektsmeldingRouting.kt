@@ -15,8 +15,6 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
-import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -24,6 +22,7 @@ import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.tilInnsending
 import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
 import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.validerMotForespoersel
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
@@ -51,15 +50,12 @@ private fun Route.innsending(services: Services) {
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
 
-            val forespoersel = services.forespoerselService.hentForespoersel(request.navReferanseId)
+            val forespoersel =
+                services.forespoerselService.hentForespoersel(request.navReferanseId)
+                    ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-            if (forespoersel == null ||
-                forespoersel.orgnr != sluttbrukerOrgnr ||
-                (forespoersel.inntektPaakrevd && request.inntekt == null) ||
-                (!forespoersel.inntektPaakrevd && request.inntekt != null) ||
-                forespoersel.status == Status.FORKASTET
-            ) {
-                return@post call.respond(HttpStatusCode.BadRequest)
+            request.validerMotForespoersel(forespoersel, sluttbrukerOrgnr)?.let {
+                return@post call.respond(HttpStatusCode.BadRequest, it)
             }
             val sisteInntektsmelding =
                 services.inntektsmeldingService
@@ -75,15 +71,13 @@ private fun Route.innsending(services: Services) {
                 )
             val innsending = request.tilInnsending(inntektsmelding.id, inntektsmelding.type, VERSJON_1)
 
-            when {
-                forespoersel.status == Status.AKTIV && innsending.aarsakInnsending == AarsakInnsending.Endring ->
-                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
-                forespoersel.status == Status.BESVART && innsending.aarsakInnsending == AarsakInnsending.Ny ->
-                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
+            if (
                 sisteInntektsmelding != null &&
-                    innsending.skjema.erDuplikat(
-                        sisteInntektsmelding.tilSkjemaInntektsmelding(),
-                    ) -> return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
+                innsending.skjema.erDuplikat(
+                    sisteInntektsmelding.tilSkjemaInntektsmelding(),
+                )
+            ) {
+                return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)

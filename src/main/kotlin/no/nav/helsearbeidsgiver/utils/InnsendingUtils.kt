@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
@@ -7,6 +8,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -85,3 +87,25 @@ fun InntektsmeldingResponse.tilSkjemaInntektsmelding() =
         inntekt = inntekt,
         refusjon = refusjon,
     )
+
+fun InntektsmeldingRequest.validerMotForespoersel(
+    forespoersel: Forespoersel,
+    sluttbrukerOrgnr: String,
+): String? =
+    when {
+        forespoersel.orgnr != sluttbrukerOrgnr -> Feilmelding.FEIL_ORGNR
+        forespoersel.inntektPaakrevd && this.inntekt == null -> Feilmelding.INNTEKT_ER_PAAKREVD
+        !forespoersel.inntektPaakrevd && this.inntekt != null -> Feilmelding.INNTEKT_ER_IKKE_PAAKREVD
+        forespoersel.status == Status.AKTIV && this.aarsakInnsending == AarsakInnsending.Endring -> Feilmelding.UGYLDIG_AARSAK
+        forespoersel.status == Status.BESVART && this.aarsakInnsending == AarsakInnsending.Ny -> Feilmelding.UGYLDIG_AARSAK
+        forespoersel.status == Status.FORKASTET -> Feilmelding.FORESPOERSEL_FORKASTET
+        else -> null
+    }
+
+internal object Feilmelding {
+    const val FEIL_ORGNR = "Feil organisasjonsnummer"
+    const val INNTEKT_ER_PAAKREVD = "Inntekt er paakrevd"
+    const val INNTEKT_ER_IKKE_PAAKREVD = "Inntekt er ikke paakrevd"
+    const val UGYLDIG_AARSAK = "Ugyldig aarsak innsending"
+    const val FORESPOERSEL_FORKASTET = "Forespoersel er trukket tilbake"
+}
