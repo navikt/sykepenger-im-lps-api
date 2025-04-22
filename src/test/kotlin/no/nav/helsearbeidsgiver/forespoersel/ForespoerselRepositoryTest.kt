@@ -43,6 +43,14 @@ class ForespoerselRepositoryTest {
     }
 
     @Test
+    fun hentVedtaksperiodeId() {
+        val dokument = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
+        dokument.forespoerselId
+        forespoerselRepository.lagreForespoersel(dokument.forespoerselId, dokument)
+        forespoerselRepository.hentVedtaksperiodeId(dokument.forespoerselId) shouldBe dokument.vedtaksperiodeId
+    }
+
+    @Test
     fun lagreForespoerselDuplikat() {
         val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
