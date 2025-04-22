@@ -24,6 +24,7 @@ fun InntektsmeldingRequest.tilInntektsmelding(
     sluttbrukerOrgnr: Orgnr,
     lpsOrgnr: Orgnr,
     forespoersel: Forespoersel,
+    vedtaksperiodeId: UUID?,
 ): Inntektsmelding =
     Inntektsmelding(
         id = UUID.randomUUID(),
@@ -50,10 +51,11 @@ fun InntektsmeldingRequest.tilInntektsmelding(
         refusjon = refusjon,
         aarsakInnsending = aarsakInnsending,
         mottatt = OffsetDateTime.now(),
-        vedtaksperiodeId = null,
+        vedtaksperiodeId = vedtaksperiodeId,
     )
 
 fun InntektsmeldingRequest.tilInnsending(
+    inntektsmeldingId: UUID,
     type: Inntektsmelding.Type,
     versjon: Int,
 ): Innsending {
@@ -66,7 +68,7 @@ fun InntektsmeldingRequest.tilInnsending(
             refusjon = refusjon,
         )
     return Innsending(
-        innsendingId = UUID.randomUUID(),
+        innsendingId = inntektsmeldingId,
         skjema = skjemaInntektsmelding,
         aarsakInnsending = aarsakInnsending,
         type = type,

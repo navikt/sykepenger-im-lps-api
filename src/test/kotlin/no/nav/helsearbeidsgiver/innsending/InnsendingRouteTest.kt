@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -47,6 +48,7 @@ class InnsendingRouteTest : ApiTest() {
             val requestBody = InnsendingMockData.requestBody
             val forespoersel = InnsendingMockData.forespoersel
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
@@ -77,8 +79,9 @@ class InnsendingRouteTest : ApiTest() {
     fun `innsending av duplikat inntektsmelding gyldig forespørsel gir conflict`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
-            val forespoersel = InnsendingMockData.forespoersel
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse,
@@ -97,8 +100,9 @@ class InnsendingRouteTest : ApiTest() {
     fun `innsending av inntektsmelding med aarsak Ny der tidligere innsending finnes gir bad request`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Ny)
-            val forespoersel = InnsendingMockData.forespoersel
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse.copy(
@@ -121,6 +125,7 @@ class InnsendingRouteTest : ApiTest() {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = InnsendingMockData.forespoersel
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
@@ -141,6 +146,7 @@ class InnsendingRouteTest : ApiTest() {
                     orgnr = Orgnr.genererGyldig().verdi,
                 )
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
         }

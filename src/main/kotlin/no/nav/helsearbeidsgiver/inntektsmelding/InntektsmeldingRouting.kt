@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -55,26 +56,29 @@ private fun Route.innsending(services: Services) {
             if (forespoersel == null ||
                 forespoersel.orgnr != sluttbrukerOrgnr ||
                 (forespoersel.inntektPaakrevd && request.inntekt == null) ||
-                (!forespoersel.inntektPaakrevd && request.inntekt != null)
+                (!forespoersel.inntektPaakrevd && request.inntekt != null) ||
+                forespoersel.status == Status.FORKASTET
             ) {
                 return@post call.respond(HttpStatusCode.BadRequest)
             }
             val sisteInntektsmelding =
                 services.inntektsmeldingService
-                    .hentNyesteInntektsmeldingByNavRefernaseId(request.navReferanseId)
+                    .hentNyesteInntektsmeldingByNavReferanseId(request.navReferanseId)
+            val vedtaksperiodeId = services.forespoerselService.hentVedtaksperiodeId(request.navReferanseId)
 
             val inntektsmelding =
                 request.tilInntektsmelding(
                     sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
                     lpsOrgnr = Orgnr(lpsOrgnr),
                     forespoersel = forespoersel,
+                    vedtaksperiodeId = vedtaksperiodeId,
                 )
-            val innsending = request.tilInnsending(inntektsmelding.type, VERSJON_1)
+            val innsending = request.tilInnsending(inntektsmelding.id, inntektsmelding.type, VERSJON_1)
 
             when {
-                sisteInntektsmelding == null && innsending.aarsakInnsending == AarsakInnsending.Endring ->
+                forespoersel.status == Status.AKTIV && innsending.aarsakInnsending == AarsakInnsending.Endring ->
                     return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
-                sisteInntektsmelding != null && innsending.aarsakInnsending == AarsakInnsending.Ny ->
+                forespoersel.status == Status.BESVART && innsending.aarsakInnsending == AarsakInnsending.Ny ->
                     return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig aarsak innsending")
                 sisteInntektsmelding != null &&
                     innsending.skjema.erDuplikat(

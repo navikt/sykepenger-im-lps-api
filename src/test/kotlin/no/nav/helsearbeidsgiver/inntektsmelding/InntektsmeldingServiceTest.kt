@@ -202,7 +202,7 @@ class InntektsmeldingServiceTest {
                     id = innsendingId2,
                 ),
             )
-        val hentInntektsmelding = inntektsmeldingService.hentNyesteInntektsmeldingByNavRefernaseId(navReferanseId)
+        val hentInntektsmelding = inntektsmeldingService.hentNyesteInntektsmeldingByNavReferanseId(navReferanseId)
 
         verify {
             inntektsmeldingRepository.hent(navReferanseId)

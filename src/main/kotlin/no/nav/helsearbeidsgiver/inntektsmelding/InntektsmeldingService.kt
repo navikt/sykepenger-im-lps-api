@@ -9,7 +9,7 @@ import java.util.UUID
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-    fun hentNyesteInntektsmeldingByNavRefernaseId(navReferanseId: UUID): InntektsmeldingResponse? {
+    fun hentNyesteInntektsmeldingByNavReferanseId(navReferanseId: UUID): InntektsmeldingResponse? {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for forespoerelId: $navReferanseId")
             inntektsmeldingRepository.hent(navReferanseId).maxByOrNull { it.innsendtTid }

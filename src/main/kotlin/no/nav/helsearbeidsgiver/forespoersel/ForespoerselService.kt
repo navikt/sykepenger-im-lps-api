@@ -36,5 +36,7 @@ class ForespoerselService(
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $consumerOrgnr")
     }
 
-    fun hentForespoersel(forespoerselId: UUID): Forespoersel? = runBlocking { forespoerselRepository.hentForespoersel(forespoerselId) }
+    fun hentForespoersel(navReferanseId: UUID): Forespoersel? = runBlocking { forespoerselRepository.hentForespoersel(navReferanseId) }
+
+    fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = runBlocking { forespoerselRepository.hentVedtaksperiodeId(navReferanseId) }
 }
