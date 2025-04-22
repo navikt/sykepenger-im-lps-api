@@ -2,8 +2,8 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
-import no.nav.helsearbeidsgiver.auth.getDialogportenToken
+import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -71,9 +71,9 @@ private fun SendSykmeldingAivenKafkaMessage.getFoedselsdatoString(): String {
     }
 }
 
-fun lagDialogportenClient(authClient: AltinnAuthClient) =
+fun lagDialogportenClient(authClient: AuthClient) =
     DialogportenClient(
         baseUrl = Env.getProperty("ALTINN_3_BASE_URL"),
         ressurs = Env.getProperty("ALTINN_IM_RESSURS"),
-        getToken = authClient::getDialogportenToken,
+        getToken = authClient.dialogportenTokenGetter(),
     )

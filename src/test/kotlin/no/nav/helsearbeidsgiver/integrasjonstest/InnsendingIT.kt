@@ -16,13 +16,13 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -47,7 +47,7 @@ class InnsendingIT {
     private lateinit var repositories: Repositories
     private lateinit var services: Services
     private lateinit var inntektsmeldingTolker: InntektsmeldingTolker
-    private val authClient = mockk<AltinnAuthClient>(relaxed = true)
+    private val authClient = mockk<AuthClient>(relaxed = true)
 
     private val port = 33445
     private val mockOAuth2Server =
