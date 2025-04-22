@@ -10,7 +10,6 @@ import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
-import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
@@ -19,6 +18,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.lagDialogportenClient
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
@@ -114,7 +114,7 @@ fun configureRepositories(db: Database): Repositories =
 
 fun configureServices(
     repositories: Repositories,
-    authClient: AltinnAuthClient,
+    authClient: AuthClient,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
@@ -189,7 +189,7 @@ fun Application.configureKafkaConsumers(tolkere: Tolkere) {
     }
 }
 
-fun Application.configureAuth(authClient: AltinnAuthClient) {
+fun Application.configureAuth(authClient: AuthClient) {
     val pdpService = configurePdpService(authClient)
 
     install(Authentication) {
@@ -222,7 +222,7 @@ fun Application.configureAuth(authClient: AltinnAuthClient) {
     }
 }
 
-fun configurePdpService(authClient: AltinnAuthClient): IPdpService =
+fun configurePdpService(authClient: AuthClient): IPdpService =
     when {
         isDev() -> PdpService(lagPdpClient(authClient))
         isLocal() -> LocalhostPdpService()

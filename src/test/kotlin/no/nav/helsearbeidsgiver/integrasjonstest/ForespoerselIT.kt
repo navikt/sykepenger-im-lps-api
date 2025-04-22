@@ -10,13 +10,13 @@ import io.ktor.server.testing.TestApplication
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
-import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
@@ -35,7 +35,7 @@ class ForespoerselIT {
     private lateinit var repositories: Repositories
     private lateinit var services: Services
     private lateinit var forespoerselTolker: ForespoerselTolker
-    private val authClient = mockk<AltinnAuthClient>(relaxed = true)
+    private val authClient = mockk<AuthClient>(relaxed = true)
 
     private val port = 33445
     private val mockOAuth2Server =
