@@ -10,31 +10,27 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
-data class SykmeldingArbeidsgiver(
-    @field:Schema(description = "Sykmeldingen")
-    val sykmelding: Sykmelding,
-    @field:Schema(description = "Juridisk organisasjonsnummer for den bedriften den sykmeldte er knyttet til")
-    val juridiskOrganisasjonsnummer: Long,
-    @field:Schema(description = "Virksomhetsnummer (undernummer/bedriftsnummer) for den bedriften den sykmeldte er knyttet til")
-    val virksomhetsnummer: Long,
+data class Sykmelding(
+    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
+    val orgnrHovedenhet: Orgnr?,
+    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
+    val orgnr: Orgnr,
     @field:Schema(description = "Sykmeldingens unike id")
     val sykmeldingId: String,
     @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
     val mottattidspunkt: LocalDateTime,
-)
-
-@Serializable
-@Schema(description = "Sykmelding")
-data class Sykmelding(
+    val egenmeldingsdager: Set<LocalDate>,
     @field:Schema(description = "Når startet syketilfellet")
     val syketilfelleFom: LocalDate?,
-    @field:Schema(description = "Pasient")
-    val pasient: Pasient,
+    val sykmeldtFnr: Fnr,
+    val sykmeldtNavn: Navn,
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
     val arbeidsgiver: Arbeidsgiver? = null,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
@@ -47,7 +43,6 @@ data class Sykmelding(
     val meldingTilArbeidsgiver: String? = null,
     val kontaktMedPasient: KontaktMedPasient,
     val behandler: Behandler,
-    val egenmeldingsdager: Egenmeldingsdager? = null,
 )
 
 @Serializable
@@ -140,21 +135,12 @@ data class Navn(
 )
 
 @Serializable
-@Schema(description = "Pasient")
-data class Pasient(
-    @field:Schema(description = "Pasientens navn")
-    val navn: Navn,
-    @field:Schema(description = "Pasientens fnr/dnr")
-    val ident: String,
-)
-
-@Serializable
 @Schema(description = "Behandler")
 data class Behandler(
     @field:Schema(description = "Behandlers navn")
     val navn: Navn,
     @field:Schema(description = "Behandlers kontaktinformasjon")
-    val telefonnummer: Long,
+    val telefonnummer: String,
 )
 
 @Serializable
@@ -162,10 +148,4 @@ data class Behandler(
 data class Arbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
     val navn: String? = null,
-)
-
-@Serializable
-@Schema(description = "Egenmeldingsdager")
-data class Egenmeldingsdager(
-    val dager: List<LocalDate>?,
 )

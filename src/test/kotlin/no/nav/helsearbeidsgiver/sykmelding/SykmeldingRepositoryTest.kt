@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.Database
@@ -65,7 +64,8 @@ private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository
     sykmeldingRepository.lagreSykmelding(
         id = UUID.fromString(sykmelding.id),
         fnr = kafkaMetadata.fnr,
-        orgnr = event.arbeidsgiver!!.orgnummer,
+        orgnr = event.arbeidsgiver.orgnummer,
+        sykmeldtNavn = "",
         sykmelding = this,
     )
 }

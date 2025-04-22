@@ -3,8 +3,8 @@ package no.nav.helsearbeidsgiver.pdp
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
-import no.nav.helsearbeidsgiver.auth.AltinnAuthClient
-import no.nav.helsearbeidsgiver.auth.getPdpToken
+import no.nav.helsearbeidsgiver.auth.pdpTokenGetter
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 interface IPdpService {
@@ -28,7 +28,7 @@ class PdpService(
                     systembruker,
                     orgnr,
                 )
-            }.getOrDefault(false) // TODO: håndter feil ved å svare status 500 / 502 tilbake til bruker
+            }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
         }
 }
 
@@ -53,16 +53,17 @@ class IngenTilgangPdpService : IPdpService {
     }
 }
 
-fun lagPdpClient(authClient: AltinnAuthClient): PdpClient {
+fun lagPdpClient(authClient: AuthClient): PdpClient {
     val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
     val subscriptionKey = Env.getProperty("SUBSCRIPTION_KEY")
     val altinnImRessurs = Env.getProperty("ALTINN_IM_RESSURS")
+
     val pdpClient =
         PdpClient(
             altinn3BaseUrl,
             subscriptionKey,
             altinnImRessurs,
-            authClient::getPdpToken,
+            authClient.pdpTokenGetter(),
         )
     return pdpClient
 }

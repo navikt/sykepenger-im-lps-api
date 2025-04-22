@@ -4,6 +4,8 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifySequence
+import kotlinx.serialization.SerializationException
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
@@ -27,10 +29,14 @@ import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 @WithPostgresContainer
@@ -39,6 +45,7 @@ class MeldingTolkerTest {
     private lateinit var repositories: Repositories
     private lateinit var service: Services
     private lateinit var tolkere: Tolkere
+    private lateinit var unleashFeatureToggles: UnleashFeatureToggles
 
     @BeforeAll
     fun setup() {
@@ -66,7 +73,10 @@ class MeldingTolkerTest {
                 dialogportenService = mockk<IDialogportenService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
             )
-        tolkere = configureTolkere(service, repositories, mockk(relaxed = true))
+
+        unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
+
+        tolkere = configureTolkere(service, repositories, unleashFeatureToggles)
     }
 
     @BeforeEach
@@ -76,13 +86,8 @@ class MeldingTolkerTest {
 
     @Test
     fun kunLagreEventerSomMatcher() {
-        every { service.dialogportenService.opprettDialog(any(), any()) } returns
-            Result.success(
-                UUID.randomUUID().toString(),
-            )
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
-        verify { service.dialogportenService.opprettDialog(any(), any()) }
 
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_BESVART)
         tolkere.inntektsmeldingTolker.lesMelding(IM_MOTTATT)
@@ -93,24 +98,45 @@ class MeldingTolkerTest {
     }
 
     @Test
-    fun `sykmeldingTolker deserialiserer og lagrer gyldig sykmelding`() {
+    fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
+        every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
+
+        every { unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding() } returns true
+
+        every { service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any()) } returns
+            UUID.randomUUID().toString()
+
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
-        verify { service.sykmeldingService.lagreSykmelding(any()) }
+        verifySequence {
+            service.sykmeldingService.lagreSykmelding(any(), any(), any())
+            service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any())
+        }
     }
 
     @Test
     fun `forespoerselTolker håndterer duplikater`() {
-        every { service.dialogportenService.opprettDialog(any(), any()) } returns
-            Result.success(
-                UUID.randomUUID().toString(),
-            )
-        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
-        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+        assertDoesNotThrow {
+            tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+            tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
+        }
     }
 
     @Test
     fun `trengerForespoersel-meldinger ignoreres uten å lagre til mottak`() {
         tolkere.forespoerselTolker.lesMelding(TRENGER_FORESPOERSEL)
         verify(exactly = 0) { repositories.mottakRepository.opprett(any()) }
+    }
+
+    @Test
+    fun `SykmeldingTolker lesMelding kaster exception om arbeidsgiver er null`() {
+        val mockJsonMedArbeidsgiverNull =
+            SYKMELDING_MOTTATT.removeJsonWhitespace().replace(
+                """"arbeidsgiver":\{[^}]*}""".toRegex(),
+                """"arbeidsgiver":null""",
+            )
+
+        assertThrows<SerializationException> {
+            tolkere.sykmeldingTolker.lesMelding(mockJsonMedArbeidsgiverNull)
+        }
     }
 }

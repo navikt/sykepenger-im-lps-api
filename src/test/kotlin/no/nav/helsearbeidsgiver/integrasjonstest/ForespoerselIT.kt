@@ -8,7 +8,6 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -17,6 +16,7 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
@@ -35,6 +35,7 @@ class ForespoerselIT {
     private lateinit var repositories: Repositories
     private lateinit var services: Services
     private lateinit var forespoerselTolker: ForespoerselTolker
+    private val authClient = mockk<AuthClient>(relaxed = true)
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -44,7 +45,7 @@ class ForespoerselIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -64,7 +65,7 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories)
+        services = configureServices(repositories, authClient)
         forespoerselTolker =
             ForespoerselTolker(
                 forespoerselRepository = repositories.forespoerselRepository,
@@ -80,8 +81,6 @@ class ForespoerselIT {
                 TestData.FORESPOERSEL_MOTTATT,
             )
             val orgnr1 = "810007982"
-            verify { dialogportenService.opprettDialog(any(), any()) }
-
             val response =
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))

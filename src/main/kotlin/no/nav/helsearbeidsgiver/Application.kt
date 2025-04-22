@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -30,27 +31,37 @@ fun startServer() {
     val unleashFeatureToggles = UnleashFeatureToggles()
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
-    val services = configureServices(repositories)
-    val tolkere = configureTolkere(services = services, repositories = repositories, unleashFeatureToggles = unleashFeatureToggles)
+
+    val authClient = AuthClient()
+    val services = configureServices(repositories, authClient)
+    val tolkere =
+        configureTolkere(
+            services = services,
+            repositories = repositories,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
 
     embeddedServer(
         factory = Netty,
         port = 8080,
         module = {
-            apiModule(services = services)
+            apiModule(services = services, authClient = authClient)
             configureKafkaConsumers(tolkere)
         },
     ).start(wait = true)
 }
 
-fun Application.apiModule(services: Services) {
+fun Application.apiModule(
+    services: Services,
+    authClient: AuthClient,
+) {
     val logger = logger()
     logger.info("Starter applikasjon!")
     install(ContentNegotiation) {
         json()
     }
     logger.info("Setter opp autentisering...")
-    configureAuth()
+    configureAuth(authClient)
 
     logger.info("Setter opp routing...")
     configureRouting(services)
