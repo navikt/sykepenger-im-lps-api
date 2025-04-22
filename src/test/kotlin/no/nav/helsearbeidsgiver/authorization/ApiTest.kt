@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterAll
 
 abstract class ApiTest {
     val repositories: Repositories = mockk<Repositories>(relaxed = true)
-    val services: Services = configureServices(repositories)
+    val services: Services = configureServices(repositories = repositories, authClient = mockk())
 
     private val port = 33445
     val mockOAuth2Server: MockOAuth2Server =
@@ -24,7 +24,7 @@ abstract class ApiTest {
     private val testApplication: TestApplication =
         TestApplication {
             application {
-                apiModule(services = services)
+                apiModule(services = services, authClient = mockk())
             }
         }
     val client: HttpClient =
