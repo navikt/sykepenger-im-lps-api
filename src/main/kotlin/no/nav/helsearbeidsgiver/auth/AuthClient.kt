@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-/** Krever `entraIdEnabled: true` i konfig. */
 class AuthClient {
     private val sikkerLogger = sikkerLogger()
     private val httpClient = createHttpClient()

@@ -15,6 +15,6 @@ private fun AuthClient.hentAltinnToken(target: String): () -> String {
     }
 }
 
-fun AuthClient.getPdpToken() = hentAltinnToken(Env.getProperty("ALTINN_PDP_SCOPE"))
+fun AuthClient.pdpTokenGetter() = hentAltinnToken(Env.getProperty("ALTINN_PDP_SCOPE"))
 
-fun AuthClient.getDialogportenToken() = hentAltinnToken(Env.getProperty("DIALOGPORTEN_SCOPE"))
+fun AuthClient.dialogportenTokenGetter() = hentAltinnToken(Env.getProperty("DIALOGPORTEN_SCOPE"))

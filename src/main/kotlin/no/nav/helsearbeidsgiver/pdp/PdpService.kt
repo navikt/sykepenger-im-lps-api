@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.pdp
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
-import no.nav.helsearbeidsgiver.auth.getPdpToken
+import no.nav.helsearbeidsgiver.auth.pdpTokenGetter
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -63,7 +63,7 @@ fun lagPdpClient(authClient: AuthClient): PdpClient {
             altinn3BaseUrl,
             subscriptionKey,
             altinnImRessurs,
-            authClient.getPdpToken(),
+            authClient.pdpTokenGetter(),
         )
     return pdpClient
 }
