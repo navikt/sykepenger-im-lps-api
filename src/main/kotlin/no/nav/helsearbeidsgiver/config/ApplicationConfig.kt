@@ -34,6 +34,8 @@ import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.pdl.IPdlService
+import no.nav.helsearbeidsgiver.pdl.IngenPdlService
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
@@ -70,7 +72,7 @@ data class Services(
     val innsendingService: InnsendingService,
     val dialogportenService: IDialogportenService,
     val sykmeldingService: SykmeldingService,
-    val pdlService: PdlService,
+    val pdlService: IPdlService,
 )
 
 data class Tolkere(
@@ -156,7 +158,7 @@ fun configureServices(
 
     val dialogportenService =
         if (isDev()) DialogportenService(lagDialogportenClient(authClient = authClient)) else IngenDialogportenService()
-    val pdlService = PdlService()
+    val pdlService = if (isDev()) PdlService() else IngenPdlService()
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService, pdlService)
 }
 

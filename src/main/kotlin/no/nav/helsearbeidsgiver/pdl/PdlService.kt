@@ -1,36 +1,34 @@
 package no.nav.helsearbeidsgiver.pdl
 
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.tokenprovider.OAuth2Environment
-import no.nav.helsearbeidsgiver.tokenprovider.oauth2ClientCredentialsTokenGetter
+import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 
 val pdlUrl = Env.getProperty("PDL_URL")
-val oauth2Environment =
-    OAuth2Environment(
-        scope = Env.getProperty("PDL_SCOPE"),
-        wellKnownUrl = Env.getProperty("AZURE_APP_WELL_KNOWN_URL"),
-        tokenEndpointUrl = Env.getProperty("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
-        clientId = Env.getProperty("AZURE_APP_CLIENT_ID"),
-        clientSecret = Env.getProperty("AZURE_APP_CLIENT_SECRET"),
-        clientJwk = Env.getProperty("AZURE_APP_JWK"),
+val tokenGetter = AuthClient().tokenGetter(AZURE_AD, Env.getProperty("PDL_SCOPE"))
+val sykmeldingPdlClient =
+    PdlClient(
+        url = pdlUrl,
+        getAccessToken = tokenGetter,
+        behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
     )
 
-class PdlService {
-    private fun opprettPdlClient(behandlingsgrunnlag: Behandlingsgrunnlag) =
-        PdlClient(
-            url = pdlUrl,
-            getAccessToken = oauth2ClientCredentialsTokenGetter(oauth2Environment),
-            behandlingsgrunnlag = behandlingsgrunnlag,
-        )
+interface IPdlService {
+    fun hentPersonFulltNavnForSykmelding(fnr: String): String?
+}
 
-    suspend fun hentPersonFulltNavn(
-        fnr: String,
-        behandlingsgrunnlag: Behandlingsgrunnlag,
-    ): String =
-        opprettPdlClient(behandlingsgrunnlag)
-            .personBolk(listOf(fnr))
-            ?.firstOrNull()
-            ?.navn
-            ?.fulltNavn()
-            ?: throw RuntimeException("Fant ikke person i PDL oppslag [fnr:$fnr]")
+class IngenPdlService : IPdlService {
+    override fun hentPersonFulltNavnForSykmelding(fnr: String): String? = "PDL skrudd av i prod"
+}
+
+class PdlService : IPdlService {
+    override fun hentPersonFulltNavnForSykmelding(fnr: String): String? =
+        runBlocking {
+            sykmeldingPdlClient
+                .personBolk(listOf(fnr))
+                ?.firstOrNull()
+                ?.navn
+                ?.fulltNavn()
+        }
 }

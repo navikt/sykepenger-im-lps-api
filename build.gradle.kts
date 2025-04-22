@@ -72,6 +72,7 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
+    implementation("no.nav.helsearbeidsgiver:pdl-client:$pdlKlientVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")

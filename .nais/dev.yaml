@@ -32,7 +32,6 @@ spec:
     pool: nav-dev
   ingresses:
     - https://sykepenger-im-lps-api.ekstern.dev.nav.no
-    - https://helsearbeidsgiver-im-pdl.intern.dev.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:
@@ -80,7 +79,7 @@ spec:
     - name: NAV_ARBEIDSGIVER_API_BASEURL
       value: "https://sykepenger-im-lps-api.ekstern.dev.nav.no"
     - name: PDL_URL
-      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+      value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: PDL_SCOPE
-      value: "api://prod-fss.pdl.pdl-api/.default"
+      value: "api://dev-fss.pdl.pdl-api/.default"
 

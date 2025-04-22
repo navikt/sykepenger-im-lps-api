@@ -1,11 +1,11 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -103,7 +103,7 @@ class MeldingTolkerTest {
     @Test
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
         every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
-        every { runBlocking { service.pdlService.hentPersonFulltNavn(any(), any()) } } returns ""
+        coEvery { service.pdlService.hentPersonFulltNavnForSykmelding(any()) } returns ""
         every { unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding() } returns true
 
         every { service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any()) } returns
