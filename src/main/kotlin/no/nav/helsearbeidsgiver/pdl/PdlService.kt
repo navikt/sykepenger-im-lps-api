@@ -5,15 +5,6 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 
-val pdlUrl = Env.getProperty("PDL_URL")
-val tokenGetter = AuthClient().tokenGetter(AZURE_AD, Env.getProperty("PDL_SCOPE"))
-val sykmeldingPdlClient =
-    PdlClient(
-        url = pdlUrl,
-        getAccessToken = tokenGetter,
-        behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
-    )
-
 interface IPdlService {
     fun hentPersonFulltNavnForSykmelding(fnr: String): String?
 }
@@ -23,6 +14,15 @@ class IngenPdlService : IPdlService {
 }
 
 class PdlService : IPdlService {
+    private val pdlUrl = Env.getProperty("PDL_URL")
+    private val tokenGetter = AuthClient().tokenGetter(AZURE_AD, Env.getProperty("PDL_SCOPE"))
+    private val sykmeldingPdlClient =
+        PdlClient(
+            url = pdlUrl,
+            getAccessToken = tokenGetter,
+            behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
+        )
+
     override fun hentPersonFulltNavnForSykmelding(fnr: String): String? =
         runBlocking {
             sykmeldingPdlClient
