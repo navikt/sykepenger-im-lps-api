@@ -29,6 +29,7 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -173,8 +174,9 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     object InnsendingMockData {
-        val requestBody = mockInntektsmeldingRequest()
-        val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG)
+        val sykmeldtFnr = Fnr.genererGyldig().toString()
+        val requestBody = mockInntektsmeldingRequest().copy(sykmeldtFnr = sykmeldtFnr)
+        val forespoersel = mockForespoersel().copy(navReferanseId = requestBody.navReferanseId, orgnr = DEFAULT_ORG, fnr = sykmeldtFnr)
         val imResponse =
             mockInntektsmeldingResponse().copy(
                 id = UUID.randomUUID(),
