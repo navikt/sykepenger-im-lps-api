@@ -94,8 +94,11 @@ fun InntektsmeldingRequest.validerMotForespoersel(
 ): String? =
     when {
         forespoersel.orgnr != sluttbrukerOrgnr -> Feilmelding.FEIL_ORGNR
+        forespoersel.fnr != this.sykmeldtFnr -> Feilmelding.FEIL_FNR
         forespoersel.inntektPaakrevd && this.inntekt == null -> Feilmelding.INNTEKT_ER_PAAKREVD
         !forespoersel.inntektPaakrevd && this.inntekt != null -> Feilmelding.INNTEKT_ER_IKKE_PAAKREVD
+        forespoersel.arbeidsgiverperiodePaakrevd && this.agp == null -> Feilmelding.AGP_ER_PAAKREVD
+        !forespoersel.arbeidsgiverperiodePaakrevd && this.agp == null -> Feilmelding.AGP_ER_IKKE_PAAKREVD
         forespoersel.status == Status.AKTIV && this.aarsakInnsending == AarsakInnsending.Endring -> Feilmelding.UGYLDIG_AARSAK
         forespoersel.status == Status.BESVART && this.aarsakInnsending == AarsakInnsending.Ny -> Feilmelding.UGYLDIG_AARSAK
         forespoersel.status == Status.FORKASTET -> Feilmelding.FORESPOERSEL_FORKASTET
@@ -104,8 +107,11 @@ fun InntektsmeldingRequest.validerMotForespoersel(
 
 internal object Feilmelding {
     const val FEIL_ORGNR = "Feil organisasjonsnummer"
+    const val FEIL_FNR = "Feil foedselsnummer"
     const val INNTEKT_ER_PAAKREVD = "Inntekt er paakrevd"
+    const val AGP_ER_PAAKREVD = "Agp er paakrevd"
     const val INNTEKT_ER_IKKE_PAAKREVD = "Inntekt er ikke paakrevd"
+    const val AGP_ER_IKKE_PAAKREVD = "Agp er ikke paakrevd"
     const val UGYLDIG_AARSAK = "Ugyldig aarsak innsending"
     const val FORESPOERSEL_FORKASTET = "Forespoersel er trukket tilbake"
 }
