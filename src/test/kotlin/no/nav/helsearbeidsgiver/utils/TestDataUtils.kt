@@ -40,6 +40,20 @@ private const val ORGNUMMER = "%%%ORGNR%%%"
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
 
+fun buildInntektsmeldingJsonNy(
+    inntektsmeldingId: UUID = UUID.randomUUID(),
+    forespoerselId: UUID = UUID.randomUUID(),
+    sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
+    orgNr: Orgnr = Orgnr(DEFAULT_ORG),
+): String {
+    val filePath = "im_ny.json"
+    return readJsonFromResources(filePath)
+        .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
+        .replace(FORESPOERSEL_ID, forespoerselId.toString())
+        .replace(SYKMELDT_FNR, sykemeldtFnr.verdi)
+        .replace(ORGNUMMER, orgNr.verdi)
+}
+
 fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
     SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
 
