@@ -53,7 +53,9 @@ spec:
       consumes:
         - name: "altinn:authorization/authorize"
         - name: "digdir:dialogporten.serviceprovider"
-
+  azure:
+    application:
+      enabled: true
   gcp:
     sqlInstances:
       - type: POSTGRES_16
