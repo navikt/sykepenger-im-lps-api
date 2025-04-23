@@ -22,7 +22,7 @@ class SykmeldingRepository(
         fnr: String,
         orgnr: String,
         sykmelding: SendSykmeldingAivenKafkaMessage,
-        sykmeldtNavn: String?,
+        sykmeldtNavn: String,
     ) {
         try {
             transaction(db) {

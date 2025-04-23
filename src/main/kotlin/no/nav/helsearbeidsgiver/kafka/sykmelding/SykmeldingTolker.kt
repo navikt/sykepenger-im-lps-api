@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka.sykmelding
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.pdl.IPdlService
@@ -11,6 +10,8 @@ import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
+
+private const val UKJENT_NAVN = "Ukjent navn"
 
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
@@ -24,8 +25,7 @@ class SykmeldingTolker(
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val sykmeldtNavn =
-                runBlocking { pdlService.hentPersonFulltNavnForSykmelding(sykmeldingMessage.kafkaMetadata.fnr) }
+            val sykmeldtNavn = pdlService.hentPersonFulltNavnForSykmelding(sykmeldingMessage.kafkaMetadata.fnr) ?: UKJENT_NAVN
             val sykmeldingId =
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
