@@ -43,7 +43,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `leser forespoersel fra kafka og henter det via api`() {
         val priRecord = ProducerRecord("helsearbeidsgiver.pri", "key", TestData.FORESPOERSEL_MOTTATT)
         Producer.sendMelding(priRecord)
-
+        Thread.sleep(1000)
         runTest {
             val response =
                 client.get("http://localhost:8080/v1/forespoersler") {
