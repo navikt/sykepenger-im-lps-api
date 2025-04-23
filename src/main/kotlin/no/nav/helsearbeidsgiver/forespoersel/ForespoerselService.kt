@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
@@ -38,5 +37,5 @@ class ForespoerselService(
 
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
 
-    fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? =   forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
+    fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 }
