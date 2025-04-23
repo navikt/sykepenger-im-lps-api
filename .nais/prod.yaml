@@ -50,6 +50,9 @@ spec:
           name: im.read
       consumes:
         - name: "altinn:authorization/authorize"
+  azure:
+    application:
+      enabled: true
   gcp:
     sqlInstances:
       - type: POSTGRES_16
