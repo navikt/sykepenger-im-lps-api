@@ -40,7 +40,7 @@ class RepositoryTransactionTest {
         runBlocking {
             val event =
                 readJsonFromResources(
-                    "inntektsmelding_distribuert.json",
+                    "json/inntektsmelding_distribuert.json",
                 ).replace("%%%FORESPORSELID%%%", UUID.randomUUID().toString())
             for (i in 1..100) {
                 launch {

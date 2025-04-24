@@ -46,7 +46,7 @@ fun buildInntektsmeldingJsonNy(
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
     orgNr: Orgnr = Orgnr(DEFAULT_ORG),
 ): String {
-    val filePath = "im_ny.json"
+    val filePath = "json/journalfoertInntektsmelding.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
         .replace(FORESPOERSEL_ID, forespoerselId.toString())
@@ -78,7 +78,7 @@ fun buildInntektsmeldingJson(
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
     orgNr: Orgnr = Orgnr(DEFAULT_ORG),
 ): String {
-    val filePath = "im.json"
+    val filePath = "json/im.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
         .replace(FORESPOERSEL_ID, forespoerselId.toString())
@@ -87,7 +87,7 @@ fun buildInntektsmeldingJson(
 }
 
 fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
-    val filePath = "forespoersel.json"
+    val filePath = "json/forespoersel.json"
     return readJsonFromResources(filePath).replace(
         FORESPOERSEL_ID,
         forespoerselId,
@@ -98,7 +98,7 @@ fun buildInntektsmeldingDistribuertJson(
     inntektsmeldingId: String = UUID.randomUUID().toString(),
     forespoerselId: String = UUID.randomUUID().toString(),
 ): String {
-    val filePath = "inntektsmelding_distribuert.json"
+    val filePath = "json/inntektsmelding_distribuert.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId)
         .replace(FORESPOERSEL_ID, forespoerselId)
