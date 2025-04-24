@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.kotest.matchers.shouldBe
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
 import no.nav.helsearbeidsgiver.sykmelding.toMockSykmeldingArbeidsgiver
@@ -35,9 +36,14 @@ class SykmeldingMapperTest {
 
         sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
             setOf(
-                LocalDate.of(2025, 3, 27),
-                LocalDate.of(2025, 3, 29),
-                LocalDate.of(2025, 3, 26),
+                Periode(
+                    fom = LocalDate.of(2025, 3, 26),
+                    tom = LocalDate.of(2025, 3, 27),
+                ),
+                Periode(
+                    fom = LocalDate.of(2025, 3, 29),
+                    tom = LocalDate.of(2025, 3, 29),
+                ),
             )
     }
 }

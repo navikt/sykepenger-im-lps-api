@@ -3,6 +3,7 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
@@ -13,9 +14,9 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.Sporsma
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.set
+import no.nav.helsearbeidsgiver.utils.tilPerioder
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.time.LocalDate
 import java.time.OffsetDateTime
 
 fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
@@ -40,11 +41,12 @@ fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
     )
 }
 
-private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<LocalDate> =
+private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<Periode> =
     this
         ?.find { it.shortName == ShortNameDTO.EGENMELDINGSDAGER }
         ?.svar
         ?.fromJson(LocalDateSerializer.set())
+        ?.tilPerioder()
         ?: emptySet()
 
 private fun String.tilTiltak(): Tiltak = Tiltak(tiltakArbeidsplassen = this)
@@ -55,9 +57,9 @@ private fun PrognoseAGDTO.getPrognose(): Prognose =
         beskrivHensynArbeidsplassen = this.hensynArbeidsplassen,
     )
 
-private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<Periode> =
+private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<PeriodeSykmelding> =
     map {
-        Periode(
+        PeriodeSykmelding(
             fom = it.fom,
             tom = it.tom,
             aktivitet = it.tilAktivitet(),
