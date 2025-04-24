@@ -16,10 +16,8 @@ import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJsonNy
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-@Disabled
 class ApplicationTest : LpsApiIntegrasjontest() {
     @Test
     fun `leser inntektsmelding fra kafka og henter det via api`() {
