@@ -5,6 +5,8 @@ import io.kotest.matchers.shouldNotBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
@@ -24,13 +26,14 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val imRecord =
             ProducerRecord("helsearbeidsgiver.inntektsmelding", "key", buildInntektsmeldingJsonNy(orgNr = Orgnr("810007982")))
         Producer.sendMelding(imRecord)
-        Thread.sleep(1000)
+
         runTest {
             val response =
-                client.get("http://localhost:8080/v1/inntektsmeldinger") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"))
-                }
-            response.status.value shouldBe 200
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/inntektsmeldinger",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"),
+                )
+
             val forespoerselSvar = response.body<InntektsmeldingFilterResponse>()
             forespoerselSvar.antall shouldBe 1
             forespoerselSvar.inntektsmeldinger[0].status shouldBe InnsendingStatus.GODKJENT
@@ -43,15 +46,37 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `leser forespoersel fra kafka og henter det via api`() {
         val priRecord = ProducerRecord("helsearbeidsgiver.pri", "key", TestData.FORESPOERSEL_MOTTATT)
         Producer.sendMelding(priRecord)
-        Thread.sleep(1000)
+
         runTest {
             val response =
-                client.get("http://localhost:8080/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"))
-                }
-            response.status.value shouldBe 200
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersler",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"),
+                )
             val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.antall shouldBe 1
         }
+    }
+
+    suspend fun fetchWithRetry(
+        url: String,
+        token: String,
+        maxAttempts: Int = 5,
+        delayMillis: Long = 100L,
+    ): HttpResponse {
+        var attempts = 0
+        lateinit var response: HttpResponse
+
+        do {
+            attempts++
+            response =
+                client.get(url) {
+                    bearerAuth(token)
+                }
+            if (response.status.value == 200) break
+            delay(delayMillis)
+        } while (attempts < maxAttempts)
+
+        return response
     }
 }
