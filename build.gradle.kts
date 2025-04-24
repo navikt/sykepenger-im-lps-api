@@ -99,15 +99,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
 }
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-    exclude("no/nav/helsearbeidsgiver/integrasjonstest/**")
-}
 
-tasks.register<Test>("integrasjonstest") {
-    useJUnitPlatform()
-    include("no/nav/helsearbeidsgiver/integrasjonstest/**")
-}
 apply(from = "openApiTasks.gradle.kts")
 tasks {
     named<ShadowJar>("shadowJar") {
