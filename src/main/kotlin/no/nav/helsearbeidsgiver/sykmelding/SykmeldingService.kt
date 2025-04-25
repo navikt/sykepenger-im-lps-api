@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.sykmelding.model.Person
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
-import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
@@ -30,9 +30,7 @@ class SykmeldingService(
 
             val person = mockHentPersonFraPDL(sykmeldingDTO.fnr) // TODO: Bruk ekte PDL
 
-            val sykmeldingArbeidsgiver = sykmeldingDTO.tilSykmeldingArbeidsgiver(person)
-
-            return sykmeldingArbeidsgiver
+            return sykmeldingDTO.tilSykmelding(person)
         } catch (e: Exception) {
             throw RuntimeException("Feil ved henting av sykmelding $id orgnr: $orgnr", e)
         }
