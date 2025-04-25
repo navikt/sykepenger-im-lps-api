@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.forespoersel.Type
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
+import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import java.util.UUID
 
 object TestData {
@@ -151,9 +152,74 @@ object TestData {
                         "shortName": "NY_NARMESTE_LEDER",
                         "svartype": "JA_NEI",
                         "svar": "NEI"
+                    },
+                    {
+                        "svar": "[\"2025-03-29\",\"2025-03-30\",\"2025-03-31\"]",
+                        "tekst": "Velg dagene du brukte egenmelding",
+                        "svartype": "DAGER",
+                        "shortName": "EGENMELDINGSDAGER"
                     }
                 ]
             }
+        }
+        """
+
+    const val SYKMELDING_API_RESPONSE =
+        """
+        {
+          "orgnrHovedenhet": "744372453",
+          "orgnr": "315587336",
+          "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
+          "mottattidspunkt": "2020-03-14T23:00",
+          "egenmeldingsdager": [
+            {
+              "fom": "2025-03-29",
+              "tom": "2025-03-31"
+            }
+          ],
+          "syketilfelleFom": "2020-03-15",
+          "sykmeldtFnr": "01447842099",
+          "sykmeldtNavn": {
+            "etternavn": "Nordmann",
+            "mellomnavn": null,
+            "fornavn": "Ola"
+          },
+          "arbeidsgiver": {
+            "navn": "LOMMEN BARNEHAVE"
+          },
+          "perioder": [
+            {
+              "fom": "2020-03-15",
+              "tom": "2020-04-15",
+              "aktivitet": {
+                "avventendeSykmelding": null,
+                "gradertSykmelding": null,
+                "aktivitetIkkeMulig": {
+                  "manglendeTilretteleggingPaaArbeidsplassen": false,
+                  "beskrivelse": "andre årsaker til sykefravær"
+                },
+                "antallBehandlingsdagerUke": null,
+                "harReisetilskudd": false
+              }
+            }
+          ],
+          "prognose": {
+            "erArbeidsfoerEtterEndtPeriode": true,
+            "beskrivHensynArbeidsplassen": "Må ta det pent"
+          },
+          "tiltak": {
+            "tiltakArbeidsplassen": "Fortsett som sist."
+          },
+          "meldingTilArbeidsgiver": null,
+          "kontaktMedPasient": {
+            "behandlet": "2020-03-14T23:00"
+          },
+          "behandlerNavn": {
+            "etternavn": "Frost",
+            "mellomnavn": "Perma",
+            "fornavn": "Frida"
+          },
+          "behandlerTlf": "1234678"
         }
         """
 
@@ -253,4 +319,7 @@ object TestData {
 
     fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
         jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(sykmeldingMottattMelding)
+
+    fun sykmeldingModelMock(sykmeldingModel: String = SYKMELDING_API_RESPONSE): Sykmelding =
+        jsonMapper.decodeFromString<Sykmelding>(sykmeldingModel)
 }

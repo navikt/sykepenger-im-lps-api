@@ -21,7 +21,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
-import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.security.token.support.core.context.TokenValidationContext
@@ -55,8 +55,8 @@ class SykmeldingRoutingTest :
 
         test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
-            val sykmeldingResponse = sykmeldingMock().toSykmeldingResponse()
-            val sykmeldingArbeidsgiver = sykmeldingResponse.toMockSykmeldingArbeidsgiver()
+            val sykmeldingResponse = sykmeldingMock().tilSykmeldingDTO()
+            val sykmeldingArbeidsgiver = sykmeldingResponse.tilMockSykmeldingModel()
             val id = UUID.fromString(sykmeldingResponse.id)
 
             every { sykmeldingService.hentSykmelding(id, any()) } returns sykmeldingArbeidsgiver
@@ -91,9 +91,9 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingDTO.toMockSykmeldingArbeidsgiver(): Sykmelding = tilSykmeldingArbeidsgiver(mockHentPersonFraPDL(fnr))
+fun SykmeldingDTO.tilMockSykmeldingModel(): Sykmelding = tilSykmelding(mockHentPersonFraPDL(fnr))
 
-fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
+fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
     SykmeldingDTO(
         event.sykmeldingId,
         kafkaMetadata.fnr,
