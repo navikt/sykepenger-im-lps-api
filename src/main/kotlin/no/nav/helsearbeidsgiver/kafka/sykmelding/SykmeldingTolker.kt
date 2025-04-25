@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.kafka.sykmelding
 
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.pdl.IPdlService
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -10,9 +11,12 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 
+private const val UKJENT_NAVN = "Ukjent navn"
+
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
     private val dialogportenService: IDialogportenService,
+    private val pdlService: IPdlService,
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
@@ -21,7 +25,7 @@ class SykmeldingTolker(
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val sykmeldtNavn = "TODO: Hente navn fra PDL"
+            val sykmeldtNavn = pdlService.hentPersonFulltNavnForSykmelding(sykmeldingMessage.kafkaMetadata.fnr) ?: UKJENT_NAVN
             val sykmeldingId =
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")

@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
+import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
@@ -57,6 +58,16 @@ class ForespoerselRepository(
                 .map {
                     it.toExposedforespoersel()
                 }.getOrNull(0)
+        }
+
+    fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where { ForespoerselEntitet.navReferanseId eq navReferanseId }
+                .map {
+                    it[dokument].fromJson(ForespoerselDokument.serializer()).vedtaksperiodeId
+                }.firstOrNull()
         }
 
     fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> =

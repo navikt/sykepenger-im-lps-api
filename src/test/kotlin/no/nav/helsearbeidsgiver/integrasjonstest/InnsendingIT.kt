@@ -104,7 +104,7 @@ class InnsendingIT {
     @Test
     fun `innsending av inntektsmelding på gyldig forespørsel lagres i db og lager bakgrunnsjobb`() =
         runTest {
-            val requestBody = mockInntektsmeldingRequest()
+            val requestBody = mockInntektsmeldingRequest().copy(sykmeldtFnr = DEFAULT_FNR)
             val forespoerselDokument =
                 TestData
                     .forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)

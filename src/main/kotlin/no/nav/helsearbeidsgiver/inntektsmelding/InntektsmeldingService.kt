@@ -4,14 +4,27 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 class InntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
+    fun hentNyesteInntektsmeldingByNavReferanseId(navReferanseId: UUID): InntektsmeldingResponse? {
+        runCatching {
+            sikkerLogger().info("Henter inntektsmeldinger for forespoerelId: $navReferanseId")
+            inntektsmeldingRepository.hent(navReferanseId).maxByOrNull { it.innsendtTid }
+        }.onSuccess {
+            sikkerLogger().info("Hentet siste Inntektsmelding for forespoerselId: $navReferanseId")
+            return it
+        }.onFailure {
+            sikkerLogger().warn("Feil ved henting av siste inntektsmelding for forespoerselId: $navReferanseId", it)
+        }
+        throw RuntimeException("Feil ved henting av siste inntektsmelding for forespoerselId: $navReferanseId")
+    }
+
     fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingFilterResponse {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
-
             inntektsmeldingRepository.hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
