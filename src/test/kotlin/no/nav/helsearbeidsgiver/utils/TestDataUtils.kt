@@ -40,6 +40,20 @@ private const val ORGNUMMER = "%%%ORGNR%%%"
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
 
+fun buildJournalfoertInntektsmelding(
+    inntektsmeldingId: UUID = UUID.randomUUID(),
+    forespoerselId: UUID = UUID.randomUUID(),
+    sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
+    orgNr: Orgnr = Orgnr(DEFAULT_ORG),
+): String {
+    val filePath = "json/journalfoertInntektsmelding.json"
+    return readJsonFromResources(filePath)
+        .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
+        .replace(FORESPOERSEL_ID, forespoerselId.toString())
+        .replace(SYKMELDT_FNR, sykemeldtFnr.verdi)
+        .replace(ORGNUMMER, orgNr.verdi)
+}
+
 fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
     SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
 
@@ -64,7 +78,7 @@ fun buildInntektsmeldingJson(
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
     orgNr: Orgnr = Orgnr(DEFAULT_ORG),
 ): String {
-    val filePath = "im.json"
+    val filePath = "json/im.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
         .replace(FORESPOERSEL_ID, forespoerselId.toString())
@@ -73,7 +87,7 @@ fun buildInntektsmeldingJson(
 }
 
 fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
-    val filePath = "forespoersel.json"
+    val filePath = "json/forespoersel.json"
     return readJsonFromResources(filePath).replace(
         FORESPOERSEL_ID,
         forespoerselId,
@@ -84,7 +98,7 @@ fun buildInntektsmeldingDistribuertJson(
     inntektsmeldingId: String = UUID.randomUUID().toString(),
     forespoerselId: String = UUID.randomUUID().toString(),
 ): String {
-    val filePath = "inntektsmelding_distribuert.json"
+    val filePath = "json/inntektsmelding_distribuert.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId)
         .replace(FORESPOERSEL_ID, forespoerselId)

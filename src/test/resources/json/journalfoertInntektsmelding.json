@@ -1,0 +1,48 @@
+{
+  "journalpostId": "671166144",
+  "inntektsmelding": {
+    "id": "%%%INNTEKTSMELDING_ID%%%",
+    "type": {
+      "type": "Forespurt",
+      "id": "%%%FORESPOERSEL_ID%%%"
+    },
+    "sykmeldt": {
+      "fnr": "%%%SYKMELDT%%%",
+      "navn": "KONKURRANSEDYKTIG HANDLINGSROM"
+    },
+    "avsender": {
+      "orgnr": "%%%ORGNR%%%",
+      "orgNavn": "ANSTENDIG PIGGSVIN SYKEHJEM",
+      "navn": "BERØMT FLYTTELASS",
+      "tlf": "11223344"
+    },
+    "sykmeldingsperioder": [
+      {
+        "fom": "2024-08-01",
+        "tom": "2024-08-31"
+      }
+    ],
+    "agp": {
+      "perioder": [
+        {
+          "fom": "2024-08-01",
+          "tom": "2024-08-16"
+        }
+      ],
+      "egenmeldinger": [],
+      "redusertLoennIAgp": null
+    },
+    "inntekt": {
+      "beloep": 24667.33,
+      "inntektsdato": "2024-08-01",
+      "naturalytelser": [],
+      "endringAarsaker": []
+    },
+    "refusjon": null,
+    "aarsakInnsending": "Ny",
+    "mottatt": "2024-11-07T15:12:52.207740699+01:00",
+    "vedtaksperiodeId": "d90503a1-c15a-41ca-9cb8-cbc729d63893"
+  },
+  "bestemmendeFravaersdag": "2024-08-01",
+  "selvbestemt": false
+}

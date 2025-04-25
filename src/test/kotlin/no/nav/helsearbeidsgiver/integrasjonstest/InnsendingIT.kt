@@ -31,9 +31,11 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.AfterAll
@@ -83,10 +85,10 @@ class InnsendingIT {
     @Test
     fun `les inntektsmelding på kafka og hent gjennom apiet`() {
         runTest {
-            inntektsmeldingTolker.lesMelding(
-                TestData.IM_MOTTATT,
-            )
             val orgnr1 = "810007982"
+            inntektsmeldingTolker.lesMelding(
+                buildJournalfoertInntektsmelding(orgNr = Orgnr(orgnr1)),
+            )
             val response =
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
