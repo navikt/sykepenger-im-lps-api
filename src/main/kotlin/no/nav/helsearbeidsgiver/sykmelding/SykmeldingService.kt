@@ -28,9 +28,7 @@ class SykmeldingService(
 
             sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
 
-            val person = mockHentPersonFraPDL(sykmeldingDTO.fnr) // TODO: Bruk ekte PDL
-
-            val sykmeldingArbeidsgiver = sykmeldingDTO.tilSykmeldingArbeidsgiver(person)
+            val sykmeldingArbeidsgiver = sykmeldingDTO.tilSykmeldingArbeidsgiver()
 
             return sykmeldingArbeidsgiver
         } catch (e: Exception) {

@@ -91,7 +91,7 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingDTO.toMockSykmeldingArbeidsgiver(): Sykmelding = tilSykmeldingArbeidsgiver(mockHentPersonFraPDL(fnr))
+fun SykmeldingDTO.toMockSykmeldingArbeidsgiver(): Sykmelding = tilSykmeldingArbeidsgiver()
 
 fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
     SykmeldingDTO(
@@ -99,5 +99,5 @@ fun SendSykmeldingAivenKafkaMessage.toSykmeldingResponse(): SykmeldingDTO =
         kafkaMetadata.fnr,
         event.arbeidsgiver.orgnummer,
         this,
-        mockHentPersonFraPDL(kafkaMetadata.fnr).fornavn,
+        "Ola Nordmann",
     )
