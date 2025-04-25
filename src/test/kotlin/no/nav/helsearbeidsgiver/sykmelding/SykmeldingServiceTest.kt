@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
+import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.Database
@@ -91,12 +92,12 @@ class SykmeldingServiceTest {
     @Test
     fun `hentSykmelding skal hente sykmelding`() {
         val sykmeldingKafkaMessage =
-            sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, UUID.fromString(it.sykmelding.id), "") }
+            sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, UUID.fromString(it.sykmelding.id), "Ola Nordmann") }
 
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
         val orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
 
-        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO().tilMockSykmeldingModel()
+        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO().tilSykmelding()
     }
 
     @Test
