@@ -14,7 +14,7 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
-import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJsonNy
+import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -24,7 +24,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     @Test
     fun `leser inntektsmelding fra kafka og henter det via api`() {
         val imRecord =
-            ProducerRecord("helsearbeidsgiver.inntektsmelding", "key", buildInntektsmeldingJsonNy(orgNr = Orgnr("810007982")))
+            ProducerRecord("helsearbeidsgiver.inntektsmelding", "key", buildJournalfoertInntektsmelding(orgNr = Orgnr("810007982")))
         Producer.sendMelding(imRecord)
 
         runTest {
@@ -58,7 +58,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         }
     }
 
-    suspend fun fetchWithRetry(
+    private suspend fun fetchWithRetry(
         url: String,
         token: String,
         maxAttempts: Int = 5,

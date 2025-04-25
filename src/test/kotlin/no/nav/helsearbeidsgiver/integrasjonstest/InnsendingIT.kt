@@ -31,7 +31,7 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
-import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJsonNy
+import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
@@ -87,7 +87,7 @@ class InnsendingIT {
         runTest {
             val orgnr1 = "810007982"
             inntektsmeldingTolker.lesMelding(
-                buildInntektsmeldingJsonNy(orgNr = Orgnr(orgnr1)),
+                buildJournalfoertInntektsmelding(orgNr = Orgnr(orgnr1)),
             )
             val response =
                 client.get("/v1/inntektsmeldinger") {

@@ -101,7 +101,6 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
 }
-
 apply(from = "openApiTasks.gradle.kts")
 tasks {
     named<ShadowJar>("shadowJar") {

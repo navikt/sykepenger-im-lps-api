@@ -40,7 +40,7 @@ private const val ORGNUMMER = "%%%ORGNR%%%"
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
 
-fun buildInntektsmeldingJsonNy(
+fun buildJournalfoertInntektsmelding(
     inntektsmeldingId: UUID = UUID.randomUUID(),
     forespoerselId: UUID = UUID.randomUUID(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),

@@ -31,7 +31,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJsonNy
+import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
@@ -93,7 +93,7 @@ class MeldingTolkerTest {
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
 
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_BESVART)
-        tolkere.inntektsmeldingTolker.lesMelding(buildInntektsmeldingJsonNy())
+        tolkere.inntektsmeldingTolker.lesMelding(buildJournalfoertInntektsmelding())
         tolkere.inntektsmeldingTolker.lesMelding(ARBEIDSGIVER_INITIERT_IM_MOTTATT)
 
         // Skal ikke lagre:
