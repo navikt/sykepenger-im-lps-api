@@ -8,6 +8,8 @@ import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.Arbeidsgi
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO.ArbeidsrelatertArsakTypeDTO.MANGLENDE_TILRETTELEGGING
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO
@@ -29,7 +31,8 @@ fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
         orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
         arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
-        behandler = sykmelding.behandler.tilBehandler(),
+        behandlerNavn = sykmelding.behandler.tilNavn(),
+        behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
         meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
         sykmeldtFnr = Fnr(person.fnr),
@@ -75,21 +78,14 @@ private fun SykmeldingsperiodeAGDTO.tilAktivitet(): Aktivitet =
         antallBehandlingsdagerUke = behandlingsdager,
     )
 
-private fun SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
+private fun AktivitetIkkeMuligAGDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
     AktivitetIkkeMulig(
         manglendeTilretteleggingPaaArbeidsplassen = erMangledneTilrettelegging(this),
         beskrivelse = this.arbeidsrelatertArsak?.beskrivelse,
     )
 
-private fun erMangledneTilrettelegging(aktivitetIkkeMulig: SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO): Boolean? =
-    aktivitetIkkeMulig.arbeidsrelatertArsak?.arsak?.any {
-        it ==
-            SykmeldingsperiodeAGDTO
-                .AktivitetIkkeMuligAGDTO
-                .ArbeidsrelatertArsakDTO
-                .ArbeidsrelatertArsakTypeDTO
-                .MANGLENDE_TILRETTELEGGING
-    }
+private fun erMangledneTilrettelegging(aktivitetIkkeMulig: AktivitetIkkeMuligAGDTO): Boolean? =
+    aktivitetIkkeMulig.arbeidsrelatertArsak?.arsak?.any { it == MANGLENDE_TILRETTELEGGING }
 
 private fun Person.tilNavn(): Navn =
     Navn(
@@ -100,18 +96,13 @@ private fun Person.tilNavn(): Navn =
 
 private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMedPasient(behandlet = this.toLocalDateTime())
 
-private fun BehandlerAGDTO?.tilBehandler(): Behandler =
-    Behandler(
-        navn = tilNavn(),
-        telefonnummer = this?.tlf.tolkTelefonNr(),
-    )
-
 fun String?.tolkTelefonNr(): String =
     this
         ?.lowercase()
         ?.trim()
         ?.removePrefix("tel:")
-        ?.removePrefix("fax:") ?: ""
+        ?.removePrefix("fax:")
+        ?: ""
 
 private fun BehandlerAGDTO?.tilNavn(): Navn =
     Navn(

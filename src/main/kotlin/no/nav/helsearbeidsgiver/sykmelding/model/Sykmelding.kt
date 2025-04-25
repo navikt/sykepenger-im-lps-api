@@ -43,7 +43,8 @@ data class Sykmelding(
     @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
     val meldingTilArbeidsgiver: String? = null,
     val kontaktMedPasient: KontaktMedPasient,
-    val behandler: Behandler,
+    val behandlerNavn: Navn,
+    val behandlerTlf: String,
 )
 
 @Serializable
@@ -133,15 +134,6 @@ data class Navn(
     val mellomnavn: String? = null,
     @field:Schema(description = "Fornavn")
     val fornavn: String,
-)
-
-@Serializable
-@Schema(description = "Behandler")
-data class Behandler(
-    @field:Schema(description = "Behandlers navn")
-    val navn: Navn,
-    @field:Schema(description = "Behandlers kontaktinformasjon")
-    val telefonnummer: String,
 )
 
 @Serializable
