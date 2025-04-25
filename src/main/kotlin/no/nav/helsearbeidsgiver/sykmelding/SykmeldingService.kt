@@ -28,9 +28,7 @@ class SykmeldingService(
 
             sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
 
-            val sykmeldingArbeidsgiver = sykmeldingDTO.tilSykmeldingArbeidsgiver()
-
-            return sykmeldingArbeidsgiver
+            return sykmeldingDTO.tilSykmeldingArbeidsgiver()
         } catch (e: Exception) {
             throw RuntimeException("Feil ved henting av sykmelding $id orgnr: $orgnr", e)
         }
