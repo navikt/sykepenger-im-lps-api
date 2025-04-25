@@ -30,7 +30,7 @@ fun SykmeldingDTO.tilSykmeldingArbeidsgiver(person: Person): Sykmelding {
         orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
         arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
-        behandlerNavn = sykmelding.behandler?.tilNavn(),
+        behandlerNavn = sykmelding.behandler.tilNavn(),
         behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
         meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
@@ -102,11 +102,11 @@ fun String?.tolkTelefonNr(): String =
         ?.removePrefix("fax:")
         ?: ""
 
-private fun BehandlerAGDTO.tilNavn(): Navn =
+private fun BehandlerAGDTO?.tilNavn(): Navn =
     Navn(
-        fornavn = this.fornavn,
-        etternavn = this.etternavn,
-        mellomnavn = this.mellomnavn,
+        fornavn = this?.fornavn ?: "",
+        etternavn = this?.etternavn ?: "",
+        mellomnavn = this?.mellomnavn ?: "",
     )
 
 private fun ArbeidsgiverAGDTO.tilArbeidsgiver(): Arbeidsgiver =

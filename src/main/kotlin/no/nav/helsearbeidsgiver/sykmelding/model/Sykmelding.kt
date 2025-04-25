@@ -42,8 +42,8 @@ data class Sykmelding(
     @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
     val meldingTilArbeidsgiver: String? = null,
     val kontaktMedPasient: KontaktMedPasient,
-    val behandlerNavn: Navn?,
-    val behandlerTlf: String?,
+    val behandlerNavn: Navn,
+    val behandlerTlf: String,
 )
 
 @Serializable
