@@ -14,11 +14,7 @@ fun createKafkaConsumerConfig(consumerName: String): Properties {
     val consumerKafkaProperties =
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
-                when {
-                    Env.getPropertyOrNull("KAFKA_BROKERS") != null -> Env.getPropertyOrNull("KAFKA_BROKERS")
-                    System.getProperty("KAFKA_BOOTSTRAP_SERVERS") != null -> System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
-                    else -> "localhost:9092"
-                },
+                resolveKafkaBrokers(),
             ConsumerConfig.GROUP_ID_CONFIG to (
                 Env.getPropertyOrNull("KAFKA_GROUP_ID")
                     ?: "helsearbeidsgiver-sykepenger-im-lps-api-v1"
@@ -38,7 +34,7 @@ fun createKafkaProducerConfig(producerName: String): Properties {
     val producerKafkaProperties =
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
-                (Env.getPropertyOrNull("KAFKA_BROKERS") ?: System.getProperty("KAFKA_BOOTSTRAP_SERVERS") ?: "localhost:9092"),
+                resolveKafkaBrokers(),
             ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION to "1",
             ProducerConfig.ACKS_CONFIG to "all",
             ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG to "true",
@@ -51,6 +47,13 @@ fun createKafkaProducerConfig(producerName: String): Properties {
 
     return Properties().apply { putAll(producerKafkaProperties + commonKafkaProperties()) }
 }
+
+private fun resolveKafkaBrokers() =
+    when {
+        Env.getPropertyOrNull("KAFKA_BROKERS") != null -> Env.getPropertyOrNull("KAFKA_BROKERS")
+        System.getProperty("KAFKA_BOOTSTRAP_SERVERS") != null -> System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
+        else -> "localhost:9092"
+    }
 
 private fun commonKafkaProperties(): Map<String, String> {
     val pkcs12 = "PKCS12"
