@@ -92,24 +92,12 @@ data class AktivitetIkkeMulig(
 )
 
 @Serializable
-@Schema(description = "Arbeidsutsikter")
-data class Arbeidsutsikter(
-    @field:Schema(description = "Gjelder de MED arbeidsgiver")
-    val harEgetArbeidPaaSikt: Boolean? = null,
-    @field:Schema(description = "Gjelder de UTEN arbeidsgiver")
-    val arbeidFom: String? = null,
-    val harAnnetArbeidPaaSikt: Boolean? = null,
-)
-
-@Serializable
 @Schema(description = "Prognose")
 data class Prognose(
     @field:Schema(description = "Arbeidsfør etter denne perioden?")
     val erArbeidsfoerEtterEndtPeriode: Boolean? = null,
     @field:Schema(description = "Hvis arbeidsfør etter denne perioden: Beskriv eventuelle hensyn som må tas på arbeidsplassen.")
     val beskrivHensynArbeidsplassen: String? = null,
-    @field:Schema(description = "Utsikter for arbeid")
-    val arbeidsutsikter: Arbeidsutsikter? = null,
 )
 
 @Serializable
