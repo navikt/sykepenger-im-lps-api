@@ -22,7 +22,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.OffsetDateTime
 
-fun SykmeldingDTO.tilSykmeldingArbeidsgiver(): Sykmelding {
+fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
     val kafkaMetadata = sendSykmeldingAivenKafkaMessage.kafkaMetadata

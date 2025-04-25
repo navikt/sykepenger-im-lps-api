@@ -4,12 +4,26 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
-import no.nav.helsearbeidsgiver.sykmelding.toMockSykmeldingArbeidsgiver
+import no.nav.helsearbeidsgiver.sykmelding.mockHentPersonFraPDL
+import no.nav.helsearbeidsgiver.sykmelding.tilMockSykmeldingModel
+import no.nav.helsearbeidsgiver.sykmelding.tilSykmeldingDTO
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingModelMock
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class SykmeldingMapperTest {
+    @Test
+    fun `tilSykmelding mapper fra sykmeldingDTO til Sykmelding model med riktig data`() {
+        val sykmeldingKafkaMessage = sykmeldingMock()
+        val sykmeldingDTO = sykmeldingKafkaMessage.tilSykmeldingDTO()
+        val person = mockHentPersonFraPDL(sykmeldingKafkaMessage.kafkaMetadata.fnr)
+
+        val sykmeldingApiRespons = sykmeldingModelMock()
+
+        sykmeldingDTO.tilSykmelding(person) shouldBe sykmeldingApiRespons
+    }
+
     @Test
     fun `tilEgenmeldingsdager leser SporsmalOgSvarDTO riktig`() {
         val sykmeldingMock = sykmeldingMock()
@@ -22,7 +36,7 @@ class SykmeldingMapperTest {
                 svar = "[\"2025-03-27\",\"2025-03-29\",\"2025-03-26\"]",
             )
 
-        val sykmeldingArbeidsgiver =
+        val sykmelding =
             SykmeldingDTO(
                 id = "",
                 fnr = "05117920005",
@@ -32,9 +46,9 @@ class SykmeldingMapperTest {
                         event = sykmeldingMock.event.copy(sporsmals = listOf(egenmeldingSvar)),
                     ),
                 sykmeldtNavn = "",
-            ).toMockSykmeldingArbeidsgiver()
+            ).tilMockSykmeldingModel()
 
-        sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
+        sykmelding.egenmeldingsdager shouldBe
             setOf(
                 Periode(
                     fom = LocalDate.of(2025, 3, 26),
