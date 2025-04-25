@@ -35,7 +35,7 @@ data class Sykmelding(
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
     val arbeidsgiver: Arbeidsgiver? = null,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
-    val perioder: List<PeriodeSykmelding>? = null,
+    val perioder: List<SykmeldingPeriode>? = null,
     @field:Schema(description = "Prognose")
     val prognose: Prognose? = null,
     @field:Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
@@ -48,7 +48,7 @@ data class Sykmelding(
 
 @Serializable
 @Schema(description = "Periode")
-data class PeriodeSykmelding(
+data class SykmeldingPeriode(
     @field:Schema(description = "Sykmeldingsperiodens fra og med dato")
     val fom: LocalDate,
     @field:Schema(description = "Sykmeldingsperiodens til og med dato")

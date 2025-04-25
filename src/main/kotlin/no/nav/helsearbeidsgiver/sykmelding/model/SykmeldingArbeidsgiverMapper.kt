@@ -57,9 +57,9 @@ private fun PrognoseAGDTO.getPrognose(): Prognose =
         beskrivHensynArbeidsplassen = this.hensynArbeidsplassen,
     )
 
-private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<PeriodeSykmelding> =
+private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<SykmeldingPeriode> =
     map {
-        PeriodeSykmelding(
+        SykmeldingPeriode(
             fom = it.fom,
             tom = it.tom,
             aktivitet = it.tilAktivitet(),
