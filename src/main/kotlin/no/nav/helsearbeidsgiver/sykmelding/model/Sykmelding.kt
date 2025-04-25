@@ -70,7 +70,7 @@ data class Aktivitet(
     @Schema(description = "Antall behandlingsdager per uke")
     val antallBehandlingsdagerUke: Int?,
     @Schema(description = "Har reisetilskudd")
-    val harReisetilskudd: Boolean?,
+    val harReisetilskudd: Boolean,
 )
 
 @Serializable
@@ -79,14 +79,14 @@ data class GradertSykmelding(
     @field:Schema(description = "Angitt sykemeldingsgrad")
     val sykmeldingsgrad: Int,
     @field:Schema(description = "Reisetilskudd ved gradert sykmelding")
-    val harReisetilskudd: Boolean? = null,
+    val harReisetilskudd: Boolean,
 )
 
 @Serializable
 @Schema(description = "Aktivitet ikke mulig")
 data class AktivitetIkkeMulig(
     @field:Schema(description = "Settes til true dersom arbeidsplassen mangler tilrettelegging")
-    val manglendeTilretteleggingPaaArbeidsplassen: Boolean? = null,
+    val manglendeTilretteleggingPaaArbeidsplassen: Boolean,
     @field:Schema(description = "Eventuell beskrivelse på hvorfor aktivitet ikke er mulig")
     val beskrivelse: String? = null,
 )
@@ -95,7 +95,7 @@ data class AktivitetIkkeMulig(
 @Schema(description = "Prognose")
 data class Prognose(
     @field:Schema(description = "Arbeidsfør etter denne perioden?")
-    val erArbeidsfoerEtterEndtPeriode: Boolean? = null,
+    val erArbeidsfoerEtterEndtPeriode: Boolean,
     @field:Schema(description = "Hvis arbeidsfør etter denne perioden: Beskriv eventuelle hensyn som må tas på arbeidsplassen.")
     val beskrivHensynArbeidsplassen: String? = null,
 )

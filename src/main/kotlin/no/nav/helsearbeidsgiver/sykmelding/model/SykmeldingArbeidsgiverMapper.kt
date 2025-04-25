@@ -8,8 +8,9 @@ import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.Arbeidsgi
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO.ArbeidsrelatertArsakTypeDTO.MANGLENDE_TILRETTELEGGING
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.GradertDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO
@@ -72,20 +73,19 @@ private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<SykmeldingPeriod
 private fun SykmeldingsperiodeAGDTO.tilAktivitet(): Aktivitet =
     Aktivitet(
         avventendeSykmelding = innspillTilArbeidsgiver,
-        gradertSykmelding = gradert?.let { GradertSykmelding(it.grad, it.reisetilskudd) },
-        aktivitetIkkeMulig = aktivitetIkkeMulig?.tilAktivitetIkkeMulig(),
-        harReisetilskudd = if (this.reisetilskudd) true else null,
+        gradertSykmelding = gradert?.tilGradertSykmelding(),
+        aktivitetIkkeMulig = aktivitetIkkeMulig?.arbeidsrelatertArsak?.tilAktivitetIkkeMulig(),
+        harReisetilskudd = reisetilskudd,
         antallBehandlingsdagerUke = behandlingsdager,
     )
 
-private fun AktivitetIkkeMuligAGDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
+private fun ArbeidsrelatertArsakDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
     AktivitetIkkeMulig(
-        manglendeTilretteleggingPaaArbeidsplassen = erMangledneTilrettelegging(this),
-        beskrivelse = this.arbeidsrelatertArsak?.beskrivelse,
+        manglendeTilretteleggingPaaArbeidsplassen = arsak.any { it == MANGLENDE_TILRETTELEGGING },
+        beskrivelse = beskrivelse,
     )
 
-private fun erMangledneTilrettelegging(aktivitetIkkeMulig: AktivitetIkkeMuligAGDTO): Boolean? =
-    aktivitetIkkeMulig.arbeidsrelatertArsak?.arsak?.any { it == MANGLENDE_TILRETTELEGGING }
+private fun GradertDTO.tilGradertSykmelding(): GradertSykmelding = GradertSykmelding(grad, reisetilskudd)
 
 private fun Person.tilNavn(): Navn =
     Navn(
