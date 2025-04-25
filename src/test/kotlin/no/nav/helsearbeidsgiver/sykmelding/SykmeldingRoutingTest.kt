@@ -56,16 +56,16 @@ class SykmeldingRoutingTest :
         test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
             val sykmeldingResponse = sykmeldingMock().tilSykmeldingDTO()
-            val sykmeldingArbeidsgiver = sykmeldingResponse.tilMockSykmeldingModel()
+            val sykmelding = sykmeldingResponse.tilMockSykmeldingModel()
             val id = UUID.fromString(sykmeldingResponse.id)
 
-            every { sykmeldingService.hentSykmelding(id, any()) } returns sykmeldingArbeidsgiver
+            every { sykmeldingService.hentSykmelding(id, any()) } returns sykmelding
 
             routingTestApplication {
                 val response = client.get("/v1/sykmelding/$id")
 
                 response.status shouldBe HttpStatusCode.OK
-                jsonMapper.decodeFromString<Sykmelding>(response.bodyAsText()) shouldBe sykmeldingArbeidsgiver
+                jsonMapper.decodeFromString<Sykmelding>(response.bodyAsText()) shouldBe sykmelding
             }
         }
 

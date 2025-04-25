@@ -31,7 +31,7 @@ class SykmeldingMapperTest {
                 svar = "[\"2025-03-27\",\"2025-03-29\",\"2025-03-26\"]",
             )
 
-        val sykmeldingArbeidsgiver =
+        val sykmelding =
             SykmeldingDTO(
                 id = "",
                 fnr = "05117920005",
@@ -43,7 +43,7 @@ class SykmeldingMapperTest {
                 sykmeldtNavn = "",
             ).tilMockSykmeldingModel()
 
-        sykmeldingArbeidsgiver.egenmeldingsdager shouldBe
+        sykmelding.egenmeldingsdager shouldBe
             setOf(
                 Periode(
                     fom = LocalDate.of(2025, 3, 26),
