@@ -20,7 +20,7 @@ class SykmeldingUtilsTest {
     }
 
     @Test
-    fun `List av LocalDate tilPerioder ignorer orde av datoer`() {
+    fun `List av LocalDate tilPerioder ignorer rekkefølge av datoer`() {
         mockLocalDates(4, 3, 1).tilPerioder() shouldBe
             mockPerioder(1 to 1, 3 to 4)
     }
