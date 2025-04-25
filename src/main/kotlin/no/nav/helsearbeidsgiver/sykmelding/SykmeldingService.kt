@@ -30,9 +30,7 @@ class SykmeldingService(
 
             val person = mockHentPersonFraPDL(sykmeldingDTO.fnr) // TODO: Bruk ekte PDL
 
-            val sykmelding = sykmeldingDTO.tilSykmelding(person)
-
-            return sykmelding
+            return sykmeldingDTO.tilSykmelding(person)
         } catch (e: Exception) {
             throw RuntimeException("Feil ved henting av sykmelding $id orgnr: $orgnr", e)
         }

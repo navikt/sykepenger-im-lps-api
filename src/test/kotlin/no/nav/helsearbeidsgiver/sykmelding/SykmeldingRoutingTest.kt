@@ -55,9 +55,9 @@ class SykmeldingRoutingTest :
 
         test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
-            val sykmeldingResponse = sykmeldingMock().tilSykmeldingDTO()
-            val sykmelding = sykmeldingResponse.tilMockSykmeldingModel()
-            val id = UUID.fromString(sykmeldingResponse.id)
+            val sykmeldingDTO = sykmeldingMock().tilSykmeldingDTO()
+            val sykmelding = sykmeldingDTO.tilMockSykmeldingModel()
+            val id = UUID.fromString(sykmeldingDTO.id)
 
             every { sykmeldingService.hentSykmelding(id, any()) } returns sykmelding
 

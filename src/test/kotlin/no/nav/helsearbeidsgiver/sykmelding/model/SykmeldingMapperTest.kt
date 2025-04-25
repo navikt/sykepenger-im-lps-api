@@ -4,6 +4,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
+import no.nav.helsearbeidsgiver.sykmelding.mockHentPersonFraPDL
 import no.nav.helsearbeidsgiver.sykmelding.tilMockSykmeldingModel
 import no.nav.helsearbeidsgiver.sykmelding.tilSykmeldingDTO
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
@@ -13,10 +14,14 @@ import java.time.LocalDate
 
 class SykmeldingMapperTest {
     @Test
-    fun `SykmeldingMapper mapper fra kafkaMelding til Sykmelding model med riktig data`() {
+    fun `tilSykmelding mapper fra sykmeldingDTO til Sykmelding model med riktig data`() {
         val sykmeldingKafkaMessage = sykmeldingMock()
+        val sykmeldingDTO = sykmeldingKafkaMessage.tilSykmeldingDTO()
+        val person = mockHentPersonFraPDL(sykmeldingKafkaMessage.kafkaMetadata.fnr)
 
-        sykmeldingKafkaMessage.tilSykmeldingDTO().tilMockSykmeldingModel() shouldBe sykmeldingModelMock()
+        val sykmeldingApiRespons = sykmeldingModelMock()
+
+        sykmeldingDTO.tilSykmelding(person) shouldBe sykmeldingApiRespons
     }
 
     @Test
