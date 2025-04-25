@@ -105,7 +105,7 @@ data class Arbeidsutsikter(
 @Schema(description = "Prognose")
 data class Prognose(
     @field:Schema(description = "Arbeidsfør etter denne perioden?")
-    val erArbeidsfoerEtterEndtPeriode: Boolean? = null,
+    val erArbeidsfoerEtterEndtPeriode: Boolean,
     @field:Schema(description = "Hvis arbeidsfør etter denne perioden: Beskriv eventuelle hensyn som må tas på arbeidsplassen.")
     val beskrivHensynArbeidsplassen: String? = null,
     @field:Schema(description = "Utsikter for arbeid")
