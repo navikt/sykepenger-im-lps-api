@@ -14,7 +14,11 @@ fun createKafkaConsumerConfig(consumerName: String): Properties {
     val consumerKafkaProperties =
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
-                (Env.getPropertyOrNull("KAFKA_BROKERS") ?: System.getProperty("KAFKA_BOOTSTRAP_SERVERS") ?: "localhost:9092"),
+                when {
+                    Env.getPropertyOrNull("KAFKA_BROKERS") != null -> Env.getPropertyOrNull("KAFKA_BROKERS")
+                    System.getProperty("KAFKA_BOOTSTRAP_SERVERS") != null -> System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
+                    else -> "localhost:9092"
+                },
             ConsumerConfig.GROUP_ID_CONFIG to (
                 Env.getPropertyOrNull("KAFKA_GROUP_ID")
                     ?: "helsearbeidsgiver-sykepenger-im-lps-api-v1"
