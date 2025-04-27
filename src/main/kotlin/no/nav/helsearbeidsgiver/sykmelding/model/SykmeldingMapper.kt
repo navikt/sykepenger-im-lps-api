@@ -4,6 +4,7 @@ package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
@@ -35,15 +36,20 @@ fun SykmeldingDTO.tilSykmelding(person: Person): Sykmelding {
         behandlerNavn = sykmelding.behandler.tilNavn(),
         behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
-        meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
         sykmeldtFnr = Fnr(person.fnr),
         sykmeldtNavn = person.tilNavn(),
         perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
-        prognose = sykmelding.prognose?.getPrognose(),
         syketilfelleFom = sykmelding.syketilfelleStartDato,
-        tiltak = sykmelding.tiltakArbeidsplassen?.tilTiltak(),
+        oppfoelging = sykmelding.tilOppfoelging(),
     )
 }
+
+private fun ArbeidsgiverSykmeldingKafka.tilOppfoelging(): Oppfoelging =
+    Oppfoelging(
+        prognose = prognose?.getPrognose(),
+        meldingTilArbeidsgiver = meldingTilArbeidsgiver,
+        tiltakArbeidsplassen = tiltakArbeidsplassen,
+    )
 
 private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<Periode> =
     this
@@ -53,12 +59,10 @@ private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<Periode> =
         ?.tilPerioder()
         ?: emptySet()
 
-private fun String.tilTiltak(): Tiltak = Tiltak(tiltakArbeidsplassen = this)
-
 private fun PrognoseAGDTO.getPrognose(): Prognose =
     Prognose(
-        erArbeidsfoerEtterEndtPeriode = this.arbeidsforEtterPeriode,
-        beskrivHensynArbeidsplassen = this.hensynArbeidsplassen,
+        erArbeidsfoerEtterEndtPeriode = arbeidsforEtterPeriode,
+        beskrivHensynArbeidsplassen = hensynArbeidsplassen,
     )
 
 private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<SykmeldingPeriode> =

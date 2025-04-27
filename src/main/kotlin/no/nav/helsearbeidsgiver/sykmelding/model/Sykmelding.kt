@@ -36,15 +36,19 @@ data class Sykmelding(
     val arbeidsgiver: Arbeidsgiver? = null,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
     val perioder: List<SykmeldingPeriode>? = null,
-    @field:Schema(description = "Prognose")
-    val prognose: Prognose? = null,
-    @field:Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
-    val tiltak: Tiltak? = null,
     @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
-    val meldingTilArbeidsgiver: String? = null,
+    val oppfoelging: Oppfoelging,
     val kontaktMedPasient: KontaktMedPasient,
     val behandlerNavn: Navn,
     val behandlerTlf: String,
+)
+
+@Serializable
+data class Oppfoelging(
+    val prognose: Prognose? = null,
+    val meldingTilArbeidsgiver: String? = null,
+    @Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
+    val tiltakArbeidsplassen: String? = null,
 )
 
 @Serializable
@@ -98,12 +102,6 @@ data class Prognose(
     val erArbeidsfoerEtterEndtPeriode: Boolean,
     @field:Schema(description = "Hvis arbeidsfør etter denne perioden: Beskriv eventuelle hensyn som må tas på arbeidsplassen.")
     val beskrivHensynArbeidsplassen: String? = null,
-)
-
-@Serializable
-@Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
-data class Tiltak(
-    val tiltakArbeidsplassen: String? = null,
 )
 
 @Serializable

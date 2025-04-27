@@ -203,9 +203,13 @@ object TestData {
               }
             }
           ],
-          "prognose": {
+          "oppfoelging" : {
+            "meldingTilArbeidsgiver": null,
+            "tiltakArbeidsplassen": "Fortsett som sist.",
+            "prognose": {
             "erArbeidsfoerEtterEndtPeriode": true,
             "beskrivHensynArbeidsplassen": "Må ta det pent"
+          }
           },
           "tiltak": {
             "tiltakArbeidsplassen": "Fortsett som sist."
