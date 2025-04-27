@@ -42,6 +42,7 @@ data class Sykmelding(
     val tiltak: Tiltak? = null,
     @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
     val meldingTilArbeidsgiver: String? = null,
+    @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
     val kontaktMedPasient: LocalDateTime,
     val behandlerNavn: Navn,
     val behandlerTlf: String,
