@@ -183,7 +183,7 @@ object TestData {
             "fornavn": "Ola"
           },
           "arbeidsgiver": {
-            "navn": "LOMMEN BARNEHAVE",
+            "navnFraBehandler": "LOMMEN BARNEHAVE",
             "orgnrHovedenhet": "744372453",
             "orgnr": "315587336"
           },

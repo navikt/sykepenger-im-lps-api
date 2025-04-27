@@ -124,7 +124,7 @@ data class Navn(
 @Schema(description = "Arbeidsgiver")
 data class Arbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
-    val navn: String? = null,
+    val navnFraBehandler: String? = null,
     @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
     val orgnrHovedenhet: Orgnr?,
     @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")

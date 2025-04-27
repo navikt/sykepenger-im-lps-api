@@ -111,7 +111,7 @@ private fun BehandlerAGDTO?.tilNavn(): Navn =
 
 private fun SendSykmeldingAivenKafkaMessage.tilArbeidsgiver(): Arbeidsgiver =
     Arbeidsgiver(
-        navn = sykmelding.arbeidsgiver.navn,
+        navnFraBehandler = sykmelding.arbeidsgiver.navn,
         orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let { Orgnr(it) },
         orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
     )
