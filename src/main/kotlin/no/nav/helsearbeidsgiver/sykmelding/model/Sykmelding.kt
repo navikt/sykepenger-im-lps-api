@@ -19,10 +19,6 @@ import java.time.LocalDateTime
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class Sykmelding(
-    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
-    val orgnrHovedenhet: Orgnr?,
-    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
-    val orgnr: Orgnr,
     @field:Schema(description = "Sykmeldingens unike id")
     val sykmeldingId: String,
     @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
@@ -33,7 +29,7 @@ data class Sykmelding(
     val sykmeldtFnr: Fnr,
     val sykmeldtNavn: Navn,
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
-    val arbeidsgiver: Arbeidsgiver? = null,
+    val arbeidsgiver: Arbeidsgiver,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
     val perioder: List<SykmeldingPeriode>? = null,
     @field:Schema(description = "Prognose")
@@ -129,4 +125,8 @@ data class Navn(
 data class Arbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
     val navn: String? = null,
+    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
+    val orgnrHovedenhet: Orgnr?,
+    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
+    val orgnr: Orgnr,
 )
