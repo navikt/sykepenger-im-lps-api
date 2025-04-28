@@ -79,6 +79,7 @@ data class Avsender(
 
 @Serializable
 data class InntektsmeldingFilterRequest(
+    val innsendingId: UUID? = null,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
     val fraTid: LocalDateTime? = null,

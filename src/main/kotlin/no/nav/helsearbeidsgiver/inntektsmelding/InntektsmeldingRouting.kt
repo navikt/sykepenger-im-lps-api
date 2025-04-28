@@ -3,7 +3,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -24,6 +23,7 @@ import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
 import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.validerMotForespoersel
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
@@ -32,6 +32,7 @@ fun Route.inntektsmeldingV1(services: Services) {
         filtrerInntektsmeldinger(services.inntektsmeldingService)
         inntektsmeldinger(services.inntektsmeldingService)
         innsending(services)
+        inntektsmelding(services.inntektsmeldingService)
     }
 }
 
@@ -124,6 +125,29 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
                 .takeIf { it.antall > 0 }
                 ?.let {
+                    call.respond(it)
+                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+}
+
+private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
+    get("/inntektsmelding/{id}") {
+        try {
+            val inntektsmeldingId = call.parameters["id"]?.let { UUID.fromString(it) }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    sluttbrukerOrgnr,
+                    InntektsmeldingFilterRequest(
+                        innsendingId = inntektsmeldingId,
+                    ),
+                )?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
         } catch (e: Exception) {
