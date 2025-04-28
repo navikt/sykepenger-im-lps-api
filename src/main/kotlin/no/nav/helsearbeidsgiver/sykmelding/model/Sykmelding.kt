@@ -36,7 +36,6 @@ data class Sykmelding(
     val arbeidsgiver: Arbeidsgiver? = null,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
     val perioder: List<SykmeldingPeriode>? = null,
-    @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
     val oppfoelging: Oppfoelging,
     @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
     val kontaktMedPasient: LocalDateTime,
@@ -47,6 +46,7 @@ data class Sykmelding(
 @Serializable
 data class Oppfoelging(
     val prognose: Prognose? = null,
+    @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
     val meldingTilArbeidsgiver: String? = null,
     @Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
     val tiltakArbeidsplassen: String? = null,
