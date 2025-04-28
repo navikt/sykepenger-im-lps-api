@@ -215,9 +215,7 @@ object TestData {
             "tiltakArbeidsplassen": "Fortsett som sist."
           },
           "meldingTilArbeidsgiver": null,
-          "kontaktMedPasient": {
-            "behandlet": "2020-03-14T23:00"
-          },
+          "kontaktMedPasient": "2020-03-14T23:00",
           "behandlerNavn": {
             "etternavn": "Frost",
             "mellomnavn": "Perma",

@@ -21,7 +21,6 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.set
 import no.nav.helsearbeidsgiver.utils.tilPerioder
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.time.OffsetDateTime
 
 fun SykmeldingDTO.tilSykmelding(person: Person): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
@@ -35,7 +34,7 @@ fun SykmeldingDTO.tilSykmelding(person: Person): Sykmelding {
         arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
         behandlerNavn = sykmelding.behandler.tilNavn(),
         behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
-        kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
+        kontaktMedPasient = sykmelding.behandletTidspunkt.toLocalDateTime(),
         sykmeldtFnr = Fnr(person.fnr),
         sykmeldtNavn = person.tilNavn(),
         perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
@@ -97,8 +96,6 @@ private fun Person.tilNavn(): Navn =
         mellomnavn = mellomnavn,
         etternavn = etternavn,
     )
-
-private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMedPasient(behandlet = this.toLocalDateTime())
 
 fun String?.tolkTelefonNr(): String =
     this

@@ -38,7 +38,8 @@ data class Sykmelding(
     val perioder: List<SykmeldingPeriode>? = null,
     @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
     val oppfoelging: Oppfoelging,
-    val kontaktMedPasient: KontaktMedPasient,
+    @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
+    val kontaktMedPasient: LocalDateTime,
     val behandlerNavn: Navn,
     val behandlerTlf: String,
 )
@@ -102,13 +103,6 @@ data class Prognose(
     val erArbeidsfoerEtterEndtPeriode: Boolean,
     @field:Schema(description = "Hvis arbeidsfør etter denne perioden: Beskriv eventuelle hensyn som må tas på arbeidsplassen.")
     val beskrivHensynArbeidsplassen: String? = null,
-)
-
-@Serializable
-@Schema(description = "Kontakt med pasient")
-data class KontaktMedPasient(
-    @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
-    val behandlet: LocalDateTime,
 )
 
 @Serializable
