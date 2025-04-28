@@ -167,8 +167,6 @@ object TestData {
     const val SYKMELDING_API_RESPONSE =
         """
         {
-          "orgnrHovedenhet": "744372453",
-          "orgnr": "315587336",
           "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
           "mottattidspunkt": "2020-03-14T23:00",
           "egenmeldingsdager": [
@@ -181,7 +179,9 @@ object TestData {
           "sykmeldtFnr": "01447842099",
           "sykmeldtNavn": "Ola Nordmann",
           "arbeidsgiver": {
-            "navn": "LOMMEN BARNEHAVE"
+            "navnFraBehandler": "LOMMEN BARNEHAVE",
+            "orgnrHovedenhet": "744372453",
+            "orgnr": "315587336"
           },
           "perioder": [
             {

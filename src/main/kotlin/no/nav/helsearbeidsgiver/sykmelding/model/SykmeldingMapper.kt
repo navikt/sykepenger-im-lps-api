@@ -4,13 +4,13 @@ package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO.ArbeidsrelatertArsakTypeDTO.MANGLENDE_TILRETTELEGGING
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.GradertDTO
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO
@@ -26,12 +26,10 @@ fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val event = sendSykmeldingAivenKafkaMessage.event
     val kafkaMetadata = sendSykmeldingAivenKafkaMessage.kafkaMetadata
     return Sykmelding(
-        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let { Orgnr(it) },
-        mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
         sykmeldingId = sykmelding.id,
-        orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
+        mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
+        arbeidsgiver = sendSykmeldingAivenKafkaMessage.tilArbeidsgiver(),
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
-        arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
         behandlerNavn = sykmelding.behandler.tilNavn(),
         behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.toLocalDateTime(),
@@ -109,7 +107,9 @@ private fun BehandlerAGDTO?.tilNavn(): Navn =
         mellomnavn = this?.mellomnavn ?: "",
     )
 
-private fun ArbeidsgiverAGDTO.tilArbeidsgiver(): Arbeidsgiver =
+private fun SendSykmeldingAivenKafkaMessage.tilArbeidsgiver(): Arbeidsgiver =
     Arbeidsgiver(
-        navn = this.navn,
+        navnFraBehandler = sykmelding.arbeidsgiver.navn,
+        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let(::Orgnr),
+        orgnr = event.arbeidsgiver.orgnummer.let(::Orgnr),
     )
