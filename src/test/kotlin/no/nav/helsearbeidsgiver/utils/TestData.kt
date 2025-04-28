@@ -179,11 +179,7 @@ object TestData {
           ],
           "syketilfelleFom": "2020-03-15",
           "sykmeldtFnr": "01447842099",
-          "sykmeldtNavn": {
-            "etternavn": "Nordmann",
-            "mellomnavn": null,
-            "fornavn": "Ola"
-          },
+          "sykmeldtNavn": "Ola Nordmann",
           "arbeidsgiver": {
             "navn": "LOMMEN BARNEHAVE"
           },

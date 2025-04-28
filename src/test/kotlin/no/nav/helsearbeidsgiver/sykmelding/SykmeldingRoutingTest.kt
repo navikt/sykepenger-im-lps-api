@@ -56,7 +56,7 @@ class SykmeldingRoutingTest :
         test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
 
             val sykmeldingDTO = sykmeldingMock().tilSykmeldingDTO()
-            val sykmelding = sykmeldingDTO.tilMockSykmeldingModel()
+            val sykmelding = sykmeldingDTO.tilSykmelding()
             val id = UUID.fromString(sykmeldingDTO.id)
 
             every { sykmeldingService.hentSykmelding(id, any()) } returns sykmelding
@@ -91,13 +91,11 @@ class SykmeldingRoutingTest :
         }
     })
 
-fun SykmeldingDTO.tilMockSykmeldingModel(): Sykmelding = tilSykmelding(mockHentPersonFraPDL(fnr))
-
 fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
     SykmeldingDTO(
         event.sykmeldingId,
         kafkaMetadata.fnr,
         event.arbeidsgiver.orgnummer,
         this,
-        mockHentPersonFraPDL(kafkaMetadata.fnr).fornavn,
+        "Ola Nordmann",
     )

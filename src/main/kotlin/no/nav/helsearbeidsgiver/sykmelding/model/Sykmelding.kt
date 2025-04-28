@@ -31,7 +31,7 @@ data class Sykmelding(
     @field:Schema(description = "Når startet syketilfellet")
     val syketilfelleFom: LocalDate?,
     val sykmeldtFnr: Fnr,
-    val sykmeldtNavn: Navn,
+    val sykmeldtNavn: String,
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
     val arbeidsgiver: Arbeidsgiver? = null,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")

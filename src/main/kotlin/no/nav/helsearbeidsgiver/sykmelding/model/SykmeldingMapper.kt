@@ -21,9 +21,10 @@ import no.nav.helsearbeidsgiver.utils.tilPerioder
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
-fun SykmeldingDTO.tilSykmelding(person: Person): Sykmelding {
+fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
+    val kafkaMetadata = sendSykmeldingAivenKafkaMessage.kafkaMetadata
     return Sykmelding(
         orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let { Orgnr(it) },
         mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
@@ -35,8 +36,8 @@ fun SykmeldingDTO.tilSykmelding(person: Person): Sykmelding {
         behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.toLocalDateTime(),
         meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
-        sykmeldtFnr = Fnr(person.fnr),
-        sykmeldtNavn = person.tilNavn(),
+        sykmeldtFnr = Fnr(kafkaMetadata.fnr),
+        sykmeldtNavn = sykmeldtNavn,
         perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
         prognose = sykmelding.prognose?.getPrognose(),
         syketilfelleFom = sykmelding.syketilfelleStartDato,
