@@ -4,6 +4,7 @@ package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
@@ -28,19 +29,29 @@ fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val kafkaMetadata = sendSykmeldingAivenKafkaMessage.kafkaMetadata
     return Sykmelding(
         sykmeldingId = sykmelding.id,
-        mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
+        mottattAvNav = sykmelding.mottattTidspunkt.toLocalDateTime(),
         arbeidsgiver = sendSykmeldingAivenKafkaMessage.tilArbeidsgiver(),
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
-        behandlerNavn = sykmelding.behandler.tilNavn(),
-        behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
+        behandler = sykmelding.behandler?.tilBehandler(),
         kontaktMedPasient = sykmelding.behandletTidspunkt.toLocalDateTime(),
-        sykmeldtFnr = Fnr(kafkaMetadata.fnr),
-        sykmeldtNavn = sykmeldtNavn,
-        perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
-        syketilfelleFom = sykmelding.syketilfelleStartDato,
+        sykmeldt = tilSykmeldt(),
+        sykmeldingPerioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
+        sykefravaerFom = sykmelding.syketilfelleStartDato,
         oppfoelging = sykmelding.tilOppfoelging(),
     )
 }
+
+private fun SykmeldingDTO.tilSykmeldt(): Sykmeldt =
+    Sykmeldt(
+        fnr = sendSykmeldingAivenKafkaMessage.kafkaMetadata.fnr.let(::Fnr),
+        navn = sykmeldtNavn,
+    )
+
+private fun BehandlerAGDTO.tilBehandler(): Behandler =
+    Behandler(
+        navn = tilFultNavn(),
+        tlf = tlf.tolkTelefonNr(),
+    )
 
 private fun ArbeidsgiverSykmeldingKafka.tilOppfoelging(): Oppfoelging =
     Oppfoelging(
@@ -49,13 +60,13 @@ private fun ArbeidsgiverSykmeldingKafka.tilOppfoelging(): Oppfoelging =
         tiltakArbeidsplassen = tiltakArbeidsplassen,
     )
 
-private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<Periode> =
+private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): List<Periode> =
     this
         ?.find { it.shortName == ShortNameDTO.EGENMELDINGSDAGER }
         ?.svar
         ?.fromJson(LocalDateSerializer.set())
         ?.tilPerioder()
-        ?: emptySet()
+        ?: emptyList()
 
 private fun PrognoseAGDTO.getPrognose(): Prognose =
     Prognose(
@@ -89,13 +100,6 @@ private fun ArbeidsrelatertArsakDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig 
 
 private fun GradertDTO.tilGradertSykmelding(): GradertSykmelding = GradertSykmelding(grad, reisetilskudd)
 
-private fun Person.tilNavn(): Navn =
-    Navn(
-        fornavn = fornavn,
-        mellomnavn = mellomnavn,
-        etternavn = etternavn,
-    )
-
 fun String?.tolkTelefonNr(): String =
     this
         ?.lowercase()
@@ -104,12 +108,7 @@ fun String?.tolkTelefonNr(): String =
         ?.removePrefix("fax:")
         ?: ""
 
-private fun BehandlerAGDTO?.tilNavn(): Navn =
-    Navn(
-        fornavn = this?.fornavn ?: "",
-        etternavn = this?.etternavn ?: "",
-        mellomnavn = this?.mellomnavn ?: "",
-    )
+private fun BehandlerAGDTO?.tilFultNavn(): String = if (this == null) "" else "$fornavn ${mellomnavn.orEmpty()} $etternavn"
 
 private fun SendSykmeldingAivenKafkaMessage.tilArbeidsgiver(): Arbeidsgiver =
     Arbeidsgiver(
