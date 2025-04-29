@@ -84,6 +84,7 @@ data class InntektsmeldingFilterRequest(
     val navReferanseId: UUID? = null,
     val fraTid: LocalDateTime? = null,
     val tilTid: LocalDateTime? = null,
+    val status: InnsendingStatus? = null,
 )
 
 @Serializable

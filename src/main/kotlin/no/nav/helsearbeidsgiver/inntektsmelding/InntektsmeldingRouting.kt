@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -147,9 +148,55 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
                     InntektsmeldingFilterRequest(
                         innsendingId = inntektsmeldingId,
                     ),
-                )?.let {
-                    call.respond(it)
-                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                ).let {
+                    if (it.antall > 0) {
+                        call.respond(it)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                    }
+                }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+    get("/inntektsmelding/forespoersel/{id}") {
+        try {
+            val forespoerselId = call.parameters["id"]?.let { UUID.fromString(it) }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$forespoerselId]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    sluttbrukerOrgnr,
+                    InntektsmeldingFilterRequest(
+                        navReferanseId = forespoerselId,
+                    ),
+                ).let {
+                    if (it.antall > 0) {
+                        call.respond(it)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                    }
+                }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+    get("/inntektsmelding/status/{status}") {
+        try {
+            val status = call.parameters["status"]?.let { InnsendingStatus.valueOf(it) }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    sluttbrukerOrgnr,
+                    InntektsmeldingFilterRequest(
+                        status = status,
+                    ),
+                ).let { call.respond(it) }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
