@@ -136,6 +136,7 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
 }
 
 private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
+    // Hent inntektsmelding med id
     get("/inntektsmelding/{id}") {
         try {
             val inntektsmeldingId = call.parameters["id"]?.let { UUID.fromString(it) }
@@ -160,7 +161,8 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
         }
     }
-    get("/inntektsmelding/forespoersel/{id}") {
+    get("/inntektsmelding/navReferanseId/{id}") {
+        // Hent inntektsmelding med navReferanseId
         try {
             val forespoerselId = call.parameters["id"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -185,6 +187,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
         }
     }
     get("/inntektsmelding/status/{status}") {
+        // Hent inntektsmelding med status
         try {
             val status = call.parameters["status"]?.let { InnsendingStatus.valueOf(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
