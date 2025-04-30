@@ -54,7 +54,7 @@ private fun Route.innsending(services: Services) {
 
             val forespoersel =
                 services.forespoerselService.hentForespoersel(request.navReferanseId)
-                    ?: return@post call.respond(HttpStatusCode.BadRequest)
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
 
             request.validerMotForespoersel(forespoersel, sluttbrukerOrgnr)?.let {
                 return@post call.respond(HttpStatusCode.BadRequest, it)
