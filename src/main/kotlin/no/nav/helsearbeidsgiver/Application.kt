@@ -9,6 +9,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureAuth
+import no.nav.helsearbeidsgiver.config.configureAuthClient
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
@@ -32,7 +33,8 @@ fun startServer() {
     sikkerLogger.info("Setter opp repositories og services...")
     val repositories = configureRepositories(db)
 
-    val authClient = AuthClient()
+    val authClient = configureAuthClient()
+
     val services = configureServices(repositories, authClient)
     val tolkere =
         configureTolkere(
