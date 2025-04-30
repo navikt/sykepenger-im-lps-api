@@ -19,6 +19,8 @@ import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.lagDialogportenClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
+import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
@@ -158,7 +160,7 @@ fun configureServices(
 
     val dialogportenService =
         if (isDev()) DialogportenService(lagDialogportenClient(authClient = authClient)) else IngenDialogportenService()
-    val pdlService = if (isDev()) PdlService() else IngenPdlService()
+    val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService, pdlService)
 }
 
@@ -235,6 +237,8 @@ fun configurePdpService(authClient: AuthClient): IPdpService =
         isLocal() -> LocalhostPdpService()
         else -> IngenTilgangPdpService()
     }
+
+fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
 
 private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("application.env"), true)
 
