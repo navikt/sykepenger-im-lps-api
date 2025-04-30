@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
-import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -19,24 +19,54 @@ import java.time.LocalDateTime
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class Sykmelding(
-    @field:Schema(description = "Sykmeldingens unike id")
     val sykmeldingId: String,
-    @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
-    val mottattidspunkt: LocalDateTime,
-    val egenmeldingsdager: Set<Periode>,
+    val mottattAvNav: LocalDateTime,
+    val sykmeldt: Sykmeldt,
+    val egenmeldingsdager: List<Periode>,
     @field:Schema(description = "Når startet syketilfellet")
-    val syketilfelleFom: LocalDate?,
-    val sykmeldtFnr: Fnr,
-    val sykmeldtNavn: String,
-    @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
-    val arbeidsgiver: Arbeidsgiver,
+    val sykefravaerFom: LocalDate?,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
-    val perioder: List<SykmeldingPeriode>? = null,
+    val sykmeldingPerioder: List<SykmeldingPeriode>,
     val oppfoelging: Oppfoelging,
     @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
     val kontaktMedPasient: LocalDateTime,
-    val behandlerNavn: Navn,
-    val behandlerTlf: String,
+    val behandler: Behandler?,
+    val arbeidsgiver: Arbeidsgiver,
+)
+
+@Serializable
+data class SykmeldingPeriode(
+    @field:Schema(description = "Sykmeldingsperiodens fra og med dato")
+    val fom: LocalDate,
+    @field:Schema(description = "Sykmeldingsperiodens til og med dato")
+    val tom: LocalDate,
+    @field:Schema(description = "Om arbeidsrelatert aktivitet er mulig i perioden")
+    val aktivitet: Aktivitet,
+)
+
+@Serializable
+data class Aktivitet(
+    val avventendeSykmelding: String?,
+    val gradertSykmelding: GradertSykmelding?,
+    val aktivitetIkkeMulig: AktivitetIkkeMulig?,
+    val antallBehandlingsdagerUke: Int?,
+    val harReisetilskudd: Boolean,
+)
+
+@Serializable
+data class GradertSykmelding(
+    @field:Schema(description = "Angitt sykemeldingsgrad")
+    val sykmeldingsgrad: Int,
+    @field:Schema(description = "Reisetilskudd ved gradert sykmelding")
+    val harReisetilskudd: Boolean,
+)
+
+@Serializable
+data class AktivitetIkkeMulig(
+    @field:Schema(description = "Settes til true dersom arbeidsplassen mangler tilrettelegging")
+    val manglendeTilretteleggingPaaArbeidsplassen: Boolean,
+    @field:Schema(description = "Eventuell beskrivelse på hvorfor aktivitet ikke er mulig")
+    val beskrivelse: String? = null,
 )
 
 @Serializable
@@ -49,51 +79,6 @@ data class Oppfoelging(
 )
 
 @Serializable
-@Schema(description = "Periode")
-data class SykmeldingPeriode(
-    @field:Schema(description = "Sykmeldingsperiodens fra og med dato")
-    val fom: LocalDate,
-    @field:Schema(description = "Sykmeldingsperiodens til og med dato")
-    val tom: LocalDate,
-    @field:Schema(description = "Om arbeidsrelatert aktivitet er mulig i perioden")
-    val aktivitet: Aktivitet,
-)
-
-@Serializable
-@Schema(description = "Aktivitet")
-data class Aktivitet(
-    @Schema(description = "Avventende sykmelding")
-    val avventendeSykmelding: String?,
-    @Schema(description = "Gradert sykmelding")
-    val gradertSykmelding: GradertSykmelding?,
-    @Schema(description = "Aktivitet ikke mulig")
-    val aktivitetIkkeMulig: AktivitetIkkeMulig?,
-    @Schema(description = "Antall behandlingsdager per uke")
-    val antallBehandlingsdagerUke: Int?,
-    @Schema(description = "Har reisetilskudd")
-    val harReisetilskudd: Boolean,
-)
-
-@Serializable
-@Schema(description = "Gradert sykmelding")
-data class GradertSykmelding(
-    @field:Schema(description = "Angitt sykemeldingsgrad")
-    val sykmeldingsgrad: Int,
-    @field:Schema(description = "Reisetilskudd ved gradert sykmelding")
-    val harReisetilskudd: Boolean,
-)
-
-@Serializable
-@Schema(description = "Aktivitet ikke mulig")
-data class AktivitetIkkeMulig(
-    @field:Schema(description = "Settes til true dersom arbeidsplassen mangler tilrettelegging")
-    val manglendeTilretteleggingPaaArbeidsplassen: Boolean,
-    @field:Schema(description = "Eventuell beskrivelse på hvorfor aktivitet ikke er mulig")
-    val beskrivelse: String? = null,
-)
-
-@Serializable
-@Schema(description = "Prognose")
 data class Prognose(
     @field:Schema(description = "Arbeidsfør etter denne perioden?")
     val erArbeidsfoerEtterEndtPeriode: Boolean,
@@ -102,23 +87,17 @@ data class Prognose(
 )
 
 @Serializable
-@Schema(description = "Navn")
-data class Navn(
-    @field:Schema(description = "Etternavn")
-    val etternavn: String,
-    @field:Schema(description = "Mellomnavn")
-    val mellomnavn: String? = null,
-    @field:Schema(description = "Fornavn")
-    val fornavn: String,
+data class Behandler(
+    val navn: String,
+    val tlf: String,
 )
 
 @Serializable
-@Schema(description = "Arbeidsgiver")
 data class Arbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
     val navnFraBehandler: String? = null,
-    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
+    @field:Schema(description = "Orgnr for overenheten i bedriften den sykmeldte er knyttet til")
     val orgnrHovedenhet: Orgnr?,
-    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
+    @field:Schema(description = "Orgnr for underenheten i bedriften den sykmeldte er knyttet til")
     val orgnr: Orgnr,
 )

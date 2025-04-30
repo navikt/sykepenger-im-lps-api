@@ -3,11 +3,11 @@ package no.nav.helsearbeidsgiver.utils
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import java.time.LocalDate
 
-fun Set<LocalDate>.tilPerioder(): Set<Periode> {
-    if (isEmpty()) return emptySet()
+fun Set<LocalDate>.tilPerioder(): List<Periode> {
+    if (isEmpty()) return emptyList()
     val sorterteDatoer = sorted().toSet()
 
-    return buildSet {
+    return buildList {
         var periodeStart = sorterteDatoer.first()
 
         sorterteDatoer.zipWithNext().forEach { (dato, nesteDato) ->
