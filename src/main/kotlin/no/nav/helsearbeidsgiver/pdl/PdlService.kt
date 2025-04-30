@@ -13,9 +13,11 @@ class IngenPdlService : IPdlService {
     override fun hentPersonFulltNavnForSykmelding(fnr: String): String? = "PDL skrudd av i prod"
 }
 
-class PdlService : IPdlService {
+class PdlService(
+    authClient: AuthClient,
+) : IPdlService {
     private val pdlUrl = Env.getProperty("PDL_URL")
-    private val tokenGetter = AuthClient().tokenGetter(AZURE_AD, Env.getProperty("PDL_SCOPE"))
+    private val tokenGetter = authClient.tokenGetter(AZURE_AD, Env.getProperty("PDL_SCOPE"))
     private val sykmeldingPdlClient =
         PdlClient(
             url = pdlUrl,
