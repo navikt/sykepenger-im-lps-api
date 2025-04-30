@@ -4,13 +4,14 @@ package no.nav.helsearbeidsgiver.sykmelding.model
 
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
-import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.ArbeidsgiverAGDTO
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.BehandlerAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.PrognoseAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO.ArbeidsrelatertArsakTypeDTO.MANGLENDE_TILRETTELEGGING
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.GradertDTO
+import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ShortNameDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.SporsmalOgSvarDTO
@@ -20,30 +21,33 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.set
 import no.nav.helsearbeidsgiver.utils.tilPerioder
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.time.OffsetDateTime
 
-fun SykmeldingDTO.tilSykmelding(person: Person): Sykmelding {
+fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
+    val kafkaMetadata = sendSykmeldingAivenKafkaMessage.kafkaMetadata
     return Sykmelding(
-        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let { Orgnr(it) },
-        mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
         sykmeldingId = sykmelding.id,
-        orgnr = event.arbeidsgiver.orgnummer.let { Orgnr(it) },
+        mottattidspunkt = sykmelding.mottattTidspunkt.toLocalDateTime(),
+        arbeidsgiver = sendSykmeldingAivenKafkaMessage.tilArbeidsgiver(),
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
-        arbeidsgiver = sykmelding.arbeidsgiver.tilArbeidsgiver(),
         behandlerNavn = sykmelding.behandler.tilNavn(),
         behandlerTlf = sykmelding.behandler?.tlf.tolkTelefonNr(),
-        kontaktMedPasient = sykmelding.behandletTidspunkt.tilKontaktMedPasient(),
-        meldingTilArbeidsgiver = sykmelding.meldingTilArbeidsgiver,
-        sykmeldtFnr = Fnr(person.fnr),
-        sykmeldtNavn = person.tilNavn(),
+        kontaktMedPasient = sykmelding.behandletTidspunkt.toLocalDateTime(),
+        sykmeldtFnr = Fnr(kafkaMetadata.fnr),
+        sykmeldtNavn = sykmeldtNavn,
         perioder = sykmelding.sykmeldingsperioder.tilPerioderAG(),
-        prognose = sykmelding.prognose?.getPrognose(),
         syketilfelleFom = sykmelding.syketilfelleStartDato,
-        tiltak = sykmelding.tiltakArbeidsplassen?.tilTiltak(),
+        oppfoelging = sykmelding.tilOppfoelging(),
     )
 }
+
+private fun ArbeidsgiverSykmeldingKafka.tilOppfoelging(): Oppfoelging =
+    Oppfoelging(
+        prognose = prognose?.getPrognose(),
+        meldingTilArbeidsgiver = meldingTilArbeidsgiver,
+        tiltakArbeidsplassen = tiltakArbeidsplassen,
+    )
 
 private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<Periode> =
     this
@@ -53,12 +57,10 @@ private fun List<SporsmalOgSvarDTO>?.tilEgenmeldingsdager(): Set<Periode> =
         ?.tilPerioder()
         ?: emptySet()
 
-private fun String.tilTiltak(): Tiltak = Tiltak(tiltakArbeidsplassen = this)
-
 private fun PrognoseAGDTO.getPrognose(): Prognose =
     Prognose(
-        erArbeidsfoerEtterEndtPeriode = this.arbeidsforEtterPeriode,
-        beskrivHensynArbeidsplassen = this.hensynArbeidsplassen,
+        erArbeidsfoerEtterEndtPeriode = arbeidsforEtterPeriode,
+        beskrivHensynArbeidsplassen = hensynArbeidsplassen,
     )
 
 private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<SykmeldingPeriode> =
@@ -94,8 +96,6 @@ private fun Person.tilNavn(): Navn =
         etternavn = etternavn,
     )
 
-private fun OffsetDateTime.tilKontaktMedPasient(): KontaktMedPasient = KontaktMedPasient(behandlet = this.toLocalDateTime())
-
 fun String?.tolkTelefonNr(): String =
     this
         ?.lowercase()
@@ -111,7 +111,9 @@ private fun BehandlerAGDTO?.tilNavn(): Navn =
         mellomnavn = this?.mellomnavn ?: "",
     )
 
-private fun ArbeidsgiverAGDTO.tilArbeidsgiver(): Arbeidsgiver =
+private fun SendSykmeldingAivenKafkaMessage.tilArbeidsgiver(): Arbeidsgiver =
     Arbeidsgiver(
-        navn = this.navn,
+        navnFraBehandler = sykmelding.arbeidsgiver.navn,
+        orgnrHovedenhet = event.arbeidsgiver.juridiskOrgnummer?.let(::Orgnr),
+        orgnr = event.arbeidsgiver.orgnummer.let(::Orgnr),
     )

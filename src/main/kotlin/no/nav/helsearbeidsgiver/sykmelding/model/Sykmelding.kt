@@ -19,10 +19,6 @@ import java.time.LocalDateTime
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class Sykmelding(
-    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
-    val orgnrHovedenhet: Orgnr?,
-    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
-    val orgnr: Orgnr,
     @field:Schema(description = "Sykmeldingens unike id")
     val sykmeldingId: String,
     @field:Schema(description = "Dato og tid for når sykmeldingen ble mottatt hos NAV")
@@ -31,20 +27,25 @@ data class Sykmelding(
     @field:Schema(description = "Når startet syketilfellet")
     val syketilfelleFom: LocalDate?,
     val sykmeldtFnr: Fnr,
-    val sykmeldtNavn: Navn,
+    val sykmeldtNavn: String,
     @field:Schema(description = "Arbeidsgiver oppgitt av behandler")
-    val arbeidsgiver: Arbeidsgiver? = null,
+    val arbeidsgiver: Arbeidsgiver,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
     val perioder: List<SykmeldingPeriode>? = null,
-    @field:Schema(description = "Prognose")
-    val prognose: Prognose? = null,
-    @field:Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
-    val tiltak: Tiltak? = null,
-    @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
-    val meldingTilArbeidsgiver: String? = null,
-    val kontaktMedPasient: KontaktMedPasient,
+    val oppfoelging: Oppfoelging,
+    @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
+    val kontaktMedPasient: LocalDateTime,
     val behandlerNavn: Navn,
     val behandlerTlf: String,
+)
+
+@Serializable
+data class Oppfoelging(
+    val prognose: Prognose? = null,
+    @field:Schema(description = "Øvrige kommentarer: kontakt mellom lege/arbeidsgiver - melding fra behandler")
+    val meldingTilArbeidsgiver: String? = null,
+    @Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
+    val tiltakArbeidsplassen: String? = null,
 )
 
 @Serializable
@@ -101,19 +102,6 @@ data class Prognose(
 )
 
 @Serializable
-@Schema(description = "Innspill til tiltak som kan bedre arbeidsevnen")
-data class Tiltak(
-    val tiltakArbeidsplassen: String? = null,
-)
-
-@Serializable
-@Schema(description = "Kontakt med pasient")
-data class KontaktMedPasient(
-    @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
-    val behandlet: LocalDateTime,
-)
-
-@Serializable
 @Schema(description = "Navn")
 data class Navn(
     @field:Schema(description = "Etternavn")
@@ -128,5 +116,9 @@ data class Navn(
 @Schema(description = "Arbeidsgiver")
 data class Arbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
-    val navn: String? = null,
+    val navnFraBehandler: String? = null,
+    @field:Schema(description = "organisasjonsnummer for overenheten i bedriften den sykmeldte er knyttet til")
+    val orgnrHovedenhet: Orgnr?,
+    @field:Schema(description = "organisasjonsnummer for underenheten i bedriften den sykmeldte er knyttet til")
+    val orgnr: Orgnr,
 )
