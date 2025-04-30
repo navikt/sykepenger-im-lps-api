@@ -74,14 +74,13 @@ class InntektsmeldingRepository(
                 .selectAll()
                 .where {
                     (orgnr eq orgNr) and
-                        (if (request.status != null) status eq request.status else Op.TRUE) and
                         (if (request.innsendingId != null) innsendingId eq request.innsendingId else Op.TRUE) and
                         (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
                         (if (request.navReferanseId != null) navReferanseId eq request.navReferanseId else Op.TRUE) and
                         (request.fraTid?.let { innsendt greaterEq it } ?: Op.TRUE) and
                         (request.tilTid?.let { innsendt lessEq it } ?: Op.TRUE)
-                }
-        }.map { it.toExposedInntektsmelding() }
+                }.map { it.toExposedInntektsmelding() }
+        }
 
     fun hent(navReferanseId: UUID): List<InntektsmeldingResponse> =
         transaction(db) {
