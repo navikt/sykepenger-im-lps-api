@@ -100,6 +100,15 @@ paths:
             '*/*':
               schema:
                 type: "object"
+        "409":
+          description: "Conflict"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Duplikat forrige innsending"
         "201":
           description: "Created"
           content:
@@ -199,6 +208,33 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
+  /v1/sykmelding/{id}:
+    get:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Sykmelding"
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
 components:
   securitySchemes:
     bearerAuth:
@@ -601,13 +637,14 @@ components:
     Arbeidsgiver:
       type: "object"
       properties:
-        orgnr:
+        navnFraBehandler:
           type: "string"
-        tlf:
+        orgnrHovedenhet:
+          type: "string"
+        orgnr:
           type: "string"
       required:
       - "orgnr"
-      - "tlf"
     InntektsmeldingResponse:
       type: "object"
       properties:
@@ -693,3 +730,128 @@ components:
         tilTid:
           type: "string"
           format: "date-time"
+    Sykmeldt:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+      required:
+      - "navn"
+    GradertSykmelding:
+      type: "object"
+      properties:
+        sykmeldingsgrad:
+          type: "integer"
+          format: "int32"
+        harReisetilskudd:
+          type: "boolean"
+      required:
+      - "sykmeldingsgrad"
+      - "harReisetilskudd"
+    AktivitetIkkeMulig:
+      type: "object"
+      properties:
+        manglendeTilretteleggingPaaArbeidsplassen:
+          type: "boolean"
+        beskrivelse:
+          type: "string"
+      required:
+      - "manglendeTilretteleggingPaaArbeidsplassen"
+    Aktivitet:
+      type: "object"
+      properties:
+        avventendeSykmelding:
+          type: "string"
+        gradertSykmelding:
+          $ref: "#/components/schemas/GradertSykmelding"
+        aktivitetIkkeMulig:
+          $ref: "#/components/schemas/AktivitetIkkeMulig"
+        antallBehandlingsdagerUke:
+          type: "integer"
+          format: "int32"
+        harReisetilskudd:
+          type: "boolean"
+      required:
+      - "harReisetilskudd"
+    SykmeldingPeriode:
+      type: "object"
+      properties:
+        fom:
+          type: "string"
+          format: "date"
+        tom:
+          type: "string"
+          format: "date"
+        aktivitet:
+          $ref: "#/components/schemas/Aktivitet"
+      required:
+      - "fom"
+      - "tom"
+      - "aktivitet"
+    Prognose:
+      type: "object"
+      properties:
+        erArbeidsfoerEtterEndtPeriode:
+          type: "boolean"
+        beskrivHensynArbeidsplassen:
+          type: "string"
+      required:
+      - "erArbeidsfoerEtterEndtPeriode"
+    Oppfoelging:
+      type: "object"
+      properties:
+        prognose:
+          $ref: "#/components/schemas/Prognose"
+        meldingTilArbeidsgiver:
+          type: "string"
+        tiltakArbeidsplassen:
+          type: "string"
+    Behandler:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+        tlf:
+          type: "string"
+      required:
+      - "navn"
+      - "tlf"
+    Sykmelding:
+      type: "object"
+      properties:
+        sykmeldingId:
+          type: "string"
+        mottattAvNav:
+          type: "string"
+          format: "date-time"
+        sykmeldt:
+          $ref: "#/components/schemas/Sykmeldt"
+        egenmeldingsdager:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Periode"
+        sykefravaerFom:
+          type: "string"
+          format: "date"
+        sykmeldingPerioder:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SykmeldingPeriode"
+        oppfoelging:
+          $ref: "#/components/schemas/Oppfoelging"
+        kontaktMedPasient:
+          type: "string"
+          format: "date-time"
+        behandler:
+          $ref: "#/components/schemas/Behandler"
+        arbeidsgiver:
+          $ref: "#/components/schemas/Arbeidsgiver"
+      required:
+      - "sykmeldingId"
+      - "mottattAvNav"
+      - "sykmeldt"
+      - "egenmeldingsdager"
+      - "sykmeldingPerioder"
+      - "oppfoelging"
+      - "kontaktMedPasient"
+      - "arbeidsgiver"
