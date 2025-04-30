@@ -210,7 +210,8 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/sykmelding/{id}:
     get:
-      description: ""
+      description: "Hent sykmelding med id <br> Orgnr i systembruker token må samsvare\
+        \ med orgnr i sykmeldingen"
       parameters:
       - name: "id"
         in: "path"
