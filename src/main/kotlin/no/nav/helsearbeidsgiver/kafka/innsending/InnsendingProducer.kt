@@ -60,5 +60,6 @@ class InnsendingProducer(
                 kafkaProducer.send(this).get()
             }.map { message }
 
+    // TODO publiser på key forespoerselid for å partisjonere riktig
     private fun JsonElement.toRecord(): ProducerRecord<String, JsonElement> = ProducerRecord(topic, this)
 }
