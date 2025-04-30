@@ -11,7 +11,25 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-class AuthClient {
+interface AuthClient {
+    fun tokenGetter(
+        identityProvider: AuthClientIdentityProvider,
+        target: String,
+    ): () -> String
+
+    suspend fun altinnExchange(maskinportenTokenGetter: String): String
+}
+
+class NoOpAuthClient : AuthClient {
+    override fun tokenGetter(
+        identityProvider: AuthClientIdentityProvider,
+        target: String,
+    ): () -> String = { "dummy-token" }
+
+    override suspend fun altinnExchange(maskinportenTokenGetter: String): String = "dummy-token"
+}
+
+class DefaultAuthClient : AuthClient {
     private val sikkerLogger = sikkerLogger()
     private val httpClient = createHttpClient()
 
@@ -20,7 +38,7 @@ class AuthClient {
     private val tokenIntrospectionEndpoint = Env.getProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT")
     private val tokenAltinn3ExchangeEndpoint = "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
 
-    fun tokenGetter(
+    override fun tokenGetter(
         identityProvider: AuthClientIdentityProvider,
         target: String,
     ): () -> String =
@@ -82,7 +100,7 @@ class AuthClient {
                     },
             ).body()
 
-    suspend fun altinnExchange(token: String): String =
+    override suspend fun altinnExchange(token: String): String =
         httpClient
             .get(tokenAltinn3ExchangeEndpoint) {
                 bearerAuth(token)

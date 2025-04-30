@@ -167,57 +167,52 @@ object TestData {
     const val SYKMELDING_API_RESPONSE =
         """
         {
-          "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
-          "mottattidspunkt": "2020-03-14T23:00",
-          "egenmeldingsdager": [
-            {
-              "fom": "2025-03-29",
-              "tom": "2025-03-31"
-            }
-          ],
-          "syketilfelleFom": "2020-03-15",
-          "sykmeldtFnr": "01447842099",
-          "sykmeldtNavn": "Ola Nordmann",
-          "arbeidsgiver": {
-            "navnFraBehandler": "LOMMEN BARNEHAVE",
-            "orgnrHovedenhet": "744372453",
-            "orgnr": "315587336"
-          },
-          "perioder": [
-            {
-              "fom": "2020-03-15",
-              "tom": "2020-04-15",
-              "aktivitet": {
-                "avventendeSykmelding": null,
-                "gradertSykmelding": null,
-                "aktivitetIkkeMulig": {
-                  "manglendeTilretteleggingPaaArbeidsplassen": false,
-                  "beskrivelse": "andre årsaker til sykefravær"
+            "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
+            "mottattAvNav": "2020-03-14T23:00",
+            "sykmeldt": {
+                "fnr": "01447842099",
+                "navn": "Ola Nordmann"
+            },
+            "egenmeldingsdager": [
+                {
+                    "fom": "2025-03-29",
+                    "tom": "2025-03-31"
+                }
+            ],
+            "sykefravaerFom": "2020-03-15",
+            "sykmeldingPerioder": [
+                {
+                    "fom": "2020-03-15",
+                    "tom": "2020-04-15",
+                    "aktivitet": {
+                        "avventendeSykmelding": null,
+                        "gradertSykmelding": null,
+                        "aktivitetIkkeMulig": {
+                            "manglendeTilretteleggingPaaArbeidsplassen": false,
+                            "beskrivelse": "andre årsaker til sykefravær"
+                        },
+                        "antallBehandlingsdagerUke": null,
+                        "harReisetilskudd": false
+                    }
+                }
+            ],
+            "oppfoelging": {
+                "prognose": {
+                    "erArbeidsfoerEtterEndtPeriode": true,
+                    "beskrivHensynArbeidsplassen": "Må ta det pent"
                 },
-                "antallBehandlingsdagerUke": null,
-                "harReisetilskudd": false
-              }
+                "tiltakArbeidsplassen": "Fortsett som sist."
+            },
+            "kontaktMedPasient": "2020-03-14T23:00",
+            "behandler": {
+                "navn": "Frida Perma Frost",
+                "tlf": "1234678"
+            },
+            "arbeidsgiver": {
+                "navnFraBehandler": "LOMMEN BARNEHAVE",
+                "orgnrHovedenhet": "744372453",
+                "orgnr": "315587336"
             }
-          ],
-          "oppfoelging" : {
-            "meldingTilArbeidsgiver": null,
-            "tiltakArbeidsplassen": "Fortsett som sist.",
-            "prognose": {
-            "erArbeidsfoerEtterEndtPeriode": true,
-            "beskrivHensynArbeidsplassen": "Må ta det pent"
-          }
-          },
-          "tiltak": {
-            "tiltakArbeidsplassen": "Fortsett som sist."
-          },
-          "meldingTilArbeidsgiver": null,
-          "kontaktMedPasient": "2020-03-14T23:00",
-          "behandlerNavn": {
-            "etternavn": "Frost",
-            "mellomnavn": "Perma",
-            "fornavn": "Frida"
-          },
-          "behandlerTlf": "1234678"
         }
         """
 
