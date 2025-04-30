@@ -49,7 +49,7 @@ private fun SykmeldingDTO.tilSykmeldt(): Sykmeldt =
 
 private fun BehandlerAGDTO.tilBehandler(): Behandler =
     Behandler(
-        navn = tilFultNavn(),
+        navn = tilFulltNavn(),
         tlf = tlf.tolkTelefonNr(),
     )
 
@@ -108,7 +108,7 @@ fun String?.tolkTelefonNr(): String =
         ?.removePrefix("fax:")
         ?: ""
 
-private fun BehandlerAGDTO?.tilFultNavn(): String = if (this == null) "" else "$fornavn ${mellomnavn.orEmpty()} $etternavn"
+private fun BehandlerAGDTO?.tilFulltNavn(): String = if (this == null) "" else "$fornavn ${mellomnavn.orEmpty()} $etternavn"
 
 private fun SendSykmeldingAivenKafkaMessage.tilArbeidsgiver(): Arbeidsgiver =
     Arbeidsgiver(
