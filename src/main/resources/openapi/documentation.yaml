@@ -638,9 +638,7 @@ components:
     Arbeidsgiver:
       type: "object"
       properties:
-        navnFraBehandler:
-          type: "string"
-        orgnrHovedenhet:
+        navn:
           type: "string"
         orgnr:
           type: "string"
