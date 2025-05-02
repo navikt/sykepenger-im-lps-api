@@ -4,13 +4,16 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
+import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 
 interface IPdlService {
-    fun hentPersonFulltNavnForSykmelding(fnr: String): String?
+    fun hentFullPerson(fnr: String): FullPerson
 }
 
 class IngenPdlService : IPdlService {
-    override fun hentPersonFulltNavnForSykmelding(fnr: String): String? = "PDL skrudd av i prod"
+    override fun hentFullPerson(fnr: String): FullPerson {
+        TODO("Not yet implemented")
+    }
 }
 
 class PdlService(
@@ -25,12 +28,10 @@ class PdlService(
             behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
         )
 
-    override fun hentPersonFulltNavnForSykmelding(fnr: String): String? =
+    override fun hentFullPerson(fnr: String): FullPerson =
         runBlocking {
             sykmeldingPdlClient
                 .personBolk(listOf(fnr))
-                ?.firstOrNull()
-                ?.navn
-                ?.fulltNavn()
+                ?.firstOrNull() ?: throw RuntimeException("Fant ikke person i pdl")
         }
 }
