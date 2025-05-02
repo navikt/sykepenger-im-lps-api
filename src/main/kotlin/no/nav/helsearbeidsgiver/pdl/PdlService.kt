@@ -7,14 +7,10 @@ import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 
 interface IPdlService {
-    fun hentPersonFulltNavnForSykmelding(fnr: String): String?
-
     fun hentFullPerson(fnr: String): FullPerson
 }
 
 class IngenPdlService : IPdlService {
-    override fun hentPersonFulltNavnForSykmelding(fnr: String): String? = "PDL skrudd av i prod"
-
     override fun hentFullPerson(fnr: String): FullPerson {
         TODO("Not yet implemented")
     }
@@ -37,14 +33,5 @@ class PdlService(
             sykmeldingPdlClient
                 .personBolk(listOf(fnr))
                 ?.firstOrNull() ?: throw RuntimeException("Fant ikke person")
-        }
-
-    override fun hentPersonFulltNavnForSykmelding(fnr: String): String? =
-        runBlocking {
-            sykmeldingPdlClient
-                .personBolk(listOf(fnr))
-                ?.firstOrNull()
-                ?.navn
-                ?.fulltNavn()
         }
 }
