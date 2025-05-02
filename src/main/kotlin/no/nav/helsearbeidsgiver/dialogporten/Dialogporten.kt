@@ -10,7 +10,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.util.UUID
 
 interface IDialogportenService {
-    fun sendDialogPåKafka(dialog: DialogSykmelding)
+    fun opprettNyDialogMedSykmelding(dialog: DialogSykmelding)
 
     fun opprettNyDialogMedSykmelding(
         orgnr: String,
@@ -20,7 +20,7 @@ interface IDialogportenService {
 }
 
 class IngenDialogportenService : IDialogportenService {
-    override fun sendDialogPåKafka(dialog: DialogSykmelding) {
+    override fun opprettNyDialogMedSykmelding(dialog: DialogSykmelding) {
         val generertId = UUID.randomUUID()
         sikkerLogger().info("Oppretter ikke dialog for sykmelding generertId: $generertId")
     }
@@ -40,10 +40,9 @@ class DialogportenService(
     val dialogportenClient: DialogportenClient,
     val dialogProducer: DialogProducer,
 ) : IDialogportenService {
-    private val navPortalBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_PORTAL_BASEURL")
     private val navApiBaseUrl = Env.getProperty("NAV_ARBEIDSGIVER_API_BASEURL")
 
-    override fun sendDialogPåKafka(dialog: DialogSykmelding) {
+    override fun opprettNyDialogMedSykmelding(dialog: DialogSykmelding) {
         dialogProducer.send(dialog)
         sikkerLogger().info("Sender dialog for sykmelding med sykmeldingId: ${dialog.sykmeldingId}, på orgnr: ${dialog.orgnr}")
     }

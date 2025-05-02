@@ -7,20 +7,16 @@ import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.pdl.IPdlService
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
-private const val UKJENT_NAVN = "Ukjent navn"
-
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
     private val dialogportenService: IDialogportenService,
     private val pdlService: IPdlService,
-    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
@@ -37,7 +33,7 @@ class SykmeldingTolker(
 
             logger.info("Lagret sykmelding til database med id: $sykmeldingId")
 
-            if (harLagretSykmelding && unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding()) {
+            if (harLagretSykmelding) {
                 val dialogSykmelding =
                     DialogSykmelding(
                         sykmeldingId = sykmeldingId,
@@ -46,16 +42,12 @@ class SykmeldingTolker(
                         fulltNavn = fullPerson.navn.fulltNavn(),
                         sykmeldingsperioder = sykmeldingMessage.sykmelding.sykmeldingsperioder.map { Periode(it.fom, it.tom) },
                     )
-                dialogportenService.opprettNyDialogMedSykmelding(
-                    orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
-                    sykmeldingId = sykmeldingId,
-                    sykmeldingMessage = sykmeldingMessage,
-                )
+                dialogportenService.opprettNyDialogMedSykmelding(dialogSykmelding)
                 logger.info("Opprettet dialog for sykmelding $sykmeldingId")
             } else {
                 logger
                     .info(
-                        "Oppretter ikke dialog for sykmelding $sykmeldingId, enten fordi sykmeldingen ikke ble lagret eller fordi dialogopprettelse er skrudd av.",
+                        "Oppretter ikke dialog for sykmelding $sykmeldingId, fordi sykmeldingen ikke ble lagret.",
                     )
             }
         } catch (e: Exception) {

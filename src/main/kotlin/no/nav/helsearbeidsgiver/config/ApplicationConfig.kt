@@ -105,7 +105,6 @@ fun configureTolkere(
             sykmeldingService = services.sykmeldingService,
             dialogportenService = services.dialogportenService,
             pdlService = services.pdlService,
-            unleashFeatureToggles = unleashFeatureToggles,
         )
 
     return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker)
