@@ -19,9 +19,9 @@ class DialogProducer(
             kafkaProducer.send(message.toRecord()).get()
         }.map { message }
             .onSuccess {
-                sikkerLogger().info("Publiserte melding om dialog skjema på topic $topic:\n${it.toPretty()}")
+                sikkerLogger().info("Publiserte melding om dialog på topic $topic:\n${it.toPretty()}")
             }.getOrElse {
-                sikkerLogger().error("Klarte ikke publisere melding om innsendt skjema på topic $topic:\n${message.toPretty()}")
+                sikkerLogger().error("Klarte ikke publisere melding om dialog på topic $topic:\n${message.toPretty()}")
                 throw it
             }
     }
