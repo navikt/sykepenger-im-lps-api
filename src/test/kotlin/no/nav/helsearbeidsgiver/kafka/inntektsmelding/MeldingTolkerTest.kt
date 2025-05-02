@@ -34,7 +34,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
@@ -51,7 +50,6 @@ class MeldingTolkerTest {
     private lateinit var repositories: Repositories
     private lateinit var service: Services
     private lateinit var tolkere: Tolkere
-    private lateinit var unleashFeatureToggles: UnleashFeatureToggles
 
     @BeforeAll
     fun setup() {
@@ -81,9 +79,7 @@ class MeldingTolkerTest {
                 pdlService = mockk<PdlService>(),
             )
 
-        unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
-
-        tolkere = configureTolkere(service, repositories, unleashFeatureToggles)
+        tolkere = configureTolkere(service, repositories)
     }
 
     @BeforeEach
