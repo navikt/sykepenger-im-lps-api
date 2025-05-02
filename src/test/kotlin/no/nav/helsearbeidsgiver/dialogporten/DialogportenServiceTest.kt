@@ -16,9 +16,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 class DialogportenServiceTest {
-    val mockDialogportenClient = mockk<DialogportenClient>()
     val mockDialogProducer = mockk<DialogProducer>()
-    val dialogportenService = DialogportenService(mockDialogportenClient, mockDialogProducer)
+    val dialogportenService = DialogportenService(mockDialogProducer)
 
     @Test
     fun `dialogporten service kaller dialogProducer`() {

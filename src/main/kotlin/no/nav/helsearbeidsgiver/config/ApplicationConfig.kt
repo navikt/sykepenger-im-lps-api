@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.lagDialogportenClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
 import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
@@ -87,7 +86,6 @@ data class Tolkere(
 fun configureTolkere(
     services: Services,
     repositories: Repositories,
-    unleashFeatureToggles: UnleashFeatureToggles,
 ): Tolkere {
     val inntektsmeldingTolker =
         InntektsmeldingTolker(
@@ -170,7 +168,6 @@ fun configureServices(
                     ),
                 )
             DialogportenService(
-                lagDialogportenClient(authClient = authClient),
                 dialogProducer = dialogProducer,
             )
         } else {

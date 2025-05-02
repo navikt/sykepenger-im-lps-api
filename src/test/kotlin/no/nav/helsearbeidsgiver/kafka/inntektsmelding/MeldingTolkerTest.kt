@@ -44,7 +44,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
-import java.util.UUID
 
 @WithPostgresContainer
 class MeldingTolkerTest {
@@ -113,9 +112,6 @@ class MeldingTolkerTest {
                 navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
                 foedselsdato = LocalDate.now().minusYears(1),
             )
-
-        every { service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any()) } returns
-            UUID.randomUUID().toString()
 
         every { service.dialogportenService.opprettNyDialogMedSykmelding(any()) } just Runs
 
