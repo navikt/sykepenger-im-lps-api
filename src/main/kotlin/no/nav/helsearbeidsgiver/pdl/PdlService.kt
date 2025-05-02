@@ -32,6 +32,6 @@ class PdlService(
         runBlocking {
             sykmeldingPdlClient
                 .personBolk(listOf(fnr))
-                ?.firstOrNull() ?: throw RuntimeException("Fant ikke person")
+                ?.firstOrNull() ?: throw RuntimeException("Fant ikke person i pdl")
         }
 }
