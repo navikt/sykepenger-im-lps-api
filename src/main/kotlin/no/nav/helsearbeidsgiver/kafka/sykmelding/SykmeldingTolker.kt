@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka.sykmelding
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykmelding
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
@@ -21,7 +20,6 @@ class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
     private val dialogportenService: IDialogportenService,
     private val pdlService: IPdlService,
-    private val dialogProducer: DialogProducer,
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
@@ -48,7 +46,6 @@ class SykmeldingTolker(
                         fulltNavn = fullPerson.navn.fulltNavn(),
                         sykmeldingsperioder = sykmeldingMessage.sykmelding.sykmeldingsperioder.map { Periode(it.fom, it.tom) },
                     )
-                dialogProducer.send(dialogSykmelding)
                 dialogportenService.opprettNyDialogMedSykmelding(
                     orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
                     sykmeldingId = sykmeldingId,

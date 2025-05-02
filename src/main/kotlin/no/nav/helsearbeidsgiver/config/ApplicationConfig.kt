@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
+import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
@@ -159,7 +160,23 @@ fun configureServices(
         }
 
     val dialogportenService =
-        if (isDev()) DialogportenService(lagDialogportenClient(authClient = authClient)) else IngenDialogportenService()
+        if (isDev()) {
+            // TODO flytt inn i feature toggle?
+            val dialogProducer =
+                DialogProducer(
+                    KafkaProducer(
+                        createKafkaProducerConfig(producerName = "dialog-producer"),
+                        StringSerializer(),
+                        InnsendingSerializer(), // Skal vi ha en egen for dialog kafka meldinger?
+                    ),
+                )
+            DialogportenService(
+                lagDialogportenClient(authClient = authClient),
+                dialogProducer = dialogProducer,
+            )
+        } else {
+            IngenDialogportenService()
+        }
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
     return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService, pdlService)
 }

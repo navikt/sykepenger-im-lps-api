@@ -10,7 +10,8 @@ import java.util.UUID
 
 class DialogportenServiceTest {
     val mockDialogportenClient = mockk<DialogportenClient>()
-    val dialogportenService = DialogportenService(mockDialogportenClient)
+    val mockDialogProducer = mockk<DialogProducer>()
+    val dialogportenService = DialogportenService(mockDialogportenClient, mockDialogProducer)
 
     @Test
     fun `dialogporten klient videresender resultatet`() {
