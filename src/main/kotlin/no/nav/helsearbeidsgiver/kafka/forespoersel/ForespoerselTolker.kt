@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
@@ -17,7 +16,6 @@ import java.util.UUID
 class ForespoerselTolker(
     private val forespoerselRepository: ForespoerselRepository,
     private val mottakRepository: MottakRepository,
-    private val dialogportenService: IDialogportenService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
     private val logger = logger()

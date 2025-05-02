@@ -39,7 +39,7 @@ class KafkaErrorHandlingTest {
                 System.getProperty("database.password"),
             ).init()
         forespoerselRepository = ForespoerselRepository(db)
-        forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository, mockDialogportenService)
+        forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository)
     }
 
     @BeforeEach
@@ -60,7 +60,7 @@ class KafkaErrorHandlingTest {
     fun `ugyldig forespørsel i forespørselMottatt-melding skal bare lagre til mottak og gå videre`() {
         every { mockMottakRepository.opprett(any()) } returns 100
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
-        val mockConsumer = ForespoerselTolker(mockForespoerselRepository, mockMottakRepository, mockDialogportenService)
+        val mockConsumer = ForespoerselTolker(mockForespoerselRepository, mockMottakRepository)
         mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)
 
         verify(exactly = 1) { mockMottakRepository.opprett(any()) }

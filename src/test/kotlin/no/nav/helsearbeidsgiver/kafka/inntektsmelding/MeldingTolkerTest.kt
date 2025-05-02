@@ -1,8 +1,10 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
@@ -21,6 +23,8 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
+import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
+import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -30,7 +34,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
@@ -39,7 +42,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.util.UUID
+import java.time.LocalDate
 
 @WithPostgresContainer
 class MeldingTolkerTest {
@@ -47,7 +50,6 @@ class MeldingTolkerTest {
     private lateinit var repositories: Repositories
     private lateinit var service: Services
     private lateinit var tolkere: Tolkere
-    private lateinit var unleashFeatureToggles: UnleashFeatureToggles
 
     @BeforeAll
     fun setup() {
@@ -77,9 +79,7 @@ class MeldingTolkerTest {
                 pdlService = mockk<PdlService>(),
             )
 
-        unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
-
-        tolkere = configureTolkere(service, repositories, unleashFeatureToggles)
+        tolkere = configureTolkere(service, repositories)
     }
 
     @BeforeEach
@@ -103,16 +103,18 @@ class MeldingTolkerTest {
     @Test
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
         every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
-        coEvery { service.pdlService.hentPersonFulltNavnForSykmelding(any()) } returns ""
-        every { unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding() } returns true
+        coEvery { service.pdlService.hentFullPerson(any()) } returns
+            FullPerson(
+                navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
+                foedselsdato = LocalDate.now().minusYears(1),
+            )
 
-        every { service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any()) } returns
-            UUID.randomUUID().toString()
+        every { service.dialogportenService.opprettNyDialogMedSykmelding(any()) } just Runs
 
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verifySequence {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
-            service.dialogportenService.opprettNyDialogMedSykmelding(any(), any(), any())
+            service.dialogportenService.opprettNyDialogMedSykmelding(any())
         }
     }
 

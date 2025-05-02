@@ -49,7 +49,7 @@ abstract class LpsApiIntegrasjontest {
             ).init()
         repositories = configureRepositories(db)
         services = configureServices(repositories, mockk(relaxed = true))
-        tolkers = configureTolkere(services, repositories, mockk(relaxed = true))
+        tolkers = configureTolkere(services, repositories)
 
         embeddedServer(
             factory = Netty,
