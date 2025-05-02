@@ -95,9 +95,7 @@ data class Behandler(
 @Serializable
 data class Arbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
-    val navnFraBehandler: String? = null,
-    @field:Schema(description = "Orgnr for overenheten i bedriften den sykmeldte er knyttet til")
-    val orgnrHovedenhet: Orgnr?,
+    val navn: String? = null,
     @field:Schema(description = "Orgnr for underenheten i bedriften den sykmeldte er knyttet til")
     val orgnr: Orgnr,
 )
