@@ -7,10 +7,6 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
-class SykmeldingOrgnrManglerException(
-    feilmelding: String,
-) : RuntimeException(feilmelding)
-
 class SykmeldingService(
     private val sykmeldingRepository: SykmeldingRepository,
 ) {
