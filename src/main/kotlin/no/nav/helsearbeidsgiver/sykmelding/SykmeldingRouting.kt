@@ -22,6 +22,8 @@ fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
 }
 
 private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
+    // Hent sykmelding med id
+    // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
     get("/sykmelding/{id}") {
         fangFeil("Feil ved henting av sykmelding") {
             val sykmeldingId = call.parameters["id"]?.toUuidOrNull() ?: throw ApiFeil(BadRequest, "Ugyldig sykmelding ID parameter")
