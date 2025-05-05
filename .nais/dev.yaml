@@ -52,7 +52,6 @@ spec:
           name: im.read
       consumes:
         - name: "altinn:authorization/authorize"
-        - name: "digdir:dialogporten.serviceprovider"
   azure:
     application:
       enabled: true
@@ -74,8 +73,6 @@ spec:
       value: "nav_sykepenger_inntektsmelding-nedlasting"
     - name: ALTINN_PDP_SCOPE
       value: "altinn:authorization/authorize"
-    - name: DIALOGPORTEN_SCOPE
-      value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
       value: "https://arbeidsgiver.intern.dev.nav.no"
     - name: NAV_ARBEIDSGIVER_API_BASEURL

@@ -2,7 +2,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val bakgrunnsjobbVersion: String by project
 val coroutineVersion: String by project
-val dialogportenClientVersion: String by project
 val exposedVersion: String by project
 val flywayCoreVersion: String by project
 val hagDomeneInntektsmeldingVersion: String by project
@@ -69,7 +68,6 @@ dependencies {
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("no.nav.helsearbeidsgiver:altinn-pdp-client:$pdpClientVersion")
-    implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:domene-inntektsmelding:$hagDomeneInntektsmeldingVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
     implementation("no.nav.helsearbeidsgiver:pdl-client:$pdlKlientVersion")

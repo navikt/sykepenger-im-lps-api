@@ -1,15 +1,10 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import no.nav.helsearbeidsgiver.sykmelding.model.Person
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
-
-class SykmeldingOrgnrManglerException(
-    feilmelding: String,
-) : RuntimeException(feilmelding)
 
 class SykmeldingService(
     private val sykmeldingRepository: SykmeldingRepository,
@@ -61,13 +56,3 @@ class SykmeldingService(
         }
     }
 }
-
-// TODO: Implementer ekte PDL lookup
-fun mockHentPersonFraPDL(fnr: String?): Person =
-    Person(
-        fornavn = "Ola",
-        mellomnavn = null,
-        etternavn = "Nordmann",
-        aktorId = "aktorId",
-        fnr = fnr ?: "Ingen fnr definert",
-    )

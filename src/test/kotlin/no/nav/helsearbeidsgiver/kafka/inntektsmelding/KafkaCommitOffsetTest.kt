@@ -50,7 +50,6 @@ class KafkaCommitOffsetTest {
                 ForespoerselTolker(
                     mockk(),
                     mockk(),
-                    mockk(),
                 ),
             )
         val topicPartition = TopicPartition("test", 0)
