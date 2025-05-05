@@ -199,7 +199,13 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
                     InntektsmeldingFilterRequest(
                         status = status,
                     ),
-                ).let { call.respond(it) }
+                ).let {
+                    if (it.antall > 0) {
+                        call.respond(it)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                    }
+                }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
