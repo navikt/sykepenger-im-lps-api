@@ -243,6 +243,9 @@ private fun mockRefusjon(): Refusjon =
                     beloep = 120.7,
                     startdato = 27.oktober,
                 ),
+                RefusjonEndring(
+                    beloep = 0.0,
+                    startdato = 31.oktober,
+                ),
             ),
-        sluttdato = 31.oktober,
     )
