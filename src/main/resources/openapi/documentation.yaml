@@ -734,8 +734,11 @@ components:
       properties:
         navn:
           type: "string"
+        fnr:
+          type: "string"
       required:
       - "navn"
+      - "fnr"
     GradertSykmelding:
       type: "object"
       properties:
