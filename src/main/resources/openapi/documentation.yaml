@@ -127,11 +127,16 @@ paths:
               examples:
                 Example#1:
                   value: "En feil oppstod"
-  /v1/inntektsmelding/{inntektsmelding}:
+  /v1/inntektsmelding/{inntektsmeldingId}:
     get:
       description: "Hent inntektsmelding med id"
       parameters:
         - name: "inntektsmelding"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - name: "inntektsmeldingId"
           in: "path"
           required: true
           schema:
