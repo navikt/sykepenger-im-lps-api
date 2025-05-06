@@ -137,9 +137,9 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
 
 private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmelding med id
-    get("/inntektsmelding/{id}") {
+    get("/inntektsmelding/{inntektsmelding}") {
         try {
-            val inntektsmeldingId = call.parameters["id"]?.let { UUID.fromString(it) }
+            val inntektsmeldingId = call.parameters["inntektsmelding"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
@@ -161,18 +161,18 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
         }
     }
-    get("/inntektsmelding/navReferanseId/{id}") {
+    get("/inntektsmelding/navReferanseId/{navReferanseId}") {
         // Hent inntektsmelding med navReferanseId
         try {
-            val forespoerselId = call.parameters["id"]?.let { UUID.fromString(it) }
+            val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$forespoerselId]")
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
             inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(
-                        navReferanseId = forespoerselId,
+                        navReferanseId = navReferanseId,
                     ),
                 ).let {
                     if (it.antall > 0) {
