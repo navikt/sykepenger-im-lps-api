@@ -127,11 +127,11 @@ paths:
               examples:
                 Example#1:
                   value: "En feil oppstod"
-  /v1/inntektsmelding/{id}:
+  /v1/inntektsmelding/{inntektsmelding}:
     get:
       description: "Hent inntektsmelding med id"
       parameters:
-        - name: "id"
+        - name: "inntektsmelding"
           in: "path"
           required: true
           schema:
@@ -172,11 +172,11 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
-  /v1/inntektsmelding/navReferanseId/{id}:
+  /v1/inntektsmelding/navReferanseId/{navReferanseId}:
     get:
       description: ""
       parameters:
-        - name: "id"
+        - name: "navReferanseId"
           in: "path"
           required: true
           schema:
