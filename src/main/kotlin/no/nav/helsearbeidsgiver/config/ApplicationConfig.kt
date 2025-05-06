@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.kafka.innsending.IngenInnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
+import no.nav.helsearbeidsgiver.kafka.soknad.SoknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -81,6 +82,7 @@ data class Tolkere(
     val inntektsmeldingTolker: InntektsmeldingTolker,
     val forespoerselTolker: ForespoerselTolker,
     val sykmeldingTolker: SykmeldingTolker,
+    val soknadTolker: SoknadTolker,
 )
 
 fun configureTolkere(
@@ -103,8 +105,10 @@ fun configureTolkere(
             dialogportenService = services.dialogportenService,
             pdlService = services.pdlService,
         )
+    val soknadTolker =
+        SoknadTolker()
 
-    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker)
+    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soknadTolker)
 }
 
 fun configureRepositories(db: Database): Repositories =
@@ -197,7 +201,7 @@ fun Application.configureKafkaConsumers(tolkere: Tolkere) {
         )
     }
 
-    // Ta bare imot sykmeldinger i dev inntil videre
+    // Ta bare imot sykmeldinger og søknader i dev inntil videre
     if (isLocal() || isDev()) {
         val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
         launch(Dispatchers.Default) {
@@ -205,6 +209,15 @@ fun Application.configureKafkaConsumers(tolkere: Tolkere) {
                 topic = getProperty("kafkaConsumer.sykmelding.topic"),
                 consumer = sykmeldingKafkaConsumer,
                 meldingTolker = tolkere.sykmeldingTolker,
+            )
+        }
+
+        val soknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                topic = getProperty("kafkaConsumer.soknad.topic"),
+                consumer = soknadKafkaConsumer,
+                meldingTolker = tolkere.soknadTolker,
             )
         }
     }
