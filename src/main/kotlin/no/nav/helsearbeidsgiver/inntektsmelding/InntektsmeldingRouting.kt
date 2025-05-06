@@ -137,7 +137,7 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
 
 private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmelding med id
-    get("/inntektsmelding/{inntektsmelding}") {
+    get("/inntektsmelding/{inntektsmeldingId}") {
         try {
             val inntektsmeldingId = call.parameters["inntektsmelding"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
