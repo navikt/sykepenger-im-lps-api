@@ -62,7 +62,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         url: String,
         token: String,
         maxAttempts: Int = 5,
-        delayMillis: Long = 100L,
+        delayMillis: Long = 200L,
     ): HttpResponse {
         var attempts = 0
         lateinit var response: HttpResponse
