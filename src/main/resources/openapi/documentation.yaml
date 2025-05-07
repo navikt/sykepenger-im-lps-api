@@ -179,7 +179,7 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmelding/navReferanseId/{navReferanseId}:
     get:
-      description: "Hent inntektsmelding med navReferanseId"
+      description: "Hent alle inntektsmeldinger med navReferanseId"
       parameters:
         - name: "navReferanseId"
           in: "path"
@@ -224,7 +224,7 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmelding/status/{status}:
     get:
-      description: "Hent inntektsmelding med status"
+      description: "Hent alle inntektsmeldinger med status"
       parameters:
         - name: "status"
           in: "path"
