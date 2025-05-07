@@ -12,8 +12,8 @@ import java.time.LocalDateTime
 @Serializable
 data class SykepengesoknadDTO(
     val id: String,
-    val type: String,
-    val status: String,
+    val type: SoknadstypeDTO,
+    val status: SoknadsstatusDTO,
     val fnr: String,
     val sykmeldingId: String? = null,
     val arbeidsgiver: ArbeidsgiverDTO? = null,
@@ -65,6 +65,30 @@ data class SykepengesoknadDTO(
     val inntektUnderveis: Boolean? = null,
     val ignorerArbeidssokerregister: Boolean? = null,
 ) {
+    @Serializable
+    enum class SoknadstypeDTO {
+        SELVSTENDIGE_OG_FRILANSERE,
+        OPPHOLD_UTLAND,
+        ARBEIDSTAKERE,
+        ANNET_ARBEIDSFORHOLD,
+        ARBEIDSLEDIG,
+        BEHANDLINGSDAGER,
+        REISETILSKUDD,
+        GRADERT_REISETILSKUDD,
+        FRISKMELDT_TIL_ARBEIDSFORMIDLING,
+    }
+
+    @Serializable
+    enum class SoknadsstatusDTO {
+        NY,
+        SENDT,
+        FREMTIDIG,
+        KORRIGERT,
+        AVBRUTT,
+        SLETTET,
+        UTGAATT,
+    }
+
     @Serializable
     data class ArbeidsgiverDTO(
         val navn: String? = null,

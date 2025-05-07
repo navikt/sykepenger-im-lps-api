@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.soknad
 
+import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -20,7 +21,7 @@ class SoknadTolker : MeldingTolker {
             val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
             logger.error(errorMsg)
             sikkerLogger.error(errorMsg, e)
-            // throw SerializationException(errorMsg, e)
+            throw SerializationException(errorMsg, e)
         }
     }
 }
