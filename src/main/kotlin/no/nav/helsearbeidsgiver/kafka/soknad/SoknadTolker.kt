@@ -1,8 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.soknad
 
-import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
-import no.nav.helsearbeidsgiver.utils.jsonMapper
+import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -12,7 +11,7 @@ class SoknadTolker : MeldingTolker {
 
     override fun lesMelding(melding: String) {
         try {
-            val soknadMessage = jsonMapper.decodeFromString<SykepengesoknadDTO>(melding)
+            val soknadMessage = melding.fromJson(SykepengesoknadDTO.serializer())
             sikkerLogger.info(
                 "Mottok søknad med id ${soknadMessage.id}, sykmeldingId ${soknadMessage.sykmeldingId} og sendtNav ${soknadMessage.sendtNav}.",
             )
@@ -21,7 +20,7 @@ class SoknadTolker : MeldingTolker {
             val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
             logger.error(errorMsg)
             sikkerLogger.error(errorMsg, e)
-            throw SerializationException(errorMsg, e)
+            throw e
         }
     }
 }

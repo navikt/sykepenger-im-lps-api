@@ -152,4 +152,17 @@ class MeldingTolkerTest {
             SYKEPENGESOKNAD.removeJsonWhitespace()
         tolkere.soknadTolker.lesMelding(soknadJson)
     }
+
+    @Test
+    fun `SoknadTolker lesMelding kaster exception om fnr er null`() {
+        val mockJsonMedArbeidsgiverNull =
+            SYKEPENGESOKNAD.removeJsonWhitespace().replace(
+                """"fnr":"05449412615"""",
+                """"fnr":null""",
+            )
+
+        assertThrows<SerializationException> {
+            tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
+        }
+    }
 }
