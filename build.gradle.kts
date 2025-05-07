@@ -23,7 +23,6 @@ val tokenSupportVersion: String by project
 val unleashVersion: String by project
 val utilsVersion: String by project
 val pdlKlientVersion: String by project
-val sykepengesoknadKafkaVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -72,7 +71,6 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
     implementation("no.nav.helsearbeidsgiver:pdl-client:$pdlKlientVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
-    implementation("no.nav.helse.flex:sykepengesoknad-kafka:$sykepengesoknadKafkaVersion")
     implementation("no.nav.security:token-validation-ktor-v3:$tokenSupportVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("org.flywaydb:flyway-core:$flywayCoreVersion")
