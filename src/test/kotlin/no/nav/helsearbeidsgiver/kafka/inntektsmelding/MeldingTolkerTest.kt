@@ -32,7 +32,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
-import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGE_SOKNAD
+import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
@@ -149,9 +149,7 @@ class MeldingTolkerTest {
     @Test
     fun `SoknadTolker lesMelding klarer å deserialisere soknad`() {
         val soknadJson =
-            SYKEPENGE_SOKNAD.removeJsonWhitespace()
-
+            SYKEPENGESOKNAD.removeJsonWhitespace()
         tolkere.soknadTolker.lesMelding(soknadJson)
-
     }
 }

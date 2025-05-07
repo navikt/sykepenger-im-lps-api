@@ -6,16 +6,14 @@ import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-
 class SoknadTolker : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
 
-
     override fun lesMelding(melding: String) {
         try {
             val soknadMessage = jsonMapper.decodeFromString<SykepengesoknadDTO>(melding)
-            sikkerLogger.info("Mottok søknad på kafka: $soknadMessage.")
+            sikkerLogger.info("Mottok søknad med id ${soknadMessage.id} og sykmeldingId ${soknadMessage.sykmeldingId}.")
             // TODO: Lagre søknad i database
         } catch (e: Exception) {
             val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
