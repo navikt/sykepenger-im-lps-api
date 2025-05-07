@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -98,4 +98,10 @@ data class Arbeidsgiver(
     val navn: String? = null,
     @field:Schema(description = "Orgnr for underenheten i bedriften den sykmeldte er knyttet til")
     val orgnr: Orgnr,
+)
+
+@Serializable
+data class Sykmeldt(
+    val fnr: Fnr,
+    val navn: String,
 )

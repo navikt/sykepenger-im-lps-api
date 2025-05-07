@@ -905,9 +905,12 @@ components:
     Sykmeldt:
       type: "object"
       properties:
+        fnr:
+          type: "string"
         navn:
           type: "string"
       required:
+        - "fnr"
         - "navn"
     GradertSykmelding:
       type: "object"
