@@ -45,6 +45,8 @@ import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
+import no.nav.helsearbeidsgiver.soknad.SoknadRepository
+import no.nav.helsearbeidsgiver.soknad.SoknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -67,6 +69,7 @@ data class Repositories(
     val mottakRepository: MottakRepository,
     val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
     val sykmeldingRepository: SykmeldingRepository,
+    val soknadRepository: SoknadRepository,
 )
 
 data class Services(
@@ -76,6 +79,7 @@ data class Services(
     val dialogportenService: IDialogportenService,
     val sykmeldingService: SykmeldingService,
     val pdlService: IPdlService,
+    val soknadService: SoknadService,
 )
 
 data class Tolkere(
@@ -106,7 +110,7 @@ fun configureTolkere(
             pdlService = services.pdlService,
         )
     val soknadTolker =
-        SoknadTolker()
+        SoknadTolker(services.soknadService)
 
     return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soknadTolker)
 }
@@ -118,6 +122,7 @@ fun configureRepositories(db: Database): Repositories =
         mottakRepository = MottakRepository(db),
         bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
         sykmeldingRepository = SykmeldingRepository(db),
+        soknadRepository = SoknadRepository(db),
     )
 
 fun configureServices(
@@ -177,7 +182,16 @@ fun configureServices(
             IngenDialogportenService()
         }
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
-    return Services(forespoerselService, inntektsmeldingService, innsendingService, dialogportenService, sykmeldingService, pdlService)
+    val soknadService = SoknadService(repositories.soknadRepository)
+    return Services(
+        forespoerselService,
+        inntektsmeldingService,
+        innsendingService,
+        dialogportenService,
+        sykmeldingService,
+        pdlService,
+        soknadService,
+    )
 }
 
 fun configureUnleashFeatureToggles(): UnleashFeatureToggles = UnleashFeatureToggles(isLocal())
