@@ -156,6 +156,8 @@ class MeldingTolkerTest {
         val soknadJson =
             SYKEPENGESOKNAD.removeJsonWhitespace()
         tolkere.soknadTolker.lesMelding(soknadJson)
+
+        verify(exactly = 1) { service.soknadService.lagreSoknad(any()) }
     }
 
     @Test
@@ -169,5 +171,6 @@ class MeldingTolkerTest {
         assertThrows<SerializationException> {
             tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
+        verify(exactly = 0) { service.soknadService.lagreSoknad(any()) }
     }
 }
