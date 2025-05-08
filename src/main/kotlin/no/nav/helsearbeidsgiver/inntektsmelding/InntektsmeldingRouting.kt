@@ -139,7 +139,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
     // Hent inntektsmelding med id
     get("/inntektsmelding/{inntektsmeldingId}") {
         try {
-            val inntektsmeldingId = call.parameters["inntektsmelding"]?.let { UUID.fromString(it) }
+            val inntektsmeldingId = call.parameters["inntektsmeldingId"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
