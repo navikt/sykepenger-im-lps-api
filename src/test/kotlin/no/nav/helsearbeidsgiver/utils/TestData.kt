@@ -5,8 +5,10 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.forespoersel.Type
+import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
+import no.nav.helsearbeidsgiver.utils.json.fromJson
 import java.util.UUID
 
 object TestData {
@@ -817,4 +819,6 @@ object TestData {
 
     fun sykmeldingModelMock(sykmeldingModel: String = SYKMELDING_API_RESPONSE): Sykmelding =
         jsonMapper.decodeFromString<Sykmelding>(sykmeldingModel)
+
+    fun soknadMock(soknad: String = SYKEPENGESOKNAD): SykepengesoknadDTO = soknad.fromJson(SykepengesoknadDTO.serializer())
 }
