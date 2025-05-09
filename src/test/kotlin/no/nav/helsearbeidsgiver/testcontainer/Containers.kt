@@ -37,7 +37,7 @@ class PostgresTestExtension :
                     .withDatabaseName("testdb")
                     .withUsername("testuser")
                     .withPassword("testpass")
-                    .waitingFor(Wait.forListeningPort())
+                    .waitingFor(Wait.forHealthcheck())
                     .withReuse(true)
             }
         }
