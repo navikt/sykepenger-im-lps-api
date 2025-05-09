@@ -37,7 +37,9 @@ class PostgresTestExtension :
                     .withDatabaseName("testdb")
                     .withUsername("testuser")
                     .withPassword("testpass")
-                    .waitingFor(Wait.forHealthcheck())
+                    .waitingFor(
+                        Wait.forListeningPort(),
+                    ).withStartupTimeout(java.time.Duration.ofSeconds(60))
                     .withReuse(true)
             }
         }
@@ -45,6 +47,7 @@ class PostgresTestExtension :
 
     override fun beforeAll(context: ExtensionContext) {
         postgresContainer.start()
+
         System.setProperty("database.url", postgresContainer.jdbcUrl)
         System.setProperty("database.username", postgresContainer.username)
         System.setProperty("database.password", postgresContainer.password)
