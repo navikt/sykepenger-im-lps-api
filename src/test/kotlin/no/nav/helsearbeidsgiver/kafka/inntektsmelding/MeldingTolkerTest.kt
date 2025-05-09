@@ -32,6 +32,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
+import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
@@ -142,6 +143,26 @@ class MeldingTolkerTest {
 
         assertThrows<SerializationException> {
             tolkere.sykmeldingTolker.lesMelding(mockJsonMedArbeidsgiverNull)
+        }
+    }
+
+    @Test
+    fun `SoknadTolker lesMelding klarer å deserialisere soknad`() {
+        val soknadJson =
+            SYKEPENGESOKNAD.removeJsonWhitespace()
+        tolkere.soknadTolker.lesMelding(soknadJson)
+    }
+
+    @Test
+    fun `SoknadTolker lesMelding kaster exception om fnr er null`() {
+        val mockJsonMedArbeidsgiverNull =
+            SYKEPENGESOKNAD.removeJsonWhitespace().replace(
+                """"fnr":"05449412615"""",
+                """"fnr":null""",
+            )
+
+        assertThrows<SerializationException> {
+            tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
     }
 }

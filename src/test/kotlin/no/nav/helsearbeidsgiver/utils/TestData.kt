@@ -292,6 +292,509 @@ object TestData {
         }
     """
 
+    const val SYKEPENGESOKNAD = """
+        {
+            "id": "9e088b5a-16c8-3dcc-91fb-acdd544b8607",
+            "type": "ARBEIDSTAKERE",
+            "status": "SENDT",
+            "fnr": "05449412615",
+            "sykmeldingId": "5be7a6f1-90e2-4e4c-9718-1e4491bf8111",
+            "arbeidsgiver": {
+                "navn": "Jordisk Kunst Katt Kryddermål",
+                "orgnummer": "315587336"
+            },
+            "arbeidssituasjon": "ARBEIDSTAKER",
+            "korrigerer": null,
+            "korrigertAv": null,
+            "soktUtenlandsopphold": false,
+            "arbeidsgiverForskutterer": null,
+            "fom": "2024-11-04",
+            "tom": "2024-11-22",
+            "dodsdato": null,
+            "startSyketilfelle": "2024-09-02",
+            "arbeidGjenopptatt": null,
+            "friskmeldt": null,
+            "sykmeldingSkrevet": "2025-03-28T01:00:00",
+            "opprettet": "2025-04-04T14:57:15.464407",
+            "opprinneligSendt": null,
+            "sendtNav": "2025-05-07T09:24:53.038533194",
+            "sendtArbeidsgiver": "2025-05-07T09:24:53.038533194",
+            "egenmeldinger": null,
+            "fravarForSykmeldingen": [],
+            "papirsykmeldinger": [],
+            "fravar": [],
+            "andreInntektskilder": [],
+            "soknadsperioder": [
+                {
+                    "fom": "2024-11-04",
+                    "tom": "2024-11-22",
+                    "sykmeldingsgrad": 100,
+                    "faktiskGrad": null,
+                    "avtaltTimer": null,
+                    "faktiskTimer": null,
+                    "sykmeldingstype": "AKTIVITET_IKKE_MULIG",
+                    "grad": 100
+                }
+            ],
+            "sporsmal": [
+                {
+                    "id": "f4f79188-dffc-3140-beb2-223289dab1b3",
+                    "tag": "ANSVARSERKLARING",
+                    "sporsmalstekst": "Jeg bekrefter at jeg vil svare så riktig som jeg kan.",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "CHECKBOX_PANEL",
+                    "kriterieForVisningAvUndersporsmal": null,
+                    "svar": [
+                        {
+                            "verdi": "CHECKED"
+                        }
+                    ],
+                    "undersporsmal": [],
+                    "metadata": null
+                },
+                {
+                    "id": "30ca0f3d-eb84-3305-a76e-bce489f8bcf6",
+                    "tag": "TILBAKE_I_ARBEID",
+                    "sporsmalstekst": "Var du tilbake i fullt arbeid hos Jordisk Kunst Katt Kryddermål i løpet av perioden 4. - 22. november 2024?",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "JA_NEI",
+                    "kriterieForVisningAvUndersporsmal": "JA",
+                    "svar": [
+                        {
+                            "verdi": "NEI"
+                        }
+                    ],
+                    "undersporsmal": [
+                        {
+                            "id": "0770160d-c50a-3412-adab-ef3eba630055",
+                            "tag": "TILBAKE_NAR",
+                            "sporsmalstekst": "Når begynte du å jobbe igjen?",
+                            "undertekst": null,
+                            "min": "2024-11-04",
+                            "max": "2024-11-22",
+                            "svartype": "DATO",
+                            "kriterieForVisningAvUndersporsmal": null,
+                            "svar": [],
+                            "undersporsmal": [],
+                            "metadata": null
+                        }
+                    ],
+                    "metadata": null
+                },
+                {
+                    "id": "d2677818-067f-371a-baf3-ca0aafa7c4af",
+                    "tag": "FERIE_V2",
+                    "sporsmalstekst": "Tok du ut feriedager i tidsrommet 4. - 22. november 2024?",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "JA_NEI",
+                    "kriterieForVisningAvUndersporsmal": "JA",
+                    "svar": [
+                        {
+                            "verdi": "NEI"
+                        }
+                    ],
+                    "undersporsmal": [
+                        {
+                            "id": "ac0c815b-3700-3914-b38f-67149ce5e041",
+                            "tag": "FERIE_NAR_V2",
+                            "sporsmalstekst": "Når tok du ut feriedager?",
+                            "undertekst": null,
+                            "min": "2024-11-04",
+                            "max": "2024-11-22",
+                            "svartype": "PERIODER",
+                            "kriterieForVisningAvUndersporsmal": null,
+                            "svar": [],
+                            "undersporsmal": [],
+                            "metadata": null
+                        }
+                    ],
+                    "metadata": null
+                },
+                {
+                    "id": "806e9b17-2ab3-327c-bacc-c74f9112c3cd",
+                    "tag": "PERMISJON_V2",
+                    "sporsmalstekst": "Tok du permisjon mens du var sykmeldt 4. - 22. november 2024?",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "JA_NEI",
+                    "kriterieForVisningAvUndersporsmal": "JA",
+                    "svar": [
+                        {
+                            "verdi": "NEI"
+                        }
+                    ],
+                    "undersporsmal": [
+                        {
+                            "id": "a440c126-faa5-38ad-897d-0285208df2ad",
+                            "tag": "PERMISJON_NAR_V2",
+                            "sporsmalstekst": "Når tok du permisjon?",
+                            "undertekst": null,
+                            "min": "2024-11-04",
+                            "max": "2024-11-22",
+                            "svartype": "PERIODER",
+                            "kriterieForVisningAvUndersporsmal": null,
+                            "svar": [],
+                            "undersporsmal": [],
+                            "metadata": null
+                        }
+                    ],
+                    "metadata": null
+                },
+                {
+                    "id": "7a71e347-a2d1-34de-8e8a-c0d34dba08b4",
+                    "tag": "ARBEID_UNDERVEIS_100_PROSENT_0",
+                    "sporsmalstekst": "I perioden 4. - 22. november 2024 var du 100 % sykmeldt fra Jordisk Kunst Katt Kryddermål. Jobbet du noe hos Jordisk Kunst Katt Kryddermål i denne perioden?",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "JA_NEI",
+                    "kriterieForVisningAvUndersporsmal": "JA",
+                    "svar": [
+                        {
+                            "verdi": "NEI"
+                        }
+                    ],
+                    "undersporsmal": [
+                        {
+                            "id": "6fd462e8-5291-333d-a997-02cb8f165079",
+                            "tag": "HVOR_MYE_HAR_DU_JOBBET_0",
+                            "sporsmalstekst": "Oppgi arbeidsmengde i timer eller prosent:",
+                            "undertekst": null,
+                            "min": null,
+                            "max": null,
+                            "svartype": "RADIO_GRUPPE_TIMER_PROSENT",
+                            "kriterieForVisningAvUndersporsmal": null,
+                            "svar": [],
+                            "undersporsmal": [
+                                {
+                                    "id": "2d68fa9a-c2a2-377b-b8f7-8868e8a148d9",
+                                    "tag": "HVOR_MYE_PROSENT_0",
+                                    "sporsmalstekst": "Prosent",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "RADIO",
+                                    "kriterieForVisningAvUndersporsmal": "CHECKED",
+                                    "svar": [],
+                                    "undersporsmal": [
+                                        {
+                                            "id": "5a15f8bf-1217-378c-97a4-e9ca2f256591",
+                                            "tag": "HVOR_MYE_PROSENT_VERDI_0",
+                                            "sporsmalstekst": "Oppgi hvor mange prosent av din normale arbeidstid du jobbet hos Jordisk Kunst Katt Kryddermål i perioden 4. - 22. november 2024?",
+                                            "undertekst": "Oppgi i prosent. Eksempel: 40",
+                                            "min": "1",
+                                            "max": "99",
+                                            "svartype": "PROSENT",
+                                            "kriterieForVisningAvUndersporsmal": null,
+                                            "svar": [],
+                                            "undersporsmal": [],
+                                            "metadata": null
+                                        }
+                                    ],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "b7b0472c-1941-3134-8311-65f084c2b34a",
+                                    "tag": "HVOR_MYE_TIMER_0",
+                                    "sporsmalstekst": "Timer",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "RADIO",
+                                    "kriterieForVisningAvUndersporsmal": "CHECKED",
+                                    "svar": [],
+                                    "undersporsmal": [
+                                        {
+                                            "id": "a8dc2815-6582-3118-a0c6-f9955253a911",
+                                            "tag": "HVOR_MYE_TIMER_VERDI_0",
+                                            "sporsmalstekst": "Oppgi totalt antall timer du jobbet i perioden 4. - 22. november 2024 hos Jordisk Kunst Katt Kryddermål",
+                                            "undertekst": "Eksempel: 8,5",
+                                            "min": "1",
+                                            "max": "407",
+                                            "svartype": "TIMER",
+                                            "kriterieForVisningAvUndersporsmal": null,
+                                            "svar": [],
+                                            "undersporsmal": [],
+                                            "metadata": null
+                                        }
+                                    ],
+                                    "metadata": null
+                                }
+                            ],
+                            "metadata": null
+                        },
+                        {
+                            "id": "24338bc2-2afd-3323-91d6-e43e6454d70e",
+                            "tag": "JOBBER_DU_NORMAL_ARBEIDSUKE_0",
+                            "sporsmalstekst": "Jobber du vanligvis 37,5 timer i uka hos Jordisk Kunst Katt Kryddermål?",
+                            "undertekst": null,
+                            "min": null,
+                            "max": null,
+                            "svartype": "JA_NEI",
+                            "kriterieForVisningAvUndersporsmal": "NEI",
+                            "svar": [],
+                            "undersporsmal": [
+                                {
+                                    "id": "eae8ed98-27f4-390e-990e-3fbc33a615bc",
+                                    "tag": "HVOR_MANGE_TIMER_PER_UKE_0",
+                                    "sporsmalstekst": "Oppgi timer per uke",
+                                    "undertekst": "Eksempel: 8,5",
+                                    "min": "1",
+                                    "max": "150",
+                                    "svartype": "TIMER",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                }
+                            ],
+                            "metadata": null
+                        }
+                    ],
+                    "metadata": null
+                },
+                {
+                    "id": "aba9c35d-4cb3-30fd-9a8d-204925f33764",
+                    "tag": "ANDRE_INNTEKTSKILDER_V2",
+                    "sporsmalstekst": "Har du andre inntektskilder enn Jordisk Kunst Katt Kryddermål?",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "JA_NEI",
+                    "kriterieForVisningAvUndersporsmal": "JA",
+                    "svar": [
+                        {
+                            "verdi": "NEI"
+                        }
+                    ],
+                    "undersporsmal": [
+                        {
+                            "id": "ee238a88-da38-30ad-a8b7-6d237a5ff69f",
+                            "tag": "HVILKE_ANDRE_INNTEKTSKILDER",
+                            "sporsmalstekst": "Velg inntektskildene som passer for deg:",
+                            "undertekst": "Finner du ikke noe som passer for deg, svarer du nei på spørsmålet over",
+                            "min": null,
+                            "max": null,
+                            "svartype": "CHECKBOX_GRUPPE",
+                            "kriterieForVisningAvUndersporsmal": null,
+                            "svar": [],
+                            "undersporsmal": [
+                                {
+                                    "id": "93f60703-9c81-321a-80a5-ef76ec3595ab",
+                                    "tag": "INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD",
+                                    "sporsmalstekst": "Ansatt andre steder enn nevnt over",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": "CHECKED",
+                                    "svar": [],
+                                    "undersporsmal": [
+                                        {
+                                            "id": "db130c20-971a-372c-bf13-da32e4152ad5",
+                                            "tag": "INNTEKTSKILDE_ANDRE_ARBEIDSFORHOLD_JOBBET_I_DET_SISTE",
+                                            "sporsmalstekst": "Har du jobbet for eller mottatt inntekt fra én eller flere av disse arbeidsgiverne de siste 14 dagene før du ble sykmeldt?",
+                                            "undertekst": null,
+                                            "min": null,
+                                            "max": null,
+                                            "svartype": "JA_NEI",
+                                            "kriterieForVisningAvUndersporsmal": null,
+                                            "svar": [],
+                                            "undersporsmal": [],
+                                            "metadata": null
+                                        }
+                                    ],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "d3fa228f-07b4-3145-b8ae-6fbb2551a6f9",
+                                    "tag": "INNTEKTSKILDE_SELVSTENDIG",
+                                    "sporsmalstekst": "Selvstendig næringsdrivende",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "42cc1c93-ab72-3796-8833-57f26a221ae0",
+                                    "tag": "INNTEKTSKILDE_SELVSTENDIG_DAGMAMMA",
+                                    "sporsmalstekst": "Dagmamma",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "6d9eaba8-18f7-3a0c-974d-e7dadba19041",
+                                    "tag": "INNTEKTSKILDE_JORDBRUKER",
+                                    "sporsmalstekst": "Jordbruk / Fiske / Reindrift",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "1f88ace0-d0e2-3ac7-aa63-cc5a60e7e1c2",
+                                    "tag": "INNTEKTSKILDE_FRILANSER",
+                                    "sporsmalstekst": "Frilanser",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "5857c52d-e7f8-3998-bd3f-5508cd1fa27d",
+                                    "tag": "INNTEKTSKILDE_OMSORGSLONN",
+                                    "sporsmalstekst": "Kommunal omsorgstønad",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "b8341e66-f889-3987-a7ea-852e5c343032",
+                                    "tag": "INNTEKTSKILDE_FOSTERHJEM",
+                                    "sporsmalstekst": "Fosterhjemsgodtgjørelse",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                },
+                                {
+                                    "id": "3cd34d9e-1b90-3556-9bb9-c16d3a364b3f",
+                                    "tag": "INNTEKTSKILDE_STYREVERV",
+                                    "sporsmalstekst": "Styreverv",
+                                    "undertekst": null,
+                                    "min": null,
+                                    "max": null,
+                                    "svartype": "CHECKBOX",
+                                    "kriterieForVisningAvUndersporsmal": null,
+                                    "svar": [],
+                                    "undersporsmal": [],
+                                    "metadata": null
+                                }
+                            ],
+                            "metadata": null
+                        }
+                    ],
+                    "metadata": {
+                        "kjenteInntektskilder": [
+                            {
+                                "navn": "Jordisk Kunst Katt Kryddermål",
+                                "kilde": "SYKMELDING",
+                                "orgnummer": "315587336"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "532be66a-a26a-31e0-92dd-b9abbd65853b",
+                    "tag": "OPPHOLD_UTENFOR_EOS",
+                    "sporsmalstekst": "Var du på reise utenfor EU/EØS mens du var sykmeldt 4. - 22. november 2024?",
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "JA_NEI",
+                    "kriterieForVisningAvUndersporsmal": "JA",
+                    "svar": [
+                        {
+                            "verdi": "NEI"
+                        }
+                    ],
+                    "undersporsmal": [
+                        {
+                            "id": "eea0dde6-f99f-31b0-a344-9fad1ee9646b",
+                            "tag": "OPPHOLD_UTENFOR_EOS_NAR",
+                            "sporsmalstekst": "Når var du utenfor EU/EØS?",
+                            "undertekst": null,
+                            "min": "2024-11-04",
+                            "max": "2024-11-22",
+                            "svartype": "PERIODER",
+                            "kriterieForVisningAvUndersporsmal": null,
+                            "svar": [],
+                            "undersporsmal": [],
+                            "metadata": null
+                        }
+                    ],
+                    "metadata": null
+                },
+                {
+                    "id": "0ef55925-42f6-313f-bebf-43d6bb83f785",
+                    "tag": "TIL_SLUTT",
+                    "sporsmalstekst": null,
+                    "undertekst": null,
+                    "min": null,
+                    "max": null,
+                    "svartype": "OPPSUMMERING",
+                    "kriterieForVisningAvUndersporsmal": null,
+                    "svar": [
+                        {
+                            "verdi": "true"
+                        }
+                    ],
+                    "undersporsmal": [],
+                    "metadata": null
+                }
+            ],
+            "avsendertype": "BRUKER",
+            "ettersending": false,
+            "mottaker": "ARBEIDSGIVER_OG_NAV",
+            "egenmeldtSykmelding": false,
+            "yrkesskade": null,
+            "arbeidUtenforNorge": null,
+            "harRedusertVenteperiode": null,
+            "behandlingsdager": [],
+            "permitteringer": [],
+            "merknaderFraSykmelding": null,
+            "egenmeldingsdagerFraSykmelding": null,
+            "merknader": null,
+            "sendTilGosys": null,
+            "utenlandskSykmelding": false,
+            "medlemskapVurdering": null,
+            "forstegangssoknad": false,
+            "tidligereArbeidsgiverOrgnummer": null,
+            "fiskerBlad": null,
+            "inntektFraNyttArbeidsforhold": [],
+            "selvstendigNaringsdrivende": null,
+            "friskTilArbeidVedtakId": null,
+            "friskTilArbeidVedtakPeriode": null,
+            "fortsattArbeidssoker": null,
+            "inntektUnderveis": null,
+            "ignorerArbeidssokerregister": null
+        }
+    """
+
     fun forespoerselDokument(
         orgnr: String,
         fnr: String,

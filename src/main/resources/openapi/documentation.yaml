@@ -100,6 +100,9 @@ paths:
             '*/*':
               schema:
                 type: "object"
+              examples:
+                Example#1:
+                  value: "Ugyldig NavReferanseId"
         "409":
           description: "Conflict"
           content:
@@ -124,6 +127,146 @@ paths:
               examples:
                 Example#1:
                   value: "En feil oppstod"
+  /v1/inntektsmelding/{inntektsmeldingId}:
+    get:
+      description: "Hent inntektsmelding med id"
+      parameters:
+        - name: "inntektsmelding"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - name: "inntektsmeldingId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ingen inntektsmeldinger funnet"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av inntektsmeldinger"
+  /v1/inntektsmelding/navReferanseId/{navReferanseId}:
+    get:
+      description: "Hent alle inntektsmeldinger med navReferanseId"
+      parameters:
+        - name: "navReferanseId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ingen inntektsmeldinger funnet"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av inntektsmeldinger"
+  /v1/inntektsmelding/status/{status}:
+    get:
+      description: "Hent alle inntektsmeldinger med status"
+      parameters:
+        - name: "status"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ingen inntektsmeldinger funnet"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmeldinger:
     get:
       description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
@@ -594,6 +737,10 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/RefusjonEndring"
+        sluttdato:
+          type: "string"
+          format: "date"
+          nullable: true
       required:
         - "beloepPerMaaned"
         - "endringer"
@@ -728,6 +875,10 @@ components:
     InntektsmeldingFilterRequest:
       type: "object"
       properties:
+        innsendingId:
+          type: "string"
+          format: "uuid"
+          nullable: true
         fnr:
           type: "string"
           nullable: true
@@ -743,6 +894,14 @@ components:
           type: "string"
           format: "date-time"
           nullable: true
+        status:
+          type: "string"
+          nullable: true
+          enum:
+            - "MOTTATT"
+            - "UNDER_BEHANDLING"
+            - "FEILET"
+            - "GODKJENT"
     Sykmeldt:
       type: "object"
       properties:

@@ -3,7 +3,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -15,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
 import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.validerMotForespoersel
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
@@ -32,6 +33,7 @@ fun Route.inntektsmeldingV1(services: Services) {
         filtrerInntektsmeldinger(services.inntektsmeldingService)
         inntektsmeldinger(services.inntektsmeldingService)
         innsending(services)
+        inntektsmelding(services.inntektsmeldingService)
     }
 }
 
@@ -52,7 +54,7 @@ private fun Route.innsending(services: Services) {
 
             val forespoersel =
                 services.forespoerselService.hentForespoersel(request.navReferanseId)
-                    ?: return@post call.respond(HttpStatusCode.BadRequest)
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
 
             request.validerMotForespoersel(forespoersel, sluttbrukerOrgnr)?.let {
                 return@post call.respond(HttpStatusCode.BadRequest, it)
@@ -126,6 +128,84 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
                 ?.let {
                     call.respond(it)
                 } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+}
+
+private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
+    // Hent inntektsmelding med id
+    get("/inntektsmelding/{inntektsmeldingId}") {
+        try {
+            val inntektsmeldingId = call.parameters["inntektsmelding"]?.let { UUID.fromString(it) }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    sluttbrukerOrgnr,
+                    InntektsmeldingFilterRequest(
+                        innsendingId = inntektsmeldingId,
+                    ),
+                ).let {
+                    if (it.antall > 0) {
+                        call.respond(it)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                    }
+                }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+    // Hent alle inntektsmeldinger med navReferanseId
+    get("/inntektsmelding/navReferanseId/{navReferanseId}") {
+        try {
+            val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    sluttbrukerOrgnr,
+                    InntektsmeldingFilterRequest(
+                        navReferanseId = navReferanseId,
+                    ),
+                ).let {
+                    if (it.antall > 0) {
+                        call.respond(it)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                    }
+                }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+    // Hent alle inntektsmeldinger med status
+    get("/inntektsmelding/status/{status}") {
+        try {
+            val status = call.parameters["status"]?.let { InnsendingStatus.valueOf(it) }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
+            inntektsmeldingService
+                .hentInntektsMeldingByRequest(
+                    sluttbrukerOrgnr,
+                    InntektsmeldingFilterRequest(
+                        status = status,
+                    ),
+                ).let {
+                    if (it.antall > 0) {
+                        call.respond(it)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                    }
+                }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
