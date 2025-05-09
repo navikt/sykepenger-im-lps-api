@@ -1,4 +1,4 @@
-@file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class)
+@file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class, UuidSerializer::class)
 
 package no.nav.helsearbeidsgiver.kafka.soknad
 
@@ -6,16 +6,18 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Serializable
 data class SykepengesoknadDTO(
-    val id: String,
+    val id: UUID,
     val type: SoknadstypeDTO,
     val status: SoknadsstatusDTO,
     val fnr: String,
-    val sykmeldingId: String? = null,
+    val sykmeldingId: UUID? = null,
     val arbeidsgiver: ArbeidsgiverDTO? = null,
     val arbeidssituasjon: ArbeidssituasjonDTO? = null,
     val korrigerer: String? = null,

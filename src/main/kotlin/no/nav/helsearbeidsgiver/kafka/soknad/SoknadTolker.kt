@@ -1,11 +1,14 @@
 package no.nav.helsearbeidsgiver.kafka.soknad
 
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.soknad.SoknadService
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-class SoknadTolker : MeldingTolker {
+class SoknadTolker(
+    private val soknadService: SoknadService,
+) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
 
@@ -15,7 +18,7 @@ class SoknadTolker : MeldingTolker {
             sikkerLogger.info(
                 "Mottok søknad med id ${soknadMessage.id}, sykmeldingId ${soknadMessage.sykmeldingId} og sendtNav ${soknadMessage.sendtNav}.",
             )
-            // TODO: Lagre søknad i database
+            soknadService.lagreSoknad(soknadMessage)
         } catch (e: Exception) {
             val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
             logger.error(errorMsg)
