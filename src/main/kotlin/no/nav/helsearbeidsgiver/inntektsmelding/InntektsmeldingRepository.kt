@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
 import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -73,13 +72,15 @@ class InntektsmeldingRepository(
             InntektsmeldingEntitet
                 .selectAll()
                 .where {
-                    (orgnr eq orgNr) and
-                        (if (request.status != null) status eq request.status else Op.TRUE) and
-                        (if (request.innsendingId != null) innsendingId eq request.innsendingId else Op.TRUE) and
-                        (if (request.fnr != null) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.navReferanseId != null) navReferanseId eq request.navReferanseId else Op.TRUE) and
-                        (request.fraTid?.let { innsendt greaterEq it } ?: Op.TRUE) and
-                        (request.tilTid?.let { innsendt lessEq it } ?: Op.TRUE)
+                    listOfNotNull(
+                        orgnr eq orgNr,
+                        request.status?.let { status eq it },
+                        request.innsendingId?.let { innsendingId eq it },
+                        request.fnr?.let { fnr eq it },
+                        request.navReferanseId?.let { navReferanseId eq it },
+                        request.fraTid?.let { innsendt greaterEq it },
+                        request.tilTid?.let { innsendt lessEq it },
+                    ).reduce { acc, cond -> acc and cond }
                 }.map { it.toExposedInntektsmelding() }
         }
 
