@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.soknad
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.soknadMock
 import org.jetbrains.exposed.sql.Database
@@ -37,7 +38,7 @@ class SoknadRepositoryTest {
     fun `lagreSoknad skal lagre søknad`() {
         val soknad = soknadMock()
 
-        soknadRepository.lagreSoknad(soknad)
+        soknadRepository.lagreSoknad(soknad.tilLagreSoknad())
 
         val lagretSoknad = soknadRepository.hentSoknad(soknad.id)
 
@@ -45,36 +46,22 @@ class SoknadRepositoryTest {
     }
 
     @Test
-    fun `lagreSoknad skal ignorere søknader som mangler sykmeldingId`() {
-        val soknad = soknadMock().copy(sykmeldingId = null)
-
-        soknadRepository.lagreSoknad(soknad)
-
-        val lagretSoknad = soknadRepository.hentSoknad(soknad.id)
-
-        lagretSoknad shouldBe null
-    }
-
-    @Test
-    fun `lagreSoknad skal ignorere søknader som mangler orgnr`() {
-        val arbeidsgiver = soknadMock().arbeidsgiver!!.copy(orgnummer = null)
-        val soknad = soknadMock().copy(arbeidsgiver = arbeidsgiver)
-
-        soknadRepository.lagreSoknad(soknad)
-
-        val lagretSoknad = soknadRepository.hentSoknad(soknad.id)
-
-        lagretSoknad shouldBe null
-    }
-
-    @Test
     fun `hentSoknad skal hente søknad med id`() {
         val soknader = List(10) { UUID.randomUUID() }.map { id -> soknadMock().copy(id = id) }
 
-        soknader.forEach { soknadRepository.lagreSoknad(it) }
+        soknader.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
 
         val soknadValgt = soknader[2]
 
         soknadRepository.hentSoknad(soknadValgt.id) shouldBe soknadValgt
     }
+
+    private fun SykepengesoknadDTO.tilLagreSoknad(): LagreSoknad =
+        LagreSoknad(
+            soknadId = id,
+            sykmeldingId = sykmeldingId!!,
+            fnr = fnr,
+            orgnr = arbeidsgiver?.orgnummer!!,
+            sykepengesoknad = this,
+        )
 }

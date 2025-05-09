@@ -14,22 +14,19 @@ import java.util.UUID
 class SoknadRepository(
     private val db: Database,
 ) {
-    fun lagreSoknad(soknad: SykepengesoknadDTO) {
+    fun lagreSoknad(soknad: LagreSoknad) {
         try {
-            val validertSoknad = soknad.validerPaakrevdeFelter()
             transaction(db) {
                 SoknadEntitet.insert {
-                    it[soknadId] = validertSoknad.soknadId
-                    it[sykmeldingId] = validertSoknad.sykmeldingId
-                    it[fnr] = validertSoknad.fnr
-                    it[orgnr] = validertSoknad.orgnr
-                    it[sykepengesoknad] = validertSoknad.sykepengesoknad
+                    it[soknadId] = soknad.soknadId
+                    it[sykmeldingId] = soknad.sykmeldingId
+                    it[fnr] = soknad.fnr
+                    it[orgnr] = soknad.orgnr
+                    it[sykepengesoknad] = soknad.sykepengesoknad
                 }
             }
-        } catch (e: IllegalArgumentException) {
-            sikkerLogger().error("Ignorerer sykepengesøknad med $soknad fordi søknaden mangler et påkrevd felt.", e)
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å lagre sykepengesøknad $soknad i databasen: ${e.message}")
+            sikkerLogger().error("Klarte ikke å lagre sykepengesøknad  med id ${soknad.soknadId} i databasen", e)
             throw e
         }
     }
@@ -43,20 +40,3 @@ class SoknadRepository(
                 .firstOrNull()
         }
 }
-
-private fun SykepengesoknadDTO.validerPaakrevdeFelter(): LagreSoknad =
-    LagreSoknad(
-        soknadId = id,
-        sykmeldingId = requireNotNull(sykmeldingId, { "SykmeldingId kan ikke være null" }),
-        fnr = fnr,
-        orgnr = requireNotNull(arbeidsgiver?.orgnummer, { "Orgnummer kan ikke være null" }),
-        sykepengesoknad = this,
-    )
-
-data class LagreSoknad(
-    val soknadId: UUID,
-    val sykmeldingId: UUID,
-    val fnr: String,
-    val orgnr: String,
-    val sykepengesoknad: SykepengesoknadDTO,
-)
