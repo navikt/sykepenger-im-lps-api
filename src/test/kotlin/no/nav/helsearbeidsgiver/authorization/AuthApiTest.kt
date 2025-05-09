@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.authorization
 
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -15,7 +16,9 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -105,5 +108,20 @@ class AuthApiTest : ApiTest() {
             val inntektsmeldingFilterResponse = response.body<InntektsmeldingFilterResponse>()
             inntektsmeldingFilterResponse.antall shouldBe 1
             inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+        }
+
+    @Test
+    fun `hent soknader fra api`() =
+        runTest {
+            val orgnr = "315587336"
+            every { repositories.soknadRepository.hentSoknader(orgnr) } returns listOf(TestData.soknadMock())
+            val response =
+                client.get("/v1/soknader") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val soknadResponse = response.body<List<SykepengesoknadDTO>>()
+            soknadResponse.size shouldBe 1
+            soknadResponse.map { it.arbeidsgiver?.orgnummer } shouldContainOnly listOf(orgnr)
         }
 }

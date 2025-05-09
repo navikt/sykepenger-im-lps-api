@@ -31,6 +31,10 @@ class SoknadRepository(
         }
     }
 
+    fun hentSoknader(orgnr: String): List<SykepengesoknadDTO> {
+        TODO("Not Implemented yet")
+    }
+
     fun hentSoknad(id: UUID): SykepengesoknadDTO? =
         transaction(db) {
             SoknadEntitet

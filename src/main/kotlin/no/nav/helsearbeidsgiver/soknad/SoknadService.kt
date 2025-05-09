@@ -4,8 +4,10 @@ import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class SoknadService(
-    val soknadRepository: SoknadRepository,
+    private val soknadRepository: SoknadRepository,
 ) {
+    fun hentSoknader(orgnr: String): List<SykepengesoknadDTO> = soknadRepository.hentSoknader(orgnr)
+
     fun lagreSoknad(soknad: SykepengesoknadDTO) {
         try {
             soknadRepository.lagreSoknad(soknad.validerPaakrevdeFelter())
