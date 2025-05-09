@@ -25,6 +25,9 @@ jobs:
           java-version: 21
           distribution: temurin
 
+        env:
+          TESTCONTAINERS_HOST_OVERRIDE: host.docker.internal
+          TESTCONTAINERS_RYUK_DISABLED: true
 
       - name: Test and build
         run: ./gradlew build
