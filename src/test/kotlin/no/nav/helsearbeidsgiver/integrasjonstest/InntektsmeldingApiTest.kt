@@ -15,10 +15,10 @@ import java.util.UUID
 class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
     @Test
     fun `henter inntektsmeldinger basert på status`() {
-        val im1Id = UUID.randomUUID()
-        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = im1Id, orgNr = Orgnr("810007982"))
-        val im2Id = UUID.randomUUID()
-        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = im2Id, orgNr = Orgnr("810007982"))
+        val id1 = UUID.randomUUID()
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgNr = Orgnr("810007982"))
+        val id2 = UUID.randomUUID()
+        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr("810007982"))
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1, InnsendingStatus.GODKJENT)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2, InnsendingStatus.MOTTATT)
         runTest {
@@ -31,25 +31,25 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
             val inntektsmeldingResponse = response.body<InntektsmeldingFilterResponse>()
             inntektsmeldingResponse.antall shouldBe 1
             inntektsmeldingResponse.inntektsmeldinger[0].status shouldBe InnsendingStatus.GODKJENT
-            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe im1Id
+            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe id1
         }
     }
 
     @Test
     fun `henter inntektsmeldinger basert på navReferanseId`() {
-        val im1Id = UUID.randomUUID()
+        val id1 = UUID.randomUUID()
         val im1NavReferanseId = UUID.randomUUID()
         val inntektsmelding1 =
             buildInntektsmelding(
-                inntektsmeldingId = im1Id,
+                inntektsmeldingId = id1,
                 orgNr = Orgnr("810007982"),
                 forespoerselId = im1NavReferanseId,
             )
-        val im2Id = UUID.randomUUID()
+        val id2 = UUID.randomUUID()
         val im2NavReferanseId = UUID.randomUUID()
         val inntektsmelding2 =
             buildInntektsmelding(
-                inntektsmeldingId = im2Id,
+                inntektsmeldingId = id2,
                 orgNr = Orgnr("810007982"),
                 forespoerselId = im2NavReferanseId,
             )
@@ -65,28 +65,28 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
             val inntektsmeldingResponse = response.body<InntektsmeldingFilterResponse>()
             inntektsmeldingResponse.antall shouldBe 1
             inntektsmeldingResponse.inntektsmeldinger[0].navReferanseId shouldBe im1NavReferanseId
-            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe im1Id
+            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe id1
         }
     }
 
     @Test
     fun `henter inntektsmeldinger basert på inntektsmeldingId`() {
-        val im1Id = UUID.randomUUID()
-        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = im1Id, orgNr = Orgnr("810007982"))
-        val im2Id = UUID.randomUUID()
-        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = im2Id, orgNr = Orgnr("810007982"))
+        val id1 = UUID.randomUUID()
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgNr = Orgnr("810007982"))
+        val id2 = UUID.randomUUID()
+        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr("810007982"))
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2)
         runTest {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/inntektsmelding/$im1Id",
+                    url = "http://localhost:8080/v1/inntektsmelding/$id1",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"),
                 )
 
             val inntektsmeldingResponse = response.body<InntektsmeldingFilterResponse>()
             inntektsmeldingResponse.antall shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe im1Id
+            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe id1
         }
     }
 }
