@@ -131,11 +131,6 @@ paths:
     get:
       description: "Hent inntektsmelding med id"
       parameters:
-        - name: "inntektsmelding"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
         - name: "inntektsmeldingId"
           in: "path"
           required: true
@@ -737,10 +732,6 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/RefusjonEndring"
-        sluttdato:
-          type: "string"
-          format: "date"
-          nullable: true
       required:
         - "beloepPerMaaned"
         - "endringer"
@@ -841,7 +832,6 @@ components:
           type: "string"
           enum:
             - "MOTTATT"
-            - "UNDER_BEHANDLING"
             - "FEILET"
             - "GODKJENT"
         statusMelding:
@@ -899,7 +889,6 @@ components:
           nullable: true
           enum:
             - "MOTTATT"
-            - "UNDER_BEHANDLING"
             - "FEILET"
             - "GODKJENT"
     Sykmeldt:
