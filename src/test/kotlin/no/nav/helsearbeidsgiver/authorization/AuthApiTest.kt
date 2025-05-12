@@ -16,7 +16,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -120,8 +120,8 @@ class AuthApiTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val soknadResponse = response.body<List<SykepengesoknadDTO>>()
+            val soknadResponse = response.body<List<Sykepengesoknad>>()
             soknadResponse.size shouldBe 1
-            soknadResponse.map { it.arbeidsgiver?.orgnummer } shouldContainOnly listOf(orgnr)
+            soknadResponse.map { it.arbeidsgiver.orgnr } shouldContainOnly listOf(orgnr)
         }
 }
