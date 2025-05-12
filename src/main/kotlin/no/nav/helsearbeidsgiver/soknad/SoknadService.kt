@@ -1,12 +1,25 @@
 package no.nav.helsearbeidsgiver.soknad
 
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
+import java.util.UUID
 
 class SoknadService(
     private val soknadRepository: SoknadRepository,
 ) {
-    fun hentSoknader(orgnr: String): List<SykepengesoknadDTO> = soknadRepository.hentSoknader(orgnr)
+    fun hentSoknader(orgnr: String): List<Sykepengesoknad> =
+        soknadRepository.hentSoknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
+
+    fun hentSoknad(
+        soknadId: UUID,
+        orgnr: String,
+    ): Sykepengesoknad? =
+        soknadRepository.hentSoknad(soknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
+            it?.arbeidsgiver?.orgnummer ==
+                orgnr
+        }
 
     fun lagreSoknad(soknad: SykepengesoknadDTO) {
         try {

@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 fun Route.soknadV1(soknadService: SoknadService) {
     route("/v1") {
@@ -28,6 +29,28 @@ private fun Route.soknader(soknadService: SoknadService) {
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av søknader", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknader")
+        }
+    }
+
+    get("/soknad/{soknadId}") {
+        try {
+            val soknadId = call.parameters["soknadId"]?.let { UUID.fromString(it) }
+            requireNotNull(soknadId) { "soknadId: $soknadId ikke gyldig UUID" }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soknadId] på vegene av orgnr: $sluttbrukerOrgnr")
+            val soknad = soknadService.hentSoknad(soknadId, sluttbrukerOrgnr)
+            if (soknad == null) {
+                call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soknadId")
+            } else {
+                call.respond(soknad)
+            }
+        } catch (e: IllegalArgumentException) {
+            sikkerLogger().error(e.message, e)
+            call.respond(HttpStatusCode.NotFound, "Ikke gyldig søknadId")
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av søknader", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknad")
         }
     }
 }

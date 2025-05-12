@@ -124,4 +124,20 @@ class AuthApiTest : ApiTest() {
             soknadResponse.size shouldBe 1
             soknadResponse.map { it.arbeidsgiver.orgnummer } shouldContainOnly listOf(orgnr)
         }
+
+    @Test
+    fun `hent soknad fra api`() =
+        runTest {
+            val orgnr = "315587336"
+            val soknad = TestData.soknadMock()
+            every { repositories.soknadRepository.hentSoknad(soknad.id) } returns soknad
+            val response =
+                client.get("/v1/soknad/${soknad.id}") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val soknadResponse = response.body<Sykepengesoknad>()
+            soknadResponse.arbeidsgiver.orgnummer shouldBe orgnr
+            soknadResponse.id shouldBe soknad.id
+        }
 }
