@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.soknad
 
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.orgnr
 import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.soknadId
 import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.sykepengesoknad
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -31,9 +32,13 @@ class SoknadRepository(
         }
     }
 
-    fun hentSoknader(orgnr: String): List<SykepengesoknadDTO> {
-        TODO("Not Implemented yet")
-    }
+    fun hentSoknader(orgnr: String): List<SykepengesoknadDTO> =
+        transaction(db) {
+            SoknadEntitet
+                .selectAll()
+                .where { SoknadEntitet.orgnr eq orgnr }
+                .map { it[sykepengesoknad] }
+        }
 
     fun hentSoknad(id: UUID): SykepengesoknadDTO? =
         transaction(db) {

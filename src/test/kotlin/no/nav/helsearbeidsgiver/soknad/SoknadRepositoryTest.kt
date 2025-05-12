@@ -5,6 +5,8 @@ import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.soknadMock
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -54,6 +56,25 @@ class SoknadRepositoryTest {
         val soknadValgt = soknader[2]
 
         soknadRepository.hentSoknad(soknadValgt.id) shouldBe soknadValgt
+    }
+
+    @Test
+    fun `hentSoknader skal bare hente søknader med riktig orgnr`() {
+        val orgnr = Orgnr.genererGyldig()
+        val soknaderMedSammeOrgnr =
+            List(3) { UUID.randomUUID() }.map { id ->
+                soknadMock().copy(id = id, arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Test organisasjon", orgnr.verdi))
+            }
+        val soknader =
+            List(5) { UUID.randomUUID() }.map { id ->
+                soknadMock().copy(
+                    id = id,
+                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Tilfeltdig Tigerorg", Orgnr.genererGyldig().verdi),
+                )
+            }
+        soknader.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
+        soknaderMedSammeOrgnr.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
+        soknadRepository.hentSoknader(orgnr.verdi) shouldBe soknaderMedSammeOrgnr
     }
 
     private fun SykepengesoknadDTO.tilLagreSoknad(): LagreSoknad =
