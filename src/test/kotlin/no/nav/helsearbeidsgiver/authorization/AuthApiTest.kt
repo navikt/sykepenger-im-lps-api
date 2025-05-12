@@ -122,6 +122,6 @@ class AuthApiTest : ApiTest() {
             response.status shouldBe HttpStatusCode.OK
             val soknadResponse = response.body<List<Sykepengesoknad>>()
             soknadResponse.size shouldBe 1
-            soknadResponse.map { it.arbeidsgiver.orgnr } shouldContainOnly listOf(orgnr)
+            soknadResponse.map { it.arbeidsgiver.orgnummer } shouldContainOnly listOf(orgnr)
         }
 }

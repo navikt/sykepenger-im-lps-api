@@ -5,7 +5,6 @@ package no.nav.helsearbeidsgiver.soknad
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
-import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -71,6 +70,12 @@ data class Sykepengesoknad(
         AVBRUTT,
         SLETTET,
     }
+
+    @Serializable
+    data class Arbeidsgiver(
+        val navn: String,
+        val orgnummer: String,
+    )
 
     @Serializable
     enum class ArbeidsverForskutterer {
