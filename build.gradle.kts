@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 val bakgrunnsjobbVersion: String by project
 val coroutineVersion: String by project
 val exposedVersion: String by project
@@ -98,22 +100,14 @@ dependencies {
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
-    test {
-        useJUnitPlatform()
-        exclude("**/integrasjonstest/**")
-        testLogging {
-            events("failed")
-        }
-        environment("database.embedded", "true")
-        environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read")
-        environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
-        environment("NAV_ARBEIDSGIVER_PORTAL_BASEURL", "https://arbeidsgiver.intern.dev.nav.no")
-        environment("NAV_ARBEIDSGIVER_API_BASEURL", "https://sykepenger-im-lps-api.ekstern.dev.nav.no")
+    named<ShadowJar>("shadowJar") {
+        mergeServiceFiles()
+        archiveBaseName.set("${project.name}-all")
     }
-
-    register<Test>("integrasjonsTest") {
+    withType<Test> {
         useJUnitPlatform()
-        include("**/integrasjonstest/**")
+    }
+    test {
         testLogging {
             events("failed")
         }
