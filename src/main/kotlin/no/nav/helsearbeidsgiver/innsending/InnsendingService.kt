@@ -51,7 +51,6 @@ class InnsendingService(
                 "Sender _ikke_ melding om innsendt IM til innsending kafka topic.",
             )
         }
-
         return Pair(kontekstId, mottatt)
     }
 }

@@ -18,7 +18,6 @@ class InnsendingProducer(
         key: String,
         vararg message: Pair<InnsendingKafka.Key, JsonElement>,
     ): JsonElement =
-
         message
             .toMap()
             .toJson()
