@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.innsending
 
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -12,11 +13,13 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInnsending
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class InnsendingServiceTest {
@@ -27,9 +30,13 @@ class InnsendingServiceTest {
             bakgrunnsjobbRepository,
             httpClient = createHttpClient(),
         )
-    private val innsendingService = InnsendingService(innsendingProducer, leaderElectedBakgrunnsjobbService)
+    private val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
+    private val innsendingService =
+        InnsendingService(innsendingProducer, leaderElectedBakgrunnsjobbService, mockUnleashFeatureToggles)
 
-    init {
+    @BeforeEach
+    fun init() {
+        clearAllMocks()
         every {
             innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         } returns JsonNull
@@ -37,11 +44,12 @@ class InnsendingServiceTest {
 
     @Test
     fun `sendInn kaller innsendingproducer sin send-metode med forventede nøkler og verdier`() {
-        val innsendtSkjema = mockInnsending()
+        every { mockUnleashFeatureToggles.skalSendeApiInnsendteImerTilSimba() } returns true
 
+        val innsendtSkjema = mockInnsending()
         val (kontekstId, mottatt) = innsendingService.sendInn(innsendtSkjema)
 
-        verify {
+        verify(exactly = 1) {
             innsendingProducer.send(
                 innsendtSkjema.skjema.forespoerselId.toString(),
                 InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.API_INNSENDING_STARTET.toJson(),
@@ -69,6 +77,16 @@ class InnsendingServiceTest {
                         jobb.dataJson == innsendtSkjema.toJson(Innsending.serializer())
                 },
             )
+        }
+    }
+
+    @Test
+    fun `sendInn kaller _ikke_ innsendingproducer sin send-metode dersom videresending til simba er skrudd av med feature toggle`() {
+        every { mockUnleashFeatureToggles.skalSendeApiInnsendteImerTilSimba() } returns false
+        innsendingService.sendInn(mockInnsending())
+
+        verify(exactly = 0) {
+            innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         }
     }
 }
