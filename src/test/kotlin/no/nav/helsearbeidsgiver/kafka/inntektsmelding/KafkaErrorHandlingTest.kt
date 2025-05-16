@@ -6,7 +6,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -26,7 +25,6 @@ class KafkaErrorHandlingTest {
     private lateinit var forespoerselRepository: ForespoerselRepository
 
     val mockMottakRepository = mockk<MottakRepository>()
-    val mockDialogportenService = mockk<IDialogportenService>()
 
     private lateinit var forespoerselTolker: ForespoerselTolker
 

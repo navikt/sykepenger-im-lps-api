@@ -42,7 +42,7 @@ abstract class LpsApiIntegrasjontest {
             port = 8080,
             module = {
                 apiModule(services = services, authClient = mockk(relaxed = true))
-                configureKafkaConsumers(tolkers)
+                configureKafkaConsumers(tolkers, mockk(relaxed = true))
             },
         )
     val mockOAuth2Server =
@@ -65,7 +65,7 @@ abstract class LpsApiIntegrasjontest {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, mockk(relaxed = true))
+        services = configureServices(repositories, mockk(relaxed = true), mockk(relaxed = true))
         tolkers = configureTolkere(services, repositories)
 
         server.start(wait = false)

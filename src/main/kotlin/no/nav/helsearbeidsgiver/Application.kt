@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
+import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -32,7 +33,9 @@ fun startServer() {
 
     val authClient = configureAuthClient()
 
-    val services = configureServices(repositories, authClient)
+    val unleashFeatureToggles = configureUnleashFeatureToggles()
+
+    val services = configureServices(repositories, authClient, unleashFeatureToggles)
     val tolkere =
         configureTolkere(
             services = services,
@@ -44,7 +47,7 @@ fun startServer() {
         port = 8080,
         module = {
             apiModule(services = services, authClient = authClient)
-            configureKafkaConsumers(tolkere)
+            configureKafkaConsumers(tolkere = tolkere, unleashFeatureToggles = unleashFeatureToggles)
         },
     ).start(wait = true)
 }
