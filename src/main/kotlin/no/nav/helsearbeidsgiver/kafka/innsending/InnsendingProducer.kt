@@ -11,13 +11,19 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 
 interface InnsendingProducerI {
-    fun send(vararg message: Pair<InnsendingKafka.Key, JsonElement>): JsonElement
+    fun send(
+        key: String,
+        vararg message: Pair<InnsendingKafka.Key, JsonElement>,
+    ): JsonElement
 }
 
 class IngenInnsendingProducer : InnsendingProducerI {
     private val topic = getProperty("kafkaProducer.innsending.topic")
 
-    override fun send(vararg message: Pair<InnsendingKafka.Key, JsonElement>): JsonElement =
+    override fun send(
+        key: String,
+        vararg message: Pair<InnsendingKafka.Key, JsonElement>,
+    ): JsonElement =
         JsonNull
             .also { sikkerLogger().info("Publiserer ingen melding om innsendt skjema til $topic.") }
 }
@@ -27,10 +33,14 @@ class InnsendingProducer(
 ) : InnsendingProducerI {
     private val topic = getProperty("kafkaProducer.innsending.topic")
 
-    override fun send(vararg message: Pair<InnsendingKafka.Key, JsonElement>): JsonElement =
+    override fun send(
+        key: String,
+        vararg message: Pair<InnsendingKafka.Key, JsonElement>,
+    ): JsonElement =
         message
             .toMap()
             .toJson()
+            .toRecord(key)
             .let(::send)
             .onSuccess {
                 sikkerLogger().info("Publiserte melding om innsendt skjema på topic $topic:\n${it.toPretty()}")
@@ -53,13 +63,11 @@ class InnsendingProducer(
             ),
         )
 
-    private fun send(message: JsonElement): Result<JsonElement> =
+    fun send(message: ProducerRecord<String, JsonElement>): Result<JsonElement> =
         message
-            .toRecord()
             .runCatching {
                 kafkaProducer.send(this).get()
-            }.map { message }
+            }.map { message.value() }
 
-    // TODO publiser på key forespoerselid for å partisjonere riktig
-    private fun JsonElement.toRecord(): ProducerRecord<String, JsonElement> = ProducerRecord(topic, this)
+    private fun JsonElement.toRecord(key: String): ProducerRecord<String, JsonElement> = ProducerRecord(topic, key, this)
 }
