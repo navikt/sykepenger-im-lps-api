@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
@@ -101,8 +102,14 @@ class MeldingTolkerTest {
         tolkere.inntektsmeldingTolker.lesMelding(buildJournalfoertInntektsmelding())
         tolkere.inntektsmeldingTolker.lesMelding(ARBEIDSGIVER_INITIERT_IM_MOTTATT)
 
-        // Skal ikke lagre:
-        tolkere.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
+        tolkere.inntektsmeldingTolker.lesMelding(IM_MOTTATT)
+    }
+
+    @Test
+    fun `ugyldig inntektsmelding kaster exception`() {
+        assertThrows<SerializationException> {
+            tolkere.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
+        }
     }
 
     @Test
