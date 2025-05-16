@@ -65,7 +65,7 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, authClient)
+        services = configureServices(repositories, authClient, mockk())
         forespoerselTolker =
             ForespoerselTolker(
                 forespoerselRepository = repositories.forespoerselRepository,
