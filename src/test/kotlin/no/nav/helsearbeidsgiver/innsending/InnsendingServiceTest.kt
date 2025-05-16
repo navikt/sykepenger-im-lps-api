@@ -38,7 +38,7 @@ class InnsendingServiceTest {
     fun init() {
         clearAllMocks()
         every {
-            innsendingProducer.send(*anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
+            innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         } returns JsonNull
     }
 
@@ -51,6 +51,7 @@ class InnsendingServiceTest {
 
         verify(exactly = 1) {
             innsendingProducer.send(
+                innsendtSkjema.skjema.forespoerselId.toString(),
                 InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.API_INNSENDING_STARTET.toJson(),
                 InnsendingKafka.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
                 InnsendingKafka.Key.DATA to
@@ -85,7 +86,7 @@ class InnsendingServiceTest {
         innsendingService.sendInn(mockInnsending())
 
         verify(exactly = 0) {
-            innsendingProducer.send(*anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
+            innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         }
     }
 }
