@@ -26,9 +26,11 @@ class InnsendingService(
     fun sendInn(innsending: Innsending): Pair<UUID, LocalDateTime> {
         val mottatt = LocalDateTime.now()
         val kontekstId = UUID.randomUUID()
+        val partitionKey = innsending.skjema.forespoerselId.toString()
 
         innsendingProducer
             .send(
+                partitionKey,
                 InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.API_INNSENDING_STARTET.toJson(),
                 InnsendingKafka.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
                 InnsendingKafka.Key.DATA to

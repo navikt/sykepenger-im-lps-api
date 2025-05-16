@@ -31,7 +31,7 @@ class InnsendingServiceTest {
 
     init {
         every {
-            innsendingProducer.send(*anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
+            innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         } returns JsonNull
     }
 
@@ -43,6 +43,7 @@ class InnsendingServiceTest {
 
         verify {
             innsendingProducer.send(
+                innsendtSkjema.skjema.forespoerselId.toString(),
                 InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.API_INNSENDING_STARTET.toJson(),
                 InnsendingKafka.Key.KONTEKST_ID to kontekstId.toJson(UuidSerializer),
                 InnsendingKafka.Key.DATA to
