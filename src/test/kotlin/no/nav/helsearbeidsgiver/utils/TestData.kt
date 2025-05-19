@@ -224,6 +224,14 @@ object TestData {
 
     const val UGYLDIG_JSON = """{ "hei":"gakk",....   """
 
+    const val UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID =
+        """
+        {
+            "notis": "FORESPOERSEL_BESVART",
+            "spinnInntektsmeldingId": "329da7e0-ae51-4d26-a5e6-d70adb83aa16"
+        }
+        """
+
     const val UGYLDIG_FORESPOERSEL_MOTTATT =
         """ 
         {
