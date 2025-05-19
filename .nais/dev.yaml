@@ -20,14 +20,15 @@ spec:
     limits:
       memory: "1024Mi"
   observability:
+    logging:
+      destinations:
+        - id: secure_logs
     autoInstrumentation:
       enabled: true
       runtime: java
   prometheus:
     enabled: true
     path: /metrics
-  secureLogs:
-    enabled: true
   kafka:
     pool: nav-dev
   ingresses:
