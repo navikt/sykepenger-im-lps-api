@@ -8,36 +8,36 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
     Sykepengesoknad(
         id = this.id,
         type = Sykepengesoknad.Soknadstype.valueOf(this.type.name),
-        status = Sykepengesoknad.Soknadsstatus.valueOf(this.status.name),
+        // status = Sykepengesoknad.Soknadsstatus.valueOf(this.status.name),
         fnr = this.fnr,
         sykmeldingId = this.sykmeldingId,
         arbeidsgiver = konverter(this.arbeidsgiver!!),
-        arbeidssituasjon = enumValueOrNull(this.arbeidssituasjon!!.name),
-        korrigertAv = this.korrigertAv,
+        // arbeidssituasjon = enumValueOrNull(this.arbeidssituasjon!!.name),
+        // korrigertAv = this.korrigertAv,
         korrigerer = this.korrigerer,
         soktUtenlandsopphold = this.soktUtenlandsopphold,
-        arbeidsgiverForskutterer = enumValueOrNull(this.arbeidsgiverForskutterer?.name),
+        arbeidsgiverForskutterer = this.arbeidsgiverForskutterer.tilArbeidsgiverForskutterer(),
         fom = this.fom,
         tom = this.tom,
         startSykeforlop = this.startSyketilfelle,
         arbeidGjenopptatt = this.arbeidGjenopptatt,
         sykmeldingSkrevet = this.sykmeldingSkrevet,
-        opprettet = this.opprettet,
+        // opprettet = this.opprettet,
         sendtNav = this.sendtNav,
         sendtArbeidsgiver = this.sendtArbeidsgiver,
-        behandlingsdager = this.behandlingsdager ?: emptyList(),
+        // behandlingsdager = this.behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
         egenmeldinger =
             this.egenmeldinger
                 ?.map { konverter(it) }
-                .orEmpty(),
+                .orEmpty(), // TODO: Skal vi ta med egenmeldinger fra sykmeldingen
         fravarForSykmeldingen =
             this.fravarForSykmeldingen
                 ?.map { konverter(it) }
                 .orEmpty(),
-        papirsykmeldinger =
+        /*papirsykmeldinger =
             this.papirsykmeldinger
                 ?.map { konverter(it) }
-                .orEmpty(),
+                .orEmpty(),*/
         fravar =
             this.fravar
                 ?.map { konverter(it) }
@@ -54,7 +54,7 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
             this.sporsmal
                 ?.map { konverter(it) }
                 .orEmpty(),
-        ettersending = this.ettersending,
+        // ettersending = this.ettersending,
     )
 
 private fun konverter(svarDTO: SykepengesoknadDTO.SvarDTO): Sykepengesoknad.Svar =
@@ -119,6 +119,14 @@ private fun konverter(inntektskildeDTO: SykepengesoknadDTO.InntektskildeDTO): Sy
     )
 
 private inline fun <reified T : Enum<*>> enumValueOrNull(name: String?): T? = T::class.java.enumConstants.firstOrNull { it.name == name }
+
+private fun SykepengesoknadDTO.ArbeidsgiverForskuttererDTO?.tilArbeidsgiverForskutterer(): Sykepengesoknad.ArbeidsverForskutterer =
+    when (this) {
+        SykepengesoknadDTO.ArbeidsgiverForskuttererDTO.JA -> Sykepengesoknad.ArbeidsverForskutterer.JA
+        SykepengesoknadDTO.ArbeidsgiverForskuttererDTO.NEI -> Sykepengesoknad.ArbeidsverForskutterer.NEI
+        SykepengesoknadDTO.ArbeidsgiverForskuttererDTO.VET_IKKE -> Sykepengesoknad.ArbeidsverForskutterer.VET_IKKE
+        else -> Sykepengesoknad.ArbeidsverForskutterer.IKKE_SPURT
+    }
 
 private val whitelistetHovedsporsmal =
     listOf(

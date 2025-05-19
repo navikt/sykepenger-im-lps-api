@@ -25,31 +25,31 @@ data class Sykepengesoknad(
     val fnr: String,
     val sykmeldingId: UUID? = null,
     val type: Soknadstype,
-    val status: Soknadsstatus,
+    // val status: Soknadsstatus,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val startSykeforlop: LocalDate? = null,
     val arbeidGjenopptatt: LocalDate? = null,
-    val opprettet: LocalDateTime? = null,
+    // val opprettet: LocalDateTime? = null,
     val sendtNav: LocalDateTime? = null,
     val sendtArbeidsgiver: LocalDateTime? = null,
     val sykmeldingSkrevet: LocalDateTime? = null,
     val arbeidsgiver: Arbeidsgiver,
-    val arbeidsgiverForskutterer: ArbeidsverForskutterer? = null,
+    val arbeidsgiverForskutterer: ArbeidsverForskutterer,
     val soktUtenlandsopphold: Boolean? = null,
     val korrigerer: String? = null,
-    val korrigertAv: String? = null,
-    val arbeidssituasjon: Arbeidssituasjon? = null,
+    // val korrigertAv: String? = null,
+    // val arbeidssituasjon: Arbeidssituasjon? = null,
     val soknadsperioder: List<Soknadsperiode> = arrayListOf(),
     val behandlingsdager: List<LocalDate> = arrayListOf(),
     val egenmeldinger: List<Periode> = arrayListOf(),
     val fravarForSykmeldingen: List<Periode> = arrayListOf(),
-    val papirsykmeldinger: List<Periode> = arrayListOf(),
+    // val papirsykmeldinger: List<Periode> = arrayListOf(),
     val fravar: List<Fravar> = arrayListOf(),
     val andreInntektskilder: List<Inntektskilde> = arrayListOf(),
     val sporsmal: List<Sporsmal> = arrayListOf(),
     val avsendertype: Avsendertype? = null,
-    val ettersending: Boolean = false,
+    // val ettersending: Boolean = false,
 ) {
     @Serializable
     enum class Soknadstype {
@@ -82,6 +82,7 @@ data class Sykepengesoknad(
         JA,
         NEI,
         VET_IKKE,
+        IKKE_SPURT, // Default verdi når arbeidsgiverForskutterer ikke er satt
     }
 
     @Serializable
