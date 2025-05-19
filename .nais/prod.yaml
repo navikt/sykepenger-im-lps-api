@@ -13,8 +13,6 @@ spec:
   replicas:
     max: 2
     min: 2
-  strategy:
-    type: Recreate
   resources:
     requests:
       cpu: "250m"
