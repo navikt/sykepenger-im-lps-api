@@ -35,6 +35,7 @@ spec:
     pool: nav-dev
   ingresses:
     - https://sykepenger-im-lps-api.ekstern.dev.nav.no
+    - https://sykepenger-api.ekstern.dev.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:
