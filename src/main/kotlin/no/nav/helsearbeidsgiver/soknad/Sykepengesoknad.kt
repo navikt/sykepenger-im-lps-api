@@ -60,7 +60,7 @@ data class Sykepengesoknad(
         GRADERT_REISETILSKUDD,
     }
 
-    @Serializable
+    /*@Serializable
     enum class Soknadsstatus {
         NY,
         SENDT,
@@ -69,7 +69,7 @@ data class Sykepengesoknad(
         KORRIGERT,
         AVBRUTT,
         SLETTET,
-    }
+    }*/
 
     @Serializable
     data class Arbeidsgiver(
@@ -85,7 +85,7 @@ data class Sykepengesoknad(
         IKKE_SPURT, // Default verdi når arbeidsgiverForskutterer ikke er satt
     }
 
-    @Serializable
+    /*@Serializable
     enum class Arbeidssituasjon(
         val value: String,
     ) {
@@ -95,7 +95,7 @@ data class Sykepengesoknad(
         ;
 
         override fun toString() = value
-    }
+    }*/
 
     @Serializable
     data class Soknadsperiode(
