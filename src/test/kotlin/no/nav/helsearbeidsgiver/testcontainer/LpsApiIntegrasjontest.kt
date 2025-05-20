@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.testcontainer
 
+import io.getunleash.FakeUnleash
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
@@ -8,6 +9,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.delay
 import no.nav.helsearbeidsgiver.apiModule
@@ -21,6 +23,7 @@ import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -36,13 +39,15 @@ abstract class LpsApiIntegrasjontest {
     lateinit var repositories: Repositories
     lateinit var services: Services
     lateinit var tolkers: Tolkere
+
+    val mockUnleash = mockk<UnleashFeatureToggles>(relaxed = true)
     val server =
         embeddedServer(
             factory = Netty,
             port = 8080,
             module = {
                 apiModule(services = services, authClient = mockk(relaxed = true))
-                configureKafkaConsumers(tolkers, mockk(relaxed = true))
+                configureKafkaConsumers(tolkers, mockUnleash)
             },
         )
     val mockOAuth2Server =
@@ -58,6 +63,7 @@ abstract class LpsApiIntegrasjontest {
 
     @BeforeAll
     fun setup() {
+        every { mockUnleash.skalKonsumereSykepengesoknader() } returns true
         db =
             DatabaseConfig(
                 System.getProperty("database.url"),
