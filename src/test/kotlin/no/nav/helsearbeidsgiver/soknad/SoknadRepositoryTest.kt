@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.soknad
 
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
