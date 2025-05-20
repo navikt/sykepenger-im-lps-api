@@ -74,7 +74,7 @@ class SoknadRepositoryTest {
             }
         soknader.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
         soknaderMedSammeOrgnr.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
-        soknadRepository.hentSoknader(orgnr.verdi) shouldBe soknaderMedSammeOrgnr
+        soknadRepository.hentSoknader(orgnr.verdi) shouldContainOnly soknaderMedSammeOrgnr
     }
 
     private fun SykepengesoknadDTO.tilLagreSoknad(): LagreSoknad =
