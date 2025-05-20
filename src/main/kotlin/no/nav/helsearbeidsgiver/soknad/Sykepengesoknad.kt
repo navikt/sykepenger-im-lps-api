@@ -41,7 +41,7 @@ data class Sykepengesoknad(
     // val korrigertAv: String? = null,
     // val arbeidssituasjon: Arbeidssituasjon? = null,
     val soknadsperioder: List<Soknadsperiode> = arrayListOf(),
-    val behandlingsdager: List<LocalDate> = arrayListOf(),
+    //val behandlingsdager: List<LocalDate> = arrayListOf(),
     val egenmeldinger: List<Periode> = arrayListOf(),
     val fravarForSykmeldingen: List<Periode> = arrayListOf(),
     // val papirsykmeldinger: List<Periode> = arrayListOf(),
