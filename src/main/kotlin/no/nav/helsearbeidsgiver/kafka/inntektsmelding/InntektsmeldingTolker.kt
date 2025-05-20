@@ -23,9 +23,8 @@ class InntektsmeldingTolker(
             try {
                 parseRecord(melding)
             } catch (e: Exception) {
-                sikkerLogger.info("Ugyldig event, ignorerer melding")
-                mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
-                return
+                sikkerLogger.error("Ugyldig inntektsmeldingformat!", e)
+                throw e // ikke gå videre ved feil
             }
         transaction {
             try {

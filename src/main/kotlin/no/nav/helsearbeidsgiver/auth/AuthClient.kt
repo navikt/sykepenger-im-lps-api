@@ -36,7 +36,6 @@ class DefaultAuthClient : AuthClient {
     private val tokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
     private val tokenExchangeEndpoint = Env.getProperty("NAIS_TOKEN_EXCHANGE_ENDPOINT")
     private val tokenIntrospectionEndpoint = Env.getProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT")
-    private val tokenAltinn3ExchangeEndpoint = "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
 
     override fun tokenGetter(
         identityProvider: AuthClientIdentityProvider,
@@ -100,12 +99,16 @@ class DefaultAuthClient : AuthClient {
                     },
             ).body()
 
-    override suspend fun altinnExchange(token: String): String =
-        httpClient
+    override suspend fun altinnExchange(token: String): String {
+        val tokenAltinn3ExchangeEndpoint =
+            "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
+
+        return httpClient
             .get(tokenAltinn3ExchangeEndpoint) {
                 bearerAuth(token)
             }.bodyAsText()
             .replace("\"", "")
+    }
 
     private suspend fun ResponseException.logAndRethrow(): Nothing {
         val error = response.body<ErrorResponse>()

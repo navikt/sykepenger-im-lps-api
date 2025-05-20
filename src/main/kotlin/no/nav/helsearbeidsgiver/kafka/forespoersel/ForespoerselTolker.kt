@@ -27,17 +27,18 @@ class ForespoerselTolker(
             } catch (e: Exception) {
                 if (matcherBehovMelding(melding)) {
                     logger.debug("Ignorerer behov-melding")
+                    return
                 } else {
-                    mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
+                    sikkerLogger.error("Ugyldig forespørselformat!", e)
+                    throw e
                 }
-                return
             }
         logger.info("Mottatt notis ${obj.notis}")
         val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
         if (forespoerselId == null) {
             logger().error("forespoerselId er null!")
-            mottakRepository.opprett(ExposedMottak(melding, gyldig = false))
-            return
+            sikkerLogger.error("forespoerselId er null! Melding: $melding")
+            throw IllegalArgumentException("forespoerselId er null!")
         }
         when (obj.notis) {
             NotisType.FORESPØRSEL_MOTTATT -> {
