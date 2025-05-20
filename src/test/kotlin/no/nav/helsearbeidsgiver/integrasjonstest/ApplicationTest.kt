@@ -63,20 +63,20 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             forespoerselSvar.antall shouldBe 1
         }
     }
+
     @Test
     fun `leser søknad fra kafka og henter det via api`() {
         val soknadRecord = ProducerRecord("flex.sykepengesoknad", "key", TestData.SYKEPENGESOKNAD)
         Producer.sendMelding(soknadRecord)
-
         runTest {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/soknader",
+                    url = "http://localhost:8080/v1/soknad/9e088b5a-16c8-3dcc-91fb-acdd544b8607",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("315587336"),
                 )
-            val sykepengeSoknadListe = response.body<List<Sykepengesoknad>>()
-            sykepengeSoknadListe.size shouldBe 1
-            sykepengeSoknadListe.first().fnr shouldBe "05449412615"
+            val sykepengesoknad = response.body<Sykepengesoknad>()
+            sykepengesoknad.fnr shouldBe "05449412615"
+            sykepengesoknad.arbeidsgiver.orgnummer shouldBe "315587336"
         }
     }
 }

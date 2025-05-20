@@ -24,6 +24,7 @@ class SoknadService(
     fun lagreSoknad(soknad: SykepengesoknadDTO) {
         try {
             soknadRepository.lagreSoknad(soknad.validerPaakrevdeFelter())
+            sikkerLogger().info("lagret søknad med id: ${soknad.id}")
         } catch (e: IllegalArgumentException) {
             sikkerLogger().error(
                 "Ignorerer sykepengesøknad med id ${soknad.id} fordi søknaden mangler et påkrevd felt.",
