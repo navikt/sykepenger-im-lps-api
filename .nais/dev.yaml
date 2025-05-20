@@ -20,18 +20,22 @@ spec:
     limits:
       memory: "1024Mi"
   observability:
+    logging:
+      destinations:
+        - id: secure_logs
     autoInstrumentation:
       enabled: true
       runtime: java
+  secureLogs:
+    enabled: true
   prometheus:
     enabled: true
     path: /metrics
-  secureLogs:
-    enabled: true
   kafka:
     pool: nav-dev
   ingresses:
     - https://sykepenger-im-lps-api.ekstern.dev.nav.no
+    - https://sykepenger-api.ekstern.dev.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:
