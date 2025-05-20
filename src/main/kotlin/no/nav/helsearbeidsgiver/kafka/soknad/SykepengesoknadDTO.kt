@@ -192,7 +192,6 @@ data class SykepengesoknadDTO(
         val kriterieForVisningAvUndersporsmal: VisningskriteriumDTO? = null,
         val svar: List<SvarDTO>? = null,
         val undersporsmal: List<SporsmalDTO>? = null,
-        // val metadata: JsonNode? = null, // TODO: Hva gjør vi med denne?
     )
 
     @Serializable

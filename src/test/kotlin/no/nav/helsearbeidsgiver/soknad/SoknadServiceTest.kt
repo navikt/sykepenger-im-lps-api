@@ -37,11 +37,11 @@ class SoknadServiceTest {
     }
 
     @Test
-    fun `lagreSoknad skal lagre søknad`() {
+    fun `behandleSoknad skal lagre søknad`() {
         val soknad =
             soknadMock()
 
-        soknadService.lagreSoknad(soknad)
+        soknadService.behandleSoknad(soknad)
 
         val lagretSoknad =
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
@@ -50,11 +50,11 @@ class SoknadServiceTest {
     }
 
     @Test
-    fun `lagreSoknad skal _ikke_ lagre søknad dersom den mangler sykmeldingId`() {
+    fun `behandleSoknad skal _ikke_ lagre søknad dersom den mangler sykmeldingId`() {
         val soknad =
             soknadMock().copy(sykmeldingId = null)
 
-        soknadService.lagreSoknad(soknad)
+        soknadService.behandleSoknad(soknad)
 
         val lagretSoknad =
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
@@ -63,7 +63,7 @@ class SoknadServiceTest {
     }
 
     @Test
-    fun `lagreSoknad skal _ikke_ lagre søknad dersom den mangler orgnr`() {
+    fun `behandleSoknad skal _ikke_ lagre søknad dersom den mangler orgnr`() {
         val soknad = soknadMock()
 
         val soknad1 =
@@ -71,8 +71,8 @@ class SoknadServiceTest {
         val soknad2 =
             soknad.copy(arbeidsgiver = soknad.arbeidsgiver?.copy(orgnummer = null))
 
-        soknadService.lagreSoknad(soknad1)
-        soknadService.lagreSoknad(soknad2)
+        soknadService.behandleSoknad(soknad1)
+        soknadService.behandleSoknad(soknad2)
 
         val lagretSoknad =
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
