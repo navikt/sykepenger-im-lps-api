@@ -128,9 +128,7 @@ class SoknadServiceTest {
 
         val arbeidssituasjonerSomIkkeSkalLagres =
             SykepengesoknadDTO.ArbeidssituasjonDTO.entries
-                .filterNot {
-                    it == SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER
-                }
+                .minus(SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER)
 
         val soknaderSomIkkeSkalLagres =
             arbeidssituasjonerSomIkkeSkalLagres.map {
@@ -177,7 +175,7 @@ class SoknadServiceTest {
         val soknad = soknadMock()
 
         val statuserSomIkkeSkalLagres =
-            SykepengesoknadDTO.SoknadsstatusDTO.entries.filterNot { it == SykepengesoknadDTO.SoknadsstatusDTO.SENDT }
+            SykepengesoknadDTO.SoknadsstatusDTO.entries.minus(SykepengesoknadDTO.SoknadsstatusDTO.SENDT)
 
         val soknaderSomIkkeSkalLagres =
             statuserSomIkkeSkalLagres.map { soknad.copy(id = UUID.randomUUID(), status = it) }
