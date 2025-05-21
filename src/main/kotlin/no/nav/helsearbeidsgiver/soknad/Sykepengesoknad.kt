@@ -46,7 +46,7 @@ data class Sykepengesoknad(
     val fravarForSykmeldingen: List<Periode> = arrayListOf(),
     // val papirsykmeldinger: List<Periode> = arrayListOf(),
     val fravar: List<Fravar> = arrayListOf(),
-    val andreInntektskilder: List<Inntektskilde> = arrayListOf(),
+    // val andreInntektskilder: List<Inntektskilde> = arrayListOf(),
     val sporsmal: List<Sporsmal> = arrayListOf(),
     val avsendertype: Avsendertype? = null,
     // val ettersending: Boolean = false,
@@ -117,13 +117,13 @@ data class Sykepengesoknad(
         REISETILSKUDD,
     }
 
-    @Serializable
+    /*@Serializable
     data class Inntektskilde(
         val type: Inntektskildetype,
         val sykmeldt: Boolean?,
-    )
+    )*/
 
-    @Serializable
+    /*@Serializable
     enum class Inntektskildetype {
         ANDRE_ARBEIDSFORHOLD,
         FRILANSER,
@@ -136,7 +136,7 @@ data class Sykepengesoknad(
         ARBEIDSFORHOLD,
         FRILANSER_SELVSTENDIG,
         STYREVERV,
-    }
+    }*/
 
     @Serializable
     data class Fravar(

@@ -42,10 +42,10 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
             this.fravar
                 ?.map { konverter(it) }
                 .orEmpty(),
-        andreInntektskilder =
+        /*andreInntektskilder =
             this.andreInntektskilder
                 ?.map { konverter(it) }
-                .orEmpty(),
+                .orEmpty(),*/
         soknadsperioder =
             this.soknadsperioder
                 ?.map { konverter(it) }
@@ -112,11 +112,11 @@ private fun konverter(fravarDTO: SykepengesoknadDTO.FravarDTO): Sykepengesoknad.
         type = Sykepengesoknad.Fravarstype.valueOf(fravarDTO.type!!.name),
     )
 
-private fun konverter(inntektskildeDTO: SykepengesoknadDTO.InntektskildeDTO): Sykepengesoknad.Inntektskilde =
+/*private fun konverter(inntektskildeDTO: SykepengesoknadDTO.InntektskildeDTO): Sykepengesoknad.Inntektskilde =
     Sykepengesoknad.Inntektskilde(
         type = Sykepengesoknad.Inntektskildetype.valueOf(inntektskildeDTO.type!!.name),
         sykmeldt = inntektskildeDTO.sykmeldt,
-    )
+    )*/
 
 private inline fun <reified T : Enum<*>> enumValueOrNull(name: String?): T? = T::class.java.enumConstants.firstOrNull { it.name == name }
 
