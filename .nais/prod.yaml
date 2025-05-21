@@ -20,6 +20,9 @@ spec:
     limits:
       memory: "1024Mi"
   observability:
+    logging:
+      destinations:
+        - id: secure_logs
     autoInstrumentation:
       enabled: true
       runtime: java
@@ -31,7 +34,7 @@ spec:
   kafka:
     pool: nav-prod
 #  ingresses:
-#    - https://sykepenger-im-lps-api.ekstern.nav.no
+#    - https://sykepenger-api.ekstern.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:
