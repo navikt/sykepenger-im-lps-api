@@ -18,7 +18,7 @@ class SoknadService(
     ): Sykepengesoknad? =
         soknadRepository.hentSoknad(soknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
             it?.arbeidsgiver?.orgnummer ==
-                    orgnr
+                orgnr
         }
 
     fun behandleSoknad(soknad: SykepengesoknadDTO) {
