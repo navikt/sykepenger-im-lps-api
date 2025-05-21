@@ -19,11 +19,12 @@ fun Route.soknadV1(soknadService: SoknadService) {
 
 private fun Route.soknader(soknadService: SoknadService) {
     // Hent forespørsler for tilhørende systembrukers orgnr.
-    get("/soknader") {
+    get("/sykepengesoknader") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknader for bedrift: [$sluttbrukerOrgnr]")
+
             val soknader: List<Sykepengesoknad> = soknadService.hentSoknader(sluttbrukerOrgnr)
             call.respond(soknader)
         } catch (e: Exception) {
@@ -32,13 +33,15 @@ private fun Route.soknader(soknadService: SoknadService) {
         }
     }
 
-    get("/soknad/{soknadId}") {
+    get("/sykepengesoknad/{soknadId}") {
         try {
             val soknadId = call.parameters["soknadId"]?.let { UUID.fromString(it) }
             requireNotNull(soknadId) { "soknadId: $soknadId ikke gyldig UUID" }
+
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soknadId] på vegene av orgnr: $sluttbrukerOrgnr")
+
             val soknad = soknadService.hentSoknad(soknadId, sluttbrukerOrgnr)
             if (soknad == null) {
                 call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soknadId")

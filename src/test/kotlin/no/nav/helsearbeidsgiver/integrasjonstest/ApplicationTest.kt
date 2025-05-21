@@ -71,7 +71,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         runTest {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/soknad/9e088b5a-16c8-3dcc-91fb-acdd544b8607",
+                    url = "http://localhost:8080/v1/sykepengesoknad/9e088b5a-16c8-3dcc-91fb-acdd544b8607",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("315587336"),
                 )
             val sykepengesoknad = response.body<Sykepengesoknad>()

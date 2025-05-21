@@ -116,7 +116,7 @@ class AuthApiTest : ApiTest() {
             val orgnr = "315587336"
             every { repositories.soknadRepository.hentSoknader(orgnr) } returns listOf(TestData.soknadMock())
             val response =
-                client.get("/v1/soknader") {
+                client.get("/v1/sykepengesoknader") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -132,7 +132,7 @@ class AuthApiTest : ApiTest() {
             val soknad = TestData.soknadMock()
             every { repositories.soknadRepository.hentSoknad(soknad.id) } returns soknad
             val response =
-                client.get("/v1/soknad/${soknad.id}") {
+                client.get("/v1/sykepengesoknad/${soknad.id}") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status shouldBe HttpStatusCode.OK
