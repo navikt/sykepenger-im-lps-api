@@ -7,6 +7,7 @@ import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
+import no.nav.helsearbeidsgiver.soknad.soknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 
 fun Application.configureRouting(services: Services) {
@@ -18,6 +19,7 @@ fun Application.configureRouting(services: Services) {
             )
             forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
+            soknadV1(soknadService = services.soknadService)
         }
     }
 }

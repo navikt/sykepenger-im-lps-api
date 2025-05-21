@@ -1,11 +1,26 @@
 package no.nav.helsearbeidsgiver.soknad
 
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
+import java.util.UUID
 
 class SoknadService(
     val soknadRepository: SoknadRepository,
 ) {
+    fun hentSoknader(orgnr: String): List<Sykepengesoknad> =
+        soknadRepository.hentSoknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
+
+    fun hentSoknad(
+        soknadId: UUID,
+        orgnr: String,
+    ): Sykepengesoknad? =
+        soknadRepository.hentSoknad(soknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
+            it?.arbeidsgiver?.orgnummer ==
+                orgnr
+        }
+
     fun behandleSoknad(soknad: SykepengesoknadDTO) {
         if (!soknad.skalLagresOgSendesTilArbeidsgiver()) {
             sikkerLogger().info("Søknad med id ${soknad.id} ignoreres fordi den ikke skal lagres og sendes til arbeidsgiver.")
@@ -19,6 +34,7 @@ class SoknadService(
 
         try {
             soknadRepository.lagreSoknad(soknad.validerPaakrevdeFelter())
+            sikkerLogger().info("lagret søknad med id: ${soknad.id}")
         } catch (e: IllegalArgumentException) {
             sikkerLogger().warn(
                 "Ignorerer sykepengesøknad med id ${soknad.id} fordi søknaden mangler et påkrevd felt.",
