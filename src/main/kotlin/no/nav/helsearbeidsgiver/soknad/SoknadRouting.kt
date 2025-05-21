@@ -24,7 +24,7 @@ private fun Route.soknader(soknadService: SoknadService) {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknader for bedrift: [$sluttbrukerOrgnr]")
-            val soknader = soknadService.hentSoknader(sluttbrukerOrgnr)
+            val soknader: List<Sykepengesoknad> = soknadService.hentSoknader(sluttbrukerOrgnr)
             call.respond(soknader)
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av søknader", e)
