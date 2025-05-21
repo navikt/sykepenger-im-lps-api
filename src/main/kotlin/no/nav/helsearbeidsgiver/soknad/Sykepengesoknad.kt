@@ -121,9 +121,9 @@ data class Sykepengesoknad(
     data class Inntektskilde(
         val type: Inntektskildetype,
         val sykmeldt: Boolean?,
-    )*/
+    )
 
-    /*@Serializable
+    @Serializable
     enum class Inntektskildetype {
         ANDRE_ARBEIDSFORHOLD,
         FRILANSER,
