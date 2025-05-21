@@ -25,8 +25,9 @@ class PdpService(
             sikkerLogger().info("orgnr: $orgnr, systembruker: $systembruker")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjon(
-                    systembruker,
-                    orgnr,
+                    systembrukerId = systembruker,
+                    orgnr = orgnr,
+                    ressurs = Env.getProperty("ALTINN_IM_RESSURS"),
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
         }
@@ -56,13 +57,11 @@ class IngenTilgangPdpService : IPdpService {
 fun lagPdpClient(authClient: AuthClient): PdpClient {
     val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
     val subscriptionKey = Env.getProperty("SUBSCRIPTION_KEY")
-    val altinnImRessurs = Env.getProperty("ALTINN_IM_RESSURS")
 
     val pdpClient =
         PdpClient(
             altinn3BaseUrl,
             subscriptionKey,
-            altinnImRessurs,
             authClient.pdpTokenGetter(),
         )
     return pdpClient
