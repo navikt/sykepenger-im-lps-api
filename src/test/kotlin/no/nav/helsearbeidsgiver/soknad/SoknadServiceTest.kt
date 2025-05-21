@@ -89,11 +89,13 @@ class SoknadServiceTest {
 
         val soknadstyperSomIkkeSkalLagres =
             SykepengesoknadDTO.SoknadstypeDTO.entries
-                .filterNot {
-                    it == SykepengesoknadDTO.SoknadstypeDTO.ARBEIDSTAKERE ||
-                        it == SykepengesoknadDTO.SoknadstypeDTO.GRADERT_REISETILSKUDD ||
-                        it == SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER
-                }
+                .minus(
+                    listOf(
+                        SykepengesoknadDTO.SoknadstypeDTO.ARBEIDSTAKERE,
+                        SykepengesoknadDTO.SoknadstypeDTO.GRADERT_REISETILSKUDD,
+                        SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER,
+                    ),
+                )
 
         val soknaderSomIkkeSkalLagres = soknadstyperSomIkkeSkalLagres.map { soknad.copy(type = it) }
 
@@ -152,7 +154,7 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().map { it.getOrNull(sykepengesoknad) } }
 
         lagredeSoknader.size shouldBe 2
-        lagredeSoknader.map { it?.id }.toSet() shouldBe listOf(idSomSkalLagres1, idSomSkalLagres2).toSet()
+        lagredeSoknader.map { it?.id }.toSet() shouldBe setOf(idSomSkalLagres1, idSomSkalLagres2)
     }
 
     @Test
