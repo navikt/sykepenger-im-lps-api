@@ -11,7 +11,7 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
         // status = Sykepengesoknad.Soknadsstatus.valueOf(this.status.name),
         fnr = this.fnr,
         sykmeldingId = this.sykmeldingId,
-        arbeidsgiver = konverter(this.arbeidsgiver!!),
+        arbeidsgiver = konverter(this.arbeidsgiver),
         // arbeidssituasjon = enumValueOrNull(this.arbeidssituasjon!!.name),
         // korrigertAv = this.korrigertAv,
         korrigerer = this.korrigerer,
@@ -62,13 +62,14 @@ private fun konverter(svarDTO: SykepengesoknadDTO.SvarDTO): Sykepengesoknad.Svar
         verdi = svarDTO.verdi,
     )
 
-private fun konverter(sporsmalDTO: SykepengesoknadDTO.SporsmalDTO): Sykepengesoknad.Sporsmal =
-    Sykepengesoknad.Sporsmal(
+private fun konverter(sporsmalDTO: SykepengesoknadDTO.SporsmalDTO): Sykepengesoknad.Sporsmal {
+    requireNotNull(sporsmalDTO.svartype)
+    return Sykepengesoknad.Sporsmal(
         id = sporsmalDTO.id,
         tag = sporsmalDTO.tag,
         sporsmalstekst = sporsmalDTO.sporsmalstekst,
         undertekst = sporsmalDTO.undertekst,
-        svartype = Sykepengesoknad.Svartype.valueOf(sporsmalDTO.svartype!!.name),
+        svartype = Sykepengesoknad.Svartype.valueOf(sporsmalDTO.svartype.name),
         min = sporsmalDTO.min,
         max = sporsmalDTO.max,
         kriterieForVisningAvUndersporsmal = enumValueOrNull(sporsmalDTO.kriterieForVisningAvUndersporsmal?.name),
@@ -81,36 +82,52 @@ private fun konverter(sporsmalDTO: SykepengesoknadDTO.SporsmalDTO): Sykepengesok
                 ?.map { konverter(it) }
                 .orEmpty(),
     )
+}
 
-private fun konverter(soknadPeriodeDTO: SykepengesoknadDTO.SoknadsperiodeDTO): Sykepengesoknad.Soknadsperiode =
-    Sykepengesoknad.Soknadsperiode(
-        fom = soknadPeriodeDTO.fom!!,
-        tom = soknadPeriodeDTO.tom!!,
-        sykmeldingsgrad = soknadPeriodeDTO.sykmeldingsgrad!!,
+private fun konverter(soknadPeriodeDTO: SykepengesoknadDTO.SoknadsperiodeDTO): Sykepengesoknad.Soknadsperiode {
+    requireNotNull(soknadPeriodeDTO.fom)
+    requireNotNull(soknadPeriodeDTO.tom)
+    requireNotNull(soknadPeriodeDTO.sykmeldingsgrad)
+    requireNotNull(soknadPeriodeDTO.sykmeldingstype)
+    return Sykepengesoknad.Soknadsperiode(
+        fom = soknadPeriodeDTO.fom,
+        tom = soknadPeriodeDTO.tom,
+        sykmeldingsgrad = soknadPeriodeDTO.sykmeldingsgrad,
         faktiskGrad = soknadPeriodeDTO.faktiskGrad,
         avtaltTimer = soknadPeriodeDTO.avtaltTimer,
         faktiskTimer = soknadPeriodeDTO.faktiskTimer,
-        sykmeldingstype = enumValueOrNull(soknadPeriodeDTO.sykmeldingstype!!.name),
+        sykmeldingstype = enumValueOrNull(soknadPeriodeDTO.sykmeldingstype.name),
     )
+}
 
-private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO): Sykepengesoknad.Arbeidsgiver =
-    Sykepengesoknad.Arbeidsgiver(
-        navn = arbeidsgiverDTO.navn!!,
-        orgnummer = arbeidsgiverDTO.orgnummer!!,
+private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO?): Sykepengesoknad.Arbeidsgiver {
+    requireNotNull(arbeidsgiverDTO)
+    requireNotNull(arbeidsgiverDTO.navn)
+    requireNotNull(arbeidsgiverDTO.orgnummer)
+    return Sykepengesoknad.Arbeidsgiver(
+        navn = arbeidsgiverDTO.navn,
+        orgnummer = arbeidsgiverDTO.orgnummer,
     )
+}
 
-private fun konverter(periodeDTO: SykepengesoknadDTO.PeriodeDTO): Periode =
-    Periode(
-        fom = periodeDTO.fom!!,
-        tom = periodeDTO.tom!!,
+private fun konverter(periodeDTO: SykepengesoknadDTO.PeriodeDTO): Periode {
+    requireNotNull(periodeDTO.fom)
+    requireNotNull(periodeDTO.tom)
+    return Periode(
+        fom = periodeDTO.fom,
+        tom = periodeDTO.tom,
     )
+}
 
-private fun konverter(fravarDTO: SykepengesoknadDTO.FravarDTO): Sykepengesoknad.Fravar =
-    Sykepengesoknad.Fravar(
-        fom = fravarDTO.fom!!,
+private fun konverter(fravarDTO: SykepengesoknadDTO.FravarDTO): Sykepengesoknad.Fravar {
+    requireNotNull(fravarDTO.fom)
+    requireNotNull(fravarDTO.type)
+    return Sykepengesoknad.Fravar(
+        fom = fravarDTO.fom,
         tom = fravarDTO.tom,
-        type = Sykepengesoknad.Fravarstype.valueOf(fravarDTO.type!!.name),
+        type = Sykepengesoknad.Fravarstype.valueOf(fravarDTO.type.name),
     )
+}
 
 /*private fun konverter(inntektskildeDTO: SykepengesoknadDTO.InntektskildeDTO): Sykepengesoknad.Inntektskilde =
     Sykepengesoknad.Inntektskilde(
