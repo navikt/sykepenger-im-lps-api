@@ -17,7 +17,7 @@ class SoknadService(
         orgnr: String,
     ): Sykepengesoknad? =
         soknadRepository.hentSoknad(soknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
-            it?.arbeidsgiver?.orgnummer ==
+            it?.arbeidsgiver?.orgnr ==
                 orgnr
         }
 

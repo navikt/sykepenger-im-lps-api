@@ -20,7 +20,7 @@ data class SykepengesoknadDTO(
     val sykmeldingId: UUID? = null,
     val arbeidsgiver: ArbeidsgiverDTO? = null,
     val arbeidssituasjon: ArbeidssituasjonDTO? = null,
-    val korrigerer: String? = null,
+    val korrigerer: UUID? = null, // gjør om til uuid?
     val korrigertAv: String? = null,
     val soktUtenlandsopphold: Boolean? = null,
     val arbeidsgiverForskutterer: ArbeidsgiverForskuttererDTO? = null,
