@@ -13,76 +13,23 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
         sykmeldingId = this.sykmeldingId,
         arbeidsgiver = konverter(this.arbeidsgiver),
         // arbeidssituasjon = enumValueOrNull(this.arbeidssituasjon!!.name),
-        // korrigertAv = this.korrigertAv,
         korrigerer = this.korrigerer,
         soktUtenlandsopphold = this.soktUtenlandsopphold,
-        arbeidsgiverForskutterer = this.arbeidsgiverForskutterer.tilArbeidsgiverForskutterer(),
         fom = this.fom,
         tom = this.tom,
-        startSykeforlop = this.startSyketilfelle,
         arbeidGjenopptatt = this.arbeidGjenopptatt,
-        sykmeldingSkrevet = this.sykmeldingSkrevet,
-        // opprettet = this.opprettet,
+        opprettet = this.opprettet,
         sendtNav = this.sendtNav,
-        sendtArbeidsgiver = this.sendtArbeidsgiver,
         // behandlingsdager = this.behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
-        egenmeldinger =
-            this.egenmeldinger
-                ?.map { konverter(it) }
-                .orEmpty(), // TODO: Skal vi ta med egenmeldinger fra sykmeldingen
-        fravarForSykmeldingen =
-            this.fravarForSykmeldingen
-                ?.map { konverter(it) }
-                .orEmpty(),
-        /*papirsykmeldinger =
-            this.papirsykmeldinger
-                ?.map { konverter(it) }
-                .orEmpty(),*/
         fravar =
             this.fravar
                 ?.map { konverter(it) }
                 .orEmpty(),
-        /*andreInntektskilder =
-            this.andreInntektskilder
-                ?.map { konverter(it) }
-                .orEmpty(),*/
         soknadsperioder =
             this.soknadsperioder
                 ?.map { konverter(it) }
                 .orEmpty(),
-        sporsmal =
-            this.sporsmal
-                ?.map { konverter(it) }
-                .orEmpty(),
-        // ettersending = this.ettersending,
     )
-
-private fun konverter(svarDTO: SykepengesoknadDTO.SvarDTO): Sykepengesoknad.Svar =
-    Sykepengesoknad.Svar(
-        verdi = svarDTO.verdi,
-    )
-
-private fun konverter(sporsmalDTO: SykepengesoknadDTO.SporsmalDTO): Sykepengesoknad.Sporsmal {
-    requireNotNull(sporsmalDTO.svartype)
-    return Sykepengesoknad.Sporsmal(
-        id = sporsmalDTO.id,
-        tag = sporsmalDTO.tag,
-        sporsmalstekst = sporsmalDTO.sporsmalstekst,
-        undertekst = sporsmalDTO.undertekst,
-        svartype = Sykepengesoknad.Svartype.valueOf(sporsmalDTO.svartype.name),
-        min = sporsmalDTO.min,
-        max = sporsmalDTO.max,
-        kriterieForVisningAvUndersporsmal = enumValueOrNull(sporsmalDTO.kriterieForVisningAvUndersporsmal?.name),
-        svar =
-            sporsmalDTO.svar
-                ?.map { konverter(it) }
-                .orEmpty(),
-        undersporsmal =
-            sporsmalDTO.undersporsmal
-                ?.map { konverter(it) }
-                .orEmpty(),
-    )
-}
 
 private fun konverter(soknadPeriodeDTO: SykepengesoknadDTO.SoknadsperiodeDTO): Sykepengesoknad.Soknadsperiode {
     requireNotNull(soknadPeriodeDTO.fom)
@@ -106,7 +53,7 @@ private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO?): Syk
     requireNotNull(arbeidsgiverDTO.orgnummer)
     return Sykepengesoknad.Arbeidsgiver(
         navn = arbeidsgiverDTO.navn,
-        orgnummer = arbeidsgiverDTO.orgnummer,
+        orgnr = arbeidsgiverDTO.orgnummer,
     )
 }
 
@@ -129,21 +76,7 @@ private fun konverter(fravarDTO: SykepengesoknadDTO.FravarDTO): Sykepengesoknad.
     )
 }
 
-/*private fun konverter(inntektskildeDTO: SykepengesoknadDTO.InntektskildeDTO): Sykepengesoknad.Inntektskilde =
-    Sykepengesoknad.Inntektskilde(
-        type = Sykepengesoknad.Inntektskildetype.valueOf(inntektskildeDTO.type!!.name),
-        sykmeldt = inntektskildeDTO.sykmeldt,
-    )*/
-
 private inline fun <reified T : Enum<*>> enumValueOrNull(name: String?): T? = T::class.java.enumConstants.firstOrNull { it.name == name }
-
-private fun SykepengesoknadDTO.ArbeidsgiverForskuttererDTO?.tilArbeidsgiverForskutterer(): Sykepengesoknad.ArbeidsverForskutterer =
-    when (this) {
-        SykepengesoknadDTO.ArbeidsgiverForskuttererDTO.JA -> Sykepengesoknad.ArbeidsverForskutterer.JA
-        SykepengesoknadDTO.ArbeidsgiverForskuttererDTO.NEI -> Sykepengesoknad.ArbeidsverForskutterer.NEI
-        SykepengesoknadDTO.ArbeidsgiverForskuttererDTO.VET_IKKE -> Sykepengesoknad.ArbeidsverForskutterer.VET_IKKE
-        else -> Sykepengesoknad.ArbeidsverForskutterer.IKKE_SPURT
-    }
 
 private val whitelistetHovedsporsmal =
     listOf(
