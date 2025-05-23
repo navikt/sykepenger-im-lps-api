@@ -18,7 +18,7 @@ class SoknadTolker(
             sikkerLogger.info(
                 "Mottok søknad med id ${soknadMessage.id}, sykmeldingId ${soknadMessage.sykmeldingId} og sendtNav ${soknadMessage.sendtNav}.",
             )
-            soknadService.lagreSoknad(soknadMessage)
+            soknadService.behandleSoknad(soknadMessage)
         } catch (e: Exception) {
             val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
             logger.error(errorMsg)

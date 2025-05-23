@@ -159,12 +159,12 @@ class MeldingTolkerTest {
 
     @Test
     fun `SoknadTolker lesMelding klarer å deserialisere soknad`() {
-        every { service.soknadService.lagreSoknad(any()) } just Runs
+        every { service.soknadService.behandleSoknad(any()) } just Runs
         val soknadJson =
             SYKEPENGESOKNAD.removeJsonWhitespace()
         tolkere.soknadTolker.lesMelding(soknadJson)
 
-        verify(exactly = 1) { service.soknadService.lagreSoknad(any()) }
+        verify(exactly = 1) { service.soknadService.behandleSoknad(any()) }
     }
 
     @Test
@@ -178,6 +178,6 @@ class MeldingTolkerTest {
         assertThrows<SerializationException> {
             tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
-        verify(exactly = 0) { service.soknadService.lagreSoknad(any()) }
+        verify(exactly = 0) { service.soknadService.behandleSoknad(any()) }
     }
 }
