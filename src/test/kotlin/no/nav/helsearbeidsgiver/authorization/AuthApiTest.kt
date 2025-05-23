@@ -68,20 +68,20 @@ class AuthApiTest : ApiTest() {
         runTest {
             val response1 =
                 client.get("/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
+                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             response1.status shouldBe HttpStatusCode.Unauthorized
 
             val response2 =
                 client.get("/v1/inntektsmeldinger") {
-                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
+                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             response2.status shouldBe HttpStatusCode.Unauthorized
 
             val requestBody = mockInntektsmeldingRequest()
             val response3 =
                 client.post("/v1/inntektsmelding") {
-                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker(DEFAULT_ORG))
+                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }

@@ -19,7 +19,7 @@ http://localhost:8080/swagger
 
 Hent test-token fra mockserver:
 ```
-ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=nav:helse/im.read&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/maskinporten/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
+ACCESSTOKEN=`curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "client_id=testid&scope=nav:helseytelser/sykepenger&client_secret=testpwd&grant_type=client_credentials" "localhost:33445/maskinporten/token" | grep access_token | cut -d ":" -f2 | cut -d "\"" -f2`
 ```
 Utfør et kall:
 ```
@@ -43,9 +43,7 @@ https://sykepenger-im-lps-api.ekstern.dev.nav.no/swagger
 
 
 ### Tests:
-Testene benytter h2-database og et separat flyway migrate-script i `src/test/resources/db/migration`
-Endringer / tillegg i standard-scriptene må legges til i denne fila. 
-Konfigurasjonsfila `src/test/resources/application.conf` lar deg overstyre parametere ved behov.
+Konfigurasjonsfila `src/test/resources/application.conf` og test-bolken i `build.gradle.kts` lar deg overstyre miljøvariabler ved behov.
 
 ---
 
