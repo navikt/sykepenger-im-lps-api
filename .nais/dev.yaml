@@ -54,6 +54,12 @@ spec:
           product: helse
           separator: "/"
           name: im.read
+        - accessibleForAll: true
+          atMaxAge: 600
+          enabled: true
+          product: helseytelser
+          separator: "/"
+          name: sykepenger
       consumes:
         - name: "altinn:authorization/authorize"
   azure:
@@ -70,7 +76,7 @@ spec:
     - secret: sykepenger-im-lps-api-unleash-api-token
   env:
     - name: EKSPONERT_MASKINPORTEN_SCOPES
-      value: "nav:helse/im.read"
+      value: "nav:helse/im.read nav:helseytelser/sykepenger"
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS

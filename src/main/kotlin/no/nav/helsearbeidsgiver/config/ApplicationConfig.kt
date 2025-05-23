@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
+import no.nav.helsearbeidsgiver.Env.getPropertyAsList
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
@@ -245,7 +246,7 @@ fun Application.configureAuth(authClient: AuthClient) {
                     IssuerConfig(
                         name = "maskinporten",
                         discoveryUrl = getProperty("maskinporten.wellknownUrl"),
-                        acceptedAudience = listOf(getProperty("maskinporten.eksponert_scopes")),
+                        acceptedAudience = getPropertyAsList("maskinporten.eksponert_scopes"),
                         optionalClaims = listOf("aud", "sub"),
                     ),
                 ),
@@ -255,7 +256,8 @@ fun Application.configureAuth(authClient: AuthClient) {
                     claimMap = arrayOf("authorization_details", "consumer", "scope"),
                 ),
             additionalValidation = {
-                it.gyldigScope() && it.gyldigSystembrukerOgConsumer(pdpService)
+                it.gyldigScope() &&
+                    it.gyldigSystembrukerOgConsumer(pdpService) // TODO: Skal erstattes per route
             },
             resourceRetriever =
                 DefaultResourceRetriever(
