@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.utils
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
     Sykepengesoknad(
@@ -53,7 +54,7 @@ private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO?): Syk
     requireNotNull(arbeidsgiverDTO.orgnummer)
     return Sykepengesoknad.Arbeidsgiver(
         navn = arbeidsgiverDTO.navn,
-        orgnr = arbeidsgiverDTO.orgnummer,
+        orgnr = Orgnr(arbeidsgiverDTO.orgnummer),
     )
 }
 

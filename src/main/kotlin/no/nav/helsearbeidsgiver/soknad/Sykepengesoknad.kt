@@ -7,6 +7,7 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -49,7 +50,7 @@ data class Sykepengesoknad(
     @Serializable
     data class Arbeidsgiver(
         val navn: String,
-        val orgnr: String,
+        val orgnr: Orgnr,
     )
 
     @Serializable
