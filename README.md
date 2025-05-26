@@ -39,7 +39,7 @@ https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbar
 
 Dev-miljøet er tilgjengelig på Internett:
 
-https://sykepenger-im-lps-api.ekstern.dev.nav.no/swagger
+https://sykepenger-api.ekstern.dev.nav.no/swagger
 
 
 ### Tests:

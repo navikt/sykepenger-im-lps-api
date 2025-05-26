@@ -80,7 +80,7 @@ spec:
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS
-      value: "nav_sykepenger_inntektsmelding-nedlasting"
+      value: "nav_system_sykepenger_inntektsmelding"
     - name: ALTINN_PDP_SCOPE
       value: "altinn:authorization/authorize"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL
