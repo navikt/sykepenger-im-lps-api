@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.utils
 
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
 import java.time.LocalDateTime
@@ -9,11 +8,9 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
     Sykepengesoknad(
         id = this.id,
         type = Sykepengesoknad.Soknadstype.valueOf(this.type.name),
-        // status = Sykepengesoknad.Soknadsstatus.valueOf(this.status.name),
         fnr = this.fnr,
         sykmeldingId = this.sykmeldingId,
         arbeidsgiver = konverter(this.arbeidsgiver),
-        // arbeidssituasjon = enumValueOrNull(this.arbeidssituasjon!!.name),
         korrigerer = this.korrigerer,
         soktUtenlandsopphold = this.soktUtenlandsopphold,
         fom = this.fom,
@@ -55,15 +52,6 @@ private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO?): Syk
     return Sykepengesoknad.Arbeidsgiver(
         navn = arbeidsgiverDTO.navn,
         orgnr = arbeidsgiverDTO.orgnummer,
-    )
-}
-
-private fun konverter(periodeDTO: SykepengesoknadDTO.PeriodeDTO): Periode {
-    requireNotNull(periodeDTO.fom)
-    requireNotNull(periodeDTO.tom)
-    return Periode(
-        fom = periodeDTO.fom,
-        tom = periodeDTO.tom,
     )
 }
 
