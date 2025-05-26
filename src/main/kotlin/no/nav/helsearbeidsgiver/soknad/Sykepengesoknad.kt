@@ -27,13 +27,13 @@ data class Sykepengesoknad(
     val type: Soknadstype,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val arbeidGjenopptatt: LocalDate? = null,
-    val opprettet: LocalDateTime? = null,
-    val sendtNav: LocalDateTime? = null,
+    val arbeidGjenopptattDato: LocalDate? = null,
+    val opprettetTid: LocalDateTime,
+    // TODO: kan ikke bruke opprettetTid da det for nye søknader er satt til når søknaden blir gjort tilgjengelig for bruker
+    val sendtNavTid: LocalDateTime? = null, // TODO: undersøk om vi kan fjerne denne.
     val arbeidsgiver: Arbeidsgiver,
     val soktUtenlandsopphold: Boolean? = null,
     val korrigerer: UUID? = null,
-    // val arbeidssituasjon: Arbeidssituasjon? = null,
     val soknadsperioder: List<Soknadsperiode> = arrayListOf(),
     // val behandlingsdager: List<LocalDate> = arrayListOf(),
     val fravar: List<Fravar> = arrayListOf(),

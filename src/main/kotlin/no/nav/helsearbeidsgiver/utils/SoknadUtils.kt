@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.LocalDateTime
 
 fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
     Sykepengesoknad(
@@ -18,9 +19,9 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
         soktUtenlandsopphold = this.soktUtenlandsopphold,
         fom = this.fom,
         tom = this.tom,
-        arbeidGjenopptatt = this.arbeidGjenopptatt,
-        opprettet = this.opprettet,
-        sendtNav = this.sendtNav,
+        arbeidGjenopptattDato = this.arbeidGjenopptatt,
+        opprettetTid = this.opprettet ?: LocalDateTime.now(),
+        sendtNavTid = this.sendtNav,
         // behandlingsdager = this.behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
         fravar =
             this.fravar
