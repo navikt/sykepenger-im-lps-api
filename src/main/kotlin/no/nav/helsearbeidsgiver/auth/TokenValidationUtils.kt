@@ -43,13 +43,20 @@ fun TokenValidationContext.getSystembrukerId(): String {
     return systemBrukerIdListe.first()
 }
 
-fun TokenValidationContext.gyldigSystembrukerOgConsumer(pdpService: IPdpService): Boolean {
+fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
     val systembrukerOrgnr = this.getSystembrukerOrgnr()
-    val systembruker = this.getSystembrukerId()
     val consumerOrgnr = this.getConsumerOrgnr()
     return consumerOrgnr.gyldigOrgnr() &&
-        systembrukerOrgnr.gyldigOrgnr() &&
-        pdpService.harTilgang(systembruker, systembrukerOrgnr)
+        systembrukerOrgnr.gyldigOrgnr()
+}
+
+fun TokenValidationContext.harTilgangTilRessurs(
+    pdpService: IPdpService,
+    ressurs: String,
+): Boolean {
+    val systembruker = this.getSystembrukerId()
+    val consumerOrgnr = this.getConsumerOrgnr()
+    return pdpService.harTilgang(systembruker, consumerOrgnr, ressurs)
 }
 
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))

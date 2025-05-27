@@ -10,8 +10,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
+import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -28,12 +30,15 @@ import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
+private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
+
 fun Route.inntektsmeldingV1(services: Services) {
+    // TODO: kunne registrert en authentication og benyttet denne her i en authentication{}-blokk
     route("/v1") {
-        filtrerInntektsmeldinger(services.inntektsmeldingService)
-        inntektsmeldinger(services.inntektsmeldingService)
+        filtrerInntektsmeldinger(services)
+        inntektsmeldinger(services)
         innsending(services)
-        inntektsmelding(services.inntektsmeldingService)
+        inntektsmelding(services)
     }
 }
 
@@ -44,7 +49,9 @@ private fun Route.innsending(services: Services) {
             val request = call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
+            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
 
@@ -91,16 +98,19 @@ private fun Route.innsending(services: Services) {
     }
 }
 
-private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.filtrerInntektsmeldinger(services: Services) {
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingFilterRequest>()
+            sikkerLogger().info("Mottatt request: $request")
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("Mottatt request: $request")
+            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
-            inntektsmeldingService
+            services.inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     orgnr = sluttbrukerOrgnr,
                     request = request,
@@ -115,14 +125,17 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     }
 }
 
-private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.inntektsmeldinger(services: Services) {
     // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
     get("/inntektsmeldinger") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
-            inntektsmeldingService
+            services.inntektsmeldingService
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
                 .takeIf { it.antall > 0 }
                 ?.let {
@@ -135,15 +148,18 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
     }
 }
 
-private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.inntektsmelding(services: Services) {
     // Hent inntektsmelding med id
     get("/inntektsmelding/{inntektsmeldingId}") {
         try {
             val inntektsmeldingId = call.parameters["inntektsmeldingId"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
-            inntektsmeldingService
+            services.inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(
@@ -167,8 +183,11 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
-            inntektsmeldingService
+            services.inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(
@@ -192,8 +211,11 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             val status = call.parameters["status"]?.let { InnsendingStatus.valueOf(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
-            inntektsmeldingService
+            services.inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(

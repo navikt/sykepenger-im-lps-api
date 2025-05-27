@@ -11,6 +11,7 @@ interface IPdpService {
     fun harTilgang(
         systembruker: String,
         orgnr: String,
+        ressurs: String,
     ): Boolean
 }
 
@@ -20,14 +21,15 @@ class PdpService(
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
+        ressurs: String,
     ): Boolean =
         runBlocking {
-            sikkerLogger().info("orgnr: $orgnr, systembruker: $systembruker")
+            sikkerLogger().info("PDP orgnr: $orgnr, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjon(
                     systembrukerId = systembruker,
                     orgnr = orgnr,
-                    ressurs = Env.getProperty("ALTINN_IM_RESSURS"),
+                    ressurs = ressurs,
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
         }
@@ -37,6 +39,7 @@ class LocalhostPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
+        ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, har tilgang")
         return true
@@ -48,6 +51,7 @@ class IngenTilgangPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
+        ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, ingen tilgang")
         return false
