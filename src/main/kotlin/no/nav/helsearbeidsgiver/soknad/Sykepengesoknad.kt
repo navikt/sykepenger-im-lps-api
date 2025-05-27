@@ -27,9 +27,7 @@ data class Sykepengesoknad(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val arbeidGjenopptattDato: LocalDate? = null,
-    val opprettetTid: LocalDateTime,
-    // TODO: kan ikke bruke opprettetTid da det for nye søknader er satt til når søknaden blir gjort tilgjengelig for bruker
-    val sendtNavTid: LocalDateTime? = null, // TODO: undersøk om vi kan fjerne denne.
+    val mottatTid: LocalDateTime,
     val arbeidsgiver: Arbeidsgiver,
     val soktUtenlandsopphold: Boolean? = null,
     val korrigerer: UUID? = null,

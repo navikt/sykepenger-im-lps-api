@@ -16,8 +16,7 @@ fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
         fom = this.fom,
         tom = this.tom,
         arbeidGjenopptattDato = this.arbeidGjenopptatt,
-        opprettetTid = this.opprettet ?: LocalDateTime.now(),
-        sendtNavTid = this.sendtNav,
+        mottatTid = utledSendtTid(),
         // behandlingsdager = this.behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
         fravar =
             this.fravar
@@ -43,6 +42,13 @@ private fun konverter(soknadPeriodeDTO: SykepengesoknadDTO.SoknadsperiodeDTO): S
         faktiskTimer = soknadPeriodeDTO.faktiskTimer,
         sykmeldingstype = enumValueOrNull(soknadPeriodeDTO.sykmeldingstype.name),
     )
+}
+
+private fun SykepengesoknadDTO.utledSendtTid(): LocalDateTime {
+    // sendtArbeidsgiver og sendtNav blir populert av samme verdi så en av dem vil alltid være satt.
+    val sendt = sendtArbeidsgiver ?: sendtNav
+    requireNotNull(sendt)
+    return sendt
 }
 
 private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO?): Sykepengesoknad.Arbeidsgiver {
