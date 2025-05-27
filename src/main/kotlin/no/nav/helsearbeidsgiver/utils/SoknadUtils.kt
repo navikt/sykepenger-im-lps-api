@@ -6,41 +6,35 @@ import java.time.LocalDateTime
 
 fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
     Sykepengesoknad(
-        id = this.id,
-        type = Sykepengesoknad.Soknadstype.valueOf(this.type.name),
-        fnr = this.fnr,
-        sykmeldingId = this.sykmeldingId,
-        arbeidsgiver = konverter(this.arbeidsgiver),
-        korrigerer = this.korrigerer,
-        soktUtenlandsopphold = this.soktUtenlandsopphold,
-        fom = this.fom,
-        tom = this.tom,
-        arbeidGjenopptattDato = this.arbeidGjenopptatt,
+        id = id,
+        type = Sykepengesoknad.Soknadstype.valueOf(type.name),
+        fnr = fnr,
+        sykmeldingId = sykmeldingId,
+        arbeidsgiver = arbeidsgiver.konverter(),
+        korrigerer = korrigerer,
+        soktUtenlandsopphold = soktUtenlandsopphold,
+        fom = fom,
+        tom = tom,
+        arbeidGjenopptattDato = arbeidGjenopptatt,
         mottatTid = utledSendtTid(),
-        // behandlingsdager = this.behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
-        fravar =
-            this.fravar
-                ?.map { konverter(it) }
-                .orEmpty(),
-        soknadsperioder =
-            this.soknadsperioder
-                ?.map { konverter(it) }
-                .orEmpty(),
+        // behandlingsdager = behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
+        fravar = fravar?.map { it.konverter() }.orEmpty(),
+        soknadsperioder = soknadsperioder?.map { it.konverter() }.orEmpty(),
     )
 
-private fun konverter(soknadPeriodeDTO: SykepengesoknadDTO.SoknadsperiodeDTO): Sykepengesoknad.Soknadsperiode {
-    requireNotNull(soknadPeriodeDTO.fom)
-    requireNotNull(soknadPeriodeDTO.tom)
-    requireNotNull(soknadPeriodeDTO.sykmeldingsgrad)
-    requireNotNull(soknadPeriodeDTO.sykmeldingstype)
+fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoknad.Soknadsperiode {
+    requireNotNull(fom)
+    requireNotNull(tom)
+    requireNotNull(sykmeldingsgrad)
+    requireNotNull(sykmeldingstype)
     return Sykepengesoknad.Soknadsperiode(
-        fom = soknadPeriodeDTO.fom,
-        tom = soknadPeriodeDTO.tom,
-        sykmeldingsgrad = soknadPeriodeDTO.sykmeldingsgrad,
-        faktiskGrad = soknadPeriodeDTO.faktiskGrad,
-        avtaltTimer = soknadPeriodeDTO.avtaltTimer,
-        faktiskTimer = soknadPeriodeDTO.faktiskTimer,
-        sykmeldingstype = enumValueOrNull(soknadPeriodeDTO.sykmeldingstype.name),
+        fom = fom,
+        tom = tom,
+        sykmeldingsgrad = sykmeldingsgrad,
+        faktiskGrad = faktiskGrad,
+        avtaltTimer = avtaltTimer,
+        faktiskTimer = faktiskTimer,
+        sykmeldingstype = enumValueOrNull(sykmeldingstype.name),
     )
 }
 
@@ -51,23 +45,23 @@ private fun SykepengesoknadDTO.utledSendtTid(): LocalDateTime {
     return sendt
 }
 
-private fun konverter(arbeidsgiverDTO: SykepengesoknadDTO.ArbeidsgiverDTO?): Sykepengesoknad.Arbeidsgiver {
-    requireNotNull(arbeidsgiverDTO)
-    requireNotNull(arbeidsgiverDTO.navn)
-    requireNotNull(arbeidsgiverDTO.orgnummer)
+private fun SykepengesoknadDTO.ArbeidsgiverDTO?.konverter(): Sykepengesoknad.Arbeidsgiver {
+    requireNotNull(this)
+    requireNotNull(navn)
+    requireNotNull(orgnummer)
     return Sykepengesoknad.Arbeidsgiver(
-        navn = arbeidsgiverDTO.navn,
-        orgnr = arbeidsgiverDTO.orgnummer,
+        navn = navn,
+        orgnr = orgnummer,
     )
 }
 
-private fun konverter(fravarDTO: SykepengesoknadDTO.FravarDTO): Sykepengesoknad.Fravar {
-    requireNotNull(fravarDTO.fom)
-    requireNotNull(fravarDTO.type)
+private fun SykepengesoknadDTO.FravarDTO.konverter(): Sykepengesoknad.Fravar {
+    requireNotNull(fom)
+    requireNotNull(type)
     return Sykepengesoknad.Fravar(
-        fom = fravarDTO.fom,
-        tom = fravarDTO.tom,
-        type = Sykepengesoknad.Fravarstype.valueOf(fravarDTO.type.name),
+        fom = fom,
+        tom = tom,
+        type = Sykepengesoknad.Fravarstype.valueOf(type.name),
     )
 }
 
@@ -110,11 +104,11 @@ private fun String.fjernTagIndex(): String {
 }
 
 fun SykepengesoknadDTO.SporsmalDTO.erWhitelistetForArbeidsgiver(): Boolean {
-    if (this.tag == null) {
+    if (tag == null) {
         return false
     }
-    return this.tag.fjernTagIndex() in whitelistetHovedsporsmal
+    return tag.fjernTagIndex() in whitelistetHovedsporsmal
 }
 
 fun SykepengesoknadDTO.whitelistetForArbeidsgiver(): SykepengesoknadDTO =
-    this.copy(sporsmal = this.sporsmal?.filter { it.erWhitelistetForArbeidsgiver() })
+    this.copy(sporsmal = sporsmal?.filter { it.erWhitelistetForArbeidsgiver() })
