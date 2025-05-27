@@ -22,18 +22,18 @@ import java.util.UUID
 data class Sykepengesoknad(
     val id: UUID,
     val fnr: String,
-    val sykmeldingId: UUID? = null,
+    val sykmeldingId: UUID?,
     val type: Soknadstype,
-    val fom: LocalDate? = null,
-    val tom: LocalDate? = null,
-    val arbeidGjenopptattDato: LocalDate? = null,
+    val fom: LocalDate?,
+    val tom: LocalDate?,
+    val arbeidGjenopptattDato: LocalDate?,
     val mottatTid: LocalDateTime,
     val arbeidsgiver: Arbeidsgiver,
-    val soktUtenlandsopphold: Boolean? = null,
-    val korrigerer: UUID? = null,
-    val soknadsperioder: List<Soknadsperiode> = arrayListOf(),
-    // val behandlingsdager: List<LocalDate> = arrayListOf(),
-    val fravar: List<Fravar> = arrayListOf(),
+    val soktUtenlandsopphold: Boolean?,
+    val korrigerer: UUID?,
+    val soknadsperioder: List<Soknadsperiode>,
+    // val behandlingsdager: List<LocalDate>,
+    val fravar: List<Fravar>,
 ) {
     @Serializable
     enum class Soknadstype {
