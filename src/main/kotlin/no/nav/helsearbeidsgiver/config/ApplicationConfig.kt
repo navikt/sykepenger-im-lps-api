@@ -79,6 +79,7 @@ data class Services(
     val sykmeldingService: SykmeldingService,
     val pdlService: IPdlService,
     val soknadService: SoknadService,
+    val pdpService: IPdpService,
 )
 
 data class Tolkere(
@@ -185,6 +186,7 @@ fun configureServices(
         sykmeldingService,
         pdlService,
         soknadService,
+        configurePdpService(authClient),
     )
 }
 
@@ -236,8 +238,6 @@ fun Application.configureKafkaConsumers(
 }
 
 fun Application.configureAuth(authClient: AuthClient) {
-    val pdpService = configurePdpService(authClient)
-
     install(Authentication) {
         tokenValidationSupport(
             name = "systembruker-config",
@@ -256,8 +256,7 @@ fun Application.configureAuth(authClient: AuthClient) {
                     claimMap = arrayOf("authorization_details", "consumer", "scope"),
                 ),
             additionalValidation = {
-                it.gyldigScope() &&
-                    it.gyldigSystembrukerOgConsumer(pdpService) // TODO: Skal erstattes per route
+                it.gyldigScope() && it.gyldigSystembrukerOgConsumer()
             },
             resourceRetriever =
                 DefaultResourceRetriever(
@@ -266,6 +265,8 @@ fun Application.configureAuth(authClient: AuthClient) {
                     DEFAULT_HTTP_SIZE_LIMIT,
                 ),
         )
+
+        // TODO: Kan registrere en PDP-authenticator her?
     }
 }
 
