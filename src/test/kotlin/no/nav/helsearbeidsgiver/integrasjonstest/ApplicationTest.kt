@@ -76,7 +76,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 )
             val sykepengesoknad = response.body<Sykepengesoknad>()
             sykepengesoknad.fnr shouldBe "05449412615"
-            sykepengesoknad.arbeidsgiver.orgnummer shouldBe "315587336"
+            sykepengesoknad.arbeidsgiver.orgnr shouldBe "315587336"
         }
     }
 }
