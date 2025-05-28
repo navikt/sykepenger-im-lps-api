@@ -55,8 +55,8 @@ fun TokenValidationContext.harTilgangTilRessurs(
     ressurs: String,
 ): Boolean {
     val systembruker = this.getSystembrukerId()
-    val consumerOrgnr = this.getConsumerOrgnr()
-    return pdpService.harTilgang(systembruker, consumerOrgnr, ressurs)
+    val systembrukerOrgnr = this.getSystembrukerOrgnr()
+    return pdpService.harTilgang(systembruker, systembrukerOrgnr, ressurs)
 }
 
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))
