@@ -33,7 +33,7 @@ private fun Route.soknader(soknadService: SoknadService) {
         }
     }
 
-    // Hent enkelt sykepengesøknad basert på søknadId
+    // Hent én sykepengesøknad basert på søknadId
     get("/sykepengesoknad/{soknadId}") {
         try {
             val soknadId = call.parameters["soknadId"]?.let { UUID.fromString(it) }
