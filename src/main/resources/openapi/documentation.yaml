@@ -1019,8 +1019,6 @@ components:
         type:
           type: "string"
           enum:
-          - "SELVSTENDIGE_OG_FRILANSERE"
-          - "OPPHOLD_UTLAND"
           - "ARBEIDSTAKERE"
           - "BEHANDLINGSDAGER"
           - "GRADERT_REISETILSKUDD"
