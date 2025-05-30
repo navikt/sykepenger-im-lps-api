@@ -18,7 +18,7 @@ fun Route.soknadV1(soknadService: SoknadService) {
 }
 
 private fun Route.soknader(soknadService: SoknadService) {
-    // Hent forespørsler for tilhørende systembrukers orgnr.
+    // Hent sykepengesøknader sendt til tilhørende systembrukers orgnr.
     get("/sykepengesoknader") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -33,6 +33,7 @@ private fun Route.soknader(soknadService: SoknadService) {
         }
     }
 
+    // Hent enkelt sykepengesøknad basert på søknadId
     get("/sykepengesoknad/{soknadId}") {
         try {
             val soknadId = call.parameters["soknadId"]?.let { UUID.fromString(it) }
