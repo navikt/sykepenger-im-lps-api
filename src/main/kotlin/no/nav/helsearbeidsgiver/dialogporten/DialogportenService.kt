@@ -28,7 +28,7 @@ class DialogportenService(
             )
         } else {
             sikkerLogger().info(
-                "Sender _ikke_ melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soknadId}, sykmeldingId: ${soknad.sykmeldingId}, på orgnr: ${soknad.orgnr}",
+                "Sender _ikke_ melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soknadId}, sykmeldingId: ${soknad.sykmeldingId}, på orgnr: ${soknad.orgnr} fordi feature toggle er av",
             )
         }
     }
