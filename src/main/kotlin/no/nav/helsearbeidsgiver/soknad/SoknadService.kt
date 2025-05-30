@@ -1,13 +1,17 @@
 package no.nav.helsearbeidsgiver.soknad
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 class SoknadService(
     val soknadRepository: SoknadRepository,
+    val dialogportenService: DialogportenService,
 ) {
     fun hentSoknader(orgnr: String): List<Sykepengesoknad> =
         soknadRepository.hentSoknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
@@ -33,8 +37,18 @@ class SoknadService(
         }
 
         try {
-            soknadRepository.lagreSoknad(soknad.validerPaakrevdeFelter())
-            sikkerLogger().info("lagret søknad med id: ${soknad.id}")
+            val validertSoknad = soknad.validerPaakrevdeFelter()
+            soknadRepository.lagreSoknad(validertSoknad)
+            sikkerLogger().info("Lagret søknad med id: ${soknad.id}")
+
+            dialogportenService.oppdaterDialogMedSykepengesoknad(
+                soknad =
+                    DialogSykepengesoknad(
+                        soknadId = validertSoknad.soknadId,
+                        sykmeldingId = validertSoknad.sykmeldingId,
+                        orgnr = Orgnr(validertSoknad.orgnr),
+                    ),
+            )
         } catch (e: IllegalArgumentException) {
             sikkerLogger().warn(
                 "Ignorerer sykepengesøknad med id ${soknad.id} fordi søknaden mangler et påkrevd felt.",

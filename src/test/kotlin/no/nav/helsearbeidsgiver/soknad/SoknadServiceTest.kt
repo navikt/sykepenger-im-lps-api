@@ -1,11 +1,19 @@
 package no.nav.helsearbeidsgiver.soknad
 
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.sykepengesoknad
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.soknadMock
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
@@ -21,6 +29,7 @@ class SoknadServiceTest {
     private lateinit var db: Database
     private lateinit var soknadService: SoknadService
     private lateinit var soknadRepository: SoknadRepository
+    private lateinit var dialogportenService: DialogportenService
 
     @BeforeAll
     fun setup() {
@@ -31,7 +40,10 @@ class SoknadServiceTest {
                 System.getProperty("database.password"),
             ).init()
         soknadRepository = SoknadRepository(db)
-        soknadService = SoknadService(soknadRepository)
+        dialogportenService = mockk<DialogportenService>()
+        soknadService = SoknadService(soknadRepository, dialogportenService)
+
+        every { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) } just Runs
     }
 
     @BeforeEach
@@ -50,6 +62,22 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe soknad
+    }
+
+    @Test
+    fun `søknad som skal sendes til arbeidsgiver sendes videre til hag-dialog`() {
+        val soknad =
+            soknadMock()
+
+        soknadService.behandleSoknad(soknad)
+
+        val forventetDialogSykepengesoknad =
+            DialogSykepengesoknad(
+                soknadId = soknad.id,
+                sykmeldingId = soknad.sykmeldingId!!,
+                orgnr = Orgnr(soknad.arbeidsgiver!!.orgnummer!!),
+            )
+        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(forventetDialogSykepengesoknad) }
     }
 
     @Test
