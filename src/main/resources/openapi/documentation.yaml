@@ -348,7 +348,7 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/sykepengesoknad/{soknadId}:
     get:
-      description: "Hent enkelt sykepengesøknad basert på søknadId"
+      description: "Hent én sykepengesøknad basert på søknadId"
       parameters:
       - name: "soknadId"
         in: "path"
