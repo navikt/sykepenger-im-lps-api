@@ -24,3 +24,11 @@ data class DialogSykmelding(
     val fulltNavn: String,
     val sykmeldingsperioder: List<Periode>,
 ) : DialogMelding()
+
+@Serializable
+@SerialName("Sykepengesoknad")
+data class DialogSykepengesoknad(
+    val soknadId: UUID,
+    val sykmeldingId: UUID,
+    val orgnr: Orgnr,
+) : DialogMelding()

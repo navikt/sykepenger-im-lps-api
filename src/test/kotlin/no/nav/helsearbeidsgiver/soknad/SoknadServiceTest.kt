@@ -1,11 +1,20 @@
 package no.nav.helsearbeidsgiver.soknad
 
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.sykepengesoknad
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.soknadMock
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
@@ -21,6 +30,7 @@ class SoknadServiceTest {
     private lateinit var db: Database
     private lateinit var soknadService: SoknadService
     private lateinit var soknadRepository: SoknadRepository
+    private lateinit var dialogportenService: DialogportenService
 
     @BeforeAll
     fun setup() {
@@ -31,12 +41,16 @@ class SoknadServiceTest {
                 System.getProperty("database.password"),
             ).init()
         soknadRepository = SoknadRepository(db)
-        soknadService = SoknadService(soknadRepository)
+        dialogportenService = mockk<DialogportenService>()
+        soknadService = SoknadService(soknadRepository, dialogportenService)
     }
 
     @BeforeEach
-    fun cleanDb() {
+    fun clean() {
         transaction(db) { SoknadEntitet.deleteAll() }
+
+        clearAllMocks()
+        every { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) } just Runs
     }
 
     @Test
@@ -53,7 +67,23 @@ class SoknadServiceTest {
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom den mangler sykmeldingId`() {
+    fun `søknad som skal sendes til arbeidsgiver sendes videre til hag-dialog`() {
+        val soknad =
+            soknadMock()
+
+        soknadService.behandleSoknad(soknad)
+
+        val forventetDialogSykepengesoknad =
+            DialogSykepengesoknad(
+                soknadId = soknad.id,
+                sykmeldingId = soknad.sykmeldingId!!,
+                orgnr = Orgnr(soknad.arbeidsgiver!!.orgnummer!!),
+            )
+        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(forventetDialogSykepengesoknad) }
+    }
+
+    @Test
+    fun `skal _ikke_ lagre eller videresende søknad dersom den mangler sykmeldingId`() {
         val soknad =
             soknadMock().copy(sykmeldingId = null)
 
@@ -63,10 +93,11 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom den mangler orgnr`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom den mangler orgnr`() {
         val soknad = soknadMock()
 
         val soknad1 =
@@ -81,10 +112,11 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom den er en søknadstype som ikke skal sendes til arbeidsgiver`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom den er en søknadstype som ikke skal sendes til arbeidsgiver`() {
         val soknad = soknadMock()
 
         val soknadstyperSomIkkeSkalLagres =
@@ -105,10 +137,11 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad hvis søknadstype GRADERT_REISETILSKUDD eller BEHANDLINGSDAGER, men ikke arbeidssituasjon ARBEIDSTAKER`() {
+    fun `skal kan behandle søknad for søknadstype GRADERT_REISETILSKUDD eller BEHANDLINGSDAGER dersom arbeidssituasjon ARBEIDSTAKER`() {
         val soknad = soknadMock()
 
         val idSomSkalLagres1 = UUID.randomUUID()
@@ -155,10 +188,16 @@ class SoknadServiceTest {
 
         lagredeSoknader.size shouldBe 2
         lagredeSoknader.map { it?.id }.toSet() shouldBe setOf(idSomSkalLagres1, idSomSkalLagres2)
+
+        verify(exactly = 2) {
+            dialogportenService.oppdaterDialogMedSykepengesoknad(
+                match { it.soknadId == idSomSkalLagres1 || it.soknadId == idSomSkalLagres2 },
+            )
+        }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom den ettersendt til Nav`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom den ettersendt til Nav`() {
         val soknad = soknadMock()
 
         val soknadSomIkkeSkalLagres =
@@ -170,10 +209,11 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom statusen er noe annet enn sendt`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom statusen er noe annet enn sendt`() {
         val soknad = soknadMock()
 
         val statuserSomIkkeSkalLagres =
@@ -188,25 +228,27 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom feltet sendtArbeidsgiver er null`() {
+    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null`() {
         val soknad = soknadMock()
 
-        val soknadSomIkkeSkalLagres =
+        val soknadSomSkalLagresMenIkkeVideresendes =
             soknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null)
 
-        soknadService.behandleSoknad(soknadSomIkkeSkalLagres)
+        soknadService.behandleSoknad(soknadSomSkalLagresMenIkkeVideresendes)
 
         val lagretSoknad =
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
-        lagretSoknad shouldBe null
+        lagretSoknad shouldBe soknadSomSkalLagresMenIkkeVideresendes
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
         val soknad = soknadMock()
         val soknadId = UUID.randomUUID()
 
@@ -223,5 +265,6 @@ class SoknadServiceTest {
 
         lagredeSoknader.size shouldBe 1
         lagredeSoknader.first()?.fom shouldBe soknadSomSkalLagres.fom
+        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(match { it.soknadId == soknadSomSkalLagres.id }) }
     }
 }

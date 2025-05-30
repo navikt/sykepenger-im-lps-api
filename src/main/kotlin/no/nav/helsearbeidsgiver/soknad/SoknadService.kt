@@ -1,13 +1,17 @@
 package no.nav.helsearbeidsgiver.soknad
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 class SoknadService(
     val soknadRepository: SoknadRepository,
+    val dialogportenService: DialogportenService,
 ) {
     fun hentSoknader(orgnr: String): List<Sykepengesoknad> =
         soknadRepository.hentSoknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
@@ -22,19 +26,36 @@ class SoknadService(
         }
 
     fun behandleSoknad(soknad: SykepengesoknadDTO) {
-        if (!soknad.skalLagresOgSendesTilArbeidsgiver()) {
-            sikkerLogger().info("Søknad med id ${soknad.id} ignoreres fordi den ikke skal lagres og sendes til arbeidsgiver.")
+        if (!soknad.skalLagres()) {
+            sikkerLogger().info("Søknad med id ${soknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
             return
         }
 
-        if (soknad.soknadAlleredeLagret()) {
+        if (soknad.erAlleredeLagret()) {
             sikkerLogger().info("Søknad med id ${soknad.id} ignoreres fordi den allerede er lagret.")
             return
         }
 
         try {
-            soknadRepository.lagreSoknad(soknad.validerPaakrevdeFelter())
-            sikkerLogger().info("lagret søknad med id: ${soknad.id}")
+            val validertSoknad = soknad.validerPaakrevdeFelter()
+            soknadRepository.lagreSoknad(validertSoknad)
+            sikkerLogger().info("Lagret søknad med id: ${soknad.id}")
+
+            if (soknad.skalSendesTilArbeidsgiver()) {
+                dialogportenService.oppdaterDialogMedSykepengesoknad(
+                    soknad =
+                        DialogSykepengesoknad(
+                            soknadId = validertSoknad.soknadId,
+                            sykmeldingId = validertSoknad.sykmeldingId,
+                            orgnr = Orgnr(validertSoknad.orgnr),
+                        ),
+                )
+            } else {
+                sikkerLogger().info(
+                    "Sender _ikke_ søknad med søknadId: ${soknad.id}, sykmeldingId: ${soknad.sykmeldingId}, på orgnr: " +
+                        "${soknad.arbeidsgiver?.orgnummer} videre til hag-dialog fordi den ikke skal sendes til arbeidsgiver.",
+                )
+            }
         } catch (e: IllegalArgumentException) {
             sikkerLogger().warn(
                 "Ignorerer sykepengesøknad med id ${soknad.id} fordi søknaden mangler et påkrevd felt.",
@@ -43,7 +64,7 @@ class SoknadService(
         }
     }
 
-    private fun SykepengesoknadDTO.skalLagresOgSendesTilArbeidsgiver(): Boolean =
+    private fun SykepengesoknadDTO.skalLagres(): Boolean =
         (
             erArbeidstakerSoknad() ||
                 erArbeidstakerMedGradertReiseTilskudd() ||
@@ -51,8 +72,9 @@ class SoknadService(
 
         ) &&
             !erEttersendtTilNAV() &&
-            this.status == SykepengesoknadDTO.SoknadsstatusDTO.SENDT &&
-            this.sendtArbeidsgiver != null
+            this.status == SykepengesoknadDTO.SoknadsstatusDTO.SENDT
+
+    private fun SykepengesoknadDTO.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
 
     private fun SykepengesoknadDTO.validerPaakrevdeFelter(): LagreSoknad =
         LagreSoknad(
@@ -73,7 +95,7 @@ class SoknadService(
         this.arbeidssituasjon == SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER &&
             this.type == SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER
 
-    private fun SykepengesoknadDTO.soknadAlleredeLagret(): Boolean = soknadRepository.hentSoknad(id) != null
+    private fun SykepengesoknadDTO.erAlleredeLagret(): Boolean = soknadRepository.hentSoknad(id) != null
 
     private fun SykepengesoknadDTO.erEttersendtTilNAV() = sendtNav != null && sendtArbeidsgiver?.isBefore(sendtNav) ?: false
 }
