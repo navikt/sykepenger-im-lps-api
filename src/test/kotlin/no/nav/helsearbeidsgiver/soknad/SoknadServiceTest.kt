@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.soknad
 
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -42,13 +43,14 @@ class SoknadServiceTest {
         soknadRepository = SoknadRepository(db)
         dialogportenService = mockk<DialogportenService>()
         soknadService = SoknadService(soknadRepository, dialogportenService)
-
-        every { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) } just Runs
     }
 
     @BeforeEach
-    fun cleanDb() {
+    fun clean() {
         transaction(db) { SoknadEntitet.deleteAll() }
+
+        clearAllMocks()
+        every { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) } just Runs
     }
 
     @Test
@@ -81,7 +83,7 @@ class SoknadServiceTest {
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom den mangler sykmeldingId`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom den mangler sykmeldingId`() {
         val soknad =
             soknadMock().copy(sykmeldingId = null)
 
@@ -91,10 +93,11 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
-    fun `skal _ikke_ lagre søknad dersom den mangler orgnr`() {
+    fun `skal _ikke_ lagre eller videresende søknad dersom den mangler orgnr`() {
         val soknad = soknadMock()
 
         val soknad1 =
@@ -109,6 +112,7 @@ class SoknadServiceTest {
             transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
 
         lagretSoknad shouldBe null
+        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoknad(any()) }
     }
 
     @Test
