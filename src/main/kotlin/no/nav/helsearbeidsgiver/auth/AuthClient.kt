@@ -10,6 +10,7 @@ import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
 interface AuthClient {
     fun tokenGetter(
@@ -33,10 +34,9 @@ class DefaultAuthClient : AuthClient {
     private val sikkerLogger = sikkerLogger()
     private val httpClient = createHttpClient()
 
-    private val tokenEndpoint = Env.getProperty("NAIS_TOKEN_ENDPOINT")
-    private val tokenExchangeEndpoint = Env.getProperty("NAIS_TOKEN_EXCHANGE_ENDPOINT")
-    private val tokenIntrospectionEndpoint = Env.getProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT")
-    private val tokenAltinn3ExchangeEndpoint = "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
+    private val tokenEndpoint = Env.getPropertyOrNull("NAIS_TOKEN_ENDPOINT").orDefault { "" }
+    private val tokenExchangeEndpoint = Env.getPropertyOrNull("NAIS_TOKEN_EXCHANGE_ENDPOINT").orDefault { "" }
+    private val tokenIntrospectionEndpoint = Env.getPropertyOrNull("NAIS_TOKEN_INTROSPECTION_ENDPOINT").orDefault { "" }
 
     override fun tokenGetter(
         identityProvider: AuthClientIdentityProvider,
@@ -100,12 +100,16 @@ class DefaultAuthClient : AuthClient {
                     },
             ).body()
 
-    override suspend fun altinnExchange(token: String): String =
-        httpClient
+    override suspend fun altinnExchange(token: String): String {
+        val tokenAltinn3ExchangeEndpoint =
+            "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
+
+        return httpClient
             .get(tokenAltinn3ExchangeEndpoint) {
                 bearerAuth(token)
             }.bodyAsText()
             .replace("\"", "")
+    }
 
     private suspend fun ResponseException.logAndRethrow(): Nothing {
         val error = response.body<ErrorResponse>()

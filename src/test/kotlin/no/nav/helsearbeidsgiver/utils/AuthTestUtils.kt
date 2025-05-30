@@ -6,15 +6,15 @@ fun MockOAuth2Server.hentToken(claims: Map<String, Any>): String =
     this
         .issueToken(
             issuerId = "maskinporten",
-            audience = "nav:helse/im.read",
+            audience = "nav:helseytelser/sykepenger",
             claims = claims,
         ).serialize()
 
-fun MockOAuth2Server.ugyldigTokenManglerSystembruker(orgnr: String) =
+fun MockOAuth2Server.ugyldigTokenManglerSystembruker() =
     hentToken(
         claims =
             mapOf(
-                "scope" to "nav:helse/im.read",
+                "scope" to "nav:helseytelser/sykepenger",
                 "consumer" to
                     mapOf(
                         "authority" to "iso6523-actorid-upis",
@@ -40,7 +40,7 @@ fun MockOAuth2Server.gyldigSystembrukerAuthToken(orgnr: String): String =
                             "system_id" to "315339138_tigersys",
                         ),
                     ),
-                "scope" to "nav:helse/im.read", // TODO sjekk om scope faktisk blir validert av tokensupport
+                "scope" to "nav:helseytelser/sykepenger", // TODO sjekk om scope faktisk blir validert av tokensupport
                 "consumer" to
                     mapOf(
                         "authority" to "iso6523-actorid-upis",

@@ -10,7 +10,7 @@ services:
                   "requestMappings": [
                       {
                           "requestParam": "scope",
-                          "match": "nav:helse/im.read",
+                          "match": "nav:helseytelser/sykepenger",
                           "claims": {
                               "authorization_details": [
                                 {
@@ -29,9 +29,9 @@ services:
                                 "authority" : "iso6523-actorid-upis",
                                 "ID" : "0192:810007842"
                               },
-                              "scope": "nav:helse/im.read",
+                              "scope": "nav:helseytelser/sykepenger",
                               "sub": "testid",
-                              "aud": "nav:helse/im.read"
+                              "aud": "nav:helseytelser/sykepenger"
                           }
                       }
                   ]

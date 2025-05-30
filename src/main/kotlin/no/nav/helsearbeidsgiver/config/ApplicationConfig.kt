@@ -9,15 +9,15 @@ import kotlinx.coroutines.launch
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
+import no.nav.helsearbeidsgiver.Env.getPropertyAsList
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
+import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.IngenDialogportenService
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
 import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
@@ -29,7 +29,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
 import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
-import no.nav.helsearbeidsgiver.kafka.innsending.IngenInnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
@@ -76,7 +75,7 @@ data class Services(
     val forespoerselService: ForespoerselService,
     val inntektsmeldingService: InntektsmeldingService,
     val innsendingService: InnsendingService,
-    val dialogportenService: IDialogportenService,
+    val dialogportenService: DialogportenService,
     val sykmeldingService: SykmeldingService,
     val pdlService: IPdlService,
     val soknadService: SoknadService,
@@ -128,23 +127,20 @@ fun configureRepositories(db: Database): Repositories =
 fun configureServices(
     repositories: Repositories,
     authClient: AuthClient,
+    unleashFeatureToggles: UnleashFeatureToggles,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =
-        if (isLocal() || isDev()) {
-            InnsendingProducer(
-                KafkaProducer(
-                    createKafkaProducerConfig(producerName = "api-innsending-producer"),
-                    StringSerializer(),
-                    InnsendingSerializer(),
-                ),
-            )
-        } else {
-            IngenInnsendingProducer()
-        }
+        InnsendingProducer(
+            KafkaProducer(
+                createKafkaProducerConfig(producerName = "api-innsending-producer"),
+                StringSerializer(),
+                InnsendingSerializer(),
+            ),
+        )
 
     val bakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
@@ -156,6 +152,7 @@ fun configureServices(
         InnsendingService(
             innsendingProducer = innsendingProducer,
             bakgrunnsjobbService = bakgrunnsjobbService,
+            unleashFeatureToggles = unleashFeatureToggles,
         )
 
     bakgrunnsjobbService
@@ -164,23 +161,20 @@ fun configureServices(
             startAsync(true)
         }
 
+    val dialogProducer =
+        DialogProducer(
+            KafkaProducer(
+                createKafkaProducerConfig(producerName = "dialog-producer"),
+                StringSerializer(),
+                DialogSerializer(),
+            ),
+        )
     val dialogportenService =
-        if (isDev()) {
-            // TODO flytt inn i feature toggle?
-            val dialogProducer =
-                DialogProducer(
-                    KafkaProducer(
-                        createKafkaProducerConfig(producerName = "dialog-producer"),
-                        StringSerializer(),
-                        InnsendingSerializer(), // Skal vi ha en egen for dialog kafka meldinger?
-                    ),
-                )
-            DialogportenService(
-                dialogProducer = dialogProducer,
-            )
-        } else {
-            IngenDialogportenService()
-        }
+        DialogportenService(
+            dialogProducer = dialogProducer,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
+
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
     val soknadService = SoknadService(repositories.soknadRepository)
     return Services(
@@ -196,7 +190,10 @@ fun configureServices(
 
 fun configureUnleashFeatureToggles(): UnleashFeatureToggles = UnleashFeatureToggles(isLocal())
 
-fun Application.configureKafkaConsumers(tolkere: Tolkere) {
+fun Application.configureKafkaConsumers(
+    tolkere: Tolkere,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(
@@ -215,8 +212,7 @@ fun Application.configureKafkaConsumers(tolkere: Tolkere) {
         )
     }
 
-    // Ta bare imot sykmeldinger og søknader i dev inntil videre
-    if (isLocal() || isDev()) {
+    if (unleashFeatureToggles.skalKonsumereSykmeldinger()) {
         val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
@@ -225,7 +221,9 @@ fun Application.configureKafkaConsumers(tolkere: Tolkere) {
                 meldingTolker = tolkere.sykmeldingTolker,
             )
         }
+    }
 
+    if (unleashFeatureToggles.skalKonsumereSykepengesoknader()) {
         val soknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
@@ -248,7 +246,7 @@ fun Application.configureAuth(authClient: AuthClient) {
                     IssuerConfig(
                         name = "maskinporten",
                         discoveryUrl = getProperty("maskinporten.wellknownUrl"),
-                        acceptedAudience = listOf(getProperty("maskinporten.eksponert_scopes")),
+                        acceptedAudience = getPropertyAsList("maskinporten.eksponert_scopes"),
                         optionalClaims = listOf("aud", "sub"),
                     ),
                 ),
@@ -258,7 +256,8 @@ fun Application.configureAuth(authClient: AuthClient) {
                     claimMap = arrayOf("authorization_details", "consumer", "scope"),
                 ),
             additionalValidation = {
-                it.gyldigScope() && it.gyldigSystembrukerOgConsumer(pdpService)
+                it.gyldigScope() &&
+                    it.gyldigSystembrukerOgConsumer(pdpService) // TODO: Skal erstattes per route
             },
             resourceRetriever =
                 DefaultResourceRetriever(

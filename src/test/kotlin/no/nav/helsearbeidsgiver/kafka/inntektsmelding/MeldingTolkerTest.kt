@@ -15,7 +15,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.Tolkere
 import no.nav.helsearbeidsgiver.config.configureTolkere
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
@@ -78,7 +79,7 @@ class MeldingTolkerTest {
                 forespoerselService = ForespoerselService(repositories.forespoerselRepository),
                 inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository),
                 innsendingService = mockk<InnsendingService>(),
-                dialogportenService = mockk<IDialogportenService>(),
+                dialogportenService = mockk<DialogportenService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
                 pdlService = mockk<PdlService>(),
                 soknadService = mockk<SoknadService>(),
@@ -101,8 +102,14 @@ class MeldingTolkerTest {
         tolkere.inntektsmeldingTolker.lesMelding(buildJournalfoertInntektsmelding())
         tolkere.inntektsmeldingTolker.lesMelding(ARBEIDSGIVER_INITIERT_IM_MOTTATT)
 
-        // Skal ikke lagre:
-        tolkere.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
+        tolkere.inntektsmeldingTolker.lesMelding(IM_MOTTATT)
+    }
+
+    @Test
+    fun `ugyldig inntektsmelding kaster exception`() {
+        assertThrows<SerializationException> {
+            tolkere.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
+        }
     }
 
     @Test
@@ -152,12 +159,12 @@ class MeldingTolkerTest {
 
     @Test
     fun `SoknadTolker lesMelding klarer å deserialisere soknad`() {
-        every { service.soknadService.lagreSoknad(any()) } just Runs
+        every { service.soknadService.behandleSoknad(any()) } just Runs
         val soknadJson =
             SYKEPENGESOKNAD.removeJsonWhitespace()
         tolkere.soknadTolker.lesMelding(soknadJson)
 
-        verify(exactly = 1) { service.soknadService.lagreSoknad(any()) }
+        verify(exactly = 1) { service.soknadService.behandleSoknad(any()) }
     }
 
     @Test
@@ -171,6 +178,6 @@ class MeldingTolkerTest {
         assertThrows<SerializationException> {
             tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
-        verify(exactly = 0) { service.soknadService.lagreSoknad(any()) }
+        verify(exactly = 0) { service.soknadService.behandleSoknad(any()) }
     }
 }

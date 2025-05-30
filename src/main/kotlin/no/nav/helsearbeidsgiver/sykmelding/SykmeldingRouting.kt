@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.utils.fangFeil
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 
+// TODO: gjøre pdp-oppslag per route
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
         hentSykmelding(sykmeldingService)

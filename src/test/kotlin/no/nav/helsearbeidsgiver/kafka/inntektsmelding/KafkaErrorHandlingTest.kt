@@ -5,19 +5,21 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.dialogporten.IDialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_JSON
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.sql.SQLException
 
 @WithPostgresContainer
@@ -26,7 +28,6 @@ class KafkaErrorHandlingTest {
     private lateinit var forespoerselRepository: ForespoerselRepository
 
     val mockMottakRepository = mockk<MottakRepository>()
-    val mockDialogportenService = mockk<IDialogportenService>()
 
     private lateinit var forespoerselTolker: ForespoerselTolker
 
@@ -57,13 +58,17 @@ class KafkaErrorHandlingTest {
     }
 
     @Test
-    fun `ugyldig forespørsel i forespørselMottatt-melding skal bare lagre til mottak og gå videre`() {
+    fun `ugyldig forespørsel eller manglende forespørselId i forespørselmelding skal kaste exception og stoppe videre lesing fra kafka`() {
         every { mockMottakRepository.opprett(any()) } returns 100
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
         val mockConsumer = ForespoerselTolker(mockForespoerselRepository, mockMottakRepository)
-        mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)
-
-        verify(exactly = 1) { mockMottakRepository.opprett(any()) }
+        assertThrows<SerializationException> {
+            mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)
+        }
+        assertThrows<IllegalArgumentException> {
+            mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID)
+        }
+        verify(exactly = 0) { mockMottakRepository.opprett(any()) }
         verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any()) }
     }
 }
