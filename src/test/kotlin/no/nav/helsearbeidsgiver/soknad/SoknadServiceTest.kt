@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.soknad
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -76,8 +77,14 @@ class SoknadServiceTest {
         val forventetDialogSykepengesoknad =
             DialogSykepengesoknad(
                 soknadId = soknad.id,
-                sykmeldingId = soknad.sykmeldingId!!,
-                orgnr = Orgnr(soknad.arbeidsgiver!!.orgnummer!!),
+                sykmeldingId = soknad.sykmeldingId.shouldNotBeNull(),
+                orgnr =
+                    Orgnr(
+                        soknad.arbeidsgiver
+                            .shouldNotBeNull()
+                            .orgnummer
+                            .shouldNotBeNull(),
+                    ),
             )
         verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(forventetDialogSykepengesoknad) }
     }
@@ -141,7 +148,7 @@ class SoknadServiceTest {
     }
 
     @Test
-    fun `skal kan behandle søknad for søknadstype GRADERT_REISETILSKUDD eller BEHANDLINGSDAGER dersom arbeidssituasjon ARBEIDSTAKER`() {
+    fun `skal kun behandle søknad for søknadstype GRADERT_REISETILSKUDD eller BEHANDLINGSDAGER dersom arbeidssituasjon ARBEIDSTAKER`() {
         val soknad = soknadMock()
 
         val idSomSkalLagres1 = UUID.randomUUID()
