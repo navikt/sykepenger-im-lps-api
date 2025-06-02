@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.soknad
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.konverter
@@ -47,15 +47,15 @@ class SoknadService(
             if (soknad.skalSendesTilArbeidsgiver()) {
                 dialogportenService.oppdaterDialogMedSykepengesoknad(
                     soknad =
-                        DialogSykepengesoknad(
-                            soknadId = validertSoknad.soknadId,
+                        DialogSykepengesoeknad(
+                            soeknadId = validertSoknad.soknadId,
                             sykmeldingId = validertSoknad.sykmeldingId,
                             orgnr = Orgnr(validertSoknad.orgnr),
                         ),
                 )
             } else {
                 logger.info(
-                    "Sender _ikke_ søknad med søknadId: ${validertSoknad.soknadId} og sykmeldingId: ${validertSoknad.soknadId} " +
+                    "Sendte _ikke_ søknad med søknadId: ${validertSoknad.soknadId} og sykmeldingId: ${validertSoknad.soknadId} " +
                         "videre til hag-dialog fordi den ikke skal sendes til arbeidsgiver.",
                 )
             }

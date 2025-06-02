@@ -9,7 +9,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.sykepengesoknad
@@ -74,9 +74,9 @@ class SoknadServiceTest {
 
         soknadService.behandleSoknad(soknad)
 
-        val forventetDialogSykepengesoknad =
-            DialogSykepengesoknad(
-                soknadId = soknad.id,
+        val forventetDialogSykepengesoeknad =
+            DialogSykepengesoeknad(
+                soeknadId = soknad.id,
                 sykmeldingId = soknad.sykmeldingId.shouldNotBeNull(),
                 orgnr =
                     Orgnr(
@@ -86,7 +86,7 @@ class SoknadServiceTest {
                             .shouldNotBeNull(),
                     ),
             )
-        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(forventetDialogSykepengesoknad) }
+        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(forventetDialogSykepengesoeknad) }
     }
 
     @Test
@@ -198,7 +198,7 @@ class SoknadServiceTest {
 
         verify(exactly = 2) {
             dialogportenService.oppdaterDialogMedSykepengesoknad(
-                match { it.soknadId == idSomSkalLagres1 || it.soknadId == idSomSkalLagres2 },
+                match { it.soeknadId == idSomSkalLagres1 || it.soeknadId == idSomSkalLagres2 },
             )
         }
     }
@@ -272,6 +272,6 @@ class SoknadServiceTest {
 
         lagredeSoknader.size shouldBe 1
         lagredeSoknader.first()?.fom shouldBe soknadSomSkalLagres.fom
-        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(match { it.soknadId == soknadSomSkalLagres.id }) }
+        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoknad(match { it.soeknadId == soknadSomSkalLagres.id }) }
     }
 }

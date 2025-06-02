@@ -26,9 +26,9 @@ data class DialogSykmelding(
 ) : DialogMelding()
 
 @Serializable
-@SerialName("Sykepengesoknad")
-data class DialogSykepengesoknad(
-    val soknadId: UUID,
+@SerialName("Sykepengesoeknad")
+data class DialogSykepengesoeknad(
+    val soeknadId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
 ) : DialogMelding()
