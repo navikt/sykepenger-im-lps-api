@@ -25,8 +25,8 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
-import no.nav.helsearbeidsgiver.soknad.SoknadRepository
-import no.nav.helsearbeidsgiver.soknad.SoknadService
+import no.nav.helsearbeidsgiver.soknad.SoeknadRepository
+import no.nav.helsearbeidsgiver.soknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -71,7 +71,7 @@ class MeldingTolkerTest {
                 mottakRepository = mockk<MottakRepository>(relaxed = true),
                 bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
                 sykmeldingRepository = mockk<SykmeldingRepository>(),
-                soknadRepository = mockk<SoknadRepository>(),
+                soeknadRepository = mockk<SoeknadRepository>(),
             )
 
         service =
@@ -82,7 +82,7 @@ class MeldingTolkerTest {
                 dialogportenService = mockk<DialogportenService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
                 pdlService = mockk<PdlService>(),
-                soknadService = mockk<SoknadService>(),
+                soeknadService = mockk<SoeknadService>(),
             )
 
         tolkere = configureTolkere(service, repositories)
@@ -159,12 +159,12 @@ class MeldingTolkerTest {
 
     @Test
     fun `SoknadTolker lesMelding klarer å deserialisere soknad`() {
-        every { service.soknadService.behandleSoknad(any()) } just Runs
+        every { service.soeknadService.behandleSoeknad(any()) } just Runs
         val soknadJson =
             SYKEPENGESOKNAD.removeJsonWhitespace()
         tolkere.soknadTolker.lesMelding(soknadJson)
 
-        verify(exactly = 1) { service.soknadService.behandleSoknad(any()) }
+        verify(exactly = 1) { service.soeknadService.behandleSoeknad(any()) }
     }
 
     @Test
@@ -178,6 +178,6 @@ class MeldingTolkerTest {
         assertThrows<SerializationException> {
             tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
-        verify(exactly = 0) { service.soknadService.behandleSoknad(any()) }
+        verify(exactly = 0) { service.soeknadService.behandleSoeknad(any()) }
     }
 }

@@ -11,21 +11,21 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
-fun Route.soknadV1(soknadService: SoknadService) {
+fun Route.soeknadV1(soeknadService: SoeknadService) {
     route("/v1") {
-        soknader(soknadService)
+        soeknader(soeknadService)
     }
 }
 
-private fun Route.soknader(soknadService: SoknadService) {
+private fun Route.soeknader(soeknadService: SoeknadService) {
     // Hent sykepengesøknader sendt til tilhørende systembrukers orgnr.
-    get("/sykepengesoknader") {
+    get("/sykepengesoeknader") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknader for bedrift: [$sluttbrukerOrgnr]")
 
-            val soknader: List<Sykepengesoknad> = soknadService.hentSoknader(sluttbrukerOrgnr)
+            val soknader: List<Sykepengesoeknad> = soeknadService.hentSoeknader(sluttbrukerOrgnr)
             call.respond(soknader)
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av søknader", e)
@@ -34,18 +34,18 @@ private fun Route.soknader(soknadService: SoknadService) {
     }
 
     // Hent én sykepengesøknad basert på søknadId
-    get("/sykepengesoknad/{soknadId}") {
+    get("/sykepengesoeknad/{soeknadId}") {
         try {
-            val soknadId = call.parameters["soknadId"]?.let { UUID.fromString(it) }
-            requireNotNull(soknadId) { "soknadId: $soknadId ikke gyldig UUID" }
+            val soeknadId = call.parameters["soeknadId"]?.let { UUID.fromString(it) }
+            requireNotNull(soeknadId) { "soeknadId: $soeknadId ikke gyldig UUID" }
 
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soknadId] på vegene av orgnr: $sluttbrukerOrgnr")
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegene av orgnr: $sluttbrukerOrgnr")
 
-            val soknad = soknadService.hentSoknad(soknadId, sluttbrukerOrgnr)
+            val soknad = soeknadService.hentSoeknad(soeknadId, sluttbrukerOrgnr)
             if (soknad == null) {
-                call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soknadId")
+                call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soeknadId")
             } else {
                 call.respond(soknad)
             }

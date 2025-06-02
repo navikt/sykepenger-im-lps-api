@@ -1,9 +1,8 @@
 package no.nav.helsearbeidsgiver.soknad
 
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
-import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.orgnr
-import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.soknadId
-import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.sykepengesoknad
+import no.nav.helsearbeidsgiver.soknad.SoeknadEntitet.soeknadId
+import no.nav.helsearbeidsgiver.soknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
@@ -12,18 +11,18 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
-class SoknadRepository(
+class SoeknadRepository(
     private val db: Database,
 ) {
     fun lagreSoknad(soknad: LagreSoknad) {
         try {
             transaction(db) {
-                SoknadEntitet.insert {
-                    it[soknadId] = soknad.soknadId
+                SoeknadEntitet.insert {
+                    it[soeknadId] = soknad.soknadId
                     it[sykmeldingId] = soknad.sykmeldingId
                     it[fnr] = soknad.fnr
                     it[orgnr] = soknad.orgnr
-                    it[sykepengesoknad] = soknad.sykepengesoknad
+                    it[sykepengesoeknad] = soknad.sykepengesoknad
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -32,20 +31,20 @@ class SoknadRepository(
         }
     }
 
-    fun hentSoknader(orgnr: String): List<SykepengesoknadDTO> =
+    fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
         transaction(db) {
-            SoknadEntitet
+            SoeknadEntitet
                 .selectAll()
-                .where { SoknadEntitet.orgnr eq orgnr }
-                .map { it[sykepengesoknad] }
+                .where { SoeknadEntitet.orgnr eq orgnr }
+                .map { it[sykepengesoeknad] }
         }
 
-    fun hentSoknad(id: UUID): SykepengesoknadDTO? =
+    fun hentSoeknad(id: UUID): SykepengesoknadDTO? =
         transaction(db) {
-            SoknadEntitet
+            SoeknadEntitet
                 .selectAll()
-                .where { soknadId eq id }
-                .map { it[sykepengesoknad] }
+                .where { soeknadId eq id }
+                .map { it[sykepengesoeknad] }
                 .firstOrNull()
         }
 }

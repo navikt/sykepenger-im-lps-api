@@ -1,33 +1,33 @@
 package no.nav.helsearbeidsgiver.utils
 
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
-import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
+import no.nav.helsearbeidsgiver.soknad.Sykepengesoeknad
 import java.time.LocalDateTime
 
-fun SykepengesoknadDTO.konverter(): Sykepengesoknad =
-    Sykepengesoknad(
-        id = id,
-        type = Sykepengesoknad.Soknadstype.valueOf(type.name),
+fun SykepengesoknadDTO.konverter(): Sykepengesoeknad =
+    Sykepengesoeknad(
+        soeknadId = id,
+        type = Sykepengesoeknad.Soeknadstype.valueOf(type.name),
         fnr = fnr,
         sykmeldingId = sykmeldingId,
         arbeidsgiver = arbeidsgiver.konverter(),
         korrigerer = korrigerer,
-        soktUtenlandsopphold = soktUtenlandsopphold,
+        soektUtenlandsopphold = soktUtenlandsopphold,
         fom = fom,
         tom = tom,
         arbeidGjenopptattDato = arbeidGjenopptatt,
         mottatTid = utledSendtTid(),
         // behandlingsdager = behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
-        fravar = fravar?.map { it.konverter() }.orEmpty(),
-        soknadsperioder = soknadsperioder?.map { it.konverter() }.orEmpty(),
+        fravaer = fravar?.map { it.konverter() }.orEmpty(),
+        soeknadsperioder = soknadsperioder?.map { it.konverter() }.orEmpty(),
     )
 
-fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoknad.Soknadsperiode {
+fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsperiode {
     requireNotNull(fom)
     requireNotNull(tom)
     requireNotNull(sykmeldingsgrad)
     requireNotNull(sykmeldingstype)
-    return Sykepengesoknad.Soknadsperiode(
+    return Sykepengesoeknad.Soeknadsperiode(
         fom = fom,
         tom = tom,
         sykmeldingsgrad = sykmeldingsgrad,
@@ -45,23 +45,23 @@ private fun SykepengesoknadDTO.utledSendtTid(): LocalDateTime {
     return sendt
 }
 
-private fun SykepengesoknadDTO.ArbeidsgiverDTO?.konverter(): Sykepengesoknad.Arbeidsgiver {
+private fun SykepengesoknadDTO.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.Arbeidsgiver {
     requireNotNull(this)
     requireNotNull(navn)
     requireNotNull(orgnummer)
-    return Sykepengesoknad.Arbeidsgiver(
+    return Sykepengesoeknad.Arbeidsgiver(
         navn = navn,
         orgnr = orgnummer,
     )
 }
 
-private fun SykepengesoknadDTO.FravarDTO.konverter(): Sykepengesoknad.Fravar {
+private fun SykepengesoknadDTO.FravarDTO.konverter(): Sykepengesoeknad.Fravaer {
     requireNotNull(fom)
     requireNotNull(type)
-    return Sykepengesoknad.Fravar(
+    return Sykepengesoeknad.Fravaer(
         fom = fom,
         tom = tom,
-        type = Sykepengesoknad.Fravarstype.valueOf(type.name),
+        type = Sykepengesoeknad.Fravaerstype.valueOf(type.name),
     )
 }
 

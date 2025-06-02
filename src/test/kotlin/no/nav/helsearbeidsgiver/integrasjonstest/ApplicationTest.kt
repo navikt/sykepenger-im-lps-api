@@ -7,7 +7,7 @@ import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
-import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
+import no.nav.helsearbeidsgiver.soknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
@@ -71,12 +71,12 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         runTest {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/sykepengesoknad/9e088b5a-16c8-3dcc-91fb-acdd544b8607",
+                    url = "http://localhost:8080/v1/sykepengesoeknad/9e088b5a-16c8-3dcc-91fb-acdd544b8607",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("315587336"),
                 )
-            val sykepengesoknad = response.body<Sykepengesoknad>()
-            sykepengesoknad.fnr shouldBe "05449412615"
-            sykepengesoknad.arbeidsgiver.orgnr shouldBe "315587336"
+            val sykepengesoeknad = response.body<Sykepengesoeknad>()
+            sykepengesoeknad.fnr shouldBe "05449412615"
+            sykepengesoeknad.arbeidsgiver.orgnr shouldBe "315587336"
         }
     }
 }

@@ -19,7 +19,7 @@ import java.util.UUID
 @WithPostgresContainer
 class SoknadRepositoryTest {
     private lateinit var db: Database
-    private lateinit var soknadRepository: SoknadRepository
+    private lateinit var soeknadRepository: SoeknadRepository
 
     @BeforeAll
     fun setup() {
@@ -29,21 +29,21 @@ class SoknadRepositoryTest {
                 System.getProperty("database.username"),
                 System.getProperty("database.password"),
             ).init()
-        soknadRepository = SoknadRepository(db)
+        soeknadRepository = SoeknadRepository(db)
     }
 
     @BeforeEach
     fun cleanDb() {
-        transaction(db) { SoknadEntitet.deleteAll() }
+        transaction(db) { SoeknadEntitet.deleteAll() }
     }
 
     @Test
     fun `lagreSoknad skal lagre søknad`() {
         val soknad = soknadMock()
 
-        soknadRepository.lagreSoknad(soknad.tilLagreSoknad())
+        soeknadRepository.lagreSoknad(soknad.tilLagreSoknad())
 
-        val lagretSoknad = soknadRepository.hentSoknad(soknad.id)
+        val lagretSoknad = soeknadRepository.hentSoeknad(soknad.id)
 
         lagretSoknad shouldBe soknad
     }
@@ -52,11 +52,11 @@ class SoknadRepositoryTest {
     fun `hentSoknad skal hente søknad med id`() {
         val soknader = List(10) { UUID.randomUUID() }.map { id -> soknadMock().copy(id = id) }
 
-        soknader.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
+        soknader.forEach { soeknadRepository.lagreSoknad(it.tilLagreSoknad()) }
 
         val soknadValgt = soknader[2]
 
-        soknadRepository.hentSoknad(soknadValgt.id) shouldBe soknadValgt
+        soeknadRepository.hentSoeknad(soknadValgt.id) shouldBe soknadValgt
     }
 
     @Test
@@ -73,9 +73,9 @@ class SoknadRepositoryTest {
                     arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Tilfeltdig Tigerorg", Orgnr.genererGyldig().verdi),
                 )
             }
-        soknader.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
-        soknaderMedSammeOrgnr.forEach { soknadRepository.lagreSoknad(it.tilLagreSoknad()) }
-        soknadRepository.hentSoknader(orgnr.verdi) shouldContainOnly soknaderMedSammeOrgnr
+        soknader.forEach { soeknadRepository.lagreSoknad(it.tilLagreSoknad()) }
+        soknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoknad(it.tilLagreSoknad()) }
+        soeknadRepository.hentSoeknader(orgnr.verdi) shouldContainOnly soknaderMedSammeOrgnr
     }
 
     private fun SykepengesoknadDTO.tilLagreSoknad(): LagreSoknad =

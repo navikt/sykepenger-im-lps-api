@@ -44,8 +44,8 @@ import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
-import no.nav.helsearbeidsgiver.soknad.SoknadRepository
-import no.nav.helsearbeidsgiver.soknad.SoknadService
+import no.nav.helsearbeidsgiver.soknad.SoeknadRepository
+import no.nav.helsearbeidsgiver.soknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -68,7 +68,7 @@ data class Repositories(
     val mottakRepository: MottakRepository,
     val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
     val sykmeldingRepository: SykmeldingRepository,
-    val soknadRepository: SoknadRepository,
+    val soeknadRepository: SoeknadRepository,
 )
 
 data class Services(
@@ -78,7 +78,7 @@ data class Services(
     val dialogportenService: DialogportenService,
     val sykmeldingService: SykmeldingService,
     val pdlService: IPdlService,
-    val soknadService: SoknadService,
+    val soeknadService: SoeknadService,
 )
 
 data class Tolkere(
@@ -109,7 +109,7 @@ fun configureTolkere(
             pdlService = services.pdlService,
         )
     val soknadTolker =
-        SoknadTolker(services.soknadService)
+        SoknadTolker(services.soeknadService)
 
     return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soknadTolker)
 }
@@ -121,7 +121,7 @@ fun configureRepositories(db: Database): Repositories =
         mottakRepository = MottakRepository(db),
         bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
         sykmeldingRepository = SykmeldingRepository(db),
-        soknadRepository = SoknadRepository(db),
+        soeknadRepository = SoeknadRepository(db),
     )
 
 fun configureServices(
@@ -176,7 +176,7 @@ fun configureServices(
         )
 
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
-    val soknadService = SoknadService(repositories.soknadRepository)
+    val soeknadService = SoeknadService(repositories.soeknadRepository)
     return Services(
         forespoerselService,
         inntektsmeldingService,
@@ -184,7 +184,7 @@ fun configureServices(
         dialogportenService,
         sykmeldingService,
         pdlService,
-        soknadService,
+        soeknadService,
     )
 }
 

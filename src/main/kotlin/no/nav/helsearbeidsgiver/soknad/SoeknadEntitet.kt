@@ -6,13 +6,13 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.json.jsonb
 
-object SoknadEntitet : Table("soknad") {
+object SoeknadEntitet : Table("soknad") {
     val id = ulong("id").autoIncrement()
-    val soknadId = uuid("soknad_id")
+    val soeknadId = uuid("soknad_id")
     val sykmeldingId = uuid("sykmelding_id")
     val fnr = varchar("fnr", length = 11)
     val orgnr = varchar("orgnr", length = 9)
-    val sykepengesoknad =
+    val sykepengesoeknad =
         jsonb<SykepengesoknadDTO>(
             name = "soknad",
             jsonConfig = jsonConfig,

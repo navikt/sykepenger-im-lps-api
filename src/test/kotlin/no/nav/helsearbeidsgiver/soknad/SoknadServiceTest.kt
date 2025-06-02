@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.soknad
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
-import no.nav.helsearbeidsgiver.soknad.SoknadEntitet.sykepengesoknad
+import no.nav.helsearbeidsgiver.soknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.soknadMock
 import org.jetbrains.exposed.sql.Database
@@ -19,8 +19,8 @@ import java.util.UUID
 @WithPostgresContainer
 class SoknadServiceTest {
     private lateinit var db: Database
-    private lateinit var soknadService: SoknadService
-    private lateinit var soknadRepository: SoknadRepository
+    private lateinit var soeknadService: SoeknadService
+    private lateinit var soeknadRepository: SoeknadRepository
 
     @BeforeAll
     fun setup() {
@@ -30,13 +30,13 @@ class SoknadServiceTest {
                 System.getProperty("database.username"),
                 System.getProperty("database.password"),
             ).init()
-        soknadRepository = SoknadRepository(db)
-        soknadService = SoknadService(soknadRepository)
+        soeknadRepository = SoeknadRepository(db)
+        soeknadService = SoeknadService(soeknadRepository)
     }
 
     @BeforeEach
     fun cleanDb() {
-        transaction(db) { SoknadEntitet.deleteAll() }
+        transaction(db) { SoeknadEntitet.deleteAll() }
     }
 
     @Test
@@ -44,10 +44,10 @@ class SoknadServiceTest {
         val soknad =
             soknadMock()
 
-        soknadService.behandleSoknad(soknad)
+        soeknadService.behandleSoeknad(soknad)
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe soknad
     }
@@ -57,10 +57,10 @@ class SoknadServiceTest {
         val soknad =
             soknadMock().copy(sykmeldingId = null)
 
-        soknadService.behandleSoknad(soknad)
+        soeknadService.behandleSoeknad(soknad)
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe null
     }
@@ -74,11 +74,11 @@ class SoknadServiceTest {
         val soknad2 =
             soknad.copy(arbeidsgiver = soknad.arbeidsgiver?.copy(orgnummer = null))
 
-        soknadService.behandleSoknad(soknad1)
-        soknadService.behandleSoknad(soknad2)
+        soeknadService.behandleSoeknad(soknad1)
+        soeknadService.behandleSoeknad(soknad2)
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe null
     }
@@ -99,10 +99,10 @@ class SoknadServiceTest {
 
         val soknaderSomIkkeSkalLagres = soknadstyperSomIkkeSkalLagres.map { soknad.copy(type = it) }
 
-        soknaderSomIkkeSkalLagres.forEach { soknadService.behandleSoknad(it) }
+        soknaderSomIkkeSkalLagres.forEach { soeknadService.behandleSoeknad(it) }
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe null
     }
@@ -148,10 +148,10 @@ class SoknadServiceTest {
                     )
                 }
 
-        (soknaderSomSkalLagres + soknaderSomIkkeSkalLagres).forEach { soknadService.behandleSoknad(it) }
+        (soknaderSomSkalLagres + soknaderSomIkkeSkalLagres).forEach { soeknadService.behandleSoeknad(it) }
 
         val lagredeSoknader =
-            transaction(db) { SoknadEntitet.selectAll().map { it.getOrNull(sykepengesoknad) } }
+            transaction(db) { SoeknadEntitet.selectAll().map { it.getOrNull(sykepengesoeknad) } }
 
         lagredeSoknader.size shouldBe 2
         lagredeSoknader.map { it?.id }.toSet() shouldBe setOf(idSomSkalLagres1, idSomSkalLagres2)
@@ -164,10 +164,10 @@ class SoknadServiceTest {
         val soknadSomIkkeSkalLagres =
             soknad.copy(sendtArbeidsgiver = LocalDateTime.now().minusDays(1), sendtNav = LocalDateTime.now())
 
-        soknadService.behandleSoknad(soknadSomIkkeSkalLagres)
+        soeknadService.behandleSoeknad(soknadSomIkkeSkalLagres)
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe null
     }
@@ -182,10 +182,10 @@ class SoknadServiceTest {
         val soknaderSomIkkeSkalLagres =
             statuserSomIkkeSkalLagres.map { soknad.copy(id = UUID.randomUUID(), status = it) }
 
-        soknaderSomIkkeSkalLagres.forEach { soknadService.behandleSoknad(it) }
+        soknaderSomIkkeSkalLagres.forEach { soeknadService.behandleSoeknad(it) }
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe null
     }
@@ -197,10 +197,10 @@ class SoknadServiceTest {
         val soknadSomIkkeSkalLagres =
             soknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null)
 
-        soknadService.behandleSoknad(soknadSomIkkeSkalLagres)
+        soeknadService.behandleSoeknad(soknadSomIkkeSkalLagres)
 
         val lagretSoknad =
-            transaction(db) { SoknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoknad) }
+            transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoknad shouldBe null
     }
@@ -215,11 +215,11 @@ class SoknadServiceTest {
         val soknadSomIkkeSkalLagres =
             soknad.copy(id = soknadId, fom = soknad.fom?.minusDays(1))
 
-        soknadService.behandleSoknad(soknadSomSkalLagres)
-        soknadService.behandleSoknad(soknadSomIkkeSkalLagres)
+        soeknadService.behandleSoeknad(soknadSomSkalLagres)
+        soeknadService.behandleSoeknad(soknadSomIkkeSkalLagres)
 
         val lagredeSoknader =
-            transaction(db) { SoknadEntitet.selectAll().map { it.getOrNull(sykepengesoknad) } }
+            transaction(db) { SoeknadEntitet.selectAll().map { it.getOrNull(sykepengesoeknad) } }
 
         lagredeSoknader.size shouldBe 1
         lagredeSoknader.first()?.fom shouldBe soknadSomSkalLagres.fom

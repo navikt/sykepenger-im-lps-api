@@ -19,24 +19,24 @@ import java.util.UUID
  */
 
 @Serializable
-data class Sykepengesoknad(
-    val id: UUID,
+data class Sykepengesoeknad(
+    val soeknadId: UUID,
     val fnr: String,
     val sykmeldingId: UUID?,
-    val type: Soknadstype,
+    val type: Soeknadstype,
     val fom: LocalDate?,
     val tom: LocalDate?,
     val arbeidGjenopptattDato: LocalDate?,
     val mottatTid: LocalDateTime,
     val arbeidsgiver: Arbeidsgiver,
-    val soktUtenlandsopphold: Boolean?,
+    val soektUtenlandsopphold: Boolean?,
     val korrigerer: UUID?,
-    val soknadsperioder: List<Soknadsperiode>,
+    val soeknadsperioder: List<Soeknadsperiode>,
     // val behandlingsdager: List<LocalDate>,
-    val fravar: List<Fravar>,
+    val fravaer: List<Fravaer>,
 ) {
     @Serializable
-    enum class Soknadstype {
+    enum class Soeknadstype {
         // Selvstending og utland skal ikke til arbeidsgiver
         // SELVSTENDIGE_OG_FRILANSERE
         // OPPHOLD_UTLAND,
@@ -52,7 +52,7 @@ data class Sykepengesoknad(
     )
 
     @Serializable
-    data class Soknadsperiode(
+    data class Soeknadsperiode(
         val fom: LocalDate,
         val tom: LocalDate,
         val sykmeldingsgrad: Int,
@@ -72,14 +72,14 @@ data class Sykepengesoknad(
     }
 
     @Serializable
-    data class Fravar(
+    data class Fravaer(
         val fom: LocalDate,
         val tom: LocalDate?,
-        val type: Fravarstype,
+        val type: Fravaerstype,
     )
 
     @Serializable
-    enum class Fravarstype {
+    enum class Fravaerstype {
         FERIE,
         PERMISJON,
         UTLANDSOPPHOLD, // Skal vi fjerne denne?
