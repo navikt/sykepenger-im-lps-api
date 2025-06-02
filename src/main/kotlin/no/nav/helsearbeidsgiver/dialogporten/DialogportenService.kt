@@ -13,11 +13,11 @@ class DialogportenService(
         if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(sykmelding.orgnr)) {
             dialogProducer.send(sykmelding)
             logger.info(
-                "Sendte melding til hag-dialog for sykmelding med sykmeldingId: ${sykmelding.sykmeldingId}, på orgnr: ${sykmelding.orgnr}",
+                "Sendte melding til hag-dialog for sykmelding med sykmeldingId: ${sykmelding.sykmeldingId}",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for sykmelding med sykmeldingId: ${sykmelding.sykmeldingId}, på orgnr: ${sykmelding.orgnr} fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for sykmelding med sykmeldingId: ${sykmelding.sykmeldingId} fordi feature toggle er av.",
             )
         }
     }
@@ -26,11 +26,11 @@ class DialogportenService(
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoknad(soknad.orgnr)) {
             dialogProducer.send(soknad)
             logger.info(
-                "Sendte melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soknadId}, sykmeldingId: ${soknad.sykmeldingId}, på orgnr: ${soknad.orgnr}",
+                "Sendte melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soknadId}, sykmeldingId: ${soknad.sykmeldingId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soknadId}, sykmeldingId: ${soknad.sykmeldingId}, på orgnr: ${soknad.orgnr} fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soknadId}, sykmeldingId: ${soknad.sykmeldingId}, på fordi feature toggle er av.",
             )
         }
     }

@@ -55,8 +55,8 @@ class SoknadService(
                 )
             } else {
                 logger.info(
-                    "Sender _ikke_ søknad med søknadId: ${validertSoknad.soknadId}, sykmeldingId: ${validertSoknad.soknadId}, på orgnr: " +
-                        "${validertSoknad.orgnr} videre til hag-dialog fordi den ikke skal sendes til arbeidsgiver.",
+                    "Sender _ikke_ søknad med søknadId: ${validertSoknad.soknadId} og sykmeldingId: ${validertSoknad.soknadId} " +
+                        "videre til hag-dialog fordi den ikke skal sendes til arbeidsgiver.",
                 )
             }
         } catch (e: IllegalArgumentException) {
