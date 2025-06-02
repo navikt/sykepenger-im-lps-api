@@ -1,6 +1,6 @@
-package no.nav.helsearbeidsgiver.soknad
+package no.nav.helsearbeidsgiver.soeknad
 
-import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime

@@ -7,7 +7,7 @@ import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
-import no.nav.helsearbeidsgiver.soknad.Sykepengesoeknad
+import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
@@ -66,8 +66,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
     @Test
     fun `leser søknad fra kafka og henter det via api`() {
-        val soknadRecord = ProducerRecord("flex.sykepengesoknad", "key", TestData.SYKEPENGESOKNAD)
-        Producer.sendMelding(soknadRecord)
+        val soeknadRecord = ProducerRecord("flex.sykepengesoknad", "key", TestData.SYKEPENGESOEKNAD)
+        Producer.sendMelding(soeknadRecord)
         runTest {
             val response =
                 fetchWithRetry(

@@ -16,7 +16,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.soknad.Sykepengesoeknad
+import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -111,10 +111,10 @@ class AuthApiTest : ApiTest() {
         }
 
     @Test
-    fun `hent soknader fra api`() =
+    fun `hent sykepengesøknader fra api`() =
         runTest {
             val orgnr = "315587336"
-            every { repositories.soeknadRepository.hentSoeknader(orgnr) } returns listOf(TestData.soknadMock())
+            every { repositories.soeknadRepository.hentSoeknader(orgnr) } returns listOf(TestData.soeknadMock())
             val response =
                 client.get("/v1/sykepengesoeknader") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
@@ -126,18 +126,18 @@ class AuthApiTest : ApiTest() {
         }
 
     @Test
-    fun `hent soknad fra api`() =
+    fun `hent sykepengesøknad fra api`() =
         runTest {
             val orgnr = "315587336"
-            val soknad = TestData.soknadMock()
-            every { repositories.soeknadRepository.hentSoeknad(soknad.id) } returns soknad
+            val soeknad = TestData.soeknadMock()
+            every { repositories.soeknadRepository.hentSoeknad(soeknad.id) } returns soeknad
             val response =
-                client.get("/v1/sykepengesoeknad/${soknad.id}") {
+                client.get("/v1/sykepengesoeknad/${soeknad.id}") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status shouldBe HttpStatusCode.OK
             val soeknadResponse = response.body<Sykepengesoeknad>()
             soeknadResponse.arbeidsgiver.orgnr shouldBe orgnr
-            soeknadResponse.soeknadId shouldBe soknad.id
+            soeknadResponse.soeknadId shouldBe soeknad.id
         }
 }

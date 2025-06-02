@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.soknad
+package no.nav.helsearbeidsgiver.soeknad
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -25,8 +25,8 @@ private fun Route.soeknader(soeknadService: SoeknadService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknader for bedrift: [$sluttbrukerOrgnr]")
 
-            val soknader: List<Sykepengesoeknad> = soeknadService.hentSoeknader(sluttbrukerOrgnr)
-            call.respond(soknader)
+            val soeknader: List<Sykepengesoeknad> = soeknadService.hentSoeknader(sluttbrukerOrgnr)
+            call.respond(soeknader)
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av søknader", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknader")
@@ -43,11 +43,11 @@ private fun Route.soeknader(soeknadService: SoeknadService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegene av orgnr: $sluttbrukerOrgnr")
 
-            val soknad = soeknadService.hentSoeknad(soeknadId, sluttbrukerOrgnr)
-            if (soknad == null) {
+            val soeknad = soeknadService.hentSoeknad(soeknadId, sluttbrukerOrgnr)
+            if (soeknad == null) {
                 call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soeknadId")
             } else {
-                call.respond(soknad)
+                call.respond(soeknad)
             }
         } catch (e: IllegalArgumentException) {
             sikkerLogger().error(e.message, e)

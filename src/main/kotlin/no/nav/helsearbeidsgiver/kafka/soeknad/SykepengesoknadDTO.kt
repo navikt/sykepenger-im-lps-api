@@ -1,6 +1,6 @@
 @file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class, UuidSerializer::class)
 
-package no.nav.helsearbeidsgiver.kafka.soknad
+package no.nav.helsearbeidsgiver.kafka.soeknad
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

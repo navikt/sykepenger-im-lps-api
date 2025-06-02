@@ -1,11 +1,11 @@
-package no.nav.helsearbeidsgiver.soknad
+package no.nav.helsearbeidsgiver.soeknad
 
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
-import no.nav.helsearbeidsgiver.utils.TestData.soknadMock
+import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 @WithPostgresContainer
-class SoknadRepositoryTest {
+class SoeknadRepositoryTest {
     private lateinit var db: Database
     private lateinit var soeknadRepository: SoeknadRepository
 
@@ -38,52 +38,52 @@ class SoknadRepositoryTest {
     }
 
     @Test
-    fun `lagreSoknad skal lagre søknad`() {
-        val soknad = soknadMock()
+    fun `lagreSoeknad skal lagre søknad`() {
+        val soeknad = soeknadMock()
 
-        soeknadRepository.lagreSoknad(soknad.tilLagreSoknad())
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
 
-        val lagretSoknad = soeknadRepository.hentSoeknad(soknad.id)
+        val lagretSoeknad = soeknadRepository.hentSoeknad(soeknad.id)
 
-        lagretSoknad shouldBe soknad
+        lagretSoeknad shouldBe soeknad
     }
 
     @Test
-    fun `hentSoknad skal hente søknad med id`() {
-        val soknader = List(10) { UUID.randomUUID() }.map { id -> soknadMock().copy(id = id) }
+    fun `hentSoeknad skal hente søknad med id`() {
+        val soeknader = List(10) { UUID.randomUUID() }.map { id -> soeknadMock().copy(id = id) }
 
-        soknader.forEach { soeknadRepository.lagreSoknad(it.tilLagreSoknad()) }
+        soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
 
-        val soknadValgt = soknader[2]
+        val soeknadValgt = soeknader[2]
 
-        soeknadRepository.hentSoeknad(soknadValgt.id) shouldBe soknadValgt
+        soeknadRepository.hentSoeknad(soeknadValgt.id) shouldBe soeknadValgt
     }
 
     @Test
-    fun `hentSoknader skal bare hente søknader med riktig orgnr`() {
+    fun `hentSoeknader skal bare hente søknader med riktig orgnr`() {
         val orgnr = Orgnr.genererGyldig()
-        val soknaderMedSammeOrgnr =
+        val soeknaderMedSammeOrgnr =
             List(3) { UUID.randomUUID() }.map { id ->
-                soknadMock().copy(id = id, arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Test organisasjon", orgnr.verdi))
+                soeknadMock().copy(id = id, arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Test organisasjon", orgnr.verdi))
             }
-        val soknader =
+        val soeknader =
             List(5) { UUID.randomUUID() }.map { id ->
-                soknadMock().copy(
+                soeknadMock().copy(
                     id = id,
                     arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Tilfeltdig Tigerorg", Orgnr.genererGyldig().verdi),
                 )
             }
-        soknader.forEach { soeknadRepository.lagreSoknad(it.tilLagreSoknad()) }
-        soknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoknad(it.tilLagreSoknad()) }
-        soeknadRepository.hentSoeknader(orgnr.verdi) shouldContainOnly soknaderMedSammeOrgnr
+        soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
+        soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
+        soeknadRepository.hentSoeknader(orgnr.verdi) shouldContainOnly soeknaderMedSammeOrgnr
     }
 
-    private fun SykepengesoknadDTO.tilLagreSoknad(): LagreSoknad =
-        LagreSoknad(
-            soknadId = id,
+    private fun SykepengesoknadDTO.tilLagreSoeknad(): LagreSoeknad =
+        LagreSoeknad(
+            soeknadId = id,
             sykmeldingId = sykmeldingId!!,
             fnr = fnr,
             orgnr = arbeidsgiver?.orgnummer!!,
-            sykepengesoknad = this,
+            sykepengesoeknad = this,
         )
 }

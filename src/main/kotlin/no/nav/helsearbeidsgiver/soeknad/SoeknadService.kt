@@ -1,8 +1,8 @@
-package no.nav.helsearbeidsgiver.soknad
+package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -20,47 +20,47 @@ class SoeknadService(
         soeknadRepository.hentSoeknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
 
     fun hentSoeknad(
-        soknadId: UUID,
+        soeknadId: UUID,
         orgnr: String,
     ): Sykepengesoeknad? =
-        soeknadRepository.hentSoeknad(soknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
+        soeknadRepository.hentSoeknad(soeknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
             it?.arbeidsgiver?.orgnr ==
                 orgnr
         }
 
-    fun behandleSoeknad(soknad: SykepengesoknadDTO) {
-        if (!soknad.skalLagres()) {
-            logger.info("Søknad med id ${soknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
+    fun behandleSoeknad(soeknad: SykepengesoknadDTO) {
+        if (!soeknad.skalLagres()) {
+            logger.info("Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
             return
         }
 
-        if (soknad.erAlleredeLagret()) {
-            logger.info("Søknad med id ${soknad.id} ignoreres fordi den allerede er lagret.")
+        if (soeknad.erAlleredeLagret()) {
+            logger.info("Søknad med id ${soeknad.id} ignoreres fordi den allerede er lagret.")
             return
         }
 
         try {
-            val validertSoknad = soknad.validerPaakrevdeFelter()
-            soeknadRepository.lagreSoknad(validertSoknad)
-            logger.info("Lagret søknad med id: ${soknad.id}")
+            val validertSoeknad = soeknad.validerPaakrevdeFelter()
+            soeknadRepository.lagreSoeknad(validertSoeknad)
+            logger.info("Lagret søknad med id: ${soeknad.id}")
 
-            if (soknad.skalSendesTilArbeidsgiver()) {
+            if (soeknad.skalSendesTilArbeidsgiver()) {
                 dialogportenService.oppdaterDialogMedSykepengesoeknad(
-                    soknad =
+                    soeknad =
                         DialogSykepengesoeknad(
-                            soeknadId = validertSoknad.soknadId,
-                            sykmeldingId = validertSoknad.sykmeldingId,
-                            orgnr = Orgnr(validertSoknad.orgnr),
+                            soeknadId = validertSoeknad.soeknadId,
+                            sykmeldingId = validertSoeknad.sykmeldingId,
+                            orgnr = Orgnr(validertSoeknad.orgnr),
                         ),
                 )
             } else {
                 logger.info(
-                    "Sendte _ikke_ søknad med søknadId: ${validertSoknad.soknadId} og sykmeldingId: ${validertSoknad.soknadId} " +
+                    "Sendte _ikke_ søknad med søknadId: ${validertSoeknad.soeknadId} og sykmeldingId: ${validertSoeknad.soeknadId} " +
                         "videre til hag-dialog fordi den ikke skal sendes til arbeidsgiver.",
                 )
             }
         } catch (e: IllegalArgumentException) {
-            "Ignorerer sykepengesøknad med id ${soknad.id} fordi søknaden mangler et påkrevd felt.".also {
+            "Ignorerer sykepengesøknad med id ${soeknad.id} fordi søknaden mangler et påkrevd felt.".also {
                 logger.warn(it)
                 sikkerLogger().warn(it, e)
             }
@@ -79,13 +79,13 @@ class SoeknadService(
 
     private fun SykepengesoknadDTO.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
 
-    private fun SykepengesoknadDTO.validerPaakrevdeFelter(): LagreSoknad =
-        LagreSoknad(
-            soknadId = id,
+    private fun SykepengesoknadDTO.validerPaakrevdeFelter(): LagreSoeknad =
+        LagreSoeknad(
+            soeknadId = id,
             sykmeldingId = requireNotNull(sykmeldingId) { "SykmeldingId kan ikke være null" },
             fnr = fnr,
             orgnr = requireNotNull(arbeidsgiver?.orgnummer) { "Orgnummer kan ikke være null" },
-            sykepengesoknad = this,
+            sykepengesoeknad = this,
         )
 
     private fun SykepengesoknadDTO.erArbeidstakerSoeknad(): Boolean = this.type == SykepengesoknadDTO.SoknadstypeDTO.ARBEIDSTAKERE

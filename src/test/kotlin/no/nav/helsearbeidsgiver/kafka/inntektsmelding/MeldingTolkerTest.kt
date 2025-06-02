@@ -25,8 +25,8 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
-import no.nav.helsearbeidsgiver.soknad.SoeknadRepository
-import no.nav.helsearbeidsgiver.soknad.SoeknadService
+import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
+import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -35,7 +35,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
-import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOKNAD
+import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
@@ -158,25 +158,25 @@ class MeldingTolkerTest {
     }
 
     @Test
-    fun `SoknadTolker lesMelding klarer å deserialisere soknad`() {
+    fun `SoeknadTolker lesMelding klarer å deserialisere sykepengesøknad`() {
         every { service.soeknadService.behandleSoeknad(any()) } just Runs
         val soknadJson =
-            SYKEPENGESOKNAD.removeJsonWhitespace()
-        tolkere.soknadTolker.lesMelding(soknadJson)
+            SYKEPENGESOEKNAD.removeJsonWhitespace()
+        tolkere.soeknadTolker.lesMelding(soknadJson)
 
         verify(exactly = 1) { service.soeknadService.behandleSoeknad(any()) }
     }
 
     @Test
-    fun `SoknadTolker lesMelding kaster exception om fnr er null`() {
+    fun `SoeknadTolker lesMelding kaster exception om fnr er null`() {
         val mockJsonMedArbeidsgiverNull =
-            SYKEPENGESOKNAD.removeJsonWhitespace().replace(
+            SYKEPENGESOEKNAD.removeJsonWhitespace().replace(
                 """"fnr":"05449412615"""",
                 """"fnr":null""",
             )
 
         assertThrows<SerializationException> {
-            tolkere.soknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
+            tolkere.soeknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
         verify(exactly = 0) { service.soeknadService.behandleSoeknad(any()) }
     }

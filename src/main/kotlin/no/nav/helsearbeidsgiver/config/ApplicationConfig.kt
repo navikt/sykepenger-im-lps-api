@@ -32,7 +32,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
-import no.nav.helsearbeidsgiver.kafka.soknad.SoknadTolker
+import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -44,8 +44,8 @@ import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.pdp.lagPdpClient
-import no.nav.helsearbeidsgiver.soknad.SoeknadRepository
-import no.nav.helsearbeidsgiver.soknad.SoeknadService
+import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
+import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -85,7 +85,7 @@ data class Tolkere(
     val inntektsmeldingTolker: InntektsmeldingTolker,
     val forespoerselTolker: ForespoerselTolker,
     val sykmeldingTolker: SykmeldingTolker,
-    val soknadTolker: SoknadTolker,
+    val soeknadTolker: SoeknadTolker,
 )
 
 fun configureTolkere(
@@ -108,10 +108,10 @@ fun configureTolkere(
             dialogportenService = services.dialogportenService,
             pdlService = services.pdlService,
         )
-    val soknadTolker =
-        SoknadTolker(services.soeknadService)
+    val soeknadTolker =
+        SoeknadTolker(services.soeknadService)
 
-    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soknadTolker)
+    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker)
 }
 
 fun configureRepositories(db: Database): Repositories =
@@ -224,12 +224,12 @@ fun Application.configureKafkaConsumers(
     }
 
     if (unleashFeatureToggles.skalKonsumereSykepengesoeknader()) {
-        val soknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
+        val soeknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.soknad.topic"),
-                consumer = soknadKafkaConsumer,
-                meldingTolker = tolkere.soknadTolker,
+                topic = getProperty("kafkaConsumer.soeknad.topic"),
+                consumer = soeknadKafkaConsumer,
+                meldingTolker = tolkere.soeknadTolker,
             )
         }
     }

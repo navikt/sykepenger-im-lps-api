@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.utils
 
-import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
-import no.nav.helsearbeidsgiver.soknad.Sykepengesoeknad
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import java.time.LocalDateTime
 
 fun SykepengesoknadDTO.konverter(): Sykepengesoeknad =
