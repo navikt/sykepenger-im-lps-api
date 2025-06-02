@@ -37,8 +37,9 @@ data class Sykepengesoknad(
 ) {
     @Serializable
     enum class Soknadstype {
-        SELVSTENDIGE_OG_FRILANSERE,
-        OPPHOLD_UTLAND,
+        // Selvstending og utland skal ikke til arbeidsgiver
+        // SELVSTENDIGE_OG_FRILANSERE
+        // OPPHOLD_UTLAND,
         ARBEIDSTAKERE,
         BEHANDLINGSDAGER,
         GRADERT_REISETILSKUDD,
