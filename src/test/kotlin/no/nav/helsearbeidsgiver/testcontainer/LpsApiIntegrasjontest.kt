@@ -63,7 +63,7 @@ abstract class LpsApiIntegrasjontest {
 
     @BeforeAll
     fun setup() {
-        every { mockUnleash.skalKonsumereSykepengesoknader() } returns true
+        every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         db =
             DatabaseConfig(
                 System.getProperty("database.url"),

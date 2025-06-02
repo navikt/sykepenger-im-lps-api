@@ -176,7 +176,7 @@ fun configureServices(
         )
 
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
-    val soeknadService = SoeknadService(repositories.soeknadRepository)
+    val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     return Services(
         forespoerselService,
         inntektsmeldingService,
@@ -223,7 +223,7 @@ fun Application.configureKafkaConsumers(
         }
     }
 
-    if (unleashFeatureToggles.skalKonsumereSykepengesoknader()) {
+    if (unleashFeatureToggles.skalKonsumereSykepengesoeknader()) {
         val soknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(

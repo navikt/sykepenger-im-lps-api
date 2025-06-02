@@ -1,14 +1,21 @@
 package no.nav.helsearbeidsgiver.soknad
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.konverter
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
+    val dialogportenService: DialogportenService,
 ) {
+    private val logger = logger()
+
     fun hentSoeknader(orgnr: String): List<Sykepengesoeknad> =
         soeknadRepository.hentSoeknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
 
@@ -21,29 +28,46 @@ class SoeknadService(
                 orgnr
         }
 
-    fun behandleSoeknad(soeknad: SykepengesoknadDTO) {
-        if (!soeknad.skalLagresOgSendesTilArbeidsgiver()) {
-            sikkerLogger().info("Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres og sendes til arbeidsgiver.")
+    fun behandleSoeknad(soknad: SykepengesoknadDTO) {
+        if (!soknad.skalLagres()) {
+            logger.info("Søknad med id ${soknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
             return
         }
 
-        if (soeknad.soeknadAlleredeLagret()) {
-            sikkerLogger().info("Søknad med id ${soeknad.id} ignoreres fordi den allerede er lagret.")
+        if (soknad.erAlleredeLagret()) {
+            logger.info("Søknad med id ${soknad.id} ignoreres fordi den allerede er lagret.")
             return
         }
 
         try {
-            soeknadRepository.lagreSoknad(soeknad.validerPaakrevdeFelter())
-            sikkerLogger().info("lagret søknad med id: ${soeknad.id}")
+            val validertSoknad = soknad.validerPaakrevdeFelter()
+            soeknadRepository.lagreSoknad(validertSoknad)
+            logger.info("Lagret søknad med id: ${soknad.id}")
+
+            if (soknad.skalSendesTilArbeidsgiver()) {
+                dialogportenService.oppdaterDialogMedSykepengesoeknad(
+                    soknad =
+                        DialogSykepengesoeknad(
+                            soeknadId = validertSoknad.soknadId,
+                            sykmeldingId = validertSoknad.sykmeldingId,
+                            orgnr = Orgnr(validertSoknad.orgnr),
+                        ),
+                )
+            } else {
+                logger.info(
+                    "Sendte _ikke_ søknad med søknadId: ${validertSoknad.soknadId} og sykmeldingId: ${validertSoknad.soknadId} " +
+                        "videre til hag-dialog fordi den ikke skal sendes til arbeidsgiver.",
+                )
+            }
         } catch (e: IllegalArgumentException) {
-            sikkerLogger().warn(
-                "Ignorerer sykepengesøknad med id ${soeknad.id} fordi søknaden mangler et påkrevd felt.",
-                e,
-            )
+            "Ignorerer sykepengesøknad med id ${soknad.id} fordi søknaden mangler et påkrevd felt.".also {
+                logger.warn(it)
+                sikkerLogger().warn(it, e)
+            }
         }
     }
 
-    private fun SykepengesoknadDTO.skalLagresOgSendesTilArbeidsgiver(): Boolean =
+    private fun SykepengesoknadDTO.skalLagres(): Boolean =
         (
             erArbeidstakerSoeknad() ||
                 erArbeidstakerMedGradertReiseTilskudd() ||
@@ -51,8 +75,9 @@ class SoeknadService(
 
         ) &&
             !erEttersendtTilNAV() &&
-            this.status == SykepengesoknadDTO.SoknadsstatusDTO.SENDT &&
-            this.sendtArbeidsgiver != null
+            this.status == SykepengesoknadDTO.SoknadsstatusDTO.SENDT
+
+    private fun SykepengesoknadDTO.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
 
     private fun SykepengesoknadDTO.validerPaakrevdeFelter(): LagreSoknad =
         LagreSoknad(
@@ -73,7 +98,7 @@ class SoeknadService(
         this.arbeidssituasjon == SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER &&
             this.type == SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER
 
-    private fun SykepengesoknadDTO.soeknadAlleredeLagret(): Boolean = soeknadRepository.hentSoeknad(id) != null
+    private fun SykepengesoknadDTO.erAlleredeLagret(): Boolean = soeknadRepository.hentSoeknad(id) != null
 
     private fun SykepengesoknadDTO.erEttersendtTilNAV() = sendtNav != null && sendtArbeidsgiver?.isBefore(sendtNav) ?: false
 }

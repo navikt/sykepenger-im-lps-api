@@ -34,6 +34,13 @@ class UnleashFeatureToggles(
             false,
         )
 
+    fun skalOppdatereDialogVedMottattSoeknad(orgnr: Orgnr): Boolean =
+        unleashClient.isEnabled(
+            "oppdater-dialog-ved-mottatt-soknad",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
+            false,
+        )
+
     fun skalSendeApiInnsendteImerTilSimba(): Boolean =
         unleashClient.isEnabled(
             "send-api-innsendte-imer-til-simba",
@@ -46,7 +53,7 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalKonsumereSykepengesoknader(): Boolean =
+    fun skalKonsumereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykepengesoknader",
             false,
