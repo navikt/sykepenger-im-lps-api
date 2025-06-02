@@ -108,8 +108,7 @@ fun configureTolkere(
             dialogportenService = services.dialogportenService,
             pdlService = services.pdlService,
         )
-    val soeknadTolker =
-        SoeknadTolker(services.soeknadService)
+    val soeknadTolker = SoeknadTolker(services.soeknadService)
 
     return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker)
 }
