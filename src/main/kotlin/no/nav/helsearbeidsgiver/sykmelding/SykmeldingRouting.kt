@@ -43,12 +43,11 @@ private fun Route.hentSykmelding(
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(pdpService, SM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            } else {
+                sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift: [$sluttbrukerOrgnr]")
+                val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId, sluttbrukerOrgnr)
+                sykmelding?.let { call.respond(it) } ?: throw ApiFeil(NotFound, "Ingen sykmelding funnet")
             }
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift: [$sluttbrukerOrgnr]")
-
-            val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId, sluttbrukerOrgnr)
-
-            sykmelding?.let { call.respond(it) } ?: throw ApiFeil(NotFound, "Ingen sykmelding funnet")
         }
     }
 }
