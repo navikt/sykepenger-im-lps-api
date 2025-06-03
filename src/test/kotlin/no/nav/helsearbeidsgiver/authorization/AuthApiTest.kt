@@ -16,7 +16,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.soknad.Sykepengesoknad
+import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -111,33 +111,33 @@ class AuthApiTest : ApiTest() {
         }
 
     @Test
-    fun `hent soknader fra api`() =
+    fun `hent sykepengesøknader fra api`() =
         runTest {
             val orgnr = "315587336"
-            every { repositories.soknadRepository.hentSoknader(orgnr) } returns listOf(TestData.soknadMock())
+            every { repositories.soeknadRepository.hentSoeknader(orgnr) } returns listOf(TestData.soeknadMock())
             val response =
-                client.get("/v1/sykepengesoknader") {
+                client.get("/v1/sykepengesoeknader") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val soknadResponse = response.body<List<Sykepengesoknad>>()
-            soknadResponse.size shouldBe 1
-            soknadResponse.map { it.arbeidsgiver.orgnr } shouldContainOnly listOf(orgnr)
+            val soeknadResponse = response.body<List<Sykepengesoeknad>>()
+            soeknadResponse.size shouldBe 1
+            soeknadResponse.map { it.arbeidsgiver.orgnr } shouldContainOnly listOf(orgnr)
         }
 
     @Test
-    fun `hent soknad fra api`() =
+    fun `hent sykepengesøknad fra api`() =
         runTest {
             val orgnr = "315587336"
-            val soknad = TestData.soknadMock()
-            every { repositories.soknadRepository.hentSoknad(soknad.id) } returns soknad
+            val soeknad = TestData.soeknadMock()
+            every { repositories.soeknadRepository.hentSoeknad(soeknad.id) } returns soeknad
             val response =
-                client.get("/v1/sykepengesoknad/${soknad.id}") {
+                client.get("/v1/sykepengesoeknad/${soeknad.id}") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val soknadResponse = response.body<Sykepengesoknad>()
-            soknadResponse.arbeidsgiver.orgnr shouldBe orgnr
-            soknadResponse.id shouldBe soknad.id
+            val soeknadResponse = response.body<Sykepengesoeknad>()
+            soeknadResponse.arbeidsgiver.orgnr shouldBe orgnr
+            soeknadResponse.soeknadId shouldBe soeknad.id
         }
 }

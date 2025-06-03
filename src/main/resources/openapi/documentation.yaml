@@ -346,11 +346,11 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
-  /v1/sykepengesoknad/{soknadId}:
+  /v1/sykepengesoeknad/{soeknadId}:
     get:
       description: "Hent én sykepengesøknad basert på søknadId"
       parameters:
-      - name: "soknadId"
+      - name: "soeknadId"
         in: "path"
         required: true
         schema:
@@ -383,7 +383,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Sykepengesoknad"
+                $ref: "#/components/schemas/Sykepengesoeknad"
         "500":
           description: "Internal Server Error"
           content:
@@ -393,7 +393,7 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av søknad"
-  /v1/sykepengesoknader:
+  /v1/sykepengesoeknader:
     get:
       description: "Hent sykepengesøknader sendt til tilhørende systembrukers orgnr."
       responses:
@@ -415,7 +415,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Sykepengesoknad"
+                  $ref: "#/components/schemas/Sykepengesoeknad"
         "500":
           description: "Internal Server Error"
           content:
@@ -951,7 +951,7 @@ components:
           - "MOTTATT"
           - "FEILET"
           - "GODKJENT"
-    Soknadsperiode:
+    Soeknadsperiode:
       type: "object"
       properties:
         fom:
@@ -984,7 +984,7 @@ components:
       - "fom"
       - "tom"
       - "sykmeldingsgrad"
-    Fravar:
+    Fravaer:
       type: "object"
       properties:
         fom:
@@ -1005,10 +1005,10 @@ components:
       required:
       - "fom"
       - "type"
-    Sykepengesoknad:
+    Sykepengesoeknad:
       type: "object"
       properties:
-        id:
+        soeknadId:
           type: "string"
           format: "uuid"
         fnr:
@@ -1036,27 +1036,27 @@ components:
           format: "date-time"
         arbeidsgiver:
           $ref: "#/components/schemas/Arbeidsgiver"
-        soktUtenlandsopphold:
+        soektUtenlandsopphold:
           type: "boolean"
         korrigerer:
           type: "string"
           format: "uuid"
-        soknadsperioder:
+        soeknadsperioder:
           type: "array"
           items:
-            $ref: "#/components/schemas/Soknadsperiode"
-        fravar:
+            $ref: "#/components/schemas/Soeknadsperiode"
+        fravaer:
           type: "array"
           items:
-            $ref: "#/components/schemas/Fravar"
+            $ref: "#/components/schemas/Fravaer"
       required:
-      - "id"
+      - "soeknadId"
       - "fnr"
       - "type"
       - "mottatTid"
       - "arbeidsgiver"
-      - "soknadsperioder"
-      - "fravar"
+      - "soeknadsperioder"
+      - "fravaer"
     Sykmeldt:
       type: "object"
       properties:

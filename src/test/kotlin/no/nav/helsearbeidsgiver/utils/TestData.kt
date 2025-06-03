@@ -5,7 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.forespoersel.Type
-import no.nav.helsearbeidsgiver.kafka.soknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -302,7 +302,7 @@ object TestData {
         }
     """
 
-    const val SYKEPENGESOKNAD = """
+    const val SYKEPENGESOEKNAD = """
         {
             "id": "9e088b5a-16c8-3dcc-91fb-acdd544b8607",
             "type": "ARBEIDSTAKERE",
@@ -828,5 +828,5 @@ object TestData {
     fun sykmeldingModelMock(sykmeldingModel: String = SYKMELDING_API_RESPONSE): Sykmelding =
         jsonMapper.decodeFromString<Sykmelding>(sykmeldingModel)
 
-    fun soknadMock(soknad: String = SYKEPENGESOKNAD): SykepengesoknadDTO = soknad.fromJson(SykepengesoknadDTO.serializer())
+    fun soeknadMock(soeknad: String = SYKEPENGESOEKNAD): SykepengesoknadDTO = soeknad.fromJson(SykepengesoknadDTO.serializer())
 }
