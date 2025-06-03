@@ -28,7 +28,6 @@ annotation class WithKafkaContainer
 class PostgresTestExtension :
     BeforeAllCallback,
     AfterAllCallback {
-    // companion object {
     private val postgresContainer: PostgreSQLContainer<*> by lazy {
         withRetries(
             feilmelding = "Klarte ikke sette opp inntektsmeldingDatabase.",
@@ -41,7 +40,6 @@ class PostgresTestExtension :
                 .withReuse(true)
         }
     }
-    // }
 
     override fun beforeAll(context: ExtensionContext) {
         postgresContainer.start()
