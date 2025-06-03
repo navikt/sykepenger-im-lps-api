@@ -33,12 +33,12 @@ private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.inntektsmeldingV1(services: Services) {
-    // TODO: kunne registrert en authentication og benyttet denne her i en authentication{}-blokk
+    // TODO: kunne registrert en authentication og benyttet denne her i en authentication{}-blokk?
     route("/v1") {
-        filtrerInntektsmeldinger(services)
-        inntektsmeldinger(services)
+        filtrerInntektsmeldinger(services.inntektsmeldingService)
+        inntektsmeldinger(services.inntektsmeldingService)
         innsending(services)
-        inntektsmelding(services)
+        inntektsmelding(services.inntektsmeldingService)
     }
 }
 
@@ -98,7 +98,7 @@ private fun Route.innsending(services: Services) {
     }
 }
 
-private fun Route.filtrerInntektsmeldinger(services: Services) {
+private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
@@ -110,7 +110,7 @@ private fun Route.filtrerInntektsmeldinger(services: Services) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
-            services.inntektsmeldingService
+            inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     orgnr = sluttbrukerOrgnr,
                     request = request,
@@ -125,7 +125,7 @@ private fun Route.filtrerInntektsmeldinger(services: Services) {
     }
 }
 
-private fun Route.inntektsmeldinger(services: Services) {
+private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
     get("/inntektsmeldinger") {
         try {
@@ -135,7 +135,7 @@ private fun Route.inntektsmeldinger(services: Services) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
-            services.inntektsmeldingService
+            inntektsmeldingService
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
                 .takeIf { it.antall > 0 }
                 ?.let {
@@ -148,7 +148,7 @@ private fun Route.inntektsmeldinger(services: Services) {
     }
 }
 
-private fun Route.inntektsmelding(services: Services) {
+private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmelding med id
     get("/inntektsmelding/{inntektsmeldingId}") {
         try {
@@ -159,7 +159,7 @@ private fun Route.inntektsmelding(services: Services) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
-            services.inntektsmeldingService
+            inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(
@@ -187,7 +187,7 @@ private fun Route.inntektsmelding(services: Services) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
-            services.inntektsmeldingService
+            inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(
@@ -215,7 +215,7 @@ private fun Route.inntektsmelding(services: Services) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
-            services.inntektsmeldingService
+            inntektsmeldingService
                 .hentInntektsMeldingByRequest(
                     sluttbrukerOrgnr,
                     InntektsmeldingFilterRequest(
