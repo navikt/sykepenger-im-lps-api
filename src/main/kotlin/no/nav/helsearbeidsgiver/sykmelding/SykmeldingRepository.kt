@@ -57,4 +57,12 @@ class SykmeldingRepository(
             sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
             sykmeldtNavn = this[sykmeldtNavn],
         )
+
+    fun hentSykmeldinger(orgnr: String): List<SykmeldingDTO> =
+        transaction(db) {
+            SykmeldingEntitet
+                .selectAll()
+                .where { SykmeldingEntitet.orgnr eq orgnr }
+                .map { it.toSykmelding() }
+        }
 }

@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.Database
@@ -47,7 +48,7 @@ class SykmeldingRepositoryTest {
 
     @Test
     fun `hentSykmelding skal hente sykmelding med id`() {
-        val sykmeldinger = List(10) { UUID.randomUUID() }.map { id -> sykmeldingMock().copyId(id.toString()) }
+        val sykmeldinger = List(10) { UUID.randomUUID() }.map { id -> sykmeldingMock().medId(id.toString()) }
 
         sykmeldinger.forEach { it.lagreSykmelding(sykmeldingRepository) }
 
@@ -56,9 +57,32 @@ class SykmeldingRepositoryTest {
         sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingValgt.sykmelding.id))?.sendSykmeldingAivenKafkaMessage shouldBe
             sykmeldingValgt
     }
+
+    @Test
+    fun `hentSykmeldingerForOrgnr skal hente alle sykmeldinger med gitt orgnr`() {
+        val orgnr = "987654321"
+        val sykmeldinger = List(10) { UUID.randomUUID() }.map { id -> sykmeldingMock().medId(id.toString()) }
+        val sykmeldingerMedGittOrgnr =
+            List(10) { UUID.randomUUID() }
+                .map { id -> sykmeldingMock().medId(id.toString()) }
+                .map { it.medOrgnr(orgnr) }
+
+        sykmeldinger.forEach { it.lagreSykmelding(sykmeldingRepository) }
+
+        sykmeldingRepository.hentSykmeldinger(orgnr) shouldBe emptyList()
+
+        sykmeldingerMedGittOrgnr.forEach { it.lagreSykmelding(sykmeldingRepository) }
+
+        val sykmeldingerFraDatabase = sykmeldingRepository.hentSykmeldinger(orgnr)
+        sykmeldingerFraDatabase.size shouldBe sykmeldingerMedGittOrgnr.size
+        sykmeldingerFraDatabase.forEach { it.orgnr shouldBe orgnr }
+    }
 }
 
-private fun SendSykmeldingAivenKafkaMessage.copyId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
+private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
+
+private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
+    copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
 
 private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository: SykmeldingRepository) {
     sykmeldingRepository.lagreSykmelding(
