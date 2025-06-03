@@ -17,9 +17,9 @@ fun Application.configureRouting(services: Services) {
             inntektsmeldingV1(
                 services = services,
             )
-            forespoerselV1(services = services)
-            sykmeldingV1(services.sykmeldingService, services.pdpService)
-            soknadV1(services = services)
+            forespoerselV1(forespoerselService = services.forespoerselService)
+            sykmeldingV1(sykmeldingService = services.sykmeldingService)
+            soknadV1(soknadService = services.soknadService)
         }
     }
 }

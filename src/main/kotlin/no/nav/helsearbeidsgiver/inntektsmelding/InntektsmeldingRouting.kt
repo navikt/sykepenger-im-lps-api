@@ -49,7 +49,7 @@ private fun Route.innsending(services: Services) {
             val request = call.receive<InntektsmeldingRequest>()
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("Mottatt innsending: $request")
@@ -106,7 +106,7 @@ private fun Route.filtrerInntektsmeldinger(services: Services) {
             sikkerLogger().info("Mottatt request: $request")
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
@@ -131,7 +131,7 @@ private fun Route.inntektsmeldinger(services: Services) {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
@@ -155,7 +155,7 @@ private fun Route.inntektsmelding(services: Services) {
             val inntektsmeldingId = call.parameters["inntektsmeldingId"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
@@ -183,7 +183,7 @@ private fun Route.inntektsmelding(services: Services) {
             val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
@@ -211,7 +211,7 @@ private fun Route.inntektsmelding(services: Services) {
             val status = call.parameters["status"]?.let { InnsendingStatus.valueOf(it) }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(services.pdpService, IM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")

@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.altinn.pdp.PdpClient
 import no.nav.helsearbeidsgiver.auth.pdpTokenGetter
-import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.config.configureAuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 interface IPdpService {
@@ -15,9 +15,19 @@ interface IPdpService {
     ): Boolean
 }
 
-class PdpService(
-    val pdpClient: PdpClient,
-) : IPdpService {
+object PdpService :
+    IPdpService {
+    val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
+    val subscriptionKey = Env.getProperty("SUBSCRIPTION_KEY")
+    val authClient = configureAuthClient()
+
+    val pdpClient =
+        PdpClient(
+            altinn3BaseUrl,
+            subscriptionKey,
+            authClient.pdpTokenGetter(),
+        )
+
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
@@ -35,7 +45,7 @@ class PdpService(
         }
 }
 
-class LocalhostPdpService : IPdpService {
+object LocalhostPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
@@ -47,7 +57,7 @@ class LocalhostPdpService : IPdpService {
 }
 
 // Benytter default ingen tilgang i prod inntil vi ønsker å eksponere APIet via http
-class IngenTilgangPdpService : IPdpService {
+object IngenTilgangPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
@@ -56,17 +66,4 @@ class IngenTilgangPdpService : IPdpService {
         sikkerLogger().info("Ingen PDP, ingen tilgang")
         return false
     }
-}
-
-fun lagPdpClient(authClient: AuthClient): PdpClient {
-    val altinn3BaseUrl = Env.getProperty("ALTINN_3_BASE_URL")
-    val subscriptionKey = Env.getProperty("SUBSCRIPTION_KEY")
-
-    val pdpClient =
-        PdpClient(
-            altinn3BaseUrl,
-            subscriptionKey,
-            authClient.pdpTokenGetter(),
-        )
-    return pdpClient
 }

@@ -43,7 +43,6 @@ import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
-import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.soknad.SoknadRepository
 import no.nav.helsearbeidsgiver.soknad.SoknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -79,7 +78,6 @@ data class Services(
     val sykmeldingService: SykmeldingService,
     val pdlService: IPdlService,
     val soknadService: SoknadService,
-    val pdpService: IPdpService,
 )
 
 data class Tolkere(
@@ -186,7 +184,6 @@ fun configureServices(
         sykmeldingService,
         pdlService,
         soknadService,
-        configurePdpService(authClient),
     )
 }
 
@@ -265,16 +262,14 @@ fun Application.configureAuth(authClient: AuthClient) {
                     DEFAULT_HTTP_SIZE_LIMIT,
                 ),
         )
-
-        // TODO: Kan registrere en PDP-authenticator her?
     }
 }
 
-fun configurePdpService(authClient: AuthClient): IPdpService =
+fun getPdpService(): IPdpService =
     when {
-        isDev() -> PdpService(lagPdpClient(authClient))
-        isLocal() -> LocalhostPdpService()
-        else -> IngenTilgangPdpService()
+        isDev() -> PdpService
+        isLocal() -> LocalhostPdpService
+        else -> IngenTilgangPdpService
     }
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()

@@ -21,7 +21,6 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerId
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
@@ -32,7 +31,6 @@ import java.util.UUID
 class SykmeldingRoutingTest :
     FunSpec({
         val sykmeldingService = mockk<SykmeldingService>()
-        val pdpService = mockk<PdpService>()
 
         beforeTest {
             mockkStatic("no.nav.helsearbeidsgiver.auth.TokenValidationUtilsKt")
@@ -51,7 +49,7 @@ class SykmeldingRoutingTest :
             testApplication {
                 application {
                     install(ContentNegotiation) { json() }
-                    routing { sykmeldingV1(sykmeldingService = sykmeldingService, pdpService = pdpService) }
+                    routing { sykmeldingV1(sykmeldingService = sykmeldingService) }
                 }
                 block()
             }
@@ -64,7 +62,6 @@ class SykmeldingRoutingTest :
             val id = UUID.fromString(sykmeldingDTO.id)
 
             every { sykmeldingService.hentSykmelding(id, any()) } returns sykmelding
-            every { pdpService.harTilgang(any(), any(), any()) } returns true
 
             routingTestApplication {
                 val response = client.get("/v1/sykmelding/$id")
@@ -77,7 +74,6 @@ class SykmeldingRoutingTest :
         test("GET /v1/sykmelding/{id} skal returnere NotFound når sykmelding ikke finnes") {
 
             every { sykmeldingService.hentSykmelding(any(), any()) } returns null
-            every { pdpService.harTilgang(any(), any(), any()) } returns true
             routingTestApplication {
                 val response = client.get("/v1/sykmelding/${UUID.randomUUID()}")
 
@@ -88,7 +84,6 @@ class SykmeldingRoutingTest :
 
         test("GET /v1/sykmelding/{id} skal returnere BadRequest når UUID er ugyldig") {
             routingTestApplication {
-                every { pdpService.harTilgang(any(), any(), any()) } returns true
                 val response = client.get("/v1/sykmelding/noe-helt-feil-og-ugyldig")
 
                 response.status shouldBe HttpStatusCode.BadRequest

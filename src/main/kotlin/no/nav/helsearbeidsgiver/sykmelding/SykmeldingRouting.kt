@@ -12,7 +12,6 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.utils.ApiFeil
 import no.nav.helsearbeidsgiver.utils.fangFeil
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -20,20 +19,13 @@ import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
-// TODO: gjøre pdp-oppslag per route
-fun Route.sykmeldingV1(
-    sykmeldingService: SykmeldingService,
-    pdpService: IPdpService,
-) {
+fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
-        hentSykmelding(sykmeldingService, pdpService)
+        hentSykmelding(sykmeldingService)
     }
 }
 
-private fun Route.hentSykmelding(
-    sykmeldingService: SykmeldingService,
-    pdpService: IPdpService,
-) {
+private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
     // Hent sykmelding med id
     // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
     get("/sykmelding/{id}") {
@@ -41,7 +33,7 @@ private fun Route.hentSykmelding(
             val sykmeldingId = call.parameters["id"]?.toUuidOrNull() ?: throw ApiFeil(BadRequest, "Ugyldig sykmelding ID parameter")
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(pdpService, SM_RESSURS)) {
+            if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             } else {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift: [$sluttbrukerOrgnr]")

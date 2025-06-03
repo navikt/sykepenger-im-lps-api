@@ -25,7 +25,6 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
-import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.soknad.SoknadRepository
 import no.nav.helsearbeidsgiver.soknad.SoknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -84,7 +83,6 @@ class MeldingTolkerTest {
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
                 pdlService = mockk<PdlService>(),
                 soknadService = mockk<SoknadService>(),
-                pdpService = LocalhostPdpService(), // TODO: mock og test oppførsel
             )
 
         tolkere = configureTolkere(service, repositories)
