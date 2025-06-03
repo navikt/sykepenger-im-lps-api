@@ -1,0 +1,1 @@
+ALTER TABLE soknad ADD COLUMN vedtaksperiode_id UUID DEFAULT NULL;
