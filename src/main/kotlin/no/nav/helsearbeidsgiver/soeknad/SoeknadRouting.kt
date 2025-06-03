@@ -50,7 +50,7 @@ private fun Route.soeknader(soeknadService: SoeknadService) {
             if (!tokenValidationContext().harTilgangTilRessurs(SOKNAD_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soknadId] på vegene av orgnr: $sluttbrukerOrgnr")
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $sluttbrukerOrgnr")
 
             val soeknad = soeknadService.hentSoeknad(soeknadId, sluttbrukerOrgnr)
             if (soeknad == null) {
