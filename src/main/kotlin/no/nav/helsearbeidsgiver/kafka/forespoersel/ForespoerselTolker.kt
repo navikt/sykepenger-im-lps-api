@@ -63,7 +63,11 @@ class ForespoerselTolker(
                     mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 }
             }
-
+            NotisType.FORESPOERSEL_OPPDATERT -> {
+                val forespoersel = obj.forespoersel
+                // TODO : Håntering av oppdatering av forespørsel
+                logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
+            }
             NotisType.FORESPOERSEL_BESVART -> {
                 settBesvart(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
