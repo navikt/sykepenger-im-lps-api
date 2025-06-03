@@ -175,7 +175,7 @@ fun configureServices(
         )
 
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
-    val soknadService = SoknadService(repositories.soknadRepository)
+    val soknadService = SoknadService(repositories.soknadRepository, dialogportenService)
     return Services(
         forespoerselService,
         inntektsmeldingService,
