@@ -20,6 +20,17 @@ class StatusISpeilTolker(
                     "vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId} og eksterneSøknadIder " +
                     "${behandlingstatusmelding.eksterneSøknadIder}.",
             )
+            if (behandlingstatusmelding.status == Behandlingstatusmelding.Behandlingstatustype.OPPRETTET) {
+                // Hvis søknaden allerede har en vedtaksperiodeId er noe feil og vi må håndtere dette. Feks logge error.
+                // Lagre vedtaksperiodeId på tilhørende søknader
+                logger.info(
+                    "Oppdater søknader ${behandlingstatusmelding.eksterneSøknadIder} med vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId}",
+                )
+                soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(
+                    behandlingstatusmelding.eksterneSøknadIder,
+                    behandlingstatusmelding.vedtaksperiodeId,
+                )
+            }
         } catch (e: Exception) {
             val errorMsg = "Klarte ikke å lagre status-i-speil-melding!"
             logger.error(errorMsg)

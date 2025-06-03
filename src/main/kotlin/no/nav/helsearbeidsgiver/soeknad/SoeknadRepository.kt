@@ -47,4 +47,11 @@ class SoeknadRepository(
                 .map { it[sykepengesoeknad] }
                 .firstOrNull()
         }
+
+    fun oppdaterSoeknaderMedVedtaksperiodeId(
+        soeknadIder: Set<UUID>,
+        vedtaksperiodeId: UUID,
+    ) {
+        TODO()
+    }
 }
