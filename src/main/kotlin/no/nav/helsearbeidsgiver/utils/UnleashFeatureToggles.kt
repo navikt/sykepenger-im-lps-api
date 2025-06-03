@@ -34,7 +34,7 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalOppdatereDialogVedMottattSoknad(orgnr: Orgnr): Boolean =
+    fun skalOppdatereDialogVedMottattSoeknad(orgnr: Orgnr): Boolean =
         unleashClient.isEnabled(
             "oppdater-dialog-ved-mottatt-soknad",
             UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
@@ -53,7 +53,7 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalKonsumereSykepengesoknader(): Boolean =
+    fun skalKonsumereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykepengesoknader",
             false,

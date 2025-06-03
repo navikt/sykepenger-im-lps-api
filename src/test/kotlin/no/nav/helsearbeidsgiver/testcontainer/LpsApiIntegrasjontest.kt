@@ -22,7 +22,7 @@ import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
-import no.nav.helsearbeidsgiver.soknad.SoknadEntitet
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
@@ -63,7 +63,7 @@ abstract class LpsApiIntegrasjontest {
 
     @BeforeAll
     fun setup() {
-        every { mockUnleash.skalKonsumereSykepengesoknader() } returns true
+        every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         db =
             DatabaseConfig(
                 System.getProperty("database.url"),
@@ -82,7 +82,7 @@ abstract class LpsApiIntegrasjontest {
         transaction(db) {
             InntektsmeldingEntitet.deleteAll()
             ForespoerselEntitet.deleteAll()
-            SoknadEntitet.deleteAll()
+            SoeknadEntitet.deleteAll()
         }
     }
 

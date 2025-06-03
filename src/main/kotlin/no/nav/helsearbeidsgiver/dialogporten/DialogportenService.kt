@@ -22,15 +22,15 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedSykepengesoknad(soknad: DialogSykepengesoeknad) {
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoknad(soknad.orgnr)) {
-            dialogProducer.send(soknad)
+    fun oppdaterDialogMedSykepengesoeknad(soeknad: DialogSykepengesoeknad) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(soeknad.orgnr)) {
+            dialogProducer.send(soeknad)
             logger.info(
-                "Sendte melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soeknadId}, sykmeldingId: ${soknad.sykmeldingId}.",
+                "Sendte melding til hag-dialog for sykepengesøknad med søknadId: ${soeknad.soeknadId}, sykmeldingId: ${soeknad.sykmeldingId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for sykepengesøknad med søknadId: ${soknad.soeknadId}, sykmeldingId: ${soknad.sykmeldingId}, på fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for sykepengesøknad med søknadId: ${soeknad.soeknadId}, sykmeldingId: ${soeknad.sykmeldingId}, på fordi feature toggle er av.",
             )
         }
     }

@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.soknad
+package no.nav.helsearbeidsgiver.soeknad
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -15,15 +15,15 @@ import java.util.UUID
 
 private val SOKNAD_RESSURS = Env.getProperty("ALTINN_SOKNAD_RESSURS")
 
-fun Route.soknadV1(soknadService: SoknadService) {
+fun Route.soeknadV1(soeknadService: SoeknadService) {
     route("/v1") {
-        soknader(soknadService)
+        soeknader(soeknadService)
     }
 }
 
-private fun Route.soknader(soknadService: SoknadService) {
+private fun Route.soeknader(soeknadService: SoeknadService) {
     // Hent sykepengesøknader sendt til tilhørende systembrukers orgnr.
-    get("/sykepengesoknader") {
+    get("/sykepengesoeknader") {
         try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -31,8 +31,8 @@ private fun Route.soknader(soknadService: SoknadService) {
             if (!tokenValidationContext().harTilgangTilRessurs(SOKNAD_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
-            val soknader: List<Sykepengesoknad> = soknadService.hentSoknader(sluttbrukerOrgnr)
-            call.respond(soknader)
+            val soeknader: List<Sykepengesoeknad> = soeknadService.hentSoeknader(sluttbrukerOrgnr)
+            call.respond(soeknader)
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av søknader", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknader")
@@ -40,10 +40,10 @@ private fun Route.soknader(soknadService: SoknadService) {
     }
 
     // Hent én sykepengesøknad basert på søknadId
-    get("/sykepengesoknad/{soknadId}") {
+    get("/sykepengesoeknad/{soeknadId}") {
         try {
-            val soknadId = call.parameters["soknadId"]?.let { UUID.fromString(it) }
-            requireNotNull(soknadId) { "soknadId: $soknadId ikke gyldig UUID" }
+            val soeknadId = call.parameters["soeknadId"]?.let { UUID.fromString(it) }
+            requireNotNull(soeknadId) { "soeknadId: $soeknadId ikke gyldig UUID" }
 
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -52,11 +52,11 @@ private fun Route.soknader(soknadService: SoknadService) {
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soknadId] på vegene av orgnr: $sluttbrukerOrgnr")
 
-            val soknad = soknadService.hentSoknad(soknadId, sluttbrukerOrgnr)
-            if (soknad == null) {
-                call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soknadId")
+            val soeknad = soeknadService.hentSoeknad(soeknadId, sluttbrukerOrgnr)
+            if (soeknad == null) {
+                call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soeknadId")
             } else {
-                call.respond(soknad)
+                call.respond(soeknad)
             }
         } catch (e: IllegalArgumentException) {
             sikkerLogger().error(e.message, e)
