@@ -6,9 +6,11 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import java.util.UUID
 
 class SoeknadRepository(
@@ -52,6 +54,10 @@ class SoeknadRepository(
         soeknadIder: Set<UUID>,
         vedtaksperiodeId: UUID,
     ) {
-        TODO()
+        transaction(db) {
+            SoeknadEntitet.update({ soeknadId inList soeknadIder }) {
+                it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
+            }
+        }
     }
 }

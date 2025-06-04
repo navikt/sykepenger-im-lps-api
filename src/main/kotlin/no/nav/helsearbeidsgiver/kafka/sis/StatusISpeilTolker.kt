@@ -22,6 +22,8 @@ class StatusISpeilTolker(
             )
             if (behandlingstatusmelding.status == Behandlingstatusmelding.Behandlingstatustype.OPPRETTET) {
                 // Hvis søknaden allerede har en vedtaksperiodeId er noe feil og vi må håndtere dette. Feks logge error.
+                // Hvis en søknad finnes fra før i databasen med en vedtaksperiodeId logg erroor/ warning, men oppdater
+                // de resterende søknadene med vedtaksperiodeid
                 // Lagre vedtaksperiodeId på tilhørende søknader
                 logger.info(
                     "Oppdater søknader ${behandlingstatusmelding.eksterneSøknadIder} med vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId}",
