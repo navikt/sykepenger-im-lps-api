@@ -111,6 +111,49 @@ class SoeknadRepositoryTest {
     }
 
     @Test
+    fun `oppdaterSoeknaderMedVedtaksperiodeId skal bare oppdatere søknader som mangler vedtaksperiodeId`() {
+        val soeknad = soeknadMock()
+        val soeknad2 = soeknadMock().copy(id = UUID.randomUUID())
+        val soeknad3 = soeknadMock().copy(id = UUID.randomUUID())
+        val vedtaksperiodeId = UUID.randomUUID()
+        val vedtaksperiodeId2 = UUID.randomUUID()
+
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknad2.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknad3.tilLagreSoeknad())
+        soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
+
+        val resultatFør =
+            transaction(db) {
+                SoeknadEntitet
+                    .selectAll()
+                    .where {
+                        soeknadId inList listOf(soeknad.id, soeknad2.id, soeknad3.id)
+                    }.toList()
+            }
+        val soeknadTilVedtaksperiodeIdMapFør = resultatFør.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+
+        soeknadTilVedtaksperiodeIdMapFør[soeknad.id] shouldBe vedtaksperiodeId
+        soeknadTilVedtaksperiodeIdMapFør[soeknad2.id] shouldBe null
+        soeknadTilVedtaksperiodeIdMapFør[soeknad3.id] shouldBe null
+
+        soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad2.id, soeknad3.id), vedtaksperiodeId2)
+
+        val resultatEtter =
+            transaction(db) {
+                SoeknadEntitet
+                    .selectAll()
+                    .where {
+                        soeknadId inList listOf(soeknad.id, soeknad2.id, soeknad3.id)
+                    }.toList()
+            }
+        val soeknadTilVedtaksperiodeIdMap = resultatEtter.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+        soeknadTilVedtaksperiodeIdMap[soeknad.id] shouldBe vedtaksperiodeId
+        soeknadTilVedtaksperiodeIdMap[soeknad2.id] shouldBe vedtaksperiodeId2
+        soeknadTilVedtaksperiodeIdMap[soeknad3.id] shouldBe vedtaksperiodeId2
+    }
+
+    @Test
     fun `lagreSoeknad skal lagre søknad`() {
         val soeknad = soeknadMock()
 

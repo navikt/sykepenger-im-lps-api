@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.soeknad
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
@@ -10,7 +11,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.updateReturning
 import java.util.UUID
 
 class SoeknadRepository(
@@ -55,8 +56,28 @@ class SoeknadRepository(
         vedtaksperiodeId: UUID,
     ) {
         transaction(db) {
-            SoeknadEntitet.update({ soeknadId inList soeknadIder }) {
-                it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
+            val eksisterendeSoeknader =
+                SoeknadEntitet
+                    .selectAll()
+                    .where {
+                        soeknadId inList soeknadIder
+                        SoeknadEntitet.vedtaksperiodeId.isNotNull()
+                    }.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+            eksisterendeSoeknader.forEach { (sId, vId) ->
+                sikkerLogger().warn(
+                    "Fant eksisterende søknad med vedtaksperiode med søknadid: $sId  og vedtaksperiodeId: $vId, oppdaterer ikke denne raden",
+                )
+            }
+            val resterendeSoeknader = soeknadIder.minus(eksisterendeSoeknader.keys)
+            if (resterendeSoeknader.isNotEmpty()) {
+                SoeknadEntitet
+                    .updateReturning(
+                        returning = listOf(soeknadId),
+                        where = { soeknadId inList resterendeSoeknader },
+                    ) {
+                        it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
+                    }.map { it[soeknadId] }
+                    .also { logger().info("Oppdaterte søknader $it med vedtaksperiodeId: $vedtaksperiodeId") }
             }
         }
     }
