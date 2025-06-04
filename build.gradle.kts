@@ -116,5 +116,8 @@ tasks {
         environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
         environment("NAV_ARBEIDSGIVER_PORTAL_BASEURL", "https://arbeidsgiver.intern.dev.nav.no")
         environment("NAV_ARBEIDSGIVER_API_BASEURL", "https://sykepenger-im-lps-api.ekstern.dev.nav.no")
+        environment("ALTINN_IM_RESSURS", "nav_system_sykepenger_inntektsmelding")
+        environment("ALTINN_SM_RESSURS", "nav_system_sykepenger_sykmelding")
+        environment("ALTINN_SOKNAD_RESSURS", "nav_system_sykepenger_soknad")
     }
 }

@@ -1,12 +1,11 @@
 package no.nav.helsearbeidsgiver.auth
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.pdp.IPdpService
+import no.nav.helsearbeidsgiver.config.getPdpService
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v3.TokenValidationContextPrincipal
 
@@ -43,13 +42,17 @@ fun TokenValidationContext.getSystembrukerId(): String {
     return systemBrukerIdListe.first()
 }
 
-fun TokenValidationContext.gyldigSystembrukerOgConsumer(pdpService: IPdpService): Boolean {
+fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
     val systembrukerOrgnr = this.getSystembrukerOrgnr()
-    val systembruker = this.getSystembrukerId()
     val consumerOrgnr = this.getConsumerOrgnr()
     return consumerOrgnr.gyldigOrgnr() &&
-        systembrukerOrgnr.gyldigOrgnr() &&
-        pdpService.harTilgang(systembruker, systembrukerOrgnr)
+        systembrukerOrgnr.gyldigOrgnr()
+}
+
+fun TokenValidationContext.harTilgangTilRessurs(ressurs: String): Boolean {
+    val systembruker = this.getSystembrukerId()
+    val systembrukerOrgnr = this.getSystembrukerOrgnr()
+    return getPdpService().harTilgang(systembruker, systembrukerOrgnr, ressurs)
 }
 
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))

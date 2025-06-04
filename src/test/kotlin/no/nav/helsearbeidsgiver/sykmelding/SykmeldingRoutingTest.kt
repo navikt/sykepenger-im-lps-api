@@ -18,6 +18,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
+import no.nav.helsearbeidsgiver.auth.getSystembrukerId
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
@@ -36,6 +37,7 @@ class SykmeldingRoutingTest :
             val mockTokenValidationContext = mockk<TokenValidationContext>()
             every { mockTokenValidationContext.getSystembrukerOrgnr() } returns "810007843"
             every { mockTokenValidationContext.getConsumerOrgnr() } returns "810007842"
+            every { mockTokenValidationContext.getSystembrukerId() } returns "123"
             every {
                 runBlocking { any<RoutingContext>().tokenValidationContext() }
             } returns mockTokenValidationContext
@@ -47,7 +49,7 @@ class SykmeldingRoutingTest :
             testApplication {
                 application {
                     install(ContentNegotiation) { json() }
-                    routing { sykmeldingV1(sykmeldingService) }
+                    routing { sykmeldingV1(sykmeldingService = sykmeldingService) }
                 }
                 block()
             }
@@ -72,7 +74,6 @@ class SykmeldingRoutingTest :
         test("GET /v1/sykmelding/{id} skal returnere NotFound når sykmelding ikke finnes") {
 
             every { sykmeldingService.hentSykmelding(any(), any()) } returns null
-
             routingTestApplication {
                 val response = client.get("/v1/sykmelding/${UUID.randomUUID()}")
 

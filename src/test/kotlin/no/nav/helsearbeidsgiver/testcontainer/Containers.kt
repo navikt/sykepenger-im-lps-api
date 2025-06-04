@@ -28,18 +28,16 @@ annotation class WithKafkaContainer
 class PostgresTestExtension :
     BeforeAllCallback,
     AfterAllCallback {
-    companion object {
-        private val postgresContainer: PostgreSQLContainer<*> by lazy {
-            withRetries(
-                feilmelding = "Klarte ikke sette opp inntektsmeldingDatabase.",
-            ) {
-                PostgreSQLContainer("postgres:16")
-                    .withDatabaseName("testdb")
-                    .withUsername("testuser")
-                    .withPassword("testpass")
-                    .waitingFor(Wait.forListeningPort())
-                    .withReuse(true)
-            }
+    private val postgresContainer: PostgreSQLContainer<*> by lazy {
+        withRetries(
+            feilmelding = "Klarte ikke sette opp inntektsmeldingDatabase.",
+        ) {
+            PostgreSQLContainer("postgres:16")
+                .withDatabaseName("testdb")
+                .withUsername("testuser")
+                .withPassword("testpass")
+                .waitingFor(Wait.forListeningPort())
+                .withReuse(true)
         }
     }
 
