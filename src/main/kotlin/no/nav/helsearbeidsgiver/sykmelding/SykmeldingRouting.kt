@@ -42,4 +42,20 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
             }
         }
     }
+
+    get("/sykmeldinger") {
+        // Hent alle sykmeldinger for et orgnr
+        // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
+        fangFeil("Feil ved henting av sykmeldinger") {
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            } else {
+                sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmeldinger for bedrift: [$sluttbrukerOrgnr]")
+                val sykmeldinger = sykmeldingService.hentSykmeldinger(sluttbrukerOrgnr)
+                call.respond(sykmeldinger)
+            }
+        }
+    }
 }
