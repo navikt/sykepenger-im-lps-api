@@ -4,6 +4,8 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -11,6 +13,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.UUID
 
 @WithPostgresContainer
@@ -77,6 +80,62 @@ class SykmeldingRepositoryTest {
         sykmeldingerFraDatabase.size shouldBe sykmeldingerMedGittOrgnr.size
         sykmeldingerFraDatabase.forEach { it.orgnr shouldBe orgnr }
     }
+
+    @Test
+    fun `filter for fnr på sykmeldinger skal gi korrekt filtrert resultat`() {
+        val id = UUID.randomUUID()
+        sykmeldingRepository.lagreSykmelding(
+            id = id,
+            fnr = DEFAULT_FNR,
+            orgnr = DEFAULT_ORG,
+            sykmelding = sykmeldingMock(),
+            sykmeldtNavn = "Syyk i hodet",
+        )
+
+        sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR))[0].id shouldBe id.toString()
+
+        sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR.reversed())) shouldBe
+            emptyList()
+    }
+
+    @Test
+    fun `filter på dato på sykmeldinger skal gi korrekt filtrert resultat`() {
+        val antallSykmeldinger = 10
+        val opprettet = LocalDateTime.of(2023, 1, 1, 0, 0)
+
+        for (i in 0..<antallSykmeldinger) {
+            sykmeldingRepository.lagreSykmelding(
+                UUID.randomUUID(),
+                fnr = DEFAULT_FNR,
+                orgnr = DEFAULT_ORG,
+                sykmelding = sykmeldingMock(),
+                sykmeldtNavn = "Syyk i hodet",
+                opprettet = opprettet.plusDays(i.toLong()),
+            )
+        }
+
+        for (i in 0..antallSykmeldinger) {
+            val sykmeldingerFraOgMed =
+                sykmeldingRepository.hentSykmeldinger(
+                    DEFAULT_ORG,
+                    filter =
+                        SykmeldingFilterRequest(
+                            fom = opprettet.toLocalDate().plusDays(i.toLong()),
+                        ),
+                )
+            sykmeldingerFraOgMed.size shouldBe (antallSykmeldinger - i)
+
+            val sykmeldingerTilOgMed =
+                sykmeldingRepository.hentSykmeldinger(
+                    DEFAULT_ORG,
+                    filter =
+                        SykmeldingFilterRequest(
+                            tom = opprettet.toLocalDate().minusDays(1).plusDays(i.toLong()),
+                        ),
+                )
+            sykmeldingerTilOgMed.size shouldBe i
+        }
+    }
 }
 
 private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
@@ -91,5 +150,6 @@ private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository
         orgnr = event.arbeidsgiver.orgnummer,
         sykmeldtNavn = "",
         sykmelding = this,
+        opprettet = LocalDateTime.now(),
     )
 }
