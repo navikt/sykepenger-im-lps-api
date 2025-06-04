@@ -23,6 +23,7 @@ spec:
     logging:
       destinations:
         - id: secure_logs
+        - id: loki
     autoInstrumentation:
       enabled: true
       runtime: java
@@ -81,6 +82,10 @@ spec:
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS
       value: "nav_system_sykepenger_inntektsmelding"
+    - name: ALTINN_SM_RESSURS
+      value: "nav_system_sykepenger_sykmelding"
+    - name: ALTINN_SOKNAD_RESSURS
+      value: "nav_system_sykepenger_soknad"
     - name: ALTINN_PDP_SCOPE
       value: "altinn:authorization/authorize"
     - name: NAV_ARBEIDSGIVER_PORTAL_BASEURL

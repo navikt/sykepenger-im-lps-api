@@ -43,7 +43,6 @@ import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
-import no.nav.helsearbeidsgiver.pdp.lagPdpClient
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -235,8 +234,6 @@ fun Application.configureKafkaConsumers(
 }
 
 fun Application.configureAuth(authClient: AuthClient) {
-    val pdpService = configurePdpService(authClient)
-
     install(Authentication) {
         tokenValidationSupport(
             name = "systembruker-config",
@@ -255,8 +252,7 @@ fun Application.configureAuth(authClient: AuthClient) {
                     claimMap = arrayOf("authorization_details", "consumer", "scope"),
                 ),
             additionalValidation = {
-                it.gyldigScope() &&
-                    it.gyldigSystembrukerOgConsumer(pdpService) // TODO: Skal erstattes per route
+                it.gyldigScope() && it.gyldigSystembrukerOgConsumer()
             },
             resourceRetriever =
                 DefaultResourceRetriever(
@@ -268,11 +264,11 @@ fun Application.configureAuth(authClient: AuthClient) {
     }
 }
 
-fun configurePdpService(authClient: AuthClient): IPdpService =
+fun getPdpService(): IPdpService =
     when {
-        isDev() -> PdpService(lagPdpClient(authClient))
-        isLocal() -> LocalhostPdpService()
-        else -> IngenTilgangPdpService()
+        isDev() -> PdpService
+        isLocal() -> LocalhostPdpService
+        else -> IngenTilgangPdpService
     }
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
