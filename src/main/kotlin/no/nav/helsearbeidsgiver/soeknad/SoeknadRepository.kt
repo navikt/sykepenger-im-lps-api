@@ -55,30 +55,35 @@ class SoeknadRepository(
         soeknadIder: Set<UUID>,
         vedtaksperiodeId: UUID,
     ) {
-        transaction(db) {
-            val eksisterendeSoeknader =
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId inList soeknadIder
-                        SoeknadEntitet.vedtaksperiodeId.isNotNull()
-                    }.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
-            eksisterendeSoeknader.forEach { (sId, vId) ->
-                sikkerLogger().warn(
-                    "Fant eksisterende søknad med vedtaksperiode med søknadid: $sId  og vedtaksperiodeId: $vId, oppdaterer ikke denne raden",
-                )
+        try {
+            transaction(db) {
+                val eksisterendeSoeknader =
+                    SoeknadEntitet
+                        .selectAll()
+                        .where {
+                            soeknadId inList soeknadIder
+                            SoeknadEntitet.vedtaksperiodeId.isNotNull()
+                        }.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+                eksisterendeSoeknader.forEach { (sId, vId) ->
+                    sikkerLogger().warn(
+                        "Fant eksisterende søknad med vedtaksperiode med søknadid: $sId  og vedtaksperiodeId: $vId, oppdaterer ikke denne raden",
+                    )
+                }
+                val resterendeSoeknader = soeknadIder.minus(eksisterendeSoeknader.keys)
+                if (resterendeSoeknader.isNotEmpty()) {
+                    SoeknadEntitet
+                        .updateReturning(
+                            returning = listOf(soeknadId),
+                            where = { soeknadId inList resterendeSoeknader },
+                        ) {
+                            it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
+                        }.map { it[soeknadId] }
+                        .also { logger().info("Oppdaterte søknader $it med vedtaksperiodeId: $vedtaksperiodeId") }
+                }
             }
-            val resterendeSoeknader = soeknadIder.minus(eksisterendeSoeknader.keys)
-            if (resterendeSoeknader.isNotEmpty()) {
-                SoeknadEntitet
-                    .updateReturning(
-                        returning = listOf(soeknadId),
-                        where = { soeknadId inList resterendeSoeknader },
-                    ) {
-                        it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
-                    }.map { it[soeknadId] }
-                    .also { logger().info("Oppdaterte søknader $it med vedtaksperiodeId: $vedtaksperiodeId") }
-            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å oppdatere sykepengesøknader  med vedtaksperiodeId $vedtaksperiodeId i databasen", e)
+            throw e
         }
     }
 }
