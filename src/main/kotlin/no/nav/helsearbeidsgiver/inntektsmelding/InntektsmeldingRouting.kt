@@ -33,7 +33,6 @@ private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.inntektsmeldingV1(services: Services) {
-    // TODO: kunne registrert en authentication og benyttet denne her i en authentication{}-blokk?
     route("/v1") {
         filtrerInntektsmeldinger(services.inntektsmeldingService)
         inntektsmeldinger(services.inntektsmeldingService)

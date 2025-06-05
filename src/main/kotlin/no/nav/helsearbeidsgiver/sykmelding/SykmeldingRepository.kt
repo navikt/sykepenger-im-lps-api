@@ -10,9 +10,11 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.UUID
 
 class SykmeldingRepository(
@@ -60,4 +62,21 @@ class SykmeldingRepository(
             sykmeldtNavn = this[sykmeldtNavn],
             mottattAvNav = this[mottattAvNav],
         )
+
+    fun hentSykmeldinger(
+        orgnr: String,
+        filter: SykmeldingFilterRequest? = null,
+    ): List<SykmeldingDTO> =
+        transaction(db) {
+            SykmeldingEntitet
+                .selectAll()
+                .where {
+                    listOfNotNull(
+                        SykmeldingEntitet.orgnr eq orgnr,
+                        filter?.fnr?.let { fnr eq it },
+                        filter?.fom?.let { mottattAvNav greaterEq LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0) },
+                        filter?.tom?.let { mottattAvNav less LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0).plusDays(1) },
+                    ).reduce { acc, cond -> acc and cond }
+                }.map { it.toSykmelding() }
+        }
 }
