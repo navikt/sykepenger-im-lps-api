@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @WithPostgresContainer
@@ -101,16 +101,17 @@ class SykmeldingRepositoryTest {
     @Test
     fun `datofilter på sykmeldinger skal gi korrekt filtrert resultat`() {
         val antallSykmeldinger = 3
-        val opprettet = LocalDateTime.of(2023, 1, 1, 0, 0)
+        val sykmelding = sykmeldingMock()
+        val mottatt = sykmelding.sykmelding.mottattTidspunkt
+        val mottattDato = mottatt.toLocalDate()
 
         for (i in 0..<antallSykmeldinger) {
             sykmeldingRepository.lagreSykmelding(
                 UUID.randomUUID(),
                 fnr = DEFAULT_FNR,
                 orgnr = DEFAULT_ORG,
-                sykmelding = sykmeldingMock(),
+                sykmelding = sykmeldingMock().medMottattTidspunkt(mottatt.plusDays(i.toLong())),
                 sykmeldtNavn = "Syyk i hodet",
-                opprettet = opprettet.plusDays(i.toLong()),
             )
         }
 
@@ -120,7 +121,7 @@ class SykmeldingRepositoryTest {
                     DEFAULT_ORG,
                     filter =
                         SykmeldingFilterRequest(
-                            fom = opprettet.toLocalDate().plusDays(i.toLong()),
+                            fom = mottattDato.plusDays(i.toLong()),
                         ),
                 )
             sykmeldingerFraOgMed.size shouldBe (antallSykmeldinger - i)
@@ -130,7 +131,7 @@ class SykmeldingRepositoryTest {
                     DEFAULT_ORG,
                     filter =
                         SykmeldingFilterRequest(
-                            tom = opprettet.toLocalDate().minusDays(1).plusDays(i.toLong()),
+                            tom = mottattDato.minusDays(1).plusDays(i.toLong()),
                         ),
                 )
             sykmeldingerTilOgMed.size shouldBe i
@@ -141,8 +142,8 @@ class SykmeldingRepositoryTest {
                 DEFAULT_ORG,
                 filter =
                     SykmeldingFilterRequest(
-                        fom = opprettet.toLocalDate(),
-                        tom = opprettet.toLocalDate().plusDays(1),
+                        fom = mottattDato,
+                        tom = mottattDato.plusDays(1),
                     ),
             )
         sykmeldingerFomOgTom.size shouldBe 2
@@ -154,6 +155,9 @@ private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding 
 private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
     copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
 
+private fun SendSykmeldingAivenKafkaMessage.medMottattTidspunkt(mottattTid: OffsetDateTime) =
+    copy(sykmelding = sykmelding.copy(mottattTidspunkt = mottattTid))
+
 private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository: SykmeldingRepository) {
     sykmeldingRepository.lagreSykmelding(
         id = UUID.fromString(sykmelding.id),
@@ -161,6 +165,5 @@ private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository
         orgnr = event.arbeidsgiver.orgnummer,
         sykmeldtNavn = "",
         sykmelding = this,
-        opprettet = LocalDateTime.now(),
     )
 }

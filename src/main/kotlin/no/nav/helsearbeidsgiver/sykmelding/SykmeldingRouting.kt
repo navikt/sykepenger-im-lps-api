@@ -60,7 +60,7 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
             }
         }
     }
-
+    // Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)
     post("/sykmeldinger") {
         // Hent alle sykmeldinger for et orgnr, filtrert med parametere
         // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen

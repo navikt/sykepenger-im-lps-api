@@ -14,5 +14,5 @@ data class SykmeldingDTO(
     val orgnr: String,
     val sendSykmeldingAivenKafkaMessage: SendSykmeldingAivenKafkaMessage,
     val sykmeldtNavn: String,
-    val opprettet: LocalDateTime,
+    val mottattAvNav: LocalDateTime,
 )

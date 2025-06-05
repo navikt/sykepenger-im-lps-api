@@ -25,10 +25,9 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
-    val kafkaMetadata = sendSykmeldingAivenKafkaMessage.kafkaMetadata
     return Sykmelding(
         sykmeldingId = sykmelding.id,
-        mottattAvNav = sykmelding.mottattTidspunkt.toLocalDateTime(),
+        mottattAvNav = mottattAvNav,
         arbeidsgiver = sendSykmeldingAivenKafkaMessage.tilArbeidsgiver(),
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
         behandler = sykmelding.behandler?.tilBehandler(),

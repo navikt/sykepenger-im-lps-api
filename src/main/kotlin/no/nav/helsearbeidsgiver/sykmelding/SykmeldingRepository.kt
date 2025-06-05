@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.opprettet
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.mottattAvNav
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
@@ -26,7 +26,6 @@ class SykmeldingRepository(
         orgnr: String,
         sykmelding: SendSykmeldingAivenKafkaMessage,
         sykmeldtNavn: String,
-        opprettet: LocalDateTime = LocalDateTime.now(), // Skal kun overstyres ifbm testing
     ) {
         try {
             transaction(db) {
@@ -36,7 +35,7 @@ class SykmeldingRepository(
                     it[SykmeldingEntitet.orgnr] = orgnr
                     it[SykmeldingEntitet.sykmeldtNavn] = sykmeldtNavn
                     it[sendSykmeldingAivenKafkaMessage] = sykmelding
-                    it[SykmeldingEntitet.opprettet] = opprettet
+                    it[SykmeldingEntitet.mottattAvNav] = sykmelding.sykmelding.mottattTidspunkt.toLocalDateTime()
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -61,7 +60,7 @@ class SykmeldingRepository(
             fnr = this[fnr],
             sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
             sykmeldtNavn = this[sykmeldtNavn],
-            opprettet = this[opprettet],
+            mottattAvNav = this[mottattAvNav],
         )
 
     fun hentSykmeldinger(
@@ -75,8 +74,8 @@ class SykmeldingRepository(
                     listOfNotNull(
                         SykmeldingEntitet.orgnr eq orgnr,
                         filter?.fnr?.let { fnr eq it },
-                        filter?.fom?.let { opprettet greaterEq LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0) },
-                        filter?.tom?.let { opprettet lessEq LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0) },
+                        filter?.fom?.let { mottattAvNav greaterEq LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0) },
+                        filter?.tom?.let { mottattAvNav less LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0).plusDays(1) },
                     ).reduce { acc, cond -> acc and cond }
                 }.map { it.toSykmelding() }
         }

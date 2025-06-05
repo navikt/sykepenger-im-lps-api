@@ -26,7 +26,6 @@ import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.security.token.support.core.context.TokenValidationContext
-import java.time.LocalDateTime
 import java.util.UUID
 
 class SykmeldingRoutingTest :
@@ -100,5 +99,5 @@ fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
         orgnr = event.arbeidsgiver.orgnummer,
         sendSykmeldingAivenKafkaMessage = this,
         sykmeldtNavn = "Ola Nordmann",
-        opprettet = LocalDateTime.now(),
+        mottattAvNav = sykmelding.mottattTidspunkt.toLocalDateTime(),
     )
