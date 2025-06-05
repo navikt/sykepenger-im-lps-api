@@ -50,6 +50,7 @@ private fun Route.innsending(services: Services) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@post
             }
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
@@ -108,6 +109,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@post
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
@@ -133,6 +135,7 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
@@ -158,6 +161,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
             val im =
@@ -186,6 +190,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
             inntektsmeldingService
@@ -214,6 +219,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
             inntektsmeldingService

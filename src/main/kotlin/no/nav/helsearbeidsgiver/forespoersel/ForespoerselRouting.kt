@@ -30,6 +30,7 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
         try {
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -45,6 +46,7 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
         try {
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
             requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
@@ -73,6 +75,7 @@ private fun Route.filtererForespoersler(forespoerselService: ForespoerselService
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@post
             }
             sikkerLogger().info("Mottat request: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
