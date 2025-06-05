@@ -3,9 +3,11 @@ package no.nav.helsearbeidsgiver.sykmelding
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
@@ -54,6 +56,23 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
             } else {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmeldinger for bedrift: [$sluttbrukerOrgnr]")
                 val sykmeldinger = sykmeldingService.hentSykmeldinger(sluttbrukerOrgnr)
+                call.respond(sykmeldinger)
+            }
+        }
+    }
+
+    post("/sykmeldinger") {
+        // Hent alle sykmeldinger for et orgnr, filtrert med parametere
+        // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
+        val sykmeldingFilterRequest = call.receive<SykmeldingFilterRequest>()
+        fangFeil("Feil ved henting av sykmeldinger") {
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            } else {
+                sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmeldinger for bedrift: [$sluttbrukerOrgnr]")
+                val sykmeldinger = sykmeldingService.hentSykmeldinger(sluttbrukerOrgnr, sykmeldingFilterRequest)
                 call.respond(sykmeldinger)
             }
         }

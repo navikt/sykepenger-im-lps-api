@@ -28,7 +28,13 @@ class SykmeldingService(
         }
     }
 
-    fun hentSykmeldinger(orgnr: String): List<Sykmelding> = sykmeldingRepository.hentSykmeldinger(orgnr).map { it.tilSykmelding() }
+    fun hentSykmeldinger(
+        orgnr: String,
+        sykmeldingFilterRequest: SykmeldingFilterRequest? = null,
+    ): List<Sykmelding> =
+        sykmeldingRepository.hentSykmeldinger(orgnr, sykmeldingFilterRequest).map {
+            it.tilSykmelding()
+        }
 
     fun lagreSykmelding(
         sykmeldingMessage: SendSykmeldingAivenKafkaMessage,

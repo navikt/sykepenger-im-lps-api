@@ -99,8 +99,8 @@ class SykmeldingRepositoryTest {
     }
 
     @Test
-    fun `filter på dato på sykmeldinger skal gi korrekt filtrert resultat`() {
-        val antallSykmeldinger = 10
+    fun `datofilter på sykmeldinger skal gi korrekt filtrert resultat`() {
+        val antallSykmeldinger = 3
         val opprettet = LocalDateTime.of(2023, 1, 1, 0, 0)
 
         for (i in 0..<antallSykmeldinger) {
@@ -135,6 +135,17 @@ class SykmeldingRepositoryTest {
                 )
             sykmeldingerTilOgMed.size shouldBe i
         }
+
+        val sykmeldingerFomOgTom =
+            sykmeldingRepository.hentSykmeldinger(
+                DEFAULT_ORG,
+                filter =
+                    SykmeldingFilterRequest(
+                        fom = opprettet.toLocalDate(),
+                        tom = opprettet.toLocalDate().plusDays(1),
+                    ),
+            )
+        sykmeldingerFomOgTom.size shouldBe 2
     }
 }
 

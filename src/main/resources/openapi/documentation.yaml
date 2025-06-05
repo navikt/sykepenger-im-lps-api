@@ -62,6 +62,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -460,6 +464,34 @@ paths:
   /v1/sykmeldinger:
     get:
       description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Sykmelding"
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ikke tilgang til ressurs"
+                Example#2:
+                  value: "Uautorisert tilgang"
+    post:
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SykmeldingFilterRequest"
+        required: true
       responses:
         "200":
           description: "OK"
@@ -1253,3 +1285,17 @@ components:
         - "oppfoelging"
         - "kontaktMedPasient"
         - "arbeidsgiver"
+    SykmeldingFilterRequest:
+      type: "object"
+      properties:
+        fnr:
+          type: "string"
+          nullable: true
+        fom:
+          type: "string"
+          format: "date"
+          nullable: true
+        tom:
+          type: "string"
+          format: "date"
+          nullable: true
