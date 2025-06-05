@@ -18,4 +18,5 @@ object SykmeldingEntitet : Table("sykmelding") {
             kSerializer = SendSykmeldingAivenKafkaMessage.serializer(),
         )
     val opprettet = datetime("opprettet")
+    val mottattAvNav = datetime("mottatt_av_nav")
 }

@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.mottattAvNav
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
@@ -32,6 +33,7 @@ class SykmeldingRepository(
                     it[SykmeldingEntitet.orgnr] = orgnr
                     it[SykmeldingEntitet.sykmeldtNavn] = sykmeldtNavn
                     it[sendSykmeldingAivenKafkaMessage] = sykmelding
+                    it[mottattAvNav] = sykmelding.sykmelding.mottattTidspunkt.toLocalDateTime()
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -56,5 +58,6 @@ class SykmeldingRepository(
             fnr = this[fnr],
             sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
             sykmeldtNavn = this[sykmeldtNavn],
+            mottattAvNav = this[mottattAvNav],
         )
 }
