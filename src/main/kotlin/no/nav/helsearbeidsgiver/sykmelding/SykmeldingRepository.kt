@@ -35,7 +35,7 @@ class SykmeldingRepository(
                     it[SykmeldingEntitet.orgnr] = orgnr
                     it[SykmeldingEntitet.sykmeldtNavn] = sykmeldtNavn
                     it[sendSykmeldingAivenKafkaMessage] = sykmelding
-                    it[SykmeldingEntitet.mottattAvNav] = sykmelding.sykmelding.mottattTidspunkt.toLocalDateTime()
+                    it[mottattAvNav] = sykmelding.sykmelding.mottattTidspunkt.toLocalDateTime()
                 }
             }
         } catch (e: ExposedSQLException) {
