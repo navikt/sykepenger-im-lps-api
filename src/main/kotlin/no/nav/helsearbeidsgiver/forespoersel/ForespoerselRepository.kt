@@ -28,13 +28,13 @@ class ForespoerselRepository(
         navReferanseId: UUID,
         payload: ForespoerselDokument,
     ) {
-        val f = hentForespoersel(navReferanseId)
+        val organisasjonsnummer = payload.orgnr
+        val foedselsnr = payload.fnr
+        val f = hentForespoersel(navReferanseId, organisasjonsnummer)
         if (f != null) {
             sikkerLogger().warn("Duplikat id: $navReferanseId, kan ikke lagre")
             return
         }
-        val organisasjonsnummer = payload.orgnr
-        val foedselsnr = payload.fnr
 
         val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
@@ -50,12 +50,17 @@ class ForespoerselRepository(
         sikkerLogger().info("Forespørsel $navReferanseId lagret")
     }
 
-    fun hentForespoersel(navReferanseId: UUID): Forespoersel? =
+    fun hentForespoersel(
+        navReferanseId: UUID,
+        orgnr: String,
+    ): Forespoersel? =
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
-                .where { ForespoerselEntitet.navReferanseId eq navReferanseId }
-                .map {
+                .where {
+                    (ForespoerselEntitet.navReferanseId eq navReferanseId) and
+                        (ForespoerselEntitet.orgnr eq orgnr)
+                }.map {
                     it.toExposedforespoersel()
                 }.getOrNull(0)
         }

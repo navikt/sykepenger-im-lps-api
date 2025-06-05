@@ -51,6 +51,14 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av inntektsmeldinger for request: $request")
     }
 
+    fun hentInntektsmeldingMedId(
+        orgnr: String,
+        id: UUID,
+    ): InntektsmeldingResponse? {
+        logger().info("Henter inntektsmelding med id $id")
+        return inntektsmeldingRepository.hentMedId(orgnr = orgnr, id = id)
+    }
+
     fun opprettInntektsmelding(
         im: Inntektsmelding,
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,

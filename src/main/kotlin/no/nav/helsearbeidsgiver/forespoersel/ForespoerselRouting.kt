@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
@@ -34,6 +35,28 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
             call.respond(forespoerselService.hentForespoerslerForOrgnr(sluttbrukerOrgnr))
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av forespørsler", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
+        }
+    }
+
+    get("/forespoersel/{navReferanseId}") {
+        try {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+            }
+            val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
+            requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsel for bedrift: [$sluttbrukerOrgnr]")
+            val fsp = forespoerselService.hentForespoersel(navReferanseId, sluttbrukerOrgnr)
+            if (fsp != null) {
+                call.respond(fsp)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")

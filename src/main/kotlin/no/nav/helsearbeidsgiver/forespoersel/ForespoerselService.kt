@@ -35,7 +35,14 @@ class ForespoerselService(
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $consumerOrgnr")
     }
 
-    fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
+    fun hentForespoersel(
+        navReferanseId: UUID,
+        orgnr: String,
+    ): Forespoersel? =
+        forespoerselRepository.hentForespoersel(
+            navReferanseId,
+            orgnr,
+        )
 
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 }

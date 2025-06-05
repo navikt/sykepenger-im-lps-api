@@ -59,10 +59,11 @@ private fun Route.innsending(services: Services) {
             }
 
             val forespoersel =
-                services.forespoerselService.hentForespoersel(request.navReferanseId)
+                services.forespoerselService.hentForespoersel(request.navReferanseId, sluttbrukerOrgnr)
                     ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
 
             request.validerMotForespoersel(forespoersel, sluttbrukerOrgnr)?.let {
+                sikkerLogger().warn("Mottatt ugyldig innsending, dette skal ikke skje. Request: $request")
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
             val sisteInntektsmelding =
@@ -152,25 +153,26 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
     get("/inntektsmelding/{inntektsmeldingId}") {
         try {
             val inntektsmeldingId = call.parameters["inntektsmeldingId"]?.let { UUID.fromString(it) }
+            requireNotNull(inntektsmeldingId)
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
-            inntektsmeldingService
-                .hentInntektsMeldingByRequest(
-                    sluttbrukerOrgnr,
-                    InntektsmeldingFilterRequest(
-                        innsendingId = inntektsmeldingId,
-                    ),
-                ).let {
-                    if (it.antall > 0) {
-                        call.respond(it)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
-                    }
-                }
+            val im =
+                inntektsmeldingService
+                    .hentInntektsmeldingMedId(
+                        sluttbrukerOrgnr,
+                        id = inntektsmeldingId,
+                    )
+            if (im != null) {
+                call.respond(HttpStatusCode.OK, im)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        } catch (ie: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
