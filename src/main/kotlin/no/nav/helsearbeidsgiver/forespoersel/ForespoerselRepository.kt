@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -48,6 +49,25 @@ class ForespoerselRepository(
             }
         }
         sikkerLogger().info("Forespørsel $navReferanseId lagret")
+    }
+
+    fun lagreForespoersel(
+        forespoersel: ForespoerselDokument,
+        status: Status,
+        eksponertForespoerselId: UUID? = null,
+    ) {
+        transaction(db) {
+            ForespoerselEntitet.insert {
+                it[navReferanseId] = forespoersel.forespoerselId
+                it[orgnr] = forespoersel.orgnr
+                it[fnr] = forespoersel.fnr
+                it[opprettet] = LocalDateTime.now()
+                it[this.status] = status
+                it[this.eksponertForespoerselId] = eksponertForespoerselId
+                it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
+            }
+        }
+        sikkerLogger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
     }
 
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? =

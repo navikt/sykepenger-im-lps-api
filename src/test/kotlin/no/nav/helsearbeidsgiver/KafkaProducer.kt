@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingDistribuertJson
+import no.nav.helsearbeidsgiver.utils.readJsonFromResources
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -10,7 +11,8 @@ import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
 
 fun main() {
-    genererKafkaMeldinger()
+//    genererKafkaMeldinger()
+    genererOppdatertForespoerselMelding()
 }
 
 fun genererKafkaMeldinger() {
@@ -27,6 +29,15 @@ fun genererKafkaMeldinger() {
     Producer.sendMelding(imRecord)
     Producer.sendMelding(priRecord)
     Producer.sendMelding(sykmeldingRecord)
+    Producer.kafkaProducer.close()
+}
+
+fun genererOppdatertForespoerselMelding() {
+    val filePath = "json/forespoersel_oppdatert.json"
+    val forespoerselJson = readJsonFromResources(filePath)
+    val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
+    val priRecord = ProducerRecord(priTopic, "key", forespoerselJson)
+    Producer.sendMelding(priRecord)
     Producer.kafkaProducer.close()
 }
 

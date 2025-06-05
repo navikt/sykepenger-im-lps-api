@@ -1,0 +1,42 @@
+{
+  "notis": "FORESPOERSEL_OPPDATERT",
+  "forespoerselId": "85d5f1ce-ac56-4807-af22-31031ebfdb4e",
+  "orgnr": "810007982",
+  "fnr": "01447842099",
+  "skal_ha_paaminnelse": true,
+  "forespoersel": {
+    "type": "KOMPLETT",
+    "orgnr": "810007982",
+    "fnr": "01447842099",
+    "forespoerselId": "85d5f1ce-ac56-4807-af22-31031ebfdb4e",
+    "vedtaksperiodeId": "be4faa37-a62a-4ae5-8f0c-47530d1e0789",
+    "egenmeldingsperioder": [],
+    "sykmeldingsperioder": [
+      {
+        "fom": "2025-02-01",
+        "tom": "2025-02-28"
+      }
+    ],
+    "bestemmendeFravaersdager": {
+      "810007982": "2025-02-01"
+    },
+    "forespurtData": {
+      "arbeidsgiverperiode": {
+        "paakrevd": false
+      },
+      "inntekt": {
+        "paakrevd": true,
+        "forslag": null
+      },
+      "refusjon": {
+        "paakrevd": true,
+        "forslag": {
+          "perioder": [],
+          "opphoersdato": null
+        }
+      }
+    },
+    "erBesvart": false
+  },
+  "eksponertForespoerselId": "a2240e1a-8a2c-423b-9bfd-3eb782ba5f66"
+}

@@ -44,7 +44,7 @@ fun startServer() {
 
     embeddedServer(
         factory = Netty,
-        port = 8080,
+        port = 8081,
         module = {
             apiModule(services = services, authClient = authClient)
             configureKafkaConsumers(tolkere = tolkere, unleashFeatureToggles = unleashFeatureToggles)
