@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.integrasjonstest
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -33,7 +33,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             )
         Producer.sendMelding(imRecord)
 
-        runTest {
+        runBlocking {
             val response =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmeldinger",
@@ -53,7 +53,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val priRecord = ProducerRecord("helsearbeidsgiver.pri", "key", TestData.FORESPOERSEL_MOTTATT)
         Producer.sendMelding(priRecord)
 
-        runTest {
+        runBlocking {
             val response =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/forespoersler",
@@ -68,7 +68,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `leser søknad fra kafka og henter det via api`() {
         val soeknadRecord = ProducerRecord("flex.sykepengesoknad", "key", TestData.SYKEPENGESOEKNAD)
         Producer.sendMelding(soeknadRecord)
-        runTest {
+        runBlocking {
             val response =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/sykepengesoeknad/9e088b5a-16c8-3dcc-91fb-acdd544b8607",

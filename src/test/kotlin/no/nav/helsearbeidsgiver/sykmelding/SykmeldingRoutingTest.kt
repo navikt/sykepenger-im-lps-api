@@ -94,9 +94,10 @@ class SykmeldingRoutingTest :
 
 fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
     SykmeldingDTO(
-        event.sykmeldingId,
-        kafkaMetadata.fnr,
-        event.arbeidsgiver.orgnummer,
-        this,
-        "Ola Nordmann",
+        id = event.sykmeldingId,
+        fnr = kafkaMetadata.fnr,
+        orgnr = event.arbeidsgiver.orgnummer,
+        sendSykmeldingAivenKafkaMessage = this,
+        sykmeldtNavn = "Ola Nordmann",
+        mottattAvNav = sykmelding.mottattTidspunkt.toLocalDateTime(),
     )

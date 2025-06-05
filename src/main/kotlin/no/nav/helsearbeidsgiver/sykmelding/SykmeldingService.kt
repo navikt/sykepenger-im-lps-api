@@ -20,7 +20,6 @@ class SykmeldingService(
                 logger().info("Fant ingen sykmeldinger $id for orgnr: $orgnr")
                 return null
             }
-
             sikkerLogger().info("Hentet sykmelding $id for orgnr: $orgnr")
 
             return sykmeldingDTO.tilSykmelding()
@@ -28,6 +27,14 @@ class SykmeldingService(
             throw RuntimeException("Feil ved henting av sykmelding $id orgnr: $orgnr", e)
         }
     }
+
+    fun hentSykmeldinger(
+        orgnr: String,
+        sykmeldingFilterRequest: SykmeldingFilterRequest? = null,
+    ): List<Sykmelding> =
+        sykmeldingRepository.hentSykmeldinger(orgnr, sykmeldingFilterRequest).map {
+            it.tilSykmelding()
+        }
 
     fun lagreSykmelding(
         sykmeldingMessage: SendSykmeldingAivenKafkaMessage,

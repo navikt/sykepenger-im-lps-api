@@ -1,0 +1,1 @@
+ALTER TABLE forespoersel ADD COLUMN eksponert_forespoersel_id UUID;
