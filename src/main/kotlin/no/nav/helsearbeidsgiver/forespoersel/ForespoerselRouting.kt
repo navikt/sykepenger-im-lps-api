@@ -54,9 +54,9 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsel for bedrift: [$sluttbrukerOrgnr]")
-            val fsp = forespoerselService.hentForespoersel(navReferanseId, sluttbrukerOrgnr)
-            if (fsp != null) {
-                call.respond(fsp)
+            val forespoersel = forespoerselService.hentForespoersel(navReferanseId, sluttbrukerOrgnr)
+            if (forespoersel != null) {
+                call.respond(forespoersel)
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
