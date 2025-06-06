@@ -7,6 +7,52 @@ info:
 security:
   - bearerAuth: [ ]
 paths:
+  /v1/forespoersel/{navReferanseId}:
+    get:
+      description: ""
+      parameters:
+        - name: "navReferanseId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Ikke tilgang til ressurs"
+                Example#4:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Forespoersel"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av forespørsler"
   /v1/forespoersler:
     get:
       description: "Hent forespørsler for tilhørende systembrukers orgnr."
@@ -161,16 +207,22 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
+                $ref: "#/components/schemas/InntektsmeldingResponse"
         "404":
           description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "400":
+          description: "Bad Request"
           content:
             '*/*':
               schema:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                  value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
@@ -485,7 +537,7 @@ paths:
                 Example#2:
                   value: "Uautorisert tilgang"
     post:
-      description: ""
+      description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
       requestBody:
         content:
           application/json:
