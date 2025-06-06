@@ -94,6 +94,16 @@ fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toSt
     )
 }
 
+fun buildForespoerselOppdatertJson(
+    forespoerselId: String = UUID.randomUUID().toString(),
+    eksponertForespoerselıd: String = UUID.randomUUID().toString(),
+): String {
+    val filePath = "json/forespoersel_oppdatert.json"
+    return readJsonFromResources(filePath)
+        .replace(FORESPOERSEL_ID, forespoerselId)
+        .replace("%%%EKSPONERT_FORESPOERSEL_ID%%%", eksponertForespoerselıd)
+}
+
 fun buildInntektsmeldingDistribuertJson(
     inntektsmeldingId: String = UUID.randomUUID().toString(),
     forespoerselId: String = UUID.randomUUID().toString(),

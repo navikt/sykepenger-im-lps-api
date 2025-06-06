@@ -45,32 +45,43 @@ class ForespoerselService(
         val eksponertForespoerselId = priMessage.eksponertForespoerselId
         if (eksponertForespoerselId == null) {
             logger().info("Eksponert forespørsel ID er null, behandler ikke som oppdatert forespørsel")
+            lagreForespoersel(forespoersel = forespoersel)
+            return
         } else {
             logger().info("Eksponert forespørsel ID: $eksponertForespoerselId, behandler som oppdatert forespørsel")
             val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId)
             if (ef == null) {
                 sikkerLogger().warn("Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke, kan ikke oppdatere")
+                lagreForespoersel(forespoersel = forespoersel)
+                return
+            } else {
+                runCatching {
+                    sikkerLogger().info("Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId}")
+                    forespoerselRepository.lagreForespoersel(
+                        forespoersel = forespoersel,
+                        status = Status.AKTIV,
+                        eksponertForespoerselId = eksponertForespoerselId,
+                    )
+                }.onSuccess {
+                    sikkerLogger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
+                }.onFailure {
+                    sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
+                    throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
+                }
+                forespoerselRepository.settForkastet(eksponertForespoerselId)
             }
         }
-        runCatching {
-            sikkerLogger().info("Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId}")
-            forespoerselRepository.lagreForespoersel(
-                forespoersel = forespoersel,
-                status = Status.AKTIV,
-                eksponertForespoerselId = eksponertForespoerselId,
-            )
-        }.onSuccess {
-            sikkerLogger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
-        }.onFailure {
-            sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
-        }
-        throw RuntimeException("Feil ved lagring av oppdatert forespørsel med id:${forespoersel.forespoerselId}")
     }
 
     fun lagreForespoersel(
         forespoersel: ForespoerselDokument,
         status: Status = Status.AKTIV,
     ) {
+        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
+        if (f != null) {
+            sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
+            return
+        }
         runCatching {
             sikkerLogger().info("Lagrer forespørsel med id: ${forespoersel.forespoerselId}")
             forespoerselRepository.lagreForespoersel(
@@ -82,6 +93,7 @@ class ForespoerselService(
             sikkerLogger().info("Lagring av forespørsel med id: ${forespoersel.forespoerselId} fullført")
         }.onFailure {
             sikkerLogger().error("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
+            throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
     }
 

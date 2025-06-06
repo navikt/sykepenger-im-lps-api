@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
@@ -15,6 +16,7 @@ import java.util.UUID
 
 class ForespoerselTolker(
     private val forespoerselRepository: ForespoerselRepository,
+    private val forespoerselService: ForespoerselService,
     private val mottakRepository: MottakRepository,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
@@ -46,10 +48,7 @@ class ForespoerselTolker(
                 if (forespoersel != null) {
                     transaction {
                         try {
-                            forespoerselRepository.lagreForespoersel(
-                                navReferanseId = forespoerselId,
-                                payload = forespoersel,
-                            )
+                            forespoerselService.lagreForespoersel(forespoersel)
                             mottakRepository.opprett(ExposedMottak(melding))
                         } catch (e: Exception) {
                             rollback()
@@ -64,9 +63,8 @@ class ForespoerselTolker(
                 }
             }
             NotisType.FORESPOERSEL_OPPDATERT -> {
-                val forespoersel = obj.forespoersel
-                // TODO : Håntering av oppdatering av forespørsel
                 logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
+                forespoerselService.lagreOppdatertForespoersel(obj)
             }
             NotisType.FORESPOERSEL_BESVART -> {
                 settBesvart(forespoerselId)

@@ -46,7 +46,7 @@ class ForespoerselRepositoryTest {
     fun hentVedtaksperiodeId() {
         val dokument = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
         dokument.forespoerselId
-        forespoerselRepository.lagreForespoersel(dokument.forespoerselId, dokument)
+        forespoerselRepository.lagreForespoersel(navReferanseId = dokument.forespoerselId, payload = dokument)
         forespoerselRepository.hentVedtaksperiodeId(dokument.forespoerselId) shouldBe dokument.vedtaksperiodeId
     }
 
