@@ -86,7 +86,7 @@ class SoeknadRepository(
             }
         } catch (e: ExposedSQLException) {
             sikkerLogger().error(
-                "Klarte ikke å oppdatere sykepengesøknader  med vedtaksperiodeId $vedtaksperiodeId i databasen",
+                "Klarte ikke å oppdatere sykepengesøknader med vedtaksperiodeId $vedtaksperiodeId i databasen",
                 e,
             )
             throw e
