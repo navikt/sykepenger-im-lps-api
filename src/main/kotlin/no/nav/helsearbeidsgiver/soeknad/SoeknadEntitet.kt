@@ -19,4 +19,5 @@ object SoeknadEntitet : Table("soknad") {
             kSerializer = SykepengesoknadDTO.serializer(),
         )
     val opprettet = datetime("opprettet")
+    val vedtaksperiodeId = uuid("vedtaksperiode_id").nullable()
 }

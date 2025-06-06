@@ -78,6 +78,7 @@ class KafkaTestExtension :
                     NewTopic("teamsykmelding.syfo-sendt-sykmelding", 1, 1.toShort()),
                     NewTopic("helsearbeidsgiver.api-innsending", 1, 1.toShort()),
                     NewTopic("flex.sykepengesoknad", 1, 1.toShort()),
+                    NewTopic("tbd.sis", 1, 1.toShort()),
                 ),
             )
         System.setProperty("KAFKA_BOOTSTRAP_SERVERS", kafkaContainer.bootstrapServers)

@@ -32,6 +32,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
+import no.nav.helsearbeidsgiver.kafka.sis.StatusISpeilTolker
 import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
@@ -85,6 +86,7 @@ data class Tolkere(
     val forespoerselTolker: ForespoerselTolker,
     val sykmeldingTolker: SykmeldingTolker,
     val soeknadTolker: SoeknadTolker,
+    val statusISpeilTolker: StatusISpeilTolker,
 )
 
 fun configureTolkere(
@@ -109,7 +111,9 @@ fun configureTolkere(
         )
     val soeknadTolker = SoeknadTolker(services.soeknadService)
 
-    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker)
+    val statusISpeilTolker = StatusISpeilTolker(repositories.soeknadRepository)
+
+    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker, statusISpeilTolker)
 }
 
 fun configureRepositories(db: Database): Repositories =
@@ -228,6 +232,17 @@ fun Application.configureKafkaConsumers(
                 topic = getProperty("kafkaConsumer.soeknad.topic"),
                 consumer = soeknadKafkaConsumer,
                 meldingTolker = tolkere.soeknadTolker,
+            )
+        }
+    }
+
+    if (unleashFeatureToggles.skalKonsumereStatusISpeil()) {
+        val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sis"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                topic = getProperty("kafkaConsumer.sis.topic"),
+                consumer = statusISpeilKafkaConsumer,
+                meldingTolker = tolkere.statusISpeilTolker,
             )
         }
     }

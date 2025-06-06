@@ -78,4 +78,26 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             sykepengesoeknad.arbeidsgiver.orgnr shouldBe "315587336"
         }
     }
+
+    @Test
+    fun `leser søknad og oppdaterer vedtaksperiodeId fra kafka `() {
+        val soeknadId = UUID.fromString("9e088b5a-16c8-3dcc-91fb-acdd544b8607")
+        val vedtaksperiodeId = UUID.fromString("3e377f98-1801-4fd2-8d14-cf95d2b831fa")
+        val soeknadRecord = ProducerRecord("flex.sykepengesoknad", "key", TestData.SYKEPENGESOEKNAD)
+        val sisRecord = ProducerRecord("tbd.sis", "key", TestData.STATUS_I_SPLEIS_MELDING)
+        Producer.sendMelding(soeknadRecord)
+        // Sikre at søknaden er lagret før sis melding blir skrevet til kafka
+        repeat(5) {
+            val soeknad = repositories.soeknadRepository.hentSoeknad(soeknadId)
+            if (soeknad != null) {
+                return
+            } else {
+                Thread.sleep(100)
+                return@repeat
+            }
+        }
+        Producer.sendMelding(sisRecord)
+        val soeknadListe = repositories.soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId).map { it.id }
+        soeknadListe shouldBe listOf(soeknadId)
+    }
 }

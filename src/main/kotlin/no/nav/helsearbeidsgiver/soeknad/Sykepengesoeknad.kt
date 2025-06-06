@@ -59,7 +59,7 @@ data class Sykepengesoeknad(
         val faktiskGrad: Int? = null,
         val avtaltTimer: Double? = null,
         val faktiskTimer: Double? = null,
-        val sykmeldingstype: Sykmeldingstype? = null,
+        val sykmeldingstype: Sykmeldingstype? = null, // TODO: Vi kan antageligvis fjerne denne
     )
 
     @Serializable
