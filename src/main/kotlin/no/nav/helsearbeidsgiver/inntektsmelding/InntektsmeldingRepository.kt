@@ -92,14 +92,14 @@ class InntektsmeldingRepository(
                 .map { it.toExposedInntektsmelding() }
         }
 
-    fun hentMedId(
+    fun hentMedInnsendingId(
         orgnr: String,
-        id: UUID,
+        innsendingId: UUID,
     ): InntektsmeldingResponse? =
         transaction(db) {
             InntektsmeldingEntitet
                 .selectAll()
-                .where { (innsendingId eq id) and (InntektsmeldingEntitet.orgnr eq orgnr) }
+                .where { (InntektsmeldingEntitet.innsendingId eq innsendingId) and (InntektsmeldingEntitet.orgnr eq orgnr) }
                 .map { it.toExposedInntektsmelding() }
                 .firstOrNull()
         }

@@ -49,6 +49,7 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
                 return@get
             }
             val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
+            // compiler krever notNull-sjekk, men brukes ikke - havner i catch-blokka
             requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -59,6 +60,8 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
+        } catch (_: IllegalArgumentException) {
+            call.respond(HttpStatusCode.NotFound, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")

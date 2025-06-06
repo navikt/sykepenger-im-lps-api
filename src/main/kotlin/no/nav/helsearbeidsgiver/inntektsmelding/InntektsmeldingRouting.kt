@@ -87,6 +87,7 @@ private fun Route.innsending(services: Services) {
                     sisteInntektsmelding.tilSkjemaInntektsmelding(),
                 )
             ) {
+                // kan inkludere sisteInntektsmelding.id?
                 return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
             }
 
@@ -164,18 +165,18 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
                 return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med id: [$inntektsmeldingId]")
-            val im =
+            val inntektsmelding =
                 inntektsmeldingService
-                    .hentInntektsmeldingMedId(
+                    .hentInntektsmeldingMedInnsendingId(
                         sluttbrukerOrgnr,
-                        id = inntektsmeldingId,
+                        innsendingId = inntektsmeldingId,
                     )
-            if (im != null) {
-                call.respond(HttpStatusCode.OK, im)
+            if (inntektsmelding != null) {
+                call.respond(HttpStatusCode.OK, inntektsmelding)
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
-        } catch (ie: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")

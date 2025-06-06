@@ -20,15 +20,15 @@ import java.util.UUID
 class ApplicationTest : LpsApiIntegrasjontest() {
     @Test
     fun `leser inntektsmelding fra kafka og henter det via api`() {
-        val imId = UUID.randomUUID()
-        val orgNr = "810007982"
+        val inntektsmeldingId = UUID.randomUUID()
+        val orgnr = "810007982"
         val imRecord =
             ProducerRecord(
                 "helsearbeidsgiver.inntektsmelding",
                 "key",
                 buildJournalfoertInntektsmelding(
-                    orgNr = Orgnr(orgNr),
-                    inntektsmeldingId = imId,
+                    orgNr = Orgnr(orgnr),
+                    inntektsmeldingId = inntektsmeldingId,
                 ),
             )
         Producer.sendMelding(imRecord)
@@ -36,14 +36,14 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         runBlocking {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/inntektsmelding/$imId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(orgNr),
+                    url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr),
                 )
 
             val imSvar = response.body<InntektsmeldingResponse>()
-            imSvar.id shouldBe imId
+            imSvar.id shouldBe inntektsmeldingId
             imSvar.status shouldBe InnsendingStatus.GODKJENT
-            imSvar.arbeidsgiver.orgnr shouldBe orgNr
+            imSvar.arbeidsgiver.orgnr shouldBe orgnr
         }
     }
 
