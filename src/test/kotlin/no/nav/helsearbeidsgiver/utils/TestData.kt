@@ -812,7 +812,7 @@ object TestData {
             "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
             "status": "OPPRETTET",
             "eksterneSøknadIder": [
-                "6fa34646-13a3-3a15-8b94-248e88c351f5"
+                "9e088b5a-16c8-3dcc-91fb-acdd544b8607"
             ],
             "versjon": "2.0.2"
         }

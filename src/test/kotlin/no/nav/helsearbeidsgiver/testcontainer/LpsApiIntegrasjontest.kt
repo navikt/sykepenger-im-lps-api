@@ -5,7 +5,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.mockk.every
@@ -24,6 +23,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -57,13 +57,14 @@ abstract class LpsApiIntegrasjontest {
     val client =
         HttpClient {
             install(ContentNegotiation) {
-                json()
+                jsonConfig
             }
         }
 
     @BeforeAll
     fun setup() {
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
+        every { mockUnleash.skalKonsumereStatusISpeil() } returns true
         db =
             DatabaseConfig(
                 System.getProperty("database.url"),

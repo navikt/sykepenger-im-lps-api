@@ -50,6 +50,15 @@ class SoeknadRepository(
                 .firstOrNull()
         }
 
+    fun hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId: UUID): List<SykepengesoknadDTO> =
+        transaction(db) {
+            SoeknadEntitet
+                .selectAll()
+                .where {
+                    SoeknadEntitet.vedtaksperiodeId eq vedtaksperiodeId
+                }.map { it[sykepengesoeknad] }
+        }
+
     fun oppdaterSoeknaderMedVedtaksperiodeId(
         soeknadIder: Set<UUID>,
         vedtaksperiodeId: UUID,
