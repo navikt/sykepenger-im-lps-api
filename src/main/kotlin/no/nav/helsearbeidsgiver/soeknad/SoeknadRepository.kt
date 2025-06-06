@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.updateReturning
 import java.util.UUID
 
@@ -75,13 +76,12 @@ class SoeknadRepository(
                 val resterendeSoeknader = eksisterendeSoeknader.filter { it.value == null }.keys
                 if (resterendeSoeknader.isNotEmpty()) {
                     SoeknadEntitet
-                        .updateReturning(
-                            returning = listOf(soeknadId),
+                        .update(
                             where = { soeknadId inList resterendeSoeknader },
                         ) {
                             it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
-                        }.map { it[soeknadId] }
-                        .also { logger().info("Oppdaterte søknader $it med vedtaksperiodeId: $vedtaksperiodeId") }
+                        }
+                    logger().info("Oppdaterte søknader $resterendeSoeknader med vedtaksperiodeId: $vedtaksperiodeId")
                 }
             }
         } catch (e: ExposedSQLException) {
