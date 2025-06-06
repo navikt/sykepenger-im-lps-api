@@ -46,27 +46,13 @@ class SoeknadRepositoryTest {
 
         soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
 
-        val resultatFør =
-            transaction(db) {
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId eq soeknad.id
-                    }.firstOrNull()
-            }
-        resultatFør?.getOrNull(SoeknadEntitet.vedtaksperiodeId) shouldBe null
+        val resultatFoer = hentSoeknader(setOf(soeknad.id))
+        resultatFoer[soeknad.id] shouldBe null
 
         soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
 
-        val resultatEtter =
-            transaction(db) {
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId eq soeknad.id
-                    }.firstOrNull()
-            }
-        resultatEtter?.getOrNull(SoeknadEntitet.vedtaksperiodeId) shouldBe vedtaksperiodeId
+        val resultatEtter = hentSoeknader(setOf(soeknad.id))
+        resultatEtter[soeknad.id] shouldBe vedtaksperiodeId
     }
 
     @Test
@@ -80,31 +66,15 @@ class SoeknadRepositoryTest {
         soeknadRepository.lagreSoeknad(soeknad2.tilLagreSoeknad())
         soeknadRepository.lagreSoeknad(soeknad3.tilLagreSoeknad())
 
-        val resultatFør =
-            transaction(db) {
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId inList listOf(soeknad.id, soeknad2.id, soeknad3.id)
-                    }.toList()
-            }
-        val soeknadTilVedtaksperiodeIdMapFør = resultatFør.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+        val soeknadTilVedtaksperiodeIdMapFoer = hentSoeknader(setOf(soeknad.id, soeknad2.id, soeknad3.id))
 
-        soeknadTilVedtaksperiodeIdMapFør[soeknad.id] shouldBe null
-        soeknadTilVedtaksperiodeIdMapFør[soeknad2.id] shouldBe null
-        soeknadTilVedtaksperiodeIdMapFør[soeknad3.id] shouldBe null
+        soeknadTilVedtaksperiodeIdMapFoer[soeknad.id] shouldBe null
+        soeknadTilVedtaksperiodeIdMapFoer[soeknad2.id] shouldBe null
+        soeknadTilVedtaksperiodeIdMapFoer[soeknad3.id] shouldBe null
 
         soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id, soeknad3.id), vedtaksperiodeId)
 
-        val resultatEtter =
-            transaction(db) {
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId inList listOf(soeknad.id, soeknad2.id, soeknad3.id)
-                    }.toList()
-            }
-        val soeknadTilVedtaksperiodeIdMap = resultatEtter.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+        val soeknadTilVedtaksperiodeIdMap = hentSoeknader(setOf(soeknad.id, soeknad2.id, soeknad3.id))
         soeknadTilVedtaksperiodeIdMap[soeknad.id] shouldBe vedtaksperiodeId
         soeknadTilVedtaksperiodeIdMap[soeknad2.id] shouldBe null
         soeknadTilVedtaksperiodeIdMap[soeknad3.id] shouldBe vedtaksperiodeId
@@ -123,31 +93,15 @@ class SoeknadRepositoryTest {
         soeknadRepository.lagreSoeknad(soeknad3.tilLagreSoeknad())
         soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
 
-        val resultatFør =
-            transaction(db) {
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId inList listOf(soeknad.id, soeknad2.id, soeknad3.id)
-                    }.toList()
-            }
-        val soeknadTilVedtaksperiodeIdMapFør = resultatFør.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+        val soeknadTilVedtaksperiodeIdMapFoer = hentSoeknader(setOf(soeknad.id, soeknad2.id, soeknad3.id))
 
-        soeknadTilVedtaksperiodeIdMapFør[soeknad.id] shouldBe vedtaksperiodeId
-        soeknadTilVedtaksperiodeIdMapFør[soeknad2.id] shouldBe null
-        soeknadTilVedtaksperiodeIdMapFør[soeknad3.id] shouldBe null
+        soeknadTilVedtaksperiodeIdMapFoer[soeknad.id] shouldBe vedtaksperiodeId
+        soeknadTilVedtaksperiodeIdMapFoer[soeknad2.id] shouldBe null
+        soeknadTilVedtaksperiodeIdMapFoer[soeknad3.id] shouldBe null
 
         soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad2.id, soeknad3.id), vedtaksperiodeId2)
 
-        val resultatEtter =
-            transaction(db) {
-                SoeknadEntitet
-                    .selectAll()
-                    .where {
-                        soeknadId inList listOf(soeknad.id, soeknad2.id, soeknad3.id)
-                    }.toList()
-            }
-        val soeknadTilVedtaksperiodeIdMap = resultatEtter.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+        val soeknadTilVedtaksperiodeIdMap = hentSoeknader(setOf(soeknad.id, soeknad2.id, soeknad3.id))
         soeknadTilVedtaksperiodeIdMap[soeknad.id] shouldBe vedtaksperiodeId
         soeknadTilVedtaksperiodeIdMap[soeknad2.id] shouldBe vedtaksperiodeId2
         soeknadTilVedtaksperiodeIdMap[soeknad3.id] shouldBe vedtaksperiodeId2
@@ -193,6 +147,16 @@ class SoeknadRepositoryTest {
         soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknadRepository.hentSoeknader(orgnr.verdi) shouldContainOnly soeknaderMedSammeOrgnr
     }
+
+    private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =
+        transaction(db) {
+            SoeknadEntitet
+                .selectAll()
+                .where {
+                    soeknadId inList soeknadIder
+                }.toList()
+                .associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
+        }
 
     private fun SykepengesoknadDTO.tilLagreSoeknad(): LagreSoeknad =
         LagreSoeknad(
