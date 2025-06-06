@@ -37,6 +37,7 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                // kan ikke gjøre return@get her pga fangFeil-håndtering, men else-blokken slår uansett ikke til
             } else {
                 sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift: [$sluttbrukerOrgnr]")
                 val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId, sluttbrukerOrgnr)

@@ -4,9 +4,9 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
@@ -20,15 +20,15 @@ import java.util.UUID
 class ApplicationTest : LpsApiIntegrasjontest() {
     @Test
     fun `leser inntektsmelding fra kafka og henter det via api`() {
-        val imId = UUID.randomUUID()
-        val orgNr = "810007982"
+        val inntektsmeldingId = UUID.randomUUID()
+        val orgnr = "810007982"
         val imRecord =
             ProducerRecord(
                 "helsearbeidsgiver.inntektsmelding",
                 "key",
                 buildJournalfoertInntektsmelding(
-                    orgNr = Orgnr(orgNr),
-                    inntektsmeldingId = imId,
+                    orgNr = Orgnr(orgnr),
+                    inntektsmeldingId = inntektsmeldingId,
                 ),
             )
         Producer.sendMelding(imRecord)
@@ -36,15 +36,14 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         runBlocking {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/inntektsmeldinger",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(orgNr),
+                    url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr),
                 )
 
-            val forespoerselSvar = response.body<InntektsmeldingFilterResponse>()
-            forespoerselSvar.antall shouldBe 1
-            forespoerselSvar.inntektsmeldinger[0].status shouldBe InnsendingStatus.GODKJENT
-            forespoerselSvar.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe orgNr
-            forespoerselSvar.inntektsmeldinger[0].id shouldBe imId
+            val imSvar = response.body<InntektsmeldingResponse>()
+            imSvar.id shouldBe inntektsmeldingId
+            imSvar.status shouldBe InnsendingStatus.GODKJENT
+            imSvar.arbeidsgiver.orgnr shouldBe orgnr
         }
     }
 
@@ -52,15 +51,15 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `leser forespoersel fra kafka og henter det via api`() {
         val priRecord = ProducerRecord("helsearbeidsgiver.pri", "key", TestData.FORESPOERSEL_MOTTATT)
         Producer.sendMelding(priRecord)
-
+        val id = "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c"
         runBlocking {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersler",
+                    url = "http://localhost:8080/v1/forespoersel/$id",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"),
                 )
-            val forespoerselSvar = response.body<ForespoerselResponse>()
-            forespoerselSvar.antall shouldBe 1
+            val forespoerselSvar = response.body<Forespoersel>()
+            forespoerselSvar.navReferanseId shouldBe UUID.fromString(id)
         }
     }
 
