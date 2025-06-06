@@ -187,6 +187,8 @@ class MeldingTolkerTest {
         every { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) } just Runs
         val sisMeldingJson =
             STATUS_I_SPLEIS_MELDING.removeJsonWhitespace()
-        tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        assertDoesNotThrow {
+            tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
     }
 }
