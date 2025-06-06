@@ -30,6 +30,7 @@ private fun Route.soeknader(soeknadService: SoeknadService) {
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknader for bedrift: [$sluttbrukerOrgnr]")
             if (!tokenValidationContext().harTilgangTilRessurs(SOKNAD_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             val soeknader: List<Sykepengesoeknad> = soeknadService.hentSoeknader(sluttbrukerOrgnr)
             call.respond(soeknader)
@@ -49,6 +50,7 @@ private fun Route.soeknader(soeknadService: SoeknadService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(SOKNAD_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $sluttbrukerOrgnr")
 
