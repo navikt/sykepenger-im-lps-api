@@ -70,7 +70,6 @@ class ForespoerselRepository(
         sikkerLogger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
     }
 
-
     fun hentForespoersel(
         navReferanseId: UUID,
         orgnr: String,
