@@ -48,7 +48,7 @@ class ForespoerselService(
             lagreForespoersel(forespoersel = forespoersel)
             return
         } else {
-            val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId)
+            val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId, forespoersel.orgnr)
             if (ef == null) {
                 logger().info(
                     "Forespørsel : ${forespoersel.forespoerselId} :Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke, behandler som ny forespørsel",
@@ -80,7 +80,7 @@ class ForespoerselService(
         forespoersel: ForespoerselDokument,
         status: Status = Status.AKTIV,
     ) {
-        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
+        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
         if (f != null) {
             sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
             return
@@ -99,7 +99,6 @@ class ForespoerselService(
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
     }
-
 
     fun hentForespoersel(
         navReferanseId: UUID,
