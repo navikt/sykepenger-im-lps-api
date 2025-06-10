@@ -44,6 +44,7 @@ import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
+import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -69,6 +70,7 @@ data class Repositories(
     val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
     val sykmeldingRepository: SykmeldingRepository,
     val soeknadRepository: SoeknadRepository,
+    val statusISpeilRepository: StatusISpeilRepository,
 )
 
 data class Services(
@@ -124,6 +126,7 @@ fun configureRepositories(db: Database): Repositories =
         bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
         sykmeldingRepository = SykmeldingRepository(db),
         soeknadRepository = SoeknadRepository(db),
+        statusISpeilRepository = StatusISpeilRepository(db),
     )
 
 fun configureServices(
