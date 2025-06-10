@@ -31,12 +31,6 @@ class ForespoerselRepository(
     ) {
         val organisasjonsnummer = payload.orgnr
         val foedselsnr = payload.fnr
-        val forespoersel = hentForespoersel(navReferanseId, organisasjonsnummer)
-        if (forespoersel != null) {
-            sikkerLogger().warn("Duplikat id: $navReferanseId, kan ikke lagre")
-            return
-        }
-
         val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {

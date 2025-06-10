@@ -90,7 +90,7 @@ class ForespoerselService(
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = status,
-                eksponertForespoerselId = null,
+                eksponertForespoerselId = forespoersel.forespoerselId,
             )
         }.onSuccess {
             sikkerLogger().info("Lagring av forespørsel med id: ${forespoersel.forespoerselId} fullført")
