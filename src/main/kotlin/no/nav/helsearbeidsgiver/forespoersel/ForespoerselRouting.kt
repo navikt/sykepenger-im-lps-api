@@ -80,7 +80,7 @@ private fun Route.filtererForespoersler(forespoerselService: ForespoerselService
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
-            sikkerLogger().info("Mottat request: $request")
+            sikkerLogger().info("Mottatt request: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
             call.respond(forespoerselService.filtrerForespoerslerForOrgnr(sluttbrukerOrgnr, request))
         } catch (e: Exception) {
