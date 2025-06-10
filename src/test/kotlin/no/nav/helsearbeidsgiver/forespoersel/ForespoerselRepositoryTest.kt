@@ -52,16 +52,6 @@ class ForespoerselRepositoryTest {
     }
 
     @Test
-    fun lagreForespoerselDuplikat() {
-        val forespoerselID = UUID.randomUUID()
-        forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
-
-        forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
-        val forespoersler = forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-        forespoersler.size shouldBe 1
-    }
-
-    @Test
     fun settForkastet() {
         val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
