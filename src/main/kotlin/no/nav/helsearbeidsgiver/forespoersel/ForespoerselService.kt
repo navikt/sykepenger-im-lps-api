@@ -44,14 +44,15 @@ class ForespoerselService(
                 ?: throw IllegalArgumentException("Forespørsel må ikke være null i oppdatert forespørsel")
         val eksponertForespoerselId = priMessage.eksponertForespoerselId
         if (eksponertForespoerselId == null) {
-            logger().info("Eksponert forespørsel ID er null, behandler ikke som oppdatert forespørsel")
+            logger().info("Forespørsel : ${forespoersel.forespoerselId}: Eksponert forespørsel ID er null, behandler som ny forespørsel")
             lagreForespoersel(forespoersel = forespoersel)
             return
         } else {
-            logger().info("Eksponert forespørsel ID: $eksponertForespoerselId, behandler som oppdatert forespørsel")
             val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId)
             if (ef == null) {
-                sikkerLogger().warn("Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke, kan ikke oppdatere")
+                logger().info(
+                    "Forespørsel : ${forespoersel.forespoerselId} :Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke, behandler som ny forespørsel",
+                )
                 lagreForespoersel(forespoersel = forespoersel)
                 return
             } else {
@@ -62,13 +63,15 @@ class ForespoerselService(
                         status = Status.AKTIV,
                         eksponertForespoerselId = eksponertForespoerselId,
                     )
+                    if (ef.status == Status.AKTIV) {
+                        forespoerselRepository.settForkastet(eksponertForespoerselId)
+                    }
                 }.onSuccess {
                     sikkerLogger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
                 }.onFailure {
                     sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
                     throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
                 }
-                forespoerselRepository.settForkastet(eksponertForespoerselId)
             }
         }
     }
