@@ -11,7 +11,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.updateReturning
 import java.util.UUID
 
 class SoeknadRepository(
@@ -73,15 +72,15 @@ class SoeknadRepository(
                             soeknadId inList soeknadIder
                         }.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
                 loggDuplikateOgManglendeSoeknader(eksisterendeSoeknader, vedtaksperiodeId, soeknadIder)
-                val resterendeSoeknader = eksisterendeSoeknader.filter { it.value == null }.keys
-                if (resterendeSoeknader.isNotEmpty()) {
+                val soeknaderUtenVedtaksperiodeId = eksisterendeSoeknader.filter { (_, vedtaksperiodeId) -> vedtaksperiodeId == null }.keys
+                if (soeknaderUtenVedtaksperiodeId.isNotEmpty()) {
                     SoeknadEntitet
                         .update(
-                            where = { soeknadId inList resterendeSoeknader },
+                            where = { soeknadId inList soeknaderUtenVedtaksperiodeId },
                         ) {
                             it[SoeknadEntitet.vedtaksperiodeId] = vedtaksperiodeId
                         }
-                    logger().info("Oppdaterte søknader $resterendeSoeknader med vedtaksperiodeId: $vedtaksperiodeId")
+                    logger().info("Oppdaterte søknader $soeknaderUtenVedtaksperiodeId med vedtaksperiodeId: $vedtaksperiodeId")
                 }
             }
         } catch (e: ExposedSQLException) {

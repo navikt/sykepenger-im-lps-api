@@ -15,7 +15,7 @@ class StatusISpeilTolker(
     override fun lesMelding(melding: String) {
         try {
             val behandlingstatusmelding = melding.fromJson(Behandlingstatusmelding.serializer())
-            sikkerLogger.info(
+            logger.info(
                 "Mottok status-i-speil-melding med status ${behandlingstatusmelding.status}, " +
                     "vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId} og eksterneSøknadIder " +
                     "${behandlingstatusmelding.eksterneSøknadIder}.",
