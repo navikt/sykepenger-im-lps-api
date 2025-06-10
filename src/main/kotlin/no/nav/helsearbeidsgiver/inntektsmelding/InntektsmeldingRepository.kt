@@ -92,6 +92,18 @@ class InntektsmeldingRepository(
                 .map { it.toExposedInntektsmelding() }
         }
 
+    fun hentMedInnsendingId(
+        orgnr: String,
+        innsendingId: UUID,
+    ): InntektsmeldingResponse? =
+        transaction(db) {
+            InntektsmeldingEntitet
+                .selectAll()
+                .where { (InntektsmeldingEntitet.innsendingId eq innsendingId) and (InntektsmeldingEntitet.orgnr eq orgnr) }
+                .map { it.toExposedInntektsmelding() }
+                .firstOrNull()
+        }
+
     fun oppdaterStatus(
         inntektsmelding: Inntektsmelding,
         nyStatus: InnsendingStatus,

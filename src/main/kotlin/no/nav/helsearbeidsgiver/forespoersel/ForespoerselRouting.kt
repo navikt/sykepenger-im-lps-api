@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.util.UUID
 
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
@@ -29,11 +30,38 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
         try {
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
             }
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
             call.respond(forespoerselService.hentForespoerslerForOrgnr(sluttbrukerOrgnr))
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av forespørsler", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
+        }
+    }
+
+    get("/forespoersel/{navReferanseId}") {
+        try {
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
+            }
+            val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
+            // compiler krever notNull-sjekk, men brukes ikke - havner i catch-blokka
+            requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsel for bedrift: [$sluttbrukerOrgnr]")
+            val forespoersel = forespoerselService.hentForespoersel(navReferanseId, sluttbrukerOrgnr)
+            if (forespoersel != null) {
+                call.respond(forespoersel)
+            } else {
+                call.respond(HttpStatusCode.NotFound)
+            }
+        } catch (_: IllegalArgumentException) {
+            call.respond(HttpStatusCode.NotFound, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
@@ -50,6 +78,7 @@ private fun Route.filtererForespoersler(forespoerselService: ForespoerselService
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@post
             }
             sikkerLogger().info("Mottat request: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")

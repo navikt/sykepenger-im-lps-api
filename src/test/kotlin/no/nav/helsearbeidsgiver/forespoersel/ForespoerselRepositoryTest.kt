@@ -39,7 +39,8 @@ class ForespoerselRepositoryTest {
         forespoersler.size shouldBe 1
         forespoersler[0].status shouldBe Status.AKTIV
         forespoerselRepository.settBesvart(forespoerselID)
-        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.BESVART
+        forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.BESVART
+        forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG.reversed()) shouldBe null
     }
 
     @Test
@@ -66,7 +67,7 @@ class ForespoerselRepositoryTest {
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
         forespoerselRepository.settForkastet(forespoerselID)
-        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.FORKASTET
+        forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.FORKASTET
     }
 
     @Test
