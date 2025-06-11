@@ -30,12 +30,11 @@ class StatusISpeilRepository(
         }
     }
 
-    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): Set<UUID> =
+    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): List<UUID> =
         transaction(db) {
             StatusISpeilEntitet
                 .selectAll()
                 .where { StatusISpeilEntitet.vedtaksperiodeId eq vedtaksperiodeId }
                 .map { it[StatusISpeilEntitet.soeknadId] }
-                .toSet()
         }
 }
