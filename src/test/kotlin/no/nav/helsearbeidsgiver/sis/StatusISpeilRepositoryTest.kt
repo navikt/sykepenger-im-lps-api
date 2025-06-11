@@ -1,5 +1,7 @@
 package no.nav.helsearbeidsgiver.sis
 
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.configureRepositories
@@ -50,5 +52,53 @@ class StatusISpeilRepositoryTest {
                     .associate { it[StatusISpeilEntitet.vedtaksperiodeId] to it[StatusISpeilEntitet.soeknadId] }
             }
         resultat[behandlingstatusmelding.vedtaksperiodeId] shouldBe behandlingstatusmelding.eksterneSøknadIder.first()
+    }
+
+    @Test
+    fun `hindre duplikater i databasen`() {
+        val soeknadId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+        val behandlingstatusmelding =
+            Behandlingstatusmelding(
+                vedtaksperiodeId = vedtaksperiodeId,
+                behandlingId = UUID.randomUUID(),
+                tidspunkt = OffsetDateTime.now(),
+                status = Behandlingstatusmelding.Behandlingstatustype.OPPRETTET,
+                eksterneSøknadIder = setOf(soeknadId),
+            )
+        statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
+        statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
+        val resultat: Map<UUID, UUID> =
+            transaction(db) {
+                StatusISpeilEntitet
+                    .selectAll()
+                    .associate { it[StatusISpeilEntitet.vedtaksperiodeId] to it[StatusISpeilEntitet.soeknadId] }
+            }
+        resultat[behandlingstatusmelding.vedtaksperiodeId] shouldBe behandlingstatusmelding.eksterneSøknadIder.first()
+    }
+
+    @Test
+    fun `Støtter oppdaterte søknader i databasen`() {
+        val soeknadId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+        val behandlingstatusmelding =
+            Behandlingstatusmelding(
+                vedtaksperiodeId = vedtaksperiodeId,
+                behandlingId = UUID.randomUUID(),
+                tidspunkt = OffsetDateTime.now(),
+                status = Behandlingstatusmelding.Behandlingstatustype.OPPRETTET,
+                eksterneSøknadIder = setOf(soeknadId),
+            )
+        val soeknadId2 = UUID.randomUUID()
+        statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
+        statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding.copy(eksterneSøknadIder = setOf(soeknadId, soeknadId2)))
+        val resultat: List<Pair<UUID, UUID>> =
+            transaction(db) {
+                StatusISpeilEntitet
+                    .selectAll()
+                    .map { it[StatusISpeilEntitet.vedtaksperiodeId] to it[StatusISpeilEntitet.soeknadId] }
+            }
+        resultat.map { it.first } shouldContainOnly setOf(vedtaksperiodeId)
+        resultat.map { it.second } shouldContainExactly setOf(soeknadId, soeknadId2)
     }
 }
