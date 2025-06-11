@@ -1,16 +1,13 @@
 package no.nav.helsearbeidsgiver.sis
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainOnly
-import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,22 +33,18 @@ class StatusISpeilRepositoryTest {
 
     @Test
     fun `lagreStatus`() {
+        val soeknadId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
         val behandlingstatusmelding =
             Behandlingstatusmelding(
-                vedtaksperiodeId = UUID.randomUUID(),
+                vedtaksperiodeId = vedtaksperiodeId,
                 behandlingId = UUID.randomUUID(),
                 tidspunkt = OffsetDateTime.now(),
                 status = Behandlingstatusmelding.Behandlingstatustype.OPPRETTET,
-                eksterneSøknadIder = setOf(UUID.randomUUID()),
+                eksterneSøknadIder = setOf(soeknadId),
             )
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
-        val resultat: Map<UUID, UUID> =
-            transaction(db) {
-                StatusISpeilEntitet
-                    .selectAll()
-                    .associate { it[StatusISpeilEntitet.vedtaksperiodeId] to it[StatusISpeilEntitet.soeknadId] }
-            }
-        resultat[behandlingstatusmelding.vedtaksperiodeId] shouldBe behandlingstatusmelding.eksterneSøknadIder.first()
+        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
     }
 
     @Test
@@ -67,14 +60,11 @@ class StatusISpeilRepositoryTest {
                 eksterneSøknadIder = setOf(soeknadId),
             )
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
-        statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
-        val resultat: Map<UUID, UUID> =
-            transaction(db) {
-                StatusISpeilEntitet
-                    .selectAll()
-                    .associate { it[StatusISpeilEntitet.vedtaksperiodeId] to it[StatusISpeilEntitet.soeknadId] }
-            }
-        resultat[behandlingstatusmelding.vedtaksperiodeId] shouldBe behandlingstatusmelding.eksterneSøknadIder.first()
+        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
+        shouldNotThrowAny {
+            statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
+        }
+        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
     }
 
     @Test
@@ -92,13 +82,6 @@ class StatusISpeilRepositoryTest {
         val soeknadId2 = UUID.randomUUID()
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding.copy(eksterneSøknadIder = setOf(soeknadId, soeknadId2)))
-        val resultat: List<Pair<UUID, UUID>> =
-            transaction(db) {
-                StatusISpeilEntitet
-                    .selectAll()
-                    .map { it[StatusISpeilEntitet.vedtaksperiodeId] to it[StatusISpeilEntitet.soeknadId] }
-            }
-        resultat.map { it.first } shouldContainOnly setOf(vedtaksperiodeId)
-        resultat.map { it.second } shouldContainExactly setOf(soeknadId, soeknadId2)
+        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId, soeknadId2)
     }
 }

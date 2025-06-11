@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.UUID
 
 class StatusISpeilRepository(
     private val db: Database,
@@ -28,4 +29,13 @@ class StatusISpeilRepository(
             }
         }
     }
+
+    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): Set<UUID> =
+        transaction(db) {
+            StatusISpeilEntitet
+                .selectAll()
+                .where { StatusISpeilEntitet.vedtaksperiodeId eq vedtaksperiodeId }
+                .map { it[StatusISpeilEntitet.soeknadId] }
+                .toSet()
+        }
 }
