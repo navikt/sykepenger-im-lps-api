@@ -96,6 +96,7 @@ class MeldingTolkerTest {
 
     @Test
     fun kunLagreEventerSomMatcher() {
+        every { service.dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(any()) } just Runs
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
 
@@ -133,6 +134,7 @@ class MeldingTolkerTest {
 
     @Test
     fun `forespoerselTolker håndterer duplikater`() {
+        every { service.dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(any()) } just Runs
         assertDoesNotThrow {
             tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
             tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)

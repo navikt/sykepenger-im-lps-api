@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
@@ -16,6 +17,7 @@ import java.util.UUID
 class ForespoerselTolker(
     private val forespoerselRepository: ForespoerselRepository,
     private val mottakRepository: MottakRepository,
+    private val dialogportenService: DialogportenService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
     private val logger = logger()
@@ -51,6 +53,7 @@ class ForespoerselTolker(
                                 payload = forespoersel,
                             )
                             mottakRepository.opprett(ExposedMottak(melding))
+                            dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(forespoersel)
                         } catch (e: Exception) {
                             rollback()
                             logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")
@@ -63,11 +66,13 @@ class ForespoerselTolker(
                     mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 }
             }
+
             NotisType.FORESPOERSEL_OPPDATERT -> {
                 val forespoersel = obj.forespoersel
                 // TODO : Håntering av oppdatering av forespørsel
                 logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
             }
+
             NotisType.FORESPOERSEL_BESVART -> {
                 settBesvart(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))

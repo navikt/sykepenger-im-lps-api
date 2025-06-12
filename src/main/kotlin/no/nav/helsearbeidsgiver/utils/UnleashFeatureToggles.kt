@@ -41,6 +41,13 @@ class UnleashFeatureToggles(
             false,
         )
 
+    fun skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr: Orgnr): Boolean =
+        unleashClient.isEnabled(
+            "forespor-inntektsmelding-via-dialogporten",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
+            false,
+        )
+
     fun skalSendeApiInnsendteImerTilSimba(): Boolean =
         unleashClient.isEnabled(
             "send-api-innsendte-imer-til-simba",
