@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
+import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -73,6 +74,7 @@ class MeldingTolkerTest {
                 bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
                 sykmeldingRepository = mockk<SykmeldingRepository>(),
                 soeknadRepository = mockk<SoeknadRepository>(),
+                statusISpeilRepository = mockk<StatusISpeilRepository>(),
             )
 
         service =
@@ -187,6 +189,7 @@ class MeldingTolkerTest {
     @Test
     fun `StatusISpeilTolker lesMelding klarer å deserialisere Behandlingstatusmelding`() {
         every { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) } just Runs
+        every { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) } just Runs
         val sisMeldingJson =
             STATUS_I_SPLEIS_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
