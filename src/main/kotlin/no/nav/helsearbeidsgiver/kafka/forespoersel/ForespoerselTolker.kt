@@ -53,7 +53,7 @@ class ForespoerselTolker(
                                 payload = forespoersel,
                             )
                             mottakRepository.opprett(ExposedMottak(melding))
-                            dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(forespoersel)
+                            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
                         } catch (e: Exception) {
                             rollback()
                             logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")

@@ -34,8 +34,8 @@ data class DialogSykepengesoeknad(
 ) : DialogMelding()
 
 @Serializable
-@SerialName("Inntektsmeldingforespoersel")
-data class DialogInntektsmeldingforespoersel(
+@SerialName("Inntektsmeldingsforespoersel")
+data class DialogInntektsmeldingsforespoersel(
     val forespoerselId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,

@@ -123,19 +123,19 @@ class DialogportenServiceTest {
     }
 
     @Test
-    fun `dialogportenservice kaller dialogProducer ved mottatt inntektsmeldingforespørsel`() {
+    fun `dialogportenservice kaller dialogProducer ved mottatt inntektsmeldingsforespørsel`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
         val soeknad = soeknadMock()
 
         coEvery { mockDialogProducer.send(any()) } just Runs
-        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr) } returns true
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns listOf(soeknad)
 
-        dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(forespoerselDokument)
+        dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoerselDokument)
 
         val forventetDialogMelding =
-            DialogInntektsmeldingforespoersel(
+            DialogInntektsmeldingsforespoersel(
                 forespoerselId = forespoerselDokument.forespoerselId,
                 sykmeldingId = requireNotNull(soeknad.sykmeldingId),
                 orgnr = orgnr,
@@ -147,12 +147,12 @@ class DialogportenServiceTest {
     }
 
     @Test
-    fun `dialogportenservice kaster feil dersom opprettelse av dialog går galt ved mottatt inntektsmeldingforespørsel`() {
+    fun `dialogportenservice kaster feil dersom opprettelse av dialog går galt ved mottatt inntektsmeldingsforespørsel`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
         val soeknad = soeknadMock()
 
-        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr) } returns true
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns listOf(soeknad)
         coEvery {
             mockDialogProducer.send(
@@ -161,21 +161,21 @@ class DialogportenServiceTest {
         } throws SerializationException("Noe gikk galt")
 
         shouldThrowExactly<SerializationException> {
-            dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(
+            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                 forespoerselDokument,
             )
         }
     }
 
     @Test
-    fun ` kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottatt inntektsmeldingforespørsel`() {
+    fun ` kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottatt inntektsmeldingsforespørsel`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
 
         coEvery { mockDialogProducer.send(any()) } just Runs
-        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr) } returns false
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns false
 
-        dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(forespoerselDokument)
+        dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoerselDokument)
 
         verify(exactly = 0) {
             mockDialogProducer.send(any())
@@ -188,10 +188,10 @@ class DialogportenServiceTest {
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
 
         coEvery { mockDialogProducer.send(any()) } just Runs
-        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr) } returns true
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns emptyList()
 
-        dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(forespoerselDokument)
+        dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoerselDokument)
 
         verify(exactly = 0) {
             mockDialogProducer.send(any())
@@ -199,7 +199,7 @@ class DialogportenServiceTest {
     }
 
     @Test
-    fun `dialogportenservice kaller dialogProducer med sykmeldingIden basert på nyeste søknad ved mottatt inntektsmeldingforespørsel`() {
+    fun `dialogportenservice kaller dialogProducer med sykmeldingIden basert på nyeste søknad ved mottatt inntektsmeldingsforespørsel`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
         val soeknadEldre = soeknadMock()
@@ -212,17 +212,17 @@ class DialogportenServiceTest {
             )
 
         coEvery { mockDialogProducer.send(any()) } just Runs
-        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr) } returns true
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns
             listOf(
                 soeknadEldre,
                 soeknadNyere,
             )
 
-        dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(forespoerselDokument)
+        dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoerselDokument)
 
         val forventetDialogMelding =
-            DialogInntektsmeldingforespoersel(
+            DialogInntektsmeldingsforespoersel(
                 forespoerselId = forespoerselDokument.forespoerselId,
                 sykmeldingId = requireNotNull(soeknadNyere.sykmeldingId),
                 orgnr = orgnr,

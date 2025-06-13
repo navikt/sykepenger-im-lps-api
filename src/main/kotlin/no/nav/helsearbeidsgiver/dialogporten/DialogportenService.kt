@@ -39,9 +39,9 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmeldingforespoersel(forespoersel: ForespoerselDokument) {
+    fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: ForespoerselDokument) {
         val orgnr = Orgnr(forespoersel.orgnr)
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingforespoersel(orgnr)) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr)) {
             val sykmeldingIder =
                 soeknadRepository
                     .hentSoeknaderMedVedtaksperiodeId(forespoersel.vedtaksperiodeId)
@@ -71,7 +71,7 @@ class DialogportenService(
                 }
 
             dialogProducer.send(
-                DialogInntektsmeldingforespoersel(
+                DialogInntektsmeldingsforespoersel(
                     forespoerselId = forespoersel.forespoerselId,
                     sykmeldingId = sykmeldingId,
                     orgnr = orgnr,
@@ -79,11 +79,11 @@ class DialogportenService(
             )
 
             logger.info(
-                "Sendte melding til hag-dialog for inntektsmeldingforespørsel med id: ${forespoersel.forespoerselId}, sykmeldingId: ${forespoersel.forespoerselId}.",
+                "Sendte melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, sykmeldingId: ${forespoersel.forespoerselId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for inntektsmeldingforespørsel med id: ${forespoersel.forespoerselId}, på fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, på fordi feature toggle er av.",
             )
         }
     }
