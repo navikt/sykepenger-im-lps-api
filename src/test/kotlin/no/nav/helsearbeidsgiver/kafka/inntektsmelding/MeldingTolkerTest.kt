@@ -187,6 +187,7 @@ class MeldingTolkerTest {
     @Test
     fun `StatusISpeilTolker lesMelding klarer å deserialisere Behandlingstatusmelding`() {
         every { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) } just Runs
+        every { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) } just Runs
         val sisMeldingJson =
             STATUS_I_SPLEIS_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
