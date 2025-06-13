@@ -110,7 +110,7 @@ class DialogportenServiceTest {
     }
 
     @Test
-    fun `dialogportenservice kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottattt søknad`() {
+    fun `dialogportenservice kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottatt søknad`() {
         val dialogMelding = genererDialogSykepengesoeknad()
         coEvery { mockDialogProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(dialogMelding.orgnr) } returns false
@@ -168,7 +168,7 @@ class DialogportenServiceTest {
     }
 
     @Test
-    fun ` kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottatt inntektsmeldingsforespørsel`() {
+    fun `kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottatt inntektsmeldingsforespørsel`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
 
@@ -202,8 +202,8 @@ class DialogportenServiceTest {
     fun `dialogportenservice kaller dialogProducer med sykmeldingIden basert på nyeste søknad ved mottatt inntektsmeldingsforespørsel`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
-        val soeknadEldre = soeknadMock()
 
+        val soeknadEldre = soeknadMock()
         val soeknadNyere =
             soeknadMock().copy(
                 sykmeldingId = UUID.randomUUID(),
