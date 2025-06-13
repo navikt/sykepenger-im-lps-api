@@ -113,7 +113,7 @@ fun configureTolkere(
         )
     val soeknadTolker = SoeknadTolker(services.soeknadService)
 
-    val statusISpeilTolker = StatusISpeilTolker(repositories.soeknadRepository)
+    val statusISpeilTolker = StatusISpeilTolker(repositories.soeknadRepository, repositories.statusISpeilRepository)
 
     return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker, statusISpeilTolker)
 }
