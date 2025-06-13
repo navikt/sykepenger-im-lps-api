@@ -44,7 +44,7 @@ class StatusISpeilRepositoryTest {
                 eksterneSøknadIder = setOf(soeknadId),
             )
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
-        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
+        statusISpeilRepo.hentSoeknadIderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
     }
 
     @Test
@@ -60,11 +60,11 @@ class StatusISpeilRepositoryTest {
                 eksterneSøknadIder = setOf(soeknadId),
             )
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
-        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
+        statusISpeilRepo.hentSoeknadIderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
         shouldNotThrowAny {
             statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
         }
-        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
+        statusISpeilRepo.hentSoeknadIderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId)
     }
 
     @Test
@@ -82,6 +82,6 @@ class StatusISpeilRepositoryTest {
         val soeknadId2 = UUID.randomUUID()
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
         statusISpeilRepo.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding.copy(eksterneSøknadIder = setOf(soeknadId, soeknadId2)))
-        statusISpeilRepo.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId, soeknadId2)
+        statusISpeilRepo.hentSoeknadIderForVedtaksperiodeId(vedtaksperiodeId) shouldContainExactly setOf(soeknadId, soeknadId2)
     }
 }

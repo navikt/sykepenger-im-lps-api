@@ -12,14 +12,14 @@ class StatusISpeilRepository(
 ) {
     fun lagreNyeSoeknaderOgStatuser(behandlingstatusmelding: Behandlingstatusmelding) {
         transaction(db) {
-            val eksisterendeSoeknader =
+            val eksisterendeSoeknadIder =
                 StatusISpeilEntitet
                     .selectAll()
                     .where { StatusISpeilEntitet.vedtaksperiodeId eq behandlingstatusmelding.vedtaksperiodeId }
                     .map { it[StatusISpeilEntitet.soeknadId] }
                     .toSet()
-            val nyeSoeknader = behandlingstatusmelding.eksterneSøknadIder.minus(eksisterendeSoeknader)
-            nyeSoeknader.forEach { soeknadId ->
+            val nyeSoeknadIder = behandlingstatusmelding.eksterneSøknadIder.minus(eksisterendeSoeknadIder)
+            nyeSoeknadIder.forEach { soeknadId ->
                 StatusISpeilEntitet.insert {
                     it[StatusISpeilEntitet.soeknadId] = soeknadId
                     it[vedtaksperiodeId] = behandlingstatusmelding.vedtaksperiodeId
@@ -30,7 +30,7 @@ class StatusISpeilRepository(
         }
     }
 
-    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): List<UUID> =
+    fun hentSoeknadIderForVedtaksperiodeId(vedtaksperiodeId: UUID): List<UUID> =
         transaction(db) {
             StatusISpeilEntitet
                 .selectAll()
