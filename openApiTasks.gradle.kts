@@ -43,8 +43,8 @@ tasks.register("modifyOpenApi") {
         }
 
         val newInfoBlock = """info:
-  title: "Sykepenger inntektsmelding lps API"
-  description: "API for å hente forespørsler og inntektsmeldinger for sykepenger"
+  title: "Sykepenger API"
+  description: "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger"
   version: "1.0.0""""
 
         content =
