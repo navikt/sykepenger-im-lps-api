@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.sis
 
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -8,6 +9,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class StatusISpeilTolker(
     private val soeknadRepository: SoeknadRepository,
+    private val statusISpeilRepository: StatusISpeilRepository,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
@@ -21,10 +23,6 @@ class StatusISpeilTolker(
                     "${behandlingstatusmelding.eksterneSøknadIder}.",
             )
             if (behandlingstatusmelding.status == Behandlingstatusmelding.Behandlingstatustype.OPPRETTET) {
-                // Hvis en søknad finnes fra før i databasen med en vedtaksperiodeId logg erroor/ warning, men oppdater
-                // de resterende søknadene med vedtaksperiodeid
-                // Lagre vedtaksperiodeId på tilhørende søknader
-                // TODO: hvis søknad consumeren går ned vil det ikke finnes en søknad å oppdatere. Hvordan håndtere dette?
                 logger.info(
                     "Oppdater søknader ${behandlingstatusmelding.eksterneSøknadIder} med vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId}",
                 )
@@ -32,6 +30,7 @@ class StatusISpeilTolker(
                     behandlingstatusmelding.eksterneSøknadIder,
                     behandlingstatusmelding.vedtaksperiodeId,
                 )
+                statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
             }
         } catch (e: Exception) {
             val errorMsg = "Klarte ikke å lagre status-i-speil-melding!"
