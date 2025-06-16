@@ -45,7 +45,7 @@ class ForespoerselIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient)
+                apiModule(services = services, authClient = authClient, db = mockk())
             }
         }
     private val client =

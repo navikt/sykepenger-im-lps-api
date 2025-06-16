@@ -2,6 +2,8 @@ package no.nav.helsearbeidsgiver.integrasjonstest
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
@@ -18,6 +20,18 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class ApplicationTest : LpsApiIntegrasjontest() {
+    @Test
+    fun `helsesjekk sier ok`() {
+        val response = runBlocking { client.get("http://localhost:8080/health/is-alive") }
+        response.status shouldBe HttpStatusCode.OK
+    }
+
+    @Test
+    fun `readyness sjekk sier ok`() {
+        val response = runBlocking { client.get("http://localhost:8080/health/is-ready") }
+        response.status shouldBe HttpStatusCode.OK
+    }
+
     @Test
     fun `leser inntektsmelding fra kafka og henter det via api`() {
         val inntektsmeldingId = UUID.randomUUID()
@@ -97,7 +111,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             }
         }
         Producer.sendMelding(sisRecord)
-        val soeknadListe = repositories.soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId).map { it.id }
+        val soeknadListe =
+            repositories.soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId).map { it.id }
         soeknadListe shouldBe listOf(soeknadId)
     }
 }

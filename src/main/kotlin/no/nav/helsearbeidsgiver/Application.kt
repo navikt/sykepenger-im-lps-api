@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.jetbrains.exposed.sql.Database
 
 fun main() {
     startServer()
@@ -46,7 +47,7 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            apiModule(services = services, authClient = authClient)
+            apiModule(services = services, authClient = authClient, db = db)
             configureKafkaConsumers(tolkere = tolkere, unleashFeatureToggles = unleashFeatureToggles)
         },
     ).start(wait = true)
@@ -55,6 +56,7 @@ fun startServer() {
 fun Application.apiModule(
     services: Services,
     authClient: AuthClient,
+    db: Database,
 ) {
     val logger = logger()
     logger.info("Starter applikasjon!")
@@ -65,5 +67,5 @@ fun Application.apiModule(
     configureAuth(authClient)
 
     logger.info("Setter opp routing...")
-    configureRouting(services)
+    configureRouting(services, db)
 }
