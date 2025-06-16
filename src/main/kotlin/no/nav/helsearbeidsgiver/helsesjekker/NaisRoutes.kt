@@ -23,7 +23,7 @@ fun Route.isAlive() {
 fun Route.isReady(database: Database) {
     get("/is-ready") {
         try {
-            val result = database.connector().prepareStatement("SELECT 1 FROM dual", true)
+            val result = database.connector().prepareStatement("SELECT 1", true)
             result.executeQuery()
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Could not connect to database :(")
