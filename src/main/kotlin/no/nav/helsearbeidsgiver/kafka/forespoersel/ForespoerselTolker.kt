@@ -63,8 +63,11 @@ class ForespoerselTolker(
                 }
             }
             NotisType.FORESPOERSEL_OPPDATERT -> {
-                logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
-                forespoerselService.lagreOppdatertForespoersel(obj)
+                transaction {
+                    logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
+                    forespoerselService.lagreOppdatertForespoersel(obj)
+                    mottakRepository.opprett(ExposedMottak(melding))
+                }
             }
             NotisType.FORESPOERSEL_BESVART -> {
                 settBesvart(forespoerselId)

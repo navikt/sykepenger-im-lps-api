@@ -1,12 +1,12 @@
 {
   "notis": "FORESPØRSEL_MOTTATT",
   "forespoerselId": "%%%FORESPOERSEL_ID%%%",
-  "orgnr": "810007842",
+  "orgnr": "%%%ORGNR%%%",
   "fnr": "01447842099",
   "skal_ha_paaminnelse": true,
   "forespoersel": {
     "type": "KOMPLETT",
-    "orgnr": "810007842",
+    "orgnr": "%%%ORGNR%%%",
     "fnr": "01447842099",
     "forespoerselId": "%%%FORESPOERSEL_ID%%%",
     "vedtaksperiodeId": "70aeba59-ebe1-4e26-bf48-23765e037078",

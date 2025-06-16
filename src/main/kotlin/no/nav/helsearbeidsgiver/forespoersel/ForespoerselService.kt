@@ -51,9 +51,13 @@ class ForespoerselService(
             val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId, forespoersel.orgnr)
             if (ef == null) {
                 logger().info(
-                    "Forespørsel : ${forespoersel.forespoerselId} :Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke, behandler som ny forespørsel",
+                    "Forespørsel : ${forespoersel.forespoerselId} :Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke",
                 )
-                lagreForespoersel(forespoersel = forespoersel)
+                forespoerselRepository.lagreForespoersel(
+                    forespoersel = forespoersel,
+                    status = Status.AKTIV,
+                    eksponertForespoerselId = eksponertForespoerselId,
+                )
                 return
             } else {
                 runCatching {

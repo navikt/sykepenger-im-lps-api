@@ -88,10 +88,11 @@ fun buildInntektsmeldingJson(
 
 fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
     val filePath = "json/forespoersel.json"
-    return readJsonFromResources(filePath).replace(
-        FORESPOERSEL_ID,
-        forespoerselId,
-    )
+    return readJsonFromResources(filePath)
+        .replace(
+            FORESPOERSEL_ID,
+            forespoerselId,
+        ).replace(ORGNUMMER, DEFAULT_ORG)
 }
 
 fun buildForespoerselOppdatertJson(
@@ -102,6 +103,7 @@ fun buildForespoerselOppdatertJson(
     return readJsonFromResources(filePath)
         .replace(FORESPOERSEL_ID, forespoerselId)
         .replace("%%%EKSPONERT_FORESPOERSEL_ID%%%", eksponertForespoerselıd)
+        .replace(ORGNUMMER, DEFAULT_ORG)
 }
 
 fun buildInntektsmeldingDistribuertJson(
