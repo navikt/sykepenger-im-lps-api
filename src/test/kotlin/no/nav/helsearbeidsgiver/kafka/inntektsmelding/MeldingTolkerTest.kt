@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
+import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -35,6 +36,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
@@ -72,6 +74,7 @@ class MeldingTolkerTest {
                 bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
                 sykmeldingRepository = mockk<SykmeldingRepository>(),
                 soeknadRepository = mockk<SoeknadRepository>(),
+                statusISpeilRepository = mockk<StatusISpeilRepository>(),
             )
 
         service =
@@ -179,5 +182,16 @@ class MeldingTolkerTest {
             tolkere.soeknadTolker.lesMelding(mockJsonMedArbeidsgiverNull)
         }
         verify(exactly = 0) { service.soeknadService.behandleSoeknad(any()) }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding klarer å deserialisere Behandlingstatusmelding`() {
+        every { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) } just Runs
+        every { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) } just Runs
+        val sisMeldingJson =
+            STATUS_I_SPLEIS_MELDING.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
     }
 }

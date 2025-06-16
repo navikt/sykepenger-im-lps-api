@@ -32,6 +32,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
+import no.nav.helsearbeidsgiver.kafka.sis.StatusISpeilTolker
 import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
@@ -43,6 +44,7 @@ import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
+import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
@@ -68,6 +70,7 @@ data class Repositories(
     val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
     val sykmeldingRepository: SykmeldingRepository,
     val soeknadRepository: SoeknadRepository,
+    val statusISpeilRepository: StatusISpeilRepository,
 )
 
 data class Services(
@@ -85,6 +88,7 @@ data class Tolkere(
     val forespoerselTolker: ForespoerselTolker,
     val sykmeldingTolker: SykmeldingTolker,
     val soeknadTolker: SoeknadTolker,
+    val statusISpeilTolker: StatusISpeilTolker,
 )
 
 fun configureTolkere(
@@ -109,7 +113,9 @@ fun configureTolkere(
         )
     val soeknadTolker = SoeknadTolker(services.soeknadService)
 
-    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker)
+    val statusISpeilTolker = StatusISpeilTolker(repositories.soeknadRepository, repositories.statusISpeilRepository)
+
+    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker, statusISpeilTolker)
 }
 
 fun configureRepositories(db: Database): Repositories =
@@ -120,6 +126,7 @@ fun configureRepositories(db: Database): Repositories =
         bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(db),
         sykmeldingRepository = SykmeldingRepository(db),
         soeknadRepository = SoeknadRepository(db),
+        statusISpeilRepository = StatusISpeilRepository(db),
     )
 
 fun configureServices(
@@ -228,6 +235,17 @@ fun Application.configureKafkaConsumers(
                 topic = getProperty("kafkaConsumer.soeknad.topic"),
                 consumer = soeknadKafkaConsumer,
                 meldingTolker = tolkere.soeknadTolker,
+            )
+        }
+    }
+
+    if (unleashFeatureToggles.skalKonsumereStatusISpeil()) {
+        val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sis"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                topic = getProperty("kafkaConsumer.sis.topic"),
+                consumer = statusISpeilKafkaConsumer,
+                meldingTolker = tolkere.statusISpeilTolker,
             )
         }
     }

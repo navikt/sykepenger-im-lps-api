@@ -58,4 +58,10 @@ class UnleashFeatureToggles(
             "konsumer-sykepengesoknader",
             false,
         )
+
+    fun skalKonsumereStatusISpeil(): Boolean =
+        unleashClient.isEnabled(
+            "konsumer-status-i-speil",
+            false,
+        )
 }
