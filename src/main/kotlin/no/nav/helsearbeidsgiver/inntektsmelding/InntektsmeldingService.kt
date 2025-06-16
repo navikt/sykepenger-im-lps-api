@@ -73,7 +73,7 @@ class InntektsmeldingService(
             sikkerLogger().info("InnsendtInntektsmelding ${im.type.id} lagret")
         }.onFailure {
             sikkerLogger().warn("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
-            throw Exception("Feil ved oppretting av inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}", it)
+            throw Exception("Feil ved oppretting av inntektsmelding med id: ${im.id}", it)
         }
     }
 
