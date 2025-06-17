@@ -117,7 +117,13 @@ class ForespoerselService(
 
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 
-    fun settBesvart(navReferanseId: UUID): Int = forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
+    fun settBesvart(navReferanseId: UUID) {
+        forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
+        logger().info("Oppdaterer status til BESVART for forespørsel med id: $navReferanseId")
+    }
 
-    fun settForkastet(navReferanseId: UUID): Int = forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
+    fun settForkastet(navReferanseId: UUID) {
+        forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
+        logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
+    }
 }
