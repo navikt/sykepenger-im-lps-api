@@ -62,9 +62,15 @@ class ForespoerselTolker(
 
             NotisType.FORESPOERSEL_OPPDATERT -> {
                 transaction {
-                    logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
-                    forespoerselService.lagreOppdatertForespoersel(obj)
-                    mottakRepository.opprett(ExposedMottak(melding))
+                    try {
+                        forespoerselService.lagreOppdatertForespoersel(obj)
+                        mottakRepository.opprett(ExposedMottak(melding))
+                    } catch (e: Exception) {
+                        rollback()
+                        logger.error("Klarte ikke å lagre oppdatert forespørsel i database: $forespoerselId")
+                        sikkerLogger.error("Klarte ikke å lagre oppdatert forespørsel i database: $forespoerselId", e)
+                        throw e // sørg for at kafka-offset ikke commites dersom vi ikke lagrer i db
+                    }
                 }
             }
 
