@@ -11,10 +11,9 @@ tasks.register("modifyOpenApi") {
         var content = openApiFile.readText()
 
         var modified = false
-        val targetRegex =
-            Regex(
-                """\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}""",
-            )
+        val targetRegex = Regex(
+            """\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}"""
+        )
 
         if (targetRegex.containsMatchIn(content)) {
             val inntektEndring = inntektEndringAarsakFile.readText()
@@ -22,8 +21,7 @@ tasks.register("modifyOpenApi") {
                 content
                     .replace(
                         Regex("""\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}"""),
-                        Regex.escapeReplacement(inntektEndring),
-                    )
+                        Regex.escapeReplacement(inntektEndring))
             println("lagt til InntektEndringAarsak.")
             modified = true
         }
@@ -32,18 +30,15 @@ tasks.register("modifyOpenApi") {
             content =
                 content.replace(
                     Regex("components:"),
-                    """servers:
-  - url: https://sykepenger-api.ekstern.dev.nav.no
-components:
+                    """components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
 """,
                 )
-            println("lagt til securitySchemes og server url.")
+            println("lagt til securitySchemes.")
             modified = true
         }
 
