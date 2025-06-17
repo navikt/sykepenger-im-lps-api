@@ -33,17 +33,17 @@ spec:
     enabled: true
     path: /metrics
   liveness:
-    failureThreshold: 3
+    failureThreshold: 5
     initialDelay: 60
     path: /health/is-alive
     periodSeconds: 10
-    timeout: 1
+    timeout: 5
   readiness:
-    failureThreshold: 3
+    failureThreshold: 5
     initialDelay: 60
     path: /health/is-ready
     periodSeconds: 10
-    timeout: 1
+    timeout: 5
   kafka:
     pool: nav-dev
   ingresses:
