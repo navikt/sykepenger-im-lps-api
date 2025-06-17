@@ -44,6 +44,9 @@ paths:
             '*/*':
               schema:
                 type: "object"
+              examples:
+                Example#1:
+                  value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
@@ -148,6 +151,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
           content:
@@ -202,6 +209,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -253,6 +264,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -298,6 +313,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -336,6 +355,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -382,6 +405,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -427,6 +454,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "404":
           description: "Not Found"
           content:
@@ -467,6 +498,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -513,6 +548,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
   /v1/sykmeldinger:
     get:
       description: ""
@@ -535,6 +574,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
     post:
       description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
@@ -564,6 +607,12 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
+servers:
+  - url: https://sykepenger-api.ekstern.dev.nav.no
 components:
   securitySchemes:
     bearerAuth:
