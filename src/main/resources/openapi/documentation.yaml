@@ -11,11 +11,11 @@ paths:
     get:
       description: ""
       parameters:
-        - name: "navReferanseId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: "navReferanseId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       responses:
         "401":
           description: "Unauthorized"
@@ -44,6 +44,9 @@ paths:
             '*/*':
               schema:
                 type: "object"
+              examples:
+                Example#1:
+                  value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
@@ -148,6 +151,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
           content:
@@ -170,8 +177,7 @@ paths:
           description: "Created"
           content:
             '*/*':
-              schema:
-                type: "string"
+              schema: {}
         "500":
           description: "Internal Server Error"
           content:
@@ -185,11 +191,11 @@ paths:
     get:
       description: "Hent inntektsmelding med id"
       parameters:
-        - name: "inntektsmeldingId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: "inntektsmeldingId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       responses:
         "401":
           description: "Unauthorized"
@@ -201,6 +207,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -236,11 +246,11 @@ paths:
     get:
       description: "Hent alle inntektsmeldinger med navReferanseId"
       parameters:
-        - name: "navReferanseId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: "navReferanseId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       responses:
         "401":
           description: "Unauthorized"
@@ -252,6 +262,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -281,11 +295,11 @@ paths:
     get:
       description: "Hent alle inntektsmeldinger med status"
       parameters:
-        - name: "status"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: "status"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       responses:
         "401":
           description: "Unauthorized"
@@ -297,6 +311,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -336,6 +354,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -382,6 +404,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -410,11 +436,11 @@ paths:
     get:
       description: "Hent én sykepengesøknad basert på søknadId"
       parameters:
-        - name: "soeknadId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: "soeknadId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       responses:
         "401":
           description: "Unauthorized"
@@ -426,6 +452,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "404":
           description: "Not Found"
@@ -468,6 +498,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -490,11 +524,11 @@ paths:
       description: "Hent sykmelding med id <br> Orgnr i systembruker token må samsvare\
         \ med orgnr i sykmeldingen"
       parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       responses:
         "200":
           description: "OK"
@@ -512,6 +546,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
   /v1/sykmeldinger:
     get:
@@ -535,6 +573,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
     post:
       description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
@@ -564,6 +606,12 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
+servers:
+  - url: https://sykepenger-api.ekstern.dev.nav.no
 components:
   securitySchemes:
     bearerAuth:
@@ -571,19 +619,8 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+
   schemas:
-    Periode:
-      type: "object"
-      properties:
-        fom:
-          type: "string"
-          format: "date"
-        tom:
-          type: "string"
-          format: "date"
-      required:
-        - "fom"
-        - "tom"
     Forespoersel:
       type: "object"
       properties:
@@ -597,30 +634,26 @@ components:
         status:
           type: "string"
           enum:
-            - "AKTIV"
-            - "BESVART"
-            - "FORKASTET"
+          - "AKTIV"
+          - "BESVART"
+          - "FORKASTET"
         sykmeldingsperioder:
           type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
         egenmeldingsperioder:
           type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
         arbeidsgiverperiodePaakrevd:
           type: "boolean"
         inntektPaakrevd:
           type: "boolean"
       required:
-        - "navReferanseId"
-        - "orgnr"
-        - "fnr"
-        - "status"
-        - "sykmeldingsperioder"
-        - "egenmeldingsperioder"
-        - "arbeidsgiverperiodePaakrevd"
-        - "inntektPaakrevd"
+      - "navReferanseId"
+      - "orgnr"
+      - "fnr"
+      - "status"
+      - "sykmeldingsperioder"
+      - "egenmeldingsperioder"
+      - "arbeidsgiverperiodePaakrevd"
+      - "inntektPaakrevd"
     ForespoerselResponse:
       type: "object"
       properties:
@@ -632,299 +665,22 @@ components:
           items:
             $ref: "#/components/schemas/Forespoersel"
       required:
-        - "antall"
-        - "forespoersler"
+      - "antall"
+      - "forespoersler"
     ForespoerselRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-          nullable: true
         navReferanseId:
           type: "string"
           format: "uuid"
-          nullable: true
         status:
           type: "string"
-          nullable: true
           enum:
-            - "AKTIV"
-            - "BESVART"
-            - "FORKASTET"
-    RedusertLoennIAgp:
-      type: "object"
-      properties:
-        beloep:
-          type: "number"
-          format: "double"
-        begrunnelse:
-          type: "string"
-          enum:
-            - "ArbeidOpphoert"
-            - "BeskjedGittForSent"
-            - "BetvilerArbeidsufoerhet"
-            - "FerieEllerAvspasering"
-            - "FiskerMedHyre"
-            - "FravaerUtenGyldigGrunn"
-            - "IkkeFravaer"
-            - "IkkeFullStillingsandel"
-            - "IkkeLoenn"
-            - "LovligFravaer"
-            - "ManglerOpptjening"
-            - "Permittering"
-            - "Saerregler"
-            - "StreikEllerLockout"
-            - "TidligereVirksomhet"
-      required:
-        - "beloep"
-        - "begrunnelse"
-    Arbeidsgiverperiode:
-      type: "object"
-      properties:
-        perioder:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        egenmeldinger:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
-        redusertLoennIAgp:
-          nullable: true
-          $ref: "#/components/schemas/RedusertLoennIAgp"
-      required:
-        - "perioder"
-        - "egenmeldinger"
-    Naturalytelse:
-      type: "object"
-      properties:
-        naturalytelse:
-          type: "string"
-          enum:
-            - "AKSJERGRUNNFONDSBEVISTILUNDERKURS"
-            - "ANNET"
-            - "BEDRIFTSBARNEHAGEPLASS"
-            - "BESOEKSREISERHJEMMETANNET"
-            - "BIL"
-            - "BOLIG"
-            - "ELEKTRONISKKOMMUNIKASJON"
-            - "FRITRANSPORT"
-            - "INNBETALINGTILUTENLANDSKPENSJONSORDNING"
-            - "KOSTBESPARELSEIHJEMMET"
-            - "KOSTDAGER"
-            - "KOSTDOEGN"
-            - "LOSJI"
-            - "OPSJONER"
-            - "RENTEFORDELLAAN"
-            - "SKATTEPLIKTIGDELFORSIKRINGER"
-            - "TILSKUDDBARNEHAGEPLASS"
-            - "YRKEBILTJENESTLIGBEHOVKILOMETER"
-            - "YRKEBILTJENESTLIGBEHOVLISTEPRIS"
-        verdiBeloep:
-          type: "number"
-          format: "double"
-        sluttdato:
-          type: "string"
-          format: "date"
-      required:
-        - "naturalytelse"
-        - "verdiBeloep"
-        - "sluttdato"
-    InntektEndringAarsak:
-      type: "object"
-      oneOf:
-        - $ref: "#/components/schemas/Bonus"
-        - $ref: "#/components/schemas/Feilregistrert"
-        - $ref: "#/components/schemas/Ferie"
-        - $ref: "#/components/schemas/Ferietrekk"
-        - $ref: "#/components/schemas/Nyansatt"
-        - $ref: "#/components/schemas/NyStilling"
-        - $ref: "#/components/schemas/NyStillingsprosent"
-        - $ref: "#/components/schemas/Permisjon"
-        - $ref: "#/components/schemas/Permittering"
-        - $ref: "#/components/schemas/Sykefravaer"
-        - $ref: "#/components/schemas/Tariffendring"
-        - $ref: "#/components/schemas/VarigLoennsendring"
-    Bonus:
-      title: "Bonus"
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Bonus
-    Feilregistrert:
-      title: "Feilregistrert"
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Feilregistrert
-    Tariffendring:
-      title: "Tariffendring"
-      required:
-        - gjelderFra
-        - bleKjent
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Tariffendring
-        gjelderFra:
-          type: string
-          format: date
-        bleKjent:
-          type: string
-          format: date
-    Sykefravaer:
-      title: "Sykefravaer"
-      required:
-        - sykefravaer
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Sykefravaer
-        sykefravaer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Periode'
-    Ferie:
-      title: "Ferie"
-      required:
-        - ferier
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Ferie
-        ferier:
-          type: array
-          items:
-            $ref: '#/components/schemas/Periode'
-    Ferietrekk:
-      title: "Ferietrekk"
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Ferietrekk
-    Nyansatt:
-      title: "Nyansatt"
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Nyansatt
-    NyStilling:
-      title: "NyStilling"
-      requred:
-        - gjelderFra
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - NyStilling
-        gjelderFra:
-          type: string
-          format: date
-    NyStillingsprosent:
-      title: "NyStillingsprosent"
-      required:
-        -gjelderFra
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - NyStillingsprosent
-        gjelderFra:
-          type: string
-          format: date
-    Permisjon:
-      title: "Permisjon"
-      required:
-        - permisjoner
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Permisjon
-        permisjoner:
-          type: array
-          items:
-            $ref: '#/components/schemas/Periode'
-    Permittering:
-      title: "Permittering"
-      required:
-        - permitteringer
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - Permittering
-        permitteringer:
-          type: array
-          items:
-            $ref: '#/components/schemas/Periode'
-    VarigLoennsendring:
-      title: "VarigLoennsendring"
-      required:
-        -gjelderFra
-      properties:
-        aarsak:
-          type: "string"
-          enum:
-            - VarigLoennsendring
-        gjelderFra:
-          type: string
-          format: date
-
-    Inntekt:
-      type: "object"
-      properties:
-        beloep:
-          type: "number"
-          format: "double"
-        inntektsdato:
-          type: "string"
-          format: "date"
-        naturalytelser:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Naturalytelse"
-        endringAarsaker:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/InntektEndringAarsak"
-      required:
-        - "beloep"
-        - "inntektsdato"
-        - "naturalytelser"
-        - "endringAarsaker"
-    RefusjonEndring:
-      type: "object"
-      properties:
-        beloep:
-          type: "number"
-          format: "double"
-        startdato:
-          type: "string"
-          format: "date"
-      required:
-        - "beloep"
-        - "startdato"
-    Refusjon:
-      type: "object"
-      properties:
-        beloepPerMaaned:
-          type: "number"
-          format: "double"
-        endringer:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/RefusjonEndring"
-      required:
-        - "beloepPerMaaned"
-        - "endringer"
+          - "AKTIV"
+          - "BESVART"
+          - "FORKASTET"
     Avsender:
       type: "object"
       properties:
@@ -933,50 +689,35 @@ components:
         systemVersjon:
           type: "string"
       required:
-        - "systemNavn"
-        - "systemVersjon"
+      - "systemNavn"
+      - "systemVersjon"
     InntektsmeldingRequest:
       type: "object"
       properties:
         navReferanseId:
           type: "string"
           format: "uuid"
-        agp:
-          nullable: true
-          $ref: "#/components/schemas/Arbeidsgiverperiode"
-        inntekt:
-          nullable: true
-          $ref: "#/components/schemas/Inntekt"
-        refusjon:
-          nullable: true
-          $ref: "#/components/schemas/Refusjon"
         sykmeldtFnr:
           type: "string"
         arbeidsgiverTlf:
           type: "string"
-        aarsakInnsending:
-          type: "string"
-          enum:
-            - "Ny"
-            - "Endring"
         avsender:
           $ref: "#/components/schemas/Avsender"
       required:
-        - "navReferanseId"
-        - "sykmeldtFnr"
-        - "arbeidsgiverTlf"
-        - "aarsakInnsending"
-        - "avsender"
+      - "navReferanseId"
+      - "sykmeldtFnr"
+      - "arbeidsgiverTlf"
+      - "aarsakInnsending"
+      - "avsender"
     Arbeidsgiver:
       type: "object"
       properties:
         navn:
           type: "string"
-          nullable: true
         orgnr:
           type: "string"
       required:
-        - "orgnr"
+      - "orgnr"
     InntektsmeldingResponse:
       type: "object"
       properties:
@@ -986,28 +727,14 @@ components:
         navReferanseId:
           type: "string"
           format: "uuid"
-        agp:
-          nullable: true
-          $ref: "#/components/schemas/Arbeidsgiverperiode"
-        inntekt:
-          nullable: true
-          $ref: "#/components/schemas/Inntekt"
-        refusjon:
-          nullable: true
-          $ref: "#/components/schemas/Refusjon"
         sykmeldtFnr:
           type: "string"
-        aarsakInnsending:
-          type: "string"
-          enum:
-            - "Ny"
-            - "Endring"
         typeInnsending:
           type: "string"
           enum:
-            - "FORESPURT"
-            - "ARBEIDSGIVER_INITIERT"
-            - "FORESPURT_EKSTERN"
+          - "FORESPURT"
+          - "ARBEIDSGIVER_INITIERT"
+          - "FORESPURT_EKSTERN"
         innsendtTid:
           type: "string"
           format: "date-time"
@@ -1021,66 +748,58 @@ components:
         status:
           type: "string"
           enum:
-            - "MOTTATT"
-            - "FEILET"
-            - "GODKJENT"
+          - "MOTTATT"
+          - "FEILET"
+          - "GODKJENT"
         statusMelding:
           type: "string"
-          nullable: true
       required:
-        - "id"
-        - "navReferanseId"
-        - "sykmeldtFnr"
-        - "aarsakInnsending"
-        - "typeInnsending"
-        - "innsendtTid"
-        - "versjon"
-        - "arbeidsgiver"
-        - "avsender"
-        - "status"
+      - "id"
+      - "navReferanseId"
+      - "sykmeldtFnr"
+      - "aarsakInnsending"
+      - "typeInnsending"
+      - "innsendtTid"
+      - "versjon"
+      - "arbeidsgiver"
+      - "avsender"
+      - "status"
     InntektsmeldingFilterResponse:
       type: "object"
       properties:
         antall:
           type: "integer"
           format: "int32"
-          default: "0"
         inntektsmeldinger:
           type: "array"
           items:
             $ref: "#/components/schemas/InntektsmeldingResponse"
       required:
-        - "antall"
-        - "inntektsmeldinger"
+      - "antall"
+      - "inntektsmeldinger"
     InntektsmeldingFilterRequest:
       type: "object"
       properties:
         innsendingId:
           type: "string"
           format: "uuid"
-          nullable: true
         fnr:
           type: "string"
-          nullable: true
         navReferanseId:
           type: "string"
           format: "uuid"
-          nullable: true
         fraTid:
           type: "string"
           format: "date-time"
-          nullable: true
         tilTid:
           type: "string"
           format: "date-time"
-          nullable: true
         status:
           type: "string"
-          nullable: true
           enum:
-            - "MOTTATT"
-            - "FEILET"
-            - "GODKJENT"
+          - "MOTTATT"
+          - "FEILET"
+          - "GODKJENT"
     Soeknadsperiode:
       type: "object"
       properties:
@@ -1096,28 +815,24 @@ components:
         faktiskGrad:
           type: "integer"
           format: "int32"
-          nullable: true
         avtaltTimer:
           type: "number"
           format: "double"
-          nullable: true
         faktiskTimer:
           type: "number"
           format: "double"
-          nullable: true
         sykmeldingstype:
           type: "string"
-          nullable: true
           enum:
-            - "AKTIVITET_IKKE_MULIG"
-            - "GRADERT"
-            - "BEHANDLINGSDAGER"
-            - "AVVENTENDE"
-            - "REISETILSKUDD"
+          - "AKTIVITET_IKKE_MULIG"
+          - "GRADERT"
+          - "BEHANDLINGSDAGER"
+          - "AVVENTENDE"
+          - "REISETILSKUDD"
       required:
-        - "fom"
-        - "tom"
-        - "sykmeldingsgrad"
+      - "fom"
+      - "tom"
+      - "sykmeldingsgrad"
     Fravaer:
       type: "object"
       properties:
@@ -1127,19 +842,18 @@ components:
         tom:
           type: "string"
           format: "date"
-          nullable: true
         type:
           type: "string"
           enum:
-            - "FERIE"
-            - "PERMISJON"
-            - "UTLANDSOPPHOLD"
-            - "UTDANNING_FULLTID"
-            - "UTDANNING_DELTID"
-            - "UKJENT"
+          - "FERIE"
+          - "PERMISJON"
+          - "UTLANDSOPPHOLD"
+          - "UTDANNING_FULLTID"
+          - "UTDANNING_DELTID"
+          - "UKJENT"
       required:
-        - "fom"
-        - "type"
+      - "fom"
+      - "type"
     Sykepengesoeknad:
       type: "object"
       properties:
@@ -1151,25 +865,21 @@ components:
         sykmeldingId:
           type: "string"
           format: "uuid"
-          nullable: true
         type:
           type: "string"
           enum:
-            - "ARBEIDSTAKERE"
-            - "BEHANDLINGSDAGER"
-            - "GRADERT_REISETILSKUDD"
+          - "ARBEIDSTAKERE"
+          - "BEHANDLINGSDAGER"
+          - "GRADERT_REISETILSKUDD"
         fom:
           type: "string"
           format: "date"
-          nullable: true
         tom:
           type: "string"
           format: "date"
-          nullable: true
         arbeidGjenopptattDato:
           type: "string"
           format: "date"
-          nullable: true
         mottatTid:
           type: "string"
           format: "date-time"
@@ -1177,11 +887,9 @@ components:
           $ref: "#/components/schemas/Arbeidsgiver"
         soektUtenlandsopphold:
           type: "boolean"
-          nullable: true
         korrigerer:
           type: "string"
           format: "uuid"
-          nullable: true
         soeknadsperioder:
           type: "array"
           items:
@@ -1191,13 +899,13 @@ components:
           items:
             $ref: "#/components/schemas/Fravaer"
       required:
-        - "soeknadId"
-        - "fnr"
-        - "type"
-        - "mottatTid"
-        - "arbeidsgiver"
-        - "soeknadsperioder"
-        - "fravaer"
+      - "soeknadId"
+      - "fnr"
+      - "type"
+      - "mottatTid"
+      - "arbeidsgiver"
+      - "soeknadsperioder"
+      - "fravaer"
     Sykmeldt:
       type: "object"
       properties:
@@ -1206,8 +914,8 @@ components:
         navn:
           type: "string"
       required:
-        - "fnr"
-        - "navn"
+      - "fnr"
+      - "navn"
     GradertSykmelding:
       type: "object"
       properties:
@@ -1217,8 +925,8 @@ components:
         harReisetilskudd:
           type: "boolean"
       required:
-        - "sykmeldingsgrad"
-        - "harReisetilskudd"
+      - "sykmeldingsgrad"
+      - "harReisetilskudd"
     AktivitetIkkeMulig:
       type: "object"
       properties:
@@ -1226,29 +934,24 @@ components:
           type: "boolean"
         beskrivelse:
           type: "string"
-          nullable: true
       required:
-        - "manglendeTilretteleggingPaaArbeidsplassen"
+      - "manglendeTilretteleggingPaaArbeidsplassen"
     Aktivitet:
       type: "object"
       properties:
         avventendeSykmelding:
           type: "string"
-          nullable: true
         gradertSykmelding:
-          nullable: true
           $ref: "#/components/schemas/GradertSykmelding"
         aktivitetIkkeMulig:
-          nullable: true
           $ref: "#/components/schemas/AktivitetIkkeMulig"
         antallBehandlingsdagerUke:
           type: "integer"
           format: "int32"
-          nullable: true
         harReisetilskudd:
           type: "boolean"
       required:
-        - "harReisetilskudd"
+      - "harReisetilskudd"
     SykmeldingPeriode:
       type: "object"
       properties:
@@ -1261,9 +964,9 @@ components:
         aktivitet:
           $ref: "#/components/schemas/Aktivitet"
       required:
-        - "fom"
-        - "tom"
-        - "aktivitet"
+      - "fom"
+      - "tom"
+      - "aktivitet"
     Prognose:
       type: "object"
       properties:
@@ -1271,21 +974,17 @@ components:
           type: "boolean"
         beskrivHensynArbeidsplassen:
           type: "string"
-          nullable: true
       required:
-        - "erArbeidsfoerEtterEndtPeriode"
+      - "erArbeidsfoerEtterEndtPeriode"
     Oppfoelging:
       type: "object"
       properties:
         prognose:
-          nullable: true
           $ref: "#/components/schemas/Prognose"
         meldingTilArbeidsgiver:
           type: "string"
-          nullable: true
         tiltakArbeidsplassen:
           type: "string"
-          nullable: true
     Behandler:
       type: "object"
       properties:
@@ -1294,8 +993,8 @@ components:
         tlf:
           type: "string"
       required:
-        - "navn"
-        - "tlf"
+      - "navn"
+      - "tlf"
     Sykmelding:
       type: "object"
       properties:
@@ -1308,12 +1007,9 @@ components:
           $ref: "#/components/schemas/Sykmeldt"
         egenmeldingsdager:
           type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
         sykefravaerFom:
           type: "string"
           format: "date"
-          nullable: true
         sykmeldingPerioder:
           type: "array"
           items:
@@ -1324,30 +1020,26 @@ components:
           type: "string"
           format: "date-time"
         behandler:
-          nullable: true
           $ref: "#/components/schemas/Behandler"
         arbeidsgiver:
           $ref: "#/components/schemas/Arbeidsgiver"
       required:
-        - "sykmeldingId"
-        - "mottattAvNav"
-        - "sykmeldt"
-        - "egenmeldingsdager"
-        - "sykmeldingPerioder"
-        - "oppfoelging"
-        - "kontaktMedPasient"
-        - "arbeidsgiver"
+      - "sykmeldingId"
+      - "mottattAvNav"
+      - "sykmeldt"
+      - "egenmeldingsdager"
+      - "sykmeldingPerioder"
+      - "oppfoelging"
+      - "kontaktMedPasient"
+      - "arbeidsgiver"
     SykmeldingFilterRequest:
       type: "object"
       properties:
         fnr:
           type: "string"
-          nullable: true
         fom:
           type: "string"
           format: "date"
-          nullable: true
         tom:
           type: "string"
           format: "date"
-          nullable: true
