@@ -52,7 +52,7 @@ class RepositoryTransactionTest {
                 launch {
                     val forespoerselID = lagreInntektsmelding()
                     repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-                    repositories.forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
+                    repositories.forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
                     repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
                     repositories.forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)

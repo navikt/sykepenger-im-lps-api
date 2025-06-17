@@ -26,28 +26,8 @@ class ForespoerselRepository(
     private val db: Database,
 ) {
     fun lagreForespoersel(
-        navReferanseId: UUID,
-        payload: ForespoerselDokument,
-    ) {
-        val organisasjonsnummer = payload.orgnr
-        val foedselsnr = payload.fnr
-        val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
-        transaction(db) {
-            ForespoerselEntitet.insert {
-                it[this.navReferanseId] = navReferanseId
-                it[orgnr] = organisasjonsnummer
-                it[fnr] = foedselsnr
-                it[opprettet] = LocalDateTime.now()
-                it[status] = Status.AKTIV
-                it[dokument] = jsonString
-            }
-        }
-        sikkerLogger().info("Forespørsel $navReferanseId lagret")
-    }
-
-    fun lagreForespoersel(
         forespoersel: ForespoerselDokument,
-        status: Status,
+        status: Status = Status.AKTIV,
         eksponertForespoerselId: UUID? = null,
     ) {
         transaction(db) {

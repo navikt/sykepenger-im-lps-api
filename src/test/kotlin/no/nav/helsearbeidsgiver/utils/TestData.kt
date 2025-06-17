@@ -821,12 +821,13 @@ object TestData {
     fun forespoerselDokument(
         orgnr: String,
         fnr: String,
+        forespoerselId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
         Type.KOMPLETT,
         orgnr,
         fnr,
         UUID.randomUUID(),
-        UUID.randomUUID(),
+        forespoerselId,
         emptyList(),
         emptyList(),
         ForespurtData(

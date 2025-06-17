@@ -110,8 +110,7 @@ class InnsendingIT {
                     .forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
                     .copy(forespoerselId = requestBody.navReferanseId)
             repositories.forespoerselRepository.lagreForespoersel(
-                navReferanseId = forespoerselDokument.forespoerselId,
-                payload = forespoerselDokument,
+                forespoerselDokument,
             )
             val response =
                 client.post("/v1/inntektsmelding") {
