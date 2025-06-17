@@ -11,8 +11,8 @@ import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
 
 fun main() {
-//    genererKafkaMeldinger()
-    genererOppdatertForespoerselMelding()
+    genererKafkaMeldinger()
+    // genererOppdatertForespoerselMelding()
 }
 
 fun genererKafkaMeldinger() {
