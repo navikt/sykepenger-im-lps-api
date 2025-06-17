@@ -61,7 +61,6 @@ class ForespoerselService(
                 logger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
             }.onFailure {
                 sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
-                logger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}")
                 throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
             }
 
@@ -103,7 +102,6 @@ class ForespoerselService(
             logger().info("Lagring av forespørsel med id: ${forespoersel.forespoerselId} fullført")
         }.onFailure {
             sikkerLogger().error("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
-            logger().error("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}")
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
     }
