@@ -5,7 +5,10 @@ import no.nav.helsearbeidsgiver.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.UUID
 
-fun sendNyforespoerselTilKafka() {
+/**
+ *  Denne filen genererer testdata for forespørsel og oppdatering av forespørsel i Kafka. Kun ment for lokal testing.
+ */
+fun sendNyforespoerselogOppdateringTilKafka() {
     val forespoerselId = UUID.randomUUID().toString()
     val oppdatertForespoerselId = UUID.randomUUID().toString()
 
@@ -23,5 +26,5 @@ fun sendNyforespoerselTilKafka() {
 }
 
 fun main() {
-    sendNyforespoerselTilKafka()
+    sendNyforespoerselogOppdateringTilKafka()
 }
