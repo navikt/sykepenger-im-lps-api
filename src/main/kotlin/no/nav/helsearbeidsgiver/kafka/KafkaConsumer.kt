@@ -27,7 +27,7 @@ suspend fun startKafkaConsumer(
             }
             consumer.commitSync()
         } catch (e: Exception) {
-            "Feil ved polling / lagring, avslutter!".let {
+            "Feil ved polling / lagring, avslutter! KafkaPartition = ${record.partition()} og Offset = ${record.offset()}".let {
                 logger.error(it)
                 sikkerLogger().error(it, e)
             }
