@@ -38,7 +38,7 @@ class ForespoerselRepositoryTest {
         val forespoersler = forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
         forespoersler.size shouldBe 1
         forespoersler[0].status shouldBe Status.AKTIV
-        forespoerselRepository.settBesvart(forespoerselID)
+        forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
         forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.BESVART
         forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG.reversed()) shouldBe null
     }
@@ -56,7 +56,7 @@ class ForespoerselRepositoryTest {
         val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
 
-        forespoerselRepository.settForkastet(forespoerselID)
+        forespoerselRepository.oppdaterStatus(forespoerselID, Status.FORKASTET)
         forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.FORKASTET
     }
 

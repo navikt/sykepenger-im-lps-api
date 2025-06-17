@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
@@ -12,10 +11,8 @@ import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import java.util.UUID
 
 class ForespoerselTolker(
-    private val forespoerselRepository: ForespoerselRepository,
     private val forespoerselService: ForespoerselService,
     private val mottakRepository: MottakRepository,
 ) : MeldingTolker {
@@ -62,6 +59,7 @@ class ForespoerselTolker(
                     mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
                 }
             }
+
             NotisType.FORESPOERSEL_OPPDATERT -> {
                 transaction {
                     logger.info("Mottatt oppdatering av forespørsel med id $forespoerselId ")
@@ -69,18 +67,19 @@ class ForespoerselTolker(
                     mottakRepository.opprett(ExposedMottak(melding))
                 }
             }
+
             NotisType.FORESPOERSEL_BESVART -> {
-                settBesvart(forespoerselId)
+                forespoerselService.settBesvart(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
             }
 
             NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                settBesvart(forespoerselId)
+                forespoerselService.settBesvart(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
             }
 
             NotisType.FORESPOERSEL_FORKASTET -> {
-                settForkastet(forespoerselId)
+                forespoerselService.settForkastet(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
             }
 
@@ -102,15 +101,5 @@ class ForespoerselTolker(
         } catch (e: Exception) {
             return false
         }
-    }
-
-    private fun settForkastet(forespoerselId: UUID) {
-        val antall = forespoerselRepository.settForkastet(forespoerselId)
-        logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status forkastet")
-    }
-
-    private fun settBesvart(forespoerselId: UUID) {
-        val antall = forespoerselRepository.settBesvart(forespoerselId)
-        logger.info("Oppdaterte $antall forespørsel med id $forespoerselId til status besvart")
     }
 }

@@ -117,11 +117,7 @@ class ForespoerselRepository(
                 }
         }
 
-    fun settBesvart(navReferanseId: UUID): Int = oppdaterStatus(navReferanseId, Status.BESVART)
-
-    fun settForkastet(navReferanseId: UUID): Int = oppdaterStatus(navReferanseId, Status.FORKASTET)
-
-    private fun oppdaterStatus(
+    fun oppdaterStatus(
         navReferanseId: UUID,
         status: Status,
     ): Int =

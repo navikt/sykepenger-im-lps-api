@@ -68,7 +68,7 @@ class ForespoerselService(
                         eksponertForespoerselId = eksponertForespoerselId,
                     )
                     if (ef.status == Status.AKTIV) {
-                        forespoerselRepository.settForkastet(eksponertForespoerselId)
+                        settForkastet(eksponertForespoerselId)
                     }
                 }.onSuccess {
                     sikkerLogger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
@@ -114,4 +114,8 @@ class ForespoerselService(
         )
 
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
+
+    fun settBesvart(navReferanseId: UUID): Int = forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
+
+    fun settForkastet(navReferanseId: UUID): Int = forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
 }

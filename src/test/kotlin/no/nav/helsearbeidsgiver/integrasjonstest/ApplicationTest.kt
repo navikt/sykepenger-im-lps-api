@@ -205,12 +205,11 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
         val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
         if (priMessage.forespoersel != null) {
-            repositories.forespoerselRepository.lagreForespoersel(
-                navReferanseId = forespoerselId,
-                payload = priMessage.forespoersel,
+            services.forespoerselService.lagreForespoersel(
+                forespoersel = priMessage.forespoersel,
+                status = Status.BESVART,
             )
         }
-        repositories.forespoerselRepository.settBesvart(forespoerselId)
 
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
