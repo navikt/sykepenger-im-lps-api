@@ -42,6 +42,7 @@ class ForespoerselService(
         val forespoersel =
             priMessage.forespoersel
                 ?: throw IllegalArgumentException("Forespørsel må ikke være null i oppdatert forespørsel")
+
         val eksponertForespoerselId = priMessage.eksponertForespoerselId
         if (eksponertForespoerselId == null) {
             logger().info("Forespørsel : ${forespoersel.forespoerselId}: Eksponert forespørsel ID er null, behandler som ny forespørsel")
@@ -65,21 +66,7 @@ class ForespoerselService(
                 throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
             }
 
-            val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId, forespoersel.orgnr)
-            if (ef == null) {
-                sikkerLogger().warn("Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke")
-            } else {
-                if (ef.status == Status.AKTIV) {
-                    logger().info(
-                        "Eksponert forespørsel med id: $eksponertForespoerselId er aktiv, oppdaterer status til forkastet.",
-                    )
-                    settForkastet(eksponertForespoerselId)
-                } else {
-                    logger().info(
-                        "Eksponert forespørsel med id: $eksponertForespoerselId er ikke aktiv, ingen oppdatering av status.",
-                    )
-                }
-            }
+            endreStatusAktivForespoersel(eksponertForespoerselId, forespoersel)
         }
     }
 
@@ -103,15 +90,6 @@ class ForespoerselService(
         }
     }
 
-    private fun erDuplikat(forespoersel: ForespoerselDokument): Boolean {
-        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
-        if (f != null) {
-            sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
-            return true
-        }
-        return false
-    }
-
     fun hentForespoersel(
         navReferanseId: UUID,
         orgnr: String,
@@ -131,5 +109,35 @@ class ForespoerselService(
     fun settForkastet(navReferanseId: UUID) {
         forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
+    }
+
+    private fun endreStatusAktivForespoersel(
+        eksponertForespoerselId: UUID,
+        forespoersel: ForespoerselDokument,
+    ) {
+        val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId, forespoersel.orgnr)
+        if (ef == null) {
+            sikkerLogger().warn("Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke")
+        } else {
+            if (ef.status == Status.AKTIV) {
+                logger().info(
+                    "Eksponert forespørsel med id: $eksponertForespoerselId er aktiv, oppdaterer status til forkastet.",
+                )
+                settForkastet(eksponertForespoerselId)
+            } else {
+                logger().info(
+                    "Eksponert forespørsel med id: $eksponertForespoerselId er ikke aktiv, ingen oppdatering av status.",
+                )
+            }
+        }
+    }
+
+    private fun erDuplikat(forespoersel: ForespoerselDokument): Boolean {
+        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
+        if (f != null) {
+            sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
+            return true
+        }
+        return false
     }
 }
