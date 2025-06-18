@@ -5,7 +5,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import no.nav.helsearbeidsgiver.utils.log.logger
 
 fun Route.naisRoutes(helseSjekkService: HelseSjekkService) {
     route("/health") {
@@ -22,14 +21,10 @@ fun Route.isAlive() {
 
 fun Route.isReady(helseSjekkService: HelseSjekkService) {
     get("/is-ready") {
-        logger().debug("is-ready -- Start")
         if (helseSjekkService.databaseIsAlive()) {
-            logger().debug("is-ready -- Ready!")
             call.respond(HttpStatusCode.OK, "Ready")
         } else {
-            logger().debug("is-ready -- Feil")
-            call.respond(HttpStatusCode.InternalServerError, "Could not connect to database :(")
+            call.respond(HttpStatusCode.InternalServerError, "Not Ready")
         }
-        logger().debug("is-ready -- End")
     }
 }
