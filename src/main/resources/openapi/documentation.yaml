@@ -278,16 +278,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -327,16 +320,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -370,16 +356,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -419,16 +398,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -1089,20 +1061,6 @@ components:
         - "arbeidsgiver"
         - "avsender"
         - "status"
-    InntektsmeldingFilterResponse:
-      type: "object"
-      properties:
-        antall:
-          type: "integer"
-          format: "int32"
-          default: "0"
-        inntektsmeldinger:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/InntektsmeldingResponse"
-      required:
-        - "antall"
-        - "inntektsmeldinger"
     InntektsmeldingFilterRequest:
       type: "object"
       properties:

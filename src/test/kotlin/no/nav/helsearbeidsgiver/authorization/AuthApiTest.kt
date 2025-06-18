@@ -14,8 +14,8 @@ import io.mockk.every
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
@@ -105,9 +105,9 @@ class AuthApiTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val inntektsmeldingFilterResponse = response.body<InntektsmeldingFilterResponse>()
-            inntektsmeldingFilterResponse.antall shouldBe 1
-            inntektsmeldingFilterResponse.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+            val inntektsmeldingFilterResponse = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingFilterResponse.size shouldBe 1
+            inntektsmeldingFilterResponse[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
         }
 
     @Test

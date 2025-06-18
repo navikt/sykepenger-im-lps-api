@@ -93,9 +93,3 @@ data class InntektsmeldingFilterRequest(
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
     }
 }
-
-@Serializable
-data class InntektsmeldingFilterResponse(
-    val antall: Int = 0,
-    val inntektsmeldinger: List<InntektsmeldingResponse>,
-)

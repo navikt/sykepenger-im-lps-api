@@ -76,8 +76,8 @@ class InntektsmeldingServiceTest {
         verify {
             inntektsmeldingRepository.hent(orgnr)
         }
-        assertEquals(1, hentInntektsmeldingerByOrgNr.antall)
-        val inntektsmelding = hentInntektsmeldingerByOrgNr.inntektsmeldinger[0]
+        assertEquals(1, hentInntektsmeldingerByOrgNr.size)
+        val inntektsmelding = hentInntektsmeldingerByOrgNr[0]
         assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
         assertEquals(fnr, inntektsmelding.sykmeldtFnr)
         assertEquals(navReferanseId, inntektsmelding.navReferanseId)
@@ -125,8 +125,8 @@ class InntektsmeldingServiceTest {
         verify {
             inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
         }
-        assertEquals(1, hentInntektsMeldingByRequest.antall)
-        val inntektsmelding = hentInntektsMeldingByRequest.inntektsmeldinger[0]
+        assertEquals(1, hentInntektsMeldingByRequest.size)
+        val inntektsmelding = hentInntektsMeldingByRequest[0]
         assertEquals(navReferanseId, inntektsmelding.navReferanseId)
         assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
         assertEquals(fnr, inntektsmelding.sykmeldtFnr)
