@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -82,10 +83,16 @@ data class InntektsmeldingFilterRequest(
     val innsendingId: UUID? = null,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
-    val fraTid: LocalDateTime? = null,
-    val tilTid: LocalDateTime? = null,
+    val fom: LocalDate? = null,
+    val tom: LocalDate? = null,
     val status: InnsendingStatus? = null,
-)
+) {
+    init {
+        fom?.year?.let { require(it >= 0) }
+        tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
+        // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
+    }
+}
 
 @Serializable
 data class InntektsmeldingFilterResponse(

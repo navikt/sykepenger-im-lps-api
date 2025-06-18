@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockkStatic
@@ -14,6 +15,7 @@ import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -129,5 +131,11 @@ class ForespoerselRepositoryTest {
 
         val requestForTidlig = ForespoerselRequest(tom = now.toLocalDate().minusDays(1))
         forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, requestForTidlig).size shouldBe 0
+        shouldThrow<IllegalArgumentException> {
+            ForespoerselRequest(tom = LocalDate.MAX)
+        }
+        shouldThrow<IllegalArgumentException> {
+            ForespoerselRequest(fom = LocalDate.of(-1, 12, 12))
+        }
     }
 }

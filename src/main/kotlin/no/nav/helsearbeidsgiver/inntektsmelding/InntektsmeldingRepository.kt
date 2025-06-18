@@ -17,6 +17,8 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMel
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
+import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -78,8 +80,8 @@ class InntektsmeldingRepository(
                         request.innsendingId?.let { innsendingId eq it },
                         request.fnr?.let { fnr eq it },
                         request.navReferanseId?.let { navReferanseId eq it },
-                        request.fraTid?.let { innsendt greaterEq it },
-                        request.tilTid?.let { innsendt lessEq it },
+                        request.fom?.let { innsendt greaterEq it.tilTidspunktStartOfDay() },
+                        request.tom?.let { innsendt lessEq it.tilTidspunktEndOfDay() },
                     ).reduce { acc, cond -> acc and cond }
                 }.map { it.toExposedInntektsmelding() }
         }

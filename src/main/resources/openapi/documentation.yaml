@@ -1126,13 +1126,13 @@ components:
           type: "string"
           format: "uuid"
           nullable: true
-        fraTid:
+        fom:
           type: "string"
-          format: "date-time"
+          format: "date"
           nullable: true
-        tilTid:
+        tom:
           type: "string"
-          format: "date-time"
+          format: "date"
           nullable: true
         status:
           type: "string"

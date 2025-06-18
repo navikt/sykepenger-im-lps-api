@@ -9,6 +9,8 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
+import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -99,8 +101,8 @@ class ForespoerselRepository(
                         request.fnr?.let { fnr eq it },
                         request.navReferanseId?.let { navReferanseId eq it },
                         request.status?.let { status eq it },
-                        request.fom?.let { opprettet greaterEq LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0) },
-                        request.tom?.let { opprettet less LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0).plusDays(1) },
+                        request.fom?.let { opprettet greaterEq it.tilTidspunktStartOfDay() },
+                        request.tom?.let { opprettet lessEq it.tilTidspunktEndOfDay() },
                     ).reduce { acc, cond -> acc and cond }
                 }.map {
                     it.toExposedforespoersel()

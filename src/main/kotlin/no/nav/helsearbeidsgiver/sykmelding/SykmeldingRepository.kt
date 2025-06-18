@@ -7,6 +7,8 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAiven
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldingId
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
+import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
@@ -14,7 +16,6 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 import java.util.UUID
 
 class SykmeldingRepository(
@@ -74,8 +75,8 @@ class SykmeldingRepository(
                     listOfNotNull(
                         SykmeldingEntitet.orgnr eq orgnr,
                         filter?.fnr?.let { fnr eq it },
-                        filter?.fom?.let { mottattAvNav greaterEq LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0) },
-                        filter?.tom?.let { mottattAvNav less LocalDateTime.of(it.year, it.month, it.dayOfMonth, 0, 0).plusDays(1) },
+                        filter?.fom?.let { mottattAvNav greaterEq it.tilTidspunktStartOfDay() },
+                        filter?.tom?.let { mottattAvNav lessEq it.tilTidspunktEndOfDay() },
                     ).reduce { acc, cond -> acc and cond }
                 }.map { it.toSykmelding() }
         }

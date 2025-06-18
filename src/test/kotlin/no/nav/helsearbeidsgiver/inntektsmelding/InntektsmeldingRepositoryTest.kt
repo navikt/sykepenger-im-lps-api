@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -117,7 +118,7 @@ class InntektsmeldingRepositoryTest {
         val repository = InntektsmeldingRepository(db)
         val forespoerselId = UUID.randomUUID()
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId)
-        val innsendtDato = LocalDateTime.now()
+        val innsendtDato = LocalDate.now()
         repository.opprettInntektsmelding(
             im = inntektsmeldingJson.copy(mottatt = OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.UTC)),
         )
@@ -128,8 +129,8 @@ class InntektsmeldingRepositoryTest {
                 InntektsmeldingFilterRequest(
                     fnr = DEFAULT_FNR,
                     navReferanseId = forespoerselId,
-                    fraTid = innsendtDato.minusDays(1),
-                    tilTid = innsendtDato.plusDays(1),
+                    fom = innsendtDato.minusDays(1),
+                    tom = innsendtDato.plusDays(1),
                 ),
             )
 
@@ -164,8 +165,8 @@ class InntektsmeldingRepositoryTest {
                 InntektsmeldingFilterRequest(
                     fnr = null,
                     navReferanseId = null,
-                    fraTid = null,
-                    tilTid = null,
+                    fom = null,
+                    tom = null,
                 ),
             )
 

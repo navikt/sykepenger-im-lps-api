@@ -11,6 +11,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 fun createHttpClient() =
@@ -22,6 +24,10 @@ fun createHttpClient() =
     }
 
 fun String.toUuidOrNull() = runCatching(UUID::fromString).getOrNull()
+
+fun LocalDate.tilTidspunktStartOfDay(): LocalDateTime = LocalDateTime.of(this.year, this.month, this.dayOfMonth, 0, 0)
+
+fun LocalDate.tilTidspunktEndOfDay(): LocalDateTime = LocalDateTime.of(this.year, this.month, this.dayOfMonth, 23, 59, 59, 999999999)
 
 class ApiFeil(
     val code: HttpStatusCode,

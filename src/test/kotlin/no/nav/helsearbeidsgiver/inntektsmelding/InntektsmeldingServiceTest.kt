@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.tilSkjema
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -89,7 +90,7 @@ class InntektsmeldingServiceTest {
         val innsendingId = UUID.randomUUID()
         val orgnr = "987654322"
         val fnr = "12345678901"
-        val datoFra = LocalDateTime.now()
+        val datoFra = LocalDate.now()
         val datoTil = datoFra.plusDays(1)
         val innsendt = LocalDateTime.now()
         val skjema = buildInntektsmelding(forespoerselId = navReferanseId).tilSkjema()
@@ -97,8 +98,8 @@ class InntektsmeldingServiceTest {
             InntektsmeldingFilterRequest(
                 fnr = fnr,
                 navReferanseId = navReferanseId,
-                fraTid = datoFra,
-                tilTid = datoTil,
+                fom = datoFra,
+                tom = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
             listOf(
@@ -144,14 +145,14 @@ class InntektsmeldingServiceTest {
         val orgnr = "987654322"
         val fnr = "12345678901"
         val navReferanseId = UUID.randomUUID()
-        val datoFra = LocalDateTime.now()
+        val datoFra = LocalDate.now()
         val datoTil = datoFra.plusDays(1)
         val request =
             InntektsmeldingFilterRequest(
                 fnr = fnr,
                 navReferanseId = navReferanseId,
-                fraTid = datoFra,
-                tilTid = datoTil,
+                fom = datoFra,
+                tom = datoTil,
             )
         every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
         assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }
