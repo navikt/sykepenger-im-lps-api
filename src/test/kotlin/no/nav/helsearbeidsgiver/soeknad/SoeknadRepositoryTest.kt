@@ -3,7 +3,9 @@ package no.nav.helsearbeidsgiver.soeknad
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
@@ -16,12 +18,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @WithPostgresContainer
 class SoeknadRepositoryTest {
     private lateinit var db: Database
     private lateinit var soeknadRepository: SoeknadRepository
+    private lateinit var statusISpeilRepository: StatusISpeilRepository
 
     @BeforeAll
     fun setup() {
@@ -32,6 +36,7 @@ class SoeknadRepositoryTest {
                 System.getProperty("database.password"),
             ).init()
         soeknadRepository = SoeknadRepository(db)
+        statusISpeilRepository = StatusISpeilRepository(db)
     }
 
     @BeforeEach
@@ -134,18 +139,57 @@ class SoeknadRepositoryTest {
         val orgnr = Orgnr.genererGyldig()
         val soeknaderMedSammeOrgnr =
             List(3) { UUID.randomUUID() }.map { id ->
-                soeknadMock().copy(id = id, arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Test organisasjon", orgnr.verdi))
+                soeknadMock().copy(
+                    id = id,
+                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Test organisasjon", orgnr.verdi),
+                )
             }
         val soeknader =
             List(5) { UUID.randomUUID() }.map { id ->
                 soeknadMock().copy(
                     id = id,
-                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Tilfeltdig Tigerorg", Orgnr.genererGyldig().verdi),
+                    arbeidsgiver =
+                        SykepengesoknadDTO.ArbeidsgiverDTO(
+                            "Tilfeldig Tigerorg",
+                            Orgnr.genererGyldig().verdi,
+                        ),
                 )
             }
         soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknadRepository.hentSoeknader(orgnr.verdi) shouldContainOnly soeknaderMedSammeOrgnr
+    }
+
+    @Test
+    fun `hentSoeknaderMedVedtaksperiodeId skal bare hente søknader som også finnes i status-i-speil-tabell`() {
+        val soeknader =
+            List(5) { UUID.randomUUID() }.map { id ->
+                soeknadMock().copy(
+                    id = id,
+                    arbeidsgiver =
+                        SykepengesoknadDTO.ArbeidsgiverDTO(
+                            "Tilfeltdig Tigerorg",
+                            Orgnr.genererGyldig().verdi,
+                        ),
+                )
+            }
+        soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
+
+        val vedtaksperiodeId = UUID.randomUUID()
+        soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId) shouldBe emptyList()
+
+        val soeknaderMedVedtaksperiodeId = soeknader.take(2)
+        statusISpeilRepository.lagreNyeSoeknaderOgStatuser(
+            Behandlingstatusmelding(
+                vedtaksperiodeId = vedtaksperiodeId,
+                behandlingId = UUID.randomUUID(),
+                tidspunkt = OffsetDateTime.now(),
+                status = Behandlingstatusmelding.Behandlingstatustype.OPPRETTET,
+                eksterneSøknadIder = soeknaderMedVedtaksperiodeId.map { it.id }.toSet(),
+            ),
+        )
+
+        soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId) shouldBe soeknaderMedVedtaksperiodeId
     }
 
     private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =
