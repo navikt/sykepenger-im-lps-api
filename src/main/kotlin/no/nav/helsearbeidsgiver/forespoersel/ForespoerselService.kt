@@ -49,6 +49,7 @@ class ForespoerselService(
             return
         } else {
             runCatching {
+                if (erDuplikat(forespoersel)) return
                 logger().info(
                     "Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId} og eksponertForespoerselId: $eksponertForespoerselId",
                 )
@@ -86,11 +87,7 @@ class ForespoerselService(
         forespoersel: ForespoerselDokument,
         status: Status = Status.AKTIV,
     ) {
-        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
-        if (f != null) {
-            sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
-            return
-        }
+        if (erDuplikat(forespoersel)) return
         runCatching {
             sikkerLogger().info("Lagrer forespørsel med id: ${forespoersel.forespoerselId}")
             forespoerselRepository.lagreForespoersel(
@@ -104,6 +101,15 @@ class ForespoerselService(
             sikkerLogger().error("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
+    }
+
+    private fun erDuplikat(forespoersel: ForespoerselDokument): Boolean {
+        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
+        if (f != null) {
+            sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
+            return true
+        }
+        return false
     }
 
     fun hentForespoersel(
