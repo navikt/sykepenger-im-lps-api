@@ -168,7 +168,7 @@ class DialogportenServiceTest {
     }
 
     @Test
-    fun `kaller _ikke_ dialogProducer dersom feature toggle for dialogutsending er skrudd av ved mottatt inntektsmeldingsforespørsel`() {
+    fun `kaller _ikke_ dialogProducer ved mottatt inntektsmeldingsforespørsel dersom feature toggle for dialogutsending er skrudd av`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
 

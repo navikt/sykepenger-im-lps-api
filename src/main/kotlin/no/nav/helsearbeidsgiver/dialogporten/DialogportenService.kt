@@ -41,8 +41,7 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: ForespoerselDokument) {
-        val orgnr = Orgnr(forespoersel.orgnr)
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr)) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
             val sykmeldingId = hentSykmeldingId(forespoersel.vedtaksperiodeId)
 
             if (sykmeldingId == null) {
@@ -57,7 +56,7 @@ class DialogportenService(
                 DialogInntektsmeldingsforespoersel(
                     forespoerselId = forespoersel.forespoerselId,
                     sykmeldingId = sykmeldingId,
-                    orgnr = orgnr,
+                    orgnr = Orgnr(forespoersel.orgnr),
                 ),
             )
 
