@@ -45,7 +45,7 @@ class ForespoerselIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, db = mockk())
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -65,7 +65,7 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, authClient, mockk())
+        services = configureServices(repositories, authClient, mockk(), db)
         forespoerselTolker =
             ForespoerselTolker(
                 forespoerselRepository = repositories.forespoerselRepository,

@@ -5,38 +5,31 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.utils.log.logger
-import org.jetbrains.exposed.sql.Database
 
-fun Route.naisRoutes(database: Database) {
+fun Route.naisRoutes(helseSjekkService: HelseSjekkService) {
     route("/health") {
         isAlive()
-        isReady(database)
+        isReady(helseSjekkService)
     }
 }
 
 fun Route.isAlive() {
     get("/is-alive") {
-        call.respond(HttpStatusCode.OK, "I am Alive :)")
+        call.respond(HttpStatusCode.OK, "Alive")
     }
 }
 
-fun Route.isReady(database: Database) {
+fun Route.isReady(helseSjekkService: HelseSjekkService) {
     get("/is-ready") {
-        runBlocking {
-            try {
-                logger().debug("is-ready -- Start")
-                val result = database.connector().prepareStatement("SELECT 1", true)
-                logger().debug("is-ready -- execute query")
-                result.executeQuery()
-                logger().debug("is-ready -- End")
-            } catch (e: Exception) {
-                logger().error("is-ready -- Exception: ${e.message}")
-                call.respond(HttpStatusCode.InternalServerError, "Could not connect to database :(")
-            }
+        logger().debug("is-ready -- Start")
+        if (helseSjekkService.databaseIsAlive()) {
+            logger().debug("is-ready -- Ready!")
+            call.respond(HttpStatusCode.OK, "Ready")
+        } else {
+            logger().debug("is-ready -- Feil")
+            call.respond(HttpStatusCode.InternalServerError, "Could not connect to database :(")
         }
-        logger().info("is-ready -- Success")
-        call.respond(HttpStatusCode.OK, "I am Ready :)")
+        logger().debug("is-ready -- End")
     }
 }

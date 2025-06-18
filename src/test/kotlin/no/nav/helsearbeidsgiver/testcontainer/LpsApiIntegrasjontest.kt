@@ -46,7 +46,7 @@ abstract class LpsApiIntegrasjontest {
             factory = Netty,
             port = 8080,
             module = {
-                apiModule(services = services, authClient = mockk(relaxed = true), db = db)
+                apiModule(services = services, authClient = mockk(relaxed = true))
                 configureKafkaConsumers(tolkers, mockUnleash)
             },
         )
@@ -72,7 +72,7 @@ abstract class LpsApiIntegrasjontest {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, mockk(relaxed = true), mockk(relaxed = true))
+        services = configureServices(repositories, mockk(relaxed = true), mockk(relaxed = true), db)
         tolkers = configureTolkere(services, repositories)
 
         server.start(wait = false)
