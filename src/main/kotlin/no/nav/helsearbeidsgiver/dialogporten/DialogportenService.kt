@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.util.UUID
 
 class DialogportenService(
     val dialogProducer: DialogProducer,
@@ -42,33 +43,15 @@ class DialogportenService(
     fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: ForespoerselDokument) {
         val orgnr = Orgnr(forespoersel.orgnr)
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr)) {
-            val sykmeldingIder =
-                soeknadRepository
-                    .hentSoeknaderMedVedtaksperiodeId(forespoersel.vedtaksperiodeId)
-                    .sortedByDescending { it.sendtArbeidsgiver }
-                    .sortedByDescending { it.sendtNav }
-                    .mapNotNull { it.sykmeldingId }
+            val sykmeldingId = hentSykmeldingId(forespoersel.vedtaksperiodeId)
 
-            val sykmeldingId =
-                when {
-                    sykmeldingIder.isEmpty() -> {
-                        logger.warn(
-                            "Fant ingen sykmeldinger for vedtaksperiodeId ${forespoersel.vedtaksperiodeId}. " +
-                                "Kan derfor ikke produsere dialogmelding til hag-dialog.",
-                        )
-                        return
-                    }
-
-                    sykmeldingIder.toSet().size > 1 -> {
-                        logger.warn(
-                            "Fant ${sykmeldingIder.size} sykmeldinger med IDer $sykmeldingIder for " +
-                                "vedtaksperiodeId ${forespoersel.vedtaksperiodeId}. Bruker den nyeste søknaden.",
-                        )
-                        sykmeldingIder.first()
-                    }
-
-                    else -> sykmeldingIder.first()
-                }
+            if (sykmeldingId == null) {
+                logger.warn(
+                    "Fant ingen sykmeldinger for vedtaksperiodeId ${forespoersel.vedtaksperiodeId}. " +
+                        "Kan derfor ikke produsere dialogmelding til hag-dialog.",
+                )
+                return
+            }
 
             dialogProducer.send(
                 DialogInntektsmeldingsforespoersel(
@@ -86,5 +69,22 @@ class DialogportenService(
                 "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, på fordi feature toggle er av.",
             )
         }
+    }
+
+    private fun hentSykmeldingId(vedtaksperiodeId: UUID): UUID? {
+        val sykmeldingIder =
+            soeknadRepository
+                .hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId)
+                .sortedByDescending { it.sendtArbeidsgiver }
+                .sortedByDescending { it.sendtNav }
+                .mapNotNull { it.sykmeldingId }
+
+        if (sykmeldingIder.toSet().size > 1) {
+            logger.warn(
+                "Fant ${sykmeldingIder.size} sykmeldinger med IDer $sykmeldingIder for " +
+                    "vedtaksperiodeId $vedtaksperiodeId. Bruker den nyeste søknaden.",
+            )
+        }
+        return sykmeldingIder.firstOrNull()
     }
 }
