@@ -18,7 +18,7 @@ import java.util.UUID
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
         forespoersler(forespoerselService)
-        filtererForespoersler(forespoerselService)
+        filtrerForespoersler(forespoerselService)
     }
 }
 
@@ -69,8 +69,9 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
     }
 }
 
-private fun Route.filtererForespoersler(forespoerselService: ForespoerselService) {
+private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
     // Hent forespørsler for tilhørende systembrukers orgnr, filtrer basert på request.
+    // filterparametre fom og tom refererer til opprettetTid (Tidspunktet forespørselen ble opprettet av Nav)
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
@@ -80,7 +81,6 @@ private fun Route.filtererForespoersler(forespoerselService: ForespoerselService
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
-            sikkerLogger().info("Mottatt request: $request")
             sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
             call.respond(forespoerselService.filtrerForespoerslerForOrgnr(sluttbrukerOrgnr, request))
         } catch (e: Exception) {

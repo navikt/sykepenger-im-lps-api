@@ -92,7 +92,8 @@ paths:
                   value: "Feil ved henting av forespørsler"
     post:
       description: "Hent forespørsler for tilhørende systembrukers orgnr, filtrer\
-        \ basert på request."
+        \ basert på request. <br> filterparametre fom og tom refererer til opprettetTid\
+        \ (Tidspunktet forespørselen ble opprettet av Nav)"
       requestBody:
         content:
           application/json:

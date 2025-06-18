@@ -105,7 +105,6 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingFilterRequest>()
-            sikkerLogger().info("Mottatt request: $request")
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
