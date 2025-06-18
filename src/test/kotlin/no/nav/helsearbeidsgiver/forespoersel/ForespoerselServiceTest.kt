@@ -6,6 +6,7 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
@@ -57,6 +58,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 egenmeldingsperioder = emptyList(),
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
+                opprettetTid = LocalDateTime.now(),
             ),
             Forespoersel(
                 navReferanseId = UUID.randomUUID(),
@@ -67,6 +69,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 egenmeldingsperioder = emptyList(),
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
+                opprettetTid = LocalDateTime.now(),
             ),
         )
     return forespoersler
