@@ -80,7 +80,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ForespoerselResponse"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Forespoersel"
         "500":
           description: "Internal Server Error"
           content:
@@ -121,7 +123,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ForespoerselResponse"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Forespoersel"
         "500":
           description: "Internal Server Error"
           content:
@@ -673,19 +677,6 @@ components:
         - "arbeidsgiverperiodePaakrevd"
         - "inntektPaakrevd"
         - "opprettetTid"
-    ForespoerselResponse:
-      type: "object"
-      properties:
-        antall:
-          type: "integer"
-          format: "int32"
-        forespoersler:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Forespoersel"
-      required:
-        - "antall"
-        - "forespoersler"
     ForespoerselRequest:
       type: "object"
       properties:

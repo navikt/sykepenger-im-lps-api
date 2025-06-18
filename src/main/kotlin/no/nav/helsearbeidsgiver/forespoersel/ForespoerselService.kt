@@ -6,13 +6,13 @@ import java.util.UUID
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
 ) {
-    fun hentForespoerslerForOrgnr(orgnr: String): ForespoerselResponse {
+    fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> {
         runCatching {
             sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
             forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
-            return ForespoerselResponse(it.size, it)
+            return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
         }
@@ -22,13 +22,13 @@ class ForespoerselService(
     fun filtrerForespoerslerForOrgnr(
         consumerOrgnr: String,
         request: ForespoerselRequest,
-    ): ForespoerselResponse {
+    ): List<Forespoersel> {
         runCatching {
             sikkerLogger().info("Henter forespørsler for bedrift: $consumerOrgnr")
             forespoerselRepository.filtrerForespoersler(consumerOrgnr, request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $consumerOrgnr")
-            return ForespoerselResponse(it.size, it)
+            return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $consumerOrgnr", it)
         }

@@ -53,12 +53,6 @@ data class ForespoerselRequest(
     }
 }
 
-@Serializable
-data class ForespoerselResponse(
-    val antall: Int,
-    val forespoersler: List<Forespoersel>,
-)
-
 /*
 Kopierte domeneobjekter fra BRO. Skal ikke eksponeres mot LPS, brukes for å tolke innkommende forespørsler fra BRO.
  */

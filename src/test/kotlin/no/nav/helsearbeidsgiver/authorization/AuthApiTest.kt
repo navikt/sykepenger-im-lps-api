@@ -12,7 +12,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.every
 import kotlinx.coroutines.test.runTest
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -42,10 +42,10 @@ class AuthApiTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<ForespoerselResponse>()
-            forespoerselSvar.antall shouldBe 1
-            forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
-            forespoerselSvar.forespoersler[0].orgnr shouldBe DEFAULT_ORG
+            val forespoerselSvar = response.body<List<Forespoersel>>()
+            forespoerselSvar.size shouldBe 1
+            forespoerselSvar[0].status shouldBe Status.AKTIV
+            forespoerselSvar[0].orgnr shouldBe DEFAULT_ORG
         }
 
     @Test
