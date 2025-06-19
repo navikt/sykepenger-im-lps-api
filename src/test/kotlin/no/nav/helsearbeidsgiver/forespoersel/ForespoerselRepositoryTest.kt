@@ -104,10 +104,10 @@ class ForespoerselRepositoryTest {
         val forespoerselID1 = UUID.randomUUID()
         val forespoerselID2 = UUID.randomUUID()
         val forespoerselID3 = UUID.randomUUID()
-        forespoerselRepository.lagreForespoersel(forespoerselID1, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
-        forespoerselRepository.lagreForespoersel(forespoerselID2, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
+        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1))
+        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2))
         every { LocalDateTime.now() } returns now.plusDays(1)
-        forespoerselRepository.lagreForespoersel(forespoerselID3, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
+        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID3))
         val request =
             ForespoerselRequest(
                 fom = now.toLocalDate(),
