@@ -3,10 +3,10 @@ package no.nav.helsearbeidsgiver.integrasjonstest
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
@@ -124,7 +124,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 eksponertForespoerselıd = forespoerselId.toString(),
             )
 
-        val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
         val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
         Producer.sendMelding(priRecord)
@@ -171,8 +170,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 eksponertForespoerselıd = forespoerselId.toString(),
             )
 
-        val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
-
         val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
 
         Producer.sendMelding(oppdatertPriRecord)
@@ -217,8 +214,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 eksponertForespoerselıd = forespoerselId.toString(),
             )
 
-        val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
-
         val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
 
         Producer.sendMelding(oppdatertPriRecord)
@@ -249,6 +244,37 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             val forespoerselSvar = responseFsp.body<Forespoersel>()
             forespoerselSvar.navReferanseId shouldBe forespoerselId
             forespoerselSvar.status shouldBe Status.BESVART
+        }
+    }
+
+    @Test
+    fun `Avviser duplikat forespoersel`() {
+        val forespoerselId = UUID.randomUUID()
+        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
+
+        // Sender forespoersel til Kafka for første gang
+        val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
+        Producer.sendMelding(priRecord)
+
+        sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId)
+
+        // Sender samme forespoersel til Kafka på nytt
+        Producer.sendMelding(priRecord)
+
+        sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId)
+    }
+
+    private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {
+        runBlocking {
+            val response =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersler",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            response.status.value shouldBe 200
+            val forespoerselSvar = response.body<ForespoerselResponse>()
+            forespoerselSvar.antall shouldBe 1
+            forespoerselSvar.forespoersler[0].navReferanseId shouldBe forespoerselId
         }
     }
 }
