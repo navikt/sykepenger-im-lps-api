@@ -30,7 +30,9 @@ tasks.register("modifyOpenApi") {
             content =
                 content.replace(
                     Regex("components:"),
-                    """components:
+                    """servers:
+  - url: https://sykepenger-api.ekstern.dev.nav.no
+components:
   securitySchemes:
     bearerAuth:
       type: http
@@ -38,7 +40,7 @@ tasks.register("modifyOpenApi") {
       bearerFormat: JWT
 """,
                 )
-            println("lagt til securitySchemes.")
+            println("lagt til securitySchemes og server url.")
             modified = true
         }
 
