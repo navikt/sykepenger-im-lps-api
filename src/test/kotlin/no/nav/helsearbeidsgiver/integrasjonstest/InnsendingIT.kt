@@ -78,7 +78,7 @@ class InnsendingIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, authClient, mockk())
+        services = configureServices(repositories, authClient, mockk(), db)
         inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
     }
 
