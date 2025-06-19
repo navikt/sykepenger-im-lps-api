@@ -74,9 +74,11 @@ class DialogportenService(
         val sykmeldingIder =
             soeknadRepository
                 .hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId)
-                .sortedByDescending { it.sendtArbeidsgiver }
-                .sortedByDescending { it.sendtNav }
-                .mapNotNull { it.sykmeldingId }
+                .sortedByDescending { soeknad ->
+                    soeknad.sendtNav
+                        ?: soeknad.sendtArbeidsgiver
+                        ?: null.also { logger.warn("Sykepengesøknad ${soeknad.id} har hverken sendtNav eller sendtArbeidsgiver.") }
+                }.mapNotNull { it.sykmeldingId }
 
         if (sykmeldingIder.toSet().size > 1) {
             logger.warn(

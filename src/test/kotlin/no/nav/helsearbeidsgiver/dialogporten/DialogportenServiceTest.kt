@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -43,7 +44,7 @@ class DialogportenServiceTest {
 
         dialogportenService.opprettNyDialogMedSykmelding(dialogMelding)
 
-        verify(exactly = 1) {
+        verifySequence {
             mockDialogProducer.send(dialogMelding)
         }
     }
@@ -52,9 +53,7 @@ class DialogportenServiceTest {
     fun `dialogportenservice kaster feil dersom opprettelse av dialog går galt`() {
         val dialogMelding = genererDialogSykmelding()
         coEvery {
-            mockDialogProducer.send(
-                any(),
-            )
+            mockDialogProducer.send(any())
         } throws SerializationException("Noe gikk galt")
         every { mockUnleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(dialogMelding.orgnr) } returns true
 
@@ -87,7 +86,7 @@ class DialogportenServiceTest {
 
         dialogportenService.oppdaterDialogMedSykepengesoeknad(dialogMelding)
 
-        verify(exactly = 1) {
+        verifySequence {
             mockDialogProducer.send(dialogMelding)
         }
     }
@@ -96,9 +95,7 @@ class DialogportenServiceTest {
     fun `dialogportenservice kaster feil dersom opprettelse av dialog går galt ved mottatt søknad`() {
         val dialogMelding = genererDialogSykepengesoeknad()
         coEvery {
-            mockDialogProducer.send(
-                any(),
-            )
+            mockDialogProducer.send(any())
         } throws SerializationException("Noe gikk galt")
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(dialogMelding.orgnr) } returns true
 
@@ -141,7 +138,7 @@ class DialogportenServiceTest {
                 orgnr = orgnr,
             )
 
-        verify(exactly = 1) {
+        verifySequence {
             mockDialogProducer.send(forventetDialogMelding)
         }
     }
@@ -155,9 +152,7 @@ class DialogportenServiceTest {
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns listOf(soeknad)
         coEvery {
-            mockDialogProducer.send(
-                any(),
-            )
+            mockDialogProducer.send(any())
         } throws SerializationException("Noe gikk galt")
 
         shouldThrowExactly<SerializationException> {
@@ -208,7 +203,19 @@ class DialogportenServiceTest {
             soeknadMock().copy(
                 sykmeldingId = UUID.randomUUID(),
                 sendtArbeidsgiver = requireNotNull(soeknadEldre.sendtArbeidsgiver).plusDays(1),
-                sendtNav = requireNotNull(soeknadEldre.sendtNav).plusDays(1),
+                sendtNav = null,
+            )
+        val soeknadNyest =
+            soeknadMock().copy(
+                sykmeldingId = UUID.randomUUID(),
+                sendtArbeidsgiver = null,
+                sendtNav = requireNotNull(soeknadEldre.sendtNav).plusDays(2),
+            )
+        val soeknadMedManglendeDato =
+            soeknadMock().copy(
+                sykmeldingId = UUID.randomUUID(),
+                sendtArbeidsgiver = null,
+                sendtNav = null,
             )
 
         coEvery { mockDialogProducer.send(any()) } just Runs
@@ -216,7 +223,9 @@ class DialogportenServiceTest {
         every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns
             listOf(
                 soeknadEldre,
+                soeknadNyest,
                 soeknadNyere,
+                soeknadMedManglendeDato,
             )
 
         dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoerselDokument)
@@ -224,11 +233,11 @@ class DialogportenServiceTest {
         val forventetDialogMelding =
             DialogInntektsmeldingsforespoersel(
                 forespoerselId = forespoerselDokument.forespoerselId,
-                sykmeldingId = requireNotNull(soeknadNyere.sykmeldingId),
+                sykmeldingId = requireNotNull(soeknadNyest.sykmeldingId),
                 orgnr = orgnr,
             )
 
-        verify(exactly = 1) {
+        verifySequence {
             mockDialogProducer.send(forventetDialogMelding)
         }
     }
