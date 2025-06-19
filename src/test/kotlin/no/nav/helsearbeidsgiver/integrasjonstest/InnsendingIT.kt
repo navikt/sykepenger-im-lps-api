@@ -24,8 +24,8 @@ import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -94,10 +94,10 @@ class InnsendingIT {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<InntektsmeldingFilterResponse>()
-            forespoerselSvar.antall shouldBe 1
-            forespoerselSvar.inntektsmeldinger[0].status shouldBe InnsendingStatus.GODKJENT
-            forespoerselSvar.inntektsmeldinger[0].arbeidsgiver.orgnr shouldBe orgnr1
+            val forespoerselSvar = response.body<List<InntektsmeldingResponse>>()
+            forespoerselSvar.size shouldBe 1
+            forespoerselSvar[0].status shouldBe InnsendingStatus.GODKJENT
+            forespoerselSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
         }
     }
 

@@ -105,7 +105,6 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingFilterRequest>()
-            sikkerLogger().info("Mottatt request: $request")
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
@@ -117,10 +116,9 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
                 .hentInntektsMeldingByRequest(
                     orgnr = sluttbrukerOrgnr,
                     request = request,
-                ).takeIf { it.antall > 0 }
-                ?.let {
+                ).let {
                     call.respond(it)
-                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
@@ -141,10 +139,9 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
             inntektsmeldingService
                 .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
-                .takeIf { it.antall > 0 }
-                ?.let {
+                .let {
                     call.respond(it)
-                } ?: call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
+                }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
@@ -201,11 +198,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
                         navReferanseId = navReferanseId,
                     ),
                 ).let {
-                    if (it.antall > 0) {
-                        call.respond(it)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
-                    }
+                    call.respond(it)
                 }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
@@ -230,11 +223,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
                         status = status,
                     ),
                 ).let {
-                    if (it.antall > 0) {
-                        call.respond(it)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, "Ingen inntektsmeldinger funnet")
-                    }
+                    call.respond(it)
                 }
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")

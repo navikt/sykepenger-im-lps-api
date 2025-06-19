@@ -3,14 +3,16 @@ package no.nav.helsearbeidsgiver.forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.opprettet
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
+import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -88,10 +90,14 @@ class ForespoerselRepository(
             ForespoerselEntitet
                 .selectAll()
                 .where {
-                    (orgnr eq consumerOrgnr) and
-                        (if (!request.fnr.isNullOrBlank()) fnr eq request.fnr else Op.TRUE) and
-                        (if (request.navReferanseId != null) navReferanseId eq request.navReferanseId else Op.TRUE) and
-                        (if (request.status != null) status eq request.status else Op.TRUE)
+                    listOfNotNull(
+                        orgnr eq consumerOrgnr,
+                        request.fnr?.let { fnr eq it },
+                        request.navReferanseId?.let { navReferanseId eq it },
+                        request.status?.let { status eq it },
+                        request.fom?.let { opprettet greaterEq it.tilTidspunktStartOfDay() },
+                        request.tom?.let { opprettet lessEq it.tilTidspunktEndOfDay() },
+                    ).reduce { acc, cond -> acc and cond }
                 }.map {
                     it.toExposedforespoersel()
                 }
@@ -122,6 +128,7 @@ class ForespoerselRepository(
             egenmeldingsperioder = dokument.egenmeldingsperioder,
             arbeidsgiverperiodePaakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
             inntektPaakrevd = dokument.forespurtData.inntekt.paakrevd,
+            opprettetTid = this[opprettet],
         )
     }
 }

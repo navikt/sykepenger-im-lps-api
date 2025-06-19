@@ -28,6 +28,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -170,6 +171,7 @@ fun mockForespoersel(): Forespoersel =
         egenmeldingsperioder = emptyList(),
         arbeidsgiverperiodePaakrevd = true,
         inntektPaakrevd = true,
+        opprettetTid = LocalDateTime.now(),
     )
 
 fun mockInntektsmeldingRequest(): InntektsmeldingRequest =

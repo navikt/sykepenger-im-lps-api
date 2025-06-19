@@ -6,6 +6,7 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.test.assertEquals
 
@@ -21,7 +22,7 @@ class ForespoerselServiceTest {
         every { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns forespoersler
 
         val response = forespoerselService.hentForespoerslerForOrgnr(DEFAULT_ORG)
-        assertEquals(2, response.antall)
+        assertEquals(2, response.size)
 
         verify { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) }
     }
@@ -39,7 +40,7 @@ class ForespoerselServiceTest {
         every { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) } returns forespoersler
 
         val response = forespoerselService.filtrerForespoerslerForOrgnr(DEFAULT_ORG, request)
-        assertEquals(2, response.antall)
+        assertEquals(2, response.size)
 
         verify { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) }
     }
@@ -57,6 +58,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 egenmeldingsperioder = emptyList(),
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
+                opprettetTid = LocalDateTime.now(),
             ),
             Forespoersel(
                 navReferanseId = UUID.randomUUID(),
@@ -67,6 +69,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 egenmeldingsperioder = emptyList(),
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
+                opprettetTid = LocalDateTime.now(),
             ),
         )
     return forespoersler

@@ -22,13 +22,13 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av siste inntektsmelding for forespoerselId: $navReferanseId")
     }
 
-    fun hentInntektsmeldingerByOrgNr(orgnr: String): InntektsmeldingFilterResponse {
+    fun hentInntektsmeldingerByOrgNr(orgnr: String): List<InntektsmeldingResponse> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")
             inntektsmeldingRepository.hent(orgnr)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for orgnr: $orgnr")
-            return InntektsmeldingFilterResponse(it.size, it)
+            return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for orgnr: $orgnr", it)
         }
@@ -38,13 +38,13 @@ class InntektsmeldingService(
     fun hentInntektsMeldingByRequest(
         orgnr: String,
         request: InntektsmeldingFilterRequest,
-    ): InntektsmeldingFilterResponse {
+    ): List<InntektsmeldingResponse> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for request: $request")
             inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
-            return InntektsmeldingFilterResponse(it.size, it)
+            return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
         }

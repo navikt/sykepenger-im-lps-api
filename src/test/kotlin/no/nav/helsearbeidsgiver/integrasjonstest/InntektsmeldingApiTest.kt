@@ -6,7 +6,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilterResponse
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -33,10 +32,10 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
 
-            val inntektsmeldingResponse = response.body<InntektsmeldingFilterResponse>()
-            inntektsmeldingResponse.antall shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].status shouldBe InnsendingStatus.GODKJENT
-            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe id1
+            val inntektsmeldingResponse = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingResponse.size shouldBe 1
+            inntektsmeldingResponse[0].status shouldBe InnsendingStatus.GODKJENT
+            inntektsmeldingResponse[0].id shouldBe id1
         }
     }
 
@@ -67,10 +66,10 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
 
-            val inntektsmeldingResponse = response.body<InntektsmeldingFilterResponse>()
-            inntektsmeldingResponse.antall shouldBe 1
-            inntektsmeldingResponse.inntektsmeldinger[0].navReferanseId shouldBe im1NavReferanseId
-            inntektsmeldingResponse.inntektsmeldinger[0].id shouldBe id1
+            val inntektsmeldingResponse = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingResponse.size shouldBe 1
+            inntektsmeldingResponse[0].navReferanseId shouldBe im1NavReferanseId
+            inntektsmeldingResponse[0].id shouldBe id1
         }
     }
 
