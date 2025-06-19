@@ -68,8 +68,8 @@ class ForespoerselIT {
         services = configureServices(repositories, authClient, mockk(), db)
         forespoerselTolker =
             ForespoerselTolker(
-                forespoerselRepository = repositories.forespoerselRepository,
                 mottakRepository = repositories.mottakRepository,
+                forespoerselService = services.forespoerselService,
             )
     }
 

@@ -11,6 +11,7 @@ import io.ktor.server.netty.Netty
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.delay
+import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
@@ -39,6 +40,7 @@ abstract class LpsApiIntegrasjontest {
     lateinit var repositories: Repositories
     lateinit var services: Services
     lateinit var tolkers: Tolkere
+    val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
 
     val mockUnleash = mockk<UnleashFeatureToggles>(relaxed = true)
     val server =

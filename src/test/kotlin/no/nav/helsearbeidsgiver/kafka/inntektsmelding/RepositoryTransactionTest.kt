@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.configureRepositories
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -51,9 +52,9 @@ class RepositoryTransactionTest {
                 launch {
                     val forespoerselID = lagreInntektsmelding()
                     repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-                    repositories.forespoerselRepository.lagreForespoersel(forespoerselID, forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
+                    repositories.forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
                     repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
-                    repositories.forespoerselRepository.settBesvart(forespoerselID)
+                    repositories.forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
                 launch {
