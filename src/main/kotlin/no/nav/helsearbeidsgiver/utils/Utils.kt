@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 fun createHttpClient() =
@@ -27,7 +28,7 @@ fun String.toUuidOrNull() = runCatching(UUID::fromString).getOrNull()
 
 fun LocalDate.tilTidspunktStartOfDay(): LocalDateTime = LocalDateTime.of(this.year, this.month, this.dayOfMonth, 0, 0)
 
-fun LocalDate.tilTidspunktEndOfDay(): LocalDateTime = LocalDateTime.of(this.year, this.month, this.dayOfMonth, 23, 59, 59, 999999999)
+fun LocalDate.tilTidspunktEndOfDay(): LocalDateTime = LocalDateTime.of(LocalDate.of(this.year, this.month, this.dayOfMonth), LocalTime.MAX)
 
 class ApiFeil(
     val code: HttpStatusCode,

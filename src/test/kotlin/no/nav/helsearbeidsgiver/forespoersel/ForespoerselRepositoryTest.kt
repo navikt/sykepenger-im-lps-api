@@ -4,6 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -137,5 +138,6 @@ class ForespoerselRepositoryTest {
         shouldThrow<IllegalArgumentException> {
             ForespoerselRequest(fom = LocalDate.of(-1, 12, 12))
         }
+        unmockkStatic(LocalDateTime::class)
     }
 }
