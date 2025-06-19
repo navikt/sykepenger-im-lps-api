@@ -5,9 +5,10 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
@@ -25,29 +26,22 @@ class ForespoerselRepository(
     private val db: Database,
 ) {
     fun lagreForespoersel(
-        navReferanseId: UUID,
-        payload: ForespoerselDokument,
+        forespoersel: ForespoerselDokument,
+        status: Status = Status.AKTIV,
+        eksponertForespoerselId: UUID? = null,
     ) {
-        val organisasjonsnummer = payload.orgnr
-        val foedselsnr = payload.fnr
-        val forespoersel = hentForespoersel(navReferanseId, organisasjonsnummer)
-        if (forespoersel != null) {
-            sikkerLogger().warn("Duplikat id: $navReferanseId, kan ikke lagre")
-            return
-        }
-
-        val jsonString = jsonMapper.encodeToString(ForespoerselDokument.serializer(), payload)
         transaction(db) {
             ForespoerselEntitet.insert {
-                it[this.navReferanseId] = navReferanseId
-                it[orgnr] = organisasjonsnummer
-                it[fnr] = foedselsnr
+                it[navReferanseId] = forespoersel.forespoerselId
+                it[orgnr] = forespoersel.orgnr
+                it[fnr] = forespoersel.fnr
                 it[opprettet] = LocalDateTime.now()
-                it[status] = Status.AKTIV
-                it[dokument] = jsonString
+                it[this.status] = status
+                it[this.eksponertForespoerselId] = eksponertForespoerselId
+                it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
             }
         }
-        sikkerLogger().info("Forespørsel $navReferanseId lagret")
+        logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
     }
 
     fun hentForespoersel(
@@ -103,11 +97,7 @@ class ForespoerselRepository(
                 }
         }
 
-    fun settBesvart(navReferanseId: UUID): Int = oppdaterStatus(navReferanseId, Status.BESVART)
-
-    fun settForkastet(navReferanseId: UUID): Int = oppdaterStatus(navReferanseId, Status.FORKASTET)
-
-    private fun oppdaterStatus(
+    fun oppdaterStatus(
         navReferanseId: UUID,
         status: Status,
     ): Int =

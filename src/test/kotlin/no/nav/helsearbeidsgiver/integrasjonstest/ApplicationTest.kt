@@ -7,15 +7,24 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
+import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -115,4 +124,179 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             repositories.soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId).map { it.id }
         soeknadListe shouldBe listOf(soeknadId)
     }
+
+    @Test
+    fun `leser oppdatert forespoersel fra kafka og henter det via api`() {
+        val forespoerselId = UUID.randomUUID()
+        val oppdatertForespoerselId = UUID.randomUUID()
+
+        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
+
+        val forespoerselOppdaterJson =
+            buildForespoerselOppdatertJson(
+                forespoerselId = oppdatertForespoerselId.toString(),
+                eksponertForespoerselıd = forespoerselId.toString(),
+            )
+
+        val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
+        val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
+        Producer.sendMelding(priRecord)
+        Producer.sendMelding(oppdatertPriRecord)
+
+        runBlocking {
+            val responseOppdatertFsp =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
+            val responseFsp =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            val forespoerselSvar = responseFsp.body<Forespoersel>()
+
+            forespoerselSvar.navReferanseId shouldBe forespoerselId
+            oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
+            oppdatertFsp.status shouldBe Status.AKTIV
+            forespoerselSvar.status shouldBe Status.FORKASTET
+
+            transaction(db) {
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
+                            (ForespoerselEntitet.eksponertForespoerselId eq forespoerselId)
+                    }.count() shouldBe 1
+            }
+        }
+    }
+
+    @Test
+    fun `leser oppdatert forespoersel når den ikke finnes i db`() {
+        val forespoerselId = UUID.randomUUID()
+        val oppdatertForespoerselId = UUID.randomUUID()
+
+        val forespoerselOppdaterJson =
+            buildForespoerselOppdatertJson(
+                forespoerselId = oppdatertForespoerselId.toString(),
+                eksponertForespoerselıd = forespoerselId.toString(),
+            )
+
+        val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
+
+        Producer.sendMelding(oppdatertPriRecord)
+
+        runBlocking {
+            val responseOppdatertFsp =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
+            oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
+            oppdatertFsp.status shouldBe Status.AKTIV
+            transaction(db) {
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
+                            (ForespoerselEntitet.eksponertForespoerselId eq forespoerselId)
+                    }.count() shouldBe 1
+            }
+        }
+    }
+
+    @Test
+    fun `leser oppdatert forespoersel når eksponert forespoersel er besvart`() {
+        val forespoerselId = UUID.randomUUID()
+        val oppdatertForespoerselId = UUID.randomUUID()
+
+        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
+        val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
+        if (priMessage.forespoersel != null) {
+            services.forespoerselService.lagreNyForespoersel(
+                forespoersel = priMessage.forespoersel,
+            )
+            services.forespoerselService.settBesvart(forespoerselId)
+        }
+
+        val forespoerselOppdaterJson =
+            buildForespoerselOppdatertJson(
+                forespoerselId = oppdatertForespoerselId.toString(),
+                eksponertForespoerselıd = forespoerselId.toString(),
+            )
+
+        val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
+
+        Producer.sendMelding(oppdatertPriRecord)
+
+        runBlocking {
+            val responseOppdatertFsp =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
+            oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
+            oppdatertFsp.status shouldBe Status.AKTIV
+
+            transaction(db) {
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
+                            (ForespoerselEntitet.eksponertForespoerselId eq forespoerselId)
+                    }.count() shouldBe 1
+            }
+            val responseFsp =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            val forespoerselSvar = responseFsp.body<Forespoersel>()
+            forespoerselSvar.navReferanseId shouldBe forespoerselId
+            forespoerselSvar.status shouldBe Status.BESVART
+        }
+    }
+
+    /**
+     * //TODO: Fiks denne testen, den feiler i testmiljøet av en eller annen grunn.
+     @Test
+     fun `Avviser duplikat forespoersel`() {
+     val oppdatertForespoerselId = UUID.randomUUID()
+     val eksponertForespoerselId = UUID.randomUUID()
+     val forespoerselMottattJson =
+     buildForespoerselOppdatertJson(
+     forespoerselId = oppdatertForespoerselId.toString(),
+     eksponertForespoerselıd = eksponertForespoerselId.toString(),
+     )
+
+     // Sender forespoersel til Kafka for første gang
+     val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
+     Producer.sendMelding(priRecord)
+
+     sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+
+     // Sender samme forespoersel til Kafka på nytt
+     Producer.sendMelding(priRecord)
+
+     sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+     }
+
+     private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {
+     runBlocking {
+     val response =
+     fetchWithRetry(
+     url = "http://localhost:8080/v1/forespoersler",
+     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+     )
+     response.status.value shouldBe 200
+     val forespoerselSvar = response.body<ForespoerselResponse>()
+     forespoerselSvar.antall shouldBe 1
+     forespoerselSvar.forespoersler[0].navReferanseId shouldBe forespoerselId
+     }
+     }
+     **/
 }

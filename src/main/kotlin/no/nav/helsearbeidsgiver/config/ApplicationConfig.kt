@@ -104,8 +104,8 @@ fun configureTolkere(
         )
     val forespoerselTolker =
         ForespoerselTolker(
-            forespoerselRepository = repositories.forespoerselRepository,
             mottakRepository = repositories.mottakRepository,
+            forespoerselService = services.forespoerselService,
         )
     val sykmeldingTolker =
         SykmeldingTolker(

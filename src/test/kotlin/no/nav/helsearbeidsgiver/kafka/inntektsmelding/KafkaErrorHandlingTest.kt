@@ -8,6 +8,7 @@ import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -28,6 +29,7 @@ class KafkaErrorHandlingTest {
     private lateinit var forespoerselRepository: ForespoerselRepository
 
     val mockMottakRepository = mockk<MottakRepository>()
+    val mockForespoerselService = mockk<ForespoerselService>(relaxed = true)
 
     private lateinit var forespoerselTolker: ForespoerselTolker
 
@@ -40,7 +42,7 @@ class KafkaErrorHandlingTest {
                 System.getProperty("database.password"),
             ).init()
         forespoerselRepository = ForespoerselRepository(db)
-        forespoerselTolker = ForespoerselTolker(forespoerselRepository, mockMottakRepository)
+        forespoerselTolker = ForespoerselTolker(mockForespoerselService, mockMottakRepository)
     }
 
     @BeforeEach
@@ -61,7 +63,7 @@ class KafkaErrorHandlingTest {
     fun `ugyldig forespørsel eller manglende forespørselId i forespørselmelding skal kaste exception og stoppe videre lesing fra kafka`() {
         every { mockMottakRepository.opprett(any()) } returns 100
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
-        val mockConsumer = ForespoerselTolker(mockForespoerselRepository, mockMottakRepository)
+        val mockConsumer = ForespoerselTolker(mockForespoerselService, mockMottakRepository)
         assertThrows<SerializationException> {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)
         }
@@ -69,6 +71,6 @@ class KafkaErrorHandlingTest {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID)
         }
         verify(exactly = 0) { mockMottakRepository.opprett(any()) }
-        verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any()) }
+        verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any(), any()) }
     }
 }

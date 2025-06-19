@@ -47,21 +47,6 @@ data class ForespoerselResponse(
     val forespoersler: List<Forespoersel>,
 )
 
-/*
-Kopierte domeneobjekter fra BRO. Skal ikke eksponeres mot LPS, brukes for å tolke innkommende forespørsler fra BRO.
- */
-@Serializable
-data class ForespoerselDokument(
-    val type: Type,
-    val orgnr: String,
-    val fnr: String,
-    val vedtaksperiodeId: UUID,
-    val forespoerselId: UUID,
-    val sykmeldingsperioder: List<Periode>,
-    val egenmeldingsperioder: List<Periode>,
-    val forespurtData: ForespurtData,
-)
-
 @Serializable
 data class ForespurtData(
     val arbeidsgiverperiode: Arbeidsgiverperiode,

@@ -10,4 +10,5 @@ object ForespoerselEntitet : Table("forespoersel") {
     val status = enumerationByName("status", 10, Status::class)
     val opprettet = datetime("opprettet")
     val dokument = text("dokument")
+    val eksponertForespoerselId = uuid("eksponert_forespoersel_id").nullable()
 }
