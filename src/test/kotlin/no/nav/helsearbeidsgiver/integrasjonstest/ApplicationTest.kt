@@ -249,19 +249,24 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
     @Test
     fun `Avviser duplikat forespoersel`() {
-        val forespoerselId = UUID.randomUUID()
-        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
+        val oppdatertForespoerselId = UUID.randomUUID()
+        val eksponertForespoerselId = UUID.randomUUID()
+        val forespoerselMottattJson =
+            buildForespoerselOppdatertJson(
+                forespoerselId = oppdatertForespoerselId.toString(),
+                eksponertForespoerselıd = eksponertForespoerselId.toString(),
+            )
 
         // Sender forespoersel til Kafka for første gang
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
         Producer.sendMelding(priRecord)
 
-        sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId)
+        sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
 
         // Sender samme forespoersel til Kafka på nytt
         Producer.sendMelding(priRecord)
 
-        sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId)
+        sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
     }
 
     private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {

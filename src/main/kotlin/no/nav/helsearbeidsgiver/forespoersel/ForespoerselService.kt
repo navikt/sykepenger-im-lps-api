@@ -43,30 +43,28 @@ class ForespoerselService(
             priMessage.forespoersel
                 ?: throw IllegalArgumentException("Forespørsel må ikke være null i oppdatert forespørsel")
 
-        val eksponertForespoerselId = priMessage.eksponertForespoerselId
-        if (eksponertForespoerselId == null) {
-            logger().info("Forespørsel : ${forespoersel.forespoerselId}: Eksponert forespørsel ID er null, behandler som ny forespørsel")
-            lagreForespoersel(forespoersel = forespoersel)
-            return
-        } else {
-            runCatching {
-                if (erDuplikat(forespoersel)) return
-                logger().info(
-                    "Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId} og eksponertForespoerselId: $eksponertForespoerselId",
-                )
-                forespoerselRepository.lagreForespoersel(
-                    forespoersel = forespoersel,
-                    status = Status.AKTIV,
-                    eksponertForespoerselId = eksponertForespoerselId,
-                )
-            }.onSuccess {
-                logger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
-            }.onFailure {
-                sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
-                throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
-            }
-
-            endreStatusAktivForespoersel(eksponertForespoerselId, forespoersel)
+        val eksponertForespoerselId =
+            priMessage.eksponertForespoerselId
+                ?: forespoersel.forespoerselId
+        runCatching {
+            if (erDuplikat(forespoersel)) return
+            logger().info(
+                "Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId} og eksponertForespoerselId: $eksponertForespoerselId",
+            )
+            forespoerselRepository.lagreForespoersel(
+                forespoersel = forespoersel,
+                status = Status.AKTIV,
+                eksponertForespoerselId = eksponertForespoerselId,
+            )
+        }.onSuccess {
+            logger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
+        }.onFailure {
+            sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
+            throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
+        }
+        if (priMessage.eksponertForespoerselId != null) {
+            sikkerLogger().info("Endrer status for eksponert forespørsel med id: $eksponertForespoerselId")
+            endreStatusAktivForespoersel(priMessage.eksponertForespoerselId, forespoersel)
         }
     }
 
