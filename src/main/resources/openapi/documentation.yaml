@@ -588,6 +588,8 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
+servers:
+  - url: https://sykepenger-api.ekstern.dev.nav.no
 components:
   securitySchemes:
     bearerAuth:

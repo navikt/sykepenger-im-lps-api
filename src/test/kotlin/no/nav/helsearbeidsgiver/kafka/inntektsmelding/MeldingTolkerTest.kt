@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -86,6 +87,7 @@ class MeldingTolkerTest {
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
                 pdlService = mockk<PdlService>(),
                 soeknadService = mockk<SoeknadService>(),
+                helseSjekkService = mockk<HelseSjekkService>(relaxed = true),
             )
 
         tolkere = configureTolkere(service, repositories)

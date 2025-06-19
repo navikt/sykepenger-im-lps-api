@@ -32,6 +32,18 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
+  liveness:
+    failureThreshold: 5
+    initialDelay: 15
+    path: /health/is-alive
+    periodSeconds: 10
+    timeout: 1
+  readiness:
+    failureThreshold: 5
+    initialDelay: 15
+    path: /health/is-ready
+    periodSeconds: 10
+    timeout: 1
   kafka:
     pool: nav-dev
   ingresses:

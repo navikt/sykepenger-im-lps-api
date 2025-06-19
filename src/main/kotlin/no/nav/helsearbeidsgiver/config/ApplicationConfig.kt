@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
 import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -81,6 +82,7 @@ data class Services(
     val sykmeldingService: SykmeldingService,
     val pdlService: IPdlService,
     val soeknadService: SoeknadService,
+    val helseSjekkService: HelseSjekkService,
 )
 
 data class Tolkere(
@@ -133,6 +135,7 @@ fun configureServices(
     repositories: Repositories,
     authClient: AuthClient,
     unleashFeatureToggles: UnleashFeatureToggles,
+    database: Database,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
@@ -182,6 +185,7 @@ fun configureServices(
 
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
+    val helseSjekkService = HelseSjekkService(db = database)
     return Services(
         forespoerselService,
         inntektsmeldingService,
@@ -190,6 +194,7 @@ fun configureServices(
         sykmeldingService,
         pdlService,
         soeknadService,
+        helseSjekkService,
     )
 }
 
