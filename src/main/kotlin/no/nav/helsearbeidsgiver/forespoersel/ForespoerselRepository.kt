@@ -8,7 +8,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
@@ -41,7 +41,7 @@ class ForespoerselRepository(
                 it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
             }
         }
-        sikkerLogger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
+        logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
     }
 
     fun hentForespoersel(
