@@ -6,7 +6,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
@@ -26,7 +25,7 @@ fun createHttpClient() =
 
 fun String.toUuidOrNull() = runCatching(UUID::fromString).getOrNull()
 
-fun LocalDate.tilTidspunktStartOfDay(): LocalDateTime = LocalDateTime.of(this.year, this.month, this.dayOfMonth, 0, 0)
+fun LocalDate.tilTidspunktStartOfDay(): LocalDateTime = LocalDateTime.of(this, LocalTime.MIN)
 
 fun LocalDate.tilTidspunktEndOfDay(): LocalDateTime = LocalDateTime.of(LocalDate.of(this.year, this.month, this.dayOfMonth), LocalTime.MAX)
 
