@@ -141,7 +141,7 @@ class SoeknadRepositoryTest {
             List(3) { UUID.randomUUID() }.map { id ->
                 soeknadMock().copy(
                     id = id,
-                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Test organisasjon", orgnr.verdi),
+                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
                 )
             }
         val soeknader =
@@ -168,7 +168,7 @@ class SoeknadRepositoryTest {
                     id = id,
                     arbeidsgiver =
                         SykepengesoknadDTO.ArbeidsgiverDTO(
-                            "Tilfeltdig Tigerorg",
+                            "Tilfeldig Tigerorg",
                             Orgnr.genererGyldig().verdi,
                         ),
                 )
