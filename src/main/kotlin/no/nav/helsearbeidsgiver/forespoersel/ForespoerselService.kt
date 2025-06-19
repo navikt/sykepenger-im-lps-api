@@ -63,21 +63,18 @@ class ForespoerselService(
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
         if (priMessage.eksponertForespoerselId != null) {
-            sikkerLogger().info("Endrer status for eksponert forespørsel med id: $eksponertForespoerselId")
+            logger().info("Endrer status for eksponert forespørsel med id: $eksponertForespoerselId")
             endreStatusAktivForespoersel(priMessage.eksponertForespoerselId, forespoersel)
         }
     }
 
-    fun lagreForespoersel(
-        forespoersel: ForespoerselDokument,
-        status: Status = Status.AKTIV,
-    ) {
+    fun lagreNyForespoersel(forespoersel: ForespoerselDokument) {
         if (erDuplikat(forespoersel)) return
         runCatching {
             sikkerLogger().info("Lagrer forespørsel med id: ${forespoersel.forespoerselId}")
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
-                status = status,
+                status = Status.AKTIV,
                 eksponertForespoerselId = forespoersel.forespoerselId,
             )
         }.onSuccess {
@@ -133,7 +130,7 @@ class ForespoerselService(
     private fun erDuplikat(forespoersel: ForespoerselDokument): Boolean {
         val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
         if (f != null) {
-            sikkerLogger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
+            logger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
             return true
         }
         return false

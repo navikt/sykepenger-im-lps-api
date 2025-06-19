@@ -45,7 +45,7 @@ class ForespoerselTolker(
                 if (forespoersel != null) {
                     transaction {
                         try {
-                            forespoerselService.lagreForespoersel(forespoersel)
+                            forespoerselService.lagreNyForespoersel(forespoersel)
                             mottakRepository.opprett(ExposedMottak(melding))
                         } catch (e: Exception) {
                             rollback()
