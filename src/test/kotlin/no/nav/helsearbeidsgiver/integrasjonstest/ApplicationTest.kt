@@ -219,9 +219,10 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
         val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
-        if (priMessage.forespoersel != null) {
+        val forespoersel = priMessage.forespoersel
+        if (forespoersel != null) {
             services.forespoerselService.lagreNyForespoersel(
-                forespoersel = priMessage.forespoersel,
+                forespoersel = forespoersel,
             )
             services.forespoerselService.settBesvart(forespoerselId)
         }
