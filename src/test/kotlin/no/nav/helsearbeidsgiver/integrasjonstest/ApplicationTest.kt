@@ -279,8 +279,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         // Sender forespoersel til Kafka for første gang
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
         Producer.sendMelding(priRecord)
-
-        // sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+        // Henter forespoersel fra db
         runBlocking {
             val responseOppdatertFsp =
                 fetchWithRetry(
