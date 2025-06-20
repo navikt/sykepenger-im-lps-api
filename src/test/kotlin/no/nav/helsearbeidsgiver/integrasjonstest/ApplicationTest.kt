@@ -192,24 +192,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         Producer.sendMelding(oppdatertPriRecord)
 
-        runBlocking {
-            val responseOppdatertFsp =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-                )
-            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
-            oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
-            oppdatertFsp.status shouldBe Status.AKTIV
-            transaction(db) {
-                ForespoerselEntitet
-                    .selectAll()
-                    .where {
-                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
-                            (ForespoerselEntitet.eksponertForespoerselId eq forespoerselId)
-                    }.count() shouldBe 1
-            }
-        }
+        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, forespoerselId)
     }
 
     @Test
@@ -280,6 +263,17 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
         Producer.sendMelding(priRecord)
         // Henter forespoersel fra db
+        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, eksponertForespoerselId)
+        // Sender samme forespoersel til Kafka på nytt
+        Producer.sendMelding(priRecord)
+
+        sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+    }
+
+    private fun sjekkOmForespoerselFinnesIDB(
+        oppdatertForespoerselId: UUID,
+        eksponertForespoerselId: UUID?,
+    ) {
         runBlocking {
             val responseOppdatertFsp =
                 fetchWithRetry(
@@ -298,10 +292,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                     }.count() shouldBe 1
             }
         }
-        // Sender samme forespoersel til Kafka på nytt
-        Producer.sendMelding(priRecord)
-
-        sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
     }
 
     private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {
