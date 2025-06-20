@@ -69,6 +69,7 @@ class ForespoerselIT {
         forespoerselTolker =
             ForespoerselTolker(
                 mottakRepository = repositories.mottakRepository,
+                dialogportenService = dialogportenService,
                 forespoerselService = services.forespoerselService,
             )
     }

@@ -1,12 +1,14 @@
 package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.sis.StatusISpeilEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -53,9 +55,14 @@ class SoeknadRepository(
     fun hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId: UUID): List<SykepengesoknadDTO> =
         transaction(db) {
             SoeknadEntitet
-                .selectAll()
+                .join(
+                    otherTable = StatusISpeilEntitet,
+                    joinType = JoinType.INNER,
+                    onColumn = soeknadId,
+                    otherColumn = StatusISpeilEntitet.soeknadId,
+                ).selectAll()
                 .where {
-                    SoeknadEntitet.vedtaksperiodeId eq vedtaksperiodeId
+                    StatusISpeilEntitet.vedtaksperiodeId eq vedtaksperiodeId
                 }.map { it[sykepengesoeknad] }
         }
 
@@ -72,7 +79,8 @@ class SoeknadRepository(
                             soeknadId inList soeknadIder
                         }.associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
                 loggDuplikateOgManglendeSoeknader(eksisterendeSoeknader, vedtaksperiodeId, soeknadIder)
-                val soeknaderUtenVedtaksperiodeId = eksisterendeSoeknader.filter { (_, vedtaksperiodeId) -> vedtaksperiodeId == null }.keys
+                val soeknaderUtenVedtaksperiodeId =
+                    eksisterendeSoeknader.filter { (_, vedtaksperiodeId) -> vedtaksperiodeId == null }.keys
                 if (soeknaderUtenVedtaksperiodeId.isNotEmpty()) {
                     SoeknadEntitet
                         .update(

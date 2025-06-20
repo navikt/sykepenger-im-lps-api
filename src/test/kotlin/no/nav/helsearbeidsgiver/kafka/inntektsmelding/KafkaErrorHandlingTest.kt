@@ -42,7 +42,12 @@ class KafkaErrorHandlingTest {
                 System.getProperty("database.password"),
             ).init()
         forespoerselRepository = ForespoerselRepository(db)
-        forespoerselTolker = ForespoerselTolker(mockForespoerselService, mockMottakRepository)
+        forespoerselTolker =
+            ForespoerselTolker(
+                forespoerselService = mockForespoerselService,
+                mottakRepository = mockMottakRepository,
+                dialogportenService = mockk(),
+            )
     }
 
     @BeforeEach
@@ -63,7 +68,12 @@ class KafkaErrorHandlingTest {
     fun `ugyldig forespørsel eller manglende forespørselId i forespørselmelding skal kaste exception og stoppe videre lesing fra kafka`() {
         every { mockMottakRepository.opprett(any()) } returns 100
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
-        val mockConsumer = ForespoerselTolker(mockForespoerselService, mockMottakRepository)
+        val mockConsumer =
+            ForespoerselTolker(
+                forespoerselService = mockForespoerselService,
+                mottakRepository = mockMottakRepository,
+                dialogportenService = mockk(),
+            )
         assertThrows<SerializationException> {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)
         }

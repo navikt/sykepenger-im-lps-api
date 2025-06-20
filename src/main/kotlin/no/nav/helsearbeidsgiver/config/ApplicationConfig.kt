@@ -105,6 +105,7 @@ fun configureTolkere(
     val forespoerselTolker =
         ForespoerselTolker(
             mottakRepository = repositories.mottakRepository,
+            dialogportenService = services.dialogportenService,
             forespoerselService = services.forespoerselService,
         )
     val sykmeldingTolker =
@@ -180,6 +181,7 @@ fun configureServices(
     val dialogportenService =
         DialogportenService(
             dialogProducer = dialogProducer,
+            soeknadRepository = repositories.soeknadRepository,
             unleashFeatureToggles = unleashFeatureToggles,
         )
 

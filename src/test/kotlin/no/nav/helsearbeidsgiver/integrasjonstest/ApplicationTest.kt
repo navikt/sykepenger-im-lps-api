@@ -108,18 +108,22 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val vedtaksperiodeId = UUID.fromString("3e377f98-1801-4fd2-8d14-cf95d2b831fa")
         val soeknadRecord = ProducerRecord("flex.sykepengesoknad", "key", TestData.SYKEPENGESOEKNAD)
         val sisRecord = ProducerRecord("tbd.sis", "key", TestData.STATUS_I_SPLEIS_MELDING)
+
         Producer.sendMelding(soeknadRecord)
-        // Sikre at søknaden er lagret før sis melding blir skrevet til kafka
-        repeat(5) {
+        Producer.sendMelding(sisRecord)
+
+        // Sikre at søknaden og status i speil er lagret før vi sjekker koblingen mellom søknad og vedtaksperiode
+        var antallRetries = 0
+        while (antallRetries < 5) {
             val soeknad = repositories.soeknadRepository.hentSoeknad(soeknadId)
-            if (soeknad != null) {
-                return
+            val soeknadIder = repositories.statusISpeilRepository.hentSoeknadIderForVedtaksperiodeId(vedtaksperiodeId)
+            if (soeknad != null && soeknadIder.isNotEmpty()) {
+                break
             } else {
                 Thread.sleep(100)
-                return@repeat
+                antallRetries++
             }
         }
-        Producer.sendMelding(sisRecord)
         val soeknadListe =
             repositories.soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId).map { it.id }
         soeknadListe shouldBe listOf(soeknadId)
@@ -215,9 +219,10 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
         val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
-        if (priMessage.forespoersel != null) {
+        val forespoersel = priMessage.forespoersel
+        if (forespoersel != null) {
             services.forespoerselService.lagreNyForespoersel(
-                forespoersel = priMessage.forespoersel,
+                forespoersel = forespoersel,
             )
             services.forespoerselService.settBesvart(forespoerselId)
         }
