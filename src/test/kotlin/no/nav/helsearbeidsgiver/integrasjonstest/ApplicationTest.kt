@@ -8,6 +8,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
@@ -266,42 +267,56 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         }
     }
 
-    /**
-     * //TODO: Fiks denne testen, den feiler i testmiljøet av en eller annen grunn.
-     @Test
-     fun `Avviser duplikat forespoersel`() {
-     val oppdatertForespoerselId = UUID.randomUUID()
-     val eksponertForespoerselId = UUID.randomUUID()
-     val forespoerselMottattJson =
-     buildForespoerselOppdatertJson(
-     forespoerselId = oppdatertForespoerselId.toString(),
-     eksponertForespoerselıd = eksponertForespoerselId.toString(),
-     )
+    @Test
+    fun `Avviser duplikat forespoersel`() {
+        val oppdatertForespoerselId = UUID.randomUUID()
+        val eksponertForespoerselId = UUID.randomUUID()
+        val forespoerselMottattJson =
+            buildForespoerselOppdatertJson(
+                forespoerselId = oppdatertForespoerselId.toString(),
+                eksponertForespoerselıd = eksponertForespoerselId.toString(),
+            )
 
-     // Sender forespoersel til Kafka for første gang
-     val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
-     Producer.sendMelding(priRecord)
+        // Sender forespoersel til Kafka for første gang
+        val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
+        Producer.sendMelding(priRecord)
 
-     sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+        // sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+        runBlocking {
+            val responseOppdatertFsp =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
+            oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
+            oppdatertFsp.status shouldBe Status.AKTIV
+            transaction(db) {
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
+                            (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId)
+                    }.count() shouldBe 1
+            }
+        }
+        // Sender samme forespoersel til Kafka på nytt
+        Producer.sendMelding(priRecord)
 
-     // Sender samme forespoersel til Kafka på nytt
-     Producer.sendMelding(priRecord)
+        sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+    }
 
-     sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
-     }
-
-     private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {
-     runBlocking {
-     val response =
-     fetchWithRetry(
-     url = "http://localhost:8080/v1/forespoersler",
-     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-     )
-     response.status.value shouldBe 200
-     val forespoerselSvar = response.body<ForespoerselResponse>()
-     forespoerselSvar.antall shouldBe 1
-     forespoerselSvar.forespoersler[0].navReferanseId shouldBe forespoerselId
-     }
-     }
-     **/
+    private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {
+        runBlocking {
+            val response =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/forespoersler",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                )
+            response.status.value shouldBe 200
+            val forespoerselSvar = response.body<ForespoerselResponse>()
+            forespoerselSvar.antall shouldBe 1
+            forespoerselSvar.forespoersler[0].navReferanseId shouldBe forespoerselId
+        }
+    }
 }
