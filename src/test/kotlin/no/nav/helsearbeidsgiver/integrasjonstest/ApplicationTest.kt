@@ -8,7 +8,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
@@ -314,9 +313,9 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
                 )
             response.status.value shouldBe 200
-            val forespoerselSvar = response.body<ForespoerselResponse>()
-            forespoerselSvar.antall shouldBe 1
-            forespoerselSvar.forespoersler[0].navReferanseId shouldBe forespoerselId
+            val forespoerselSvar = response.body<List<Forespoersel>>()
+            forespoerselSvar.size shouldBe 1
+            forespoerselSvar.first().navReferanseId shouldBe forespoerselId
         }
     }
 }
