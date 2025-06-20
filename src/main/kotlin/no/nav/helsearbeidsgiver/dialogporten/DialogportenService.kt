@@ -61,11 +61,11 @@ class DialogportenService(
             )
 
             logger.info(
-                "Sendte melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, sykmeldingId: ${forespoersel.forespoerselId}.",
+                "Sendte melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, sykmeldingId: $sykmeldingId.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, på fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, fordi feature toggle er av.",
             )
         }
     }
