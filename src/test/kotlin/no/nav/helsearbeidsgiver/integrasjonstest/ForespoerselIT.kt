@@ -17,7 +17,7 @@ import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -65,12 +65,12 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, authClient, mockk())
+        services = configureServices(repositories, authClient, mockk(), db)
         forespoerselTolker =
             ForespoerselTolker(
-                forespoerselRepository = repositories.forespoerselRepository,
                 mottakRepository = repositories.mottakRepository,
                 dialogportenService = dialogportenService,
+                forespoerselService = services.forespoerselService,
             )
     }
 
@@ -86,10 +86,10 @@ class ForespoerselIT {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
             response.status.value shouldBe 200
-            val forespoerselSvar = response.body<ForespoerselResponse>()
-            forespoerselSvar.antall shouldBe 1
-            forespoerselSvar.forespoersler[0].status shouldBe Status.AKTIV
-            forespoerselSvar.forespoersler[0].orgnr shouldBe orgnr1
+            val forespoerselSvar = response.body<List<Forespoersel>>()
+            forespoerselSvar.size shouldBe 1
+            forespoerselSvar[0].status shouldBe Status.AKTIV
+            forespoerselSvar[0].orgnr shouldBe orgnr1
         }
     }
 

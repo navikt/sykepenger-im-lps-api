@@ -8,6 +8,7 @@ import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -28,6 +29,7 @@ class KafkaErrorHandlingTest {
     private lateinit var forespoerselRepository: ForespoerselRepository
 
     val mockMottakRepository = mockk<MottakRepository>()
+    val mockForespoerselService = mockk<ForespoerselService>(relaxed = true)
 
     private lateinit var forespoerselTolker: ForespoerselTolker
 
@@ -42,7 +44,7 @@ class KafkaErrorHandlingTest {
         forespoerselRepository = ForespoerselRepository(db)
         forespoerselTolker =
             ForespoerselTolker(
-                forespoerselRepository = forespoerselRepository,
+                forespoerselService = mockForespoerselService,
                 mottakRepository = mockMottakRepository,
                 dialogportenService = mockk(),
             )
@@ -68,7 +70,7 @@ class KafkaErrorHandlingTest {
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
         val mockConsumer =
             ForespoerselTolker(
-                forespoerselRepository = mockForespoerselRepository,
+                forespoerselService = mockForespoerselService,
                 mottakRepository = mockMottakRepository,
                 dialogportenService = mockk(),
             )
@@ -79,6 +81,6 @@ class KafkaErrorHandlingTest {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID)
         }
         verify(exactly = 0) { mockMottakRepository.opprett(any()) }
-        verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any()) }
+        verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any(), any()) }
     }
 }

@@ -44,6 +44,9 @@ paths:
             '*/*':
               schema:
                 type: "object"
+              examples:
+                Example#1:
+                  value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
@@ -77,7 +80,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ForespoerselResponse"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Forespoersel"
         "500":
           description: "Internal Server Error"
           content:
@@ -89,7 +94,8 @@ paths:
                   value: "Feil ved henting av forespørsler"
     post:
       description: "Hent forespørsler for tilhørende systembrukers orgnr, filtrer\
-        \ basert på request."
+        \ basert på request. <br> filterparametre fom og tom refererer til opprettetTid\
+        \ (Tidspunktet forespørselen ble opprettet av Nav)"
       requestBody:
         content:
           application/json:
@@ -117,7 +123,9 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ForespoerselResponse"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Forespoersel"
         "500":
           description: "Internal Server Error"
           content:
@@ -147,6 +155,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
@@ -202,6 +214,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -253,21 +269,18 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -298,21 +311,18 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -337,21 +347,18 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -382,21 +389,18 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/InntektsmeldingFilterResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ingen inntektsmeldinger funnet"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/InntektsmeldingResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -426,6 +430,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "404":
           description: "Not Found"
@@ -467,6 +475,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -513,6 +525,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
   /v1/sykmeldinger:
     get:
       description: ""
@@ -535,6 +551,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
     post:
       description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
@@ -564,6 +584,12 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
+servers:
+  - url: https://sykepenger-api.ekstern.dev.nav.no
 components:
   securitySchemes:
     bearerAuth:
@@ -612,6 +638,9 @@ components:
           type: "boolean"
         inntektPaakrevd:
           type: "boolean"
+        opprettetTid:
+          type: "string"
+          format: "date-time"
       required:
         - "navReferanseId"
         - "orgnr"
@@ -621,19 +650,7 @@ components:
         - "egenmeldingsperioder"
         - "arbeidsgiverperiodePaakrevd"
         - "inntektPaakrevd"
-    ForespoerselResponse:
-      type: "object"
-      properties:
-        antall:
-          type: "integer"
-          format: "int32"
-        forespoersler:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Forespoersel"
-      required:
-        - "antall"
-        - "forespoersler"
+        - "opprettetTid"
     ForespoerselRequest:
       type: "object"
       properties:
@@ -651,6 +668,14 @@ components:
             - "AKTIV"
             - "BESVART"
             - "FORKASTET"
+        fom:
+          type: "string"
+          format: "date"
+          nullable: true
+        tom:
+          type: "string"
+          format: "date"
+          nullable: true
     RedusertLoennIAgp:
       type: "object"
       properties:
@@ -1038,20 +1063,6 @@ components:
         - "arbeidsgiver"
         - "avsender"
         - "status"
-    InntektsmeldingFilterResponse:
-      type: "object"
-      properties:
-        antall:
-          type: "integer"
-          format: "int32"
-          default: "0"
-        inntektsmeldinger:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/InntektsmeldingResponse"
-      required:
-        - "antall"
-        - "inntektsmeldinger"
     InntektsmeldingFilterRequest:
       type: "object"
       properties:
@@ -1066,13 +1077,13 @@ components:
           type: "string"
           format: "uuid"
           nullable: true
-        fraTid:
+        fom:
           type: "string"
-          format: "date-time"
+          format: "date"
           nullable: true
-        tilTid:
+        tom:
           type: "string"
-          format: "date-time"
+          format: "date"
           nullable: true
         status:
           type: "string"

@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselDokument
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger

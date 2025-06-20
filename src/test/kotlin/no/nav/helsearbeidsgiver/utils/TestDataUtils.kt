@@ -28,6 +28,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -88,10 +89,22 @@ fun buildInntektsmeldingJson(
 
 fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
     val filePath = "json/forespoersel.json"
-    return readJsonFromResources(filePath).replace(
-        FORESPOERSEL_ID,
-        forespoerselId,
-    )
+    return readJsonFromResources(filePath)
+        .replace(
+            FORESPOERSEL_ID,
+            forespoerselId,
+        ).replace(ORGNUMMER, DEFAULT_ORG)
+}
+
+fun buildForespoerselOppdatertJson(
+    forespoerselId: String = UUID.randomUUID().toString(),
+    eksponertForespoerselıd: String = UUID.randomUUID().toString(),
+): String {
+    val filePath = "json/forespoersel_oppdatert.json"
+    return readJsonFromResources(filePath)
+        .replace(FORESPOERSEL_ID, forespoerselId)
+        .replace("%%%EKSPONERT_FORESPOERSEL_ID%%%", eksponertForespoerselıd)
+        .replace(ORGNUMMER, DEFAULT_ORG)
 }
 
 fun buildInntektsmeldingDistribuertJson(
@@ -158,6 +171,7 @@ fun mockForespoersel(): Forespoersel =
         egenmeldingsperioder = emptyList(),
         arbeidsgiverperiodePaakrevd = true,
         inntektPaakrevd = true,
+        opprettetTid = LocalDateTime.now(),
     )
 
 fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
