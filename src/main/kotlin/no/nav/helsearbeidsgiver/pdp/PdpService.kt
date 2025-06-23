@@ -34,11 +34,14 @@ object PdpService :
         ressurs: String,
     ): Boolean =
         runBlocking {
-            sikkerLogger().info("PDP orgnr: $orgnr, systembruker: $systembruker, ressurs: $ressurs")
+            // Overstyrer orgnr for å kunne teste mot pdp i dev
+            val orgnrOvertyrt = if (orgnr == "314120930") "311263986" else orgnr
+
+            sikkerLogger().info("PDP orgnr: $orgnrOvertyrt, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjon(
                     systembrukerId = systembruker,
-                    orgnr = orgnr,
+                    orgnr = orgnrOvertyrt,
                     ressurs = ressurs,
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
