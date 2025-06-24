@@ -1,0 +1,1 @@
+ALTER TABLE forespoersel ADD COLUMN vedtaksperiode_id UUID;
