@@ -11,9 +11,10 @@ tasks.register("modifyOpenApi") {
         var content = openApiFile.readText()
 
         var modified = false
-        val targetRegex = Regex(
-            """\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}"""
-        )
+        val targetRegex =
+            Regex(
+                """\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}""",
+            )
 
         if (targetRegex.containsMatchIn(content)) {
             val inntektEndring = inntektEndringAarsakFile.readText()
@@ -21,7 +22,8 @@ tasks.register("modifyOpenApi") {
                 content
                     .replace(
                         Regex("""\s*InntektEndringAarsak:\s*type:\s*"object"\s*properties:\s*\{\s*\}"""),
-                        Regex.escapeReplacement(inntektEndring))
+                        Regex.escapeReplacement(inntektEndring),
+                    )
             println("lagt til InntektEndringAarsak.")
             modified = true
         }
@@ -45,8 +47,8 @@ components:
         }
 
         val newInfoBlock = """info:
-  title: "Sykepenger inntektsmelding lps API"
-  description: "API for å hente forespørsler og inntektsmeldinger for sykepenger"
+  title: "Sykepenger API"
+  description: "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger"
   version: "1.0.0""""
 
         content =
