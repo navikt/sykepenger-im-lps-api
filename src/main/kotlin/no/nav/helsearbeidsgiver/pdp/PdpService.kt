@@ -35,7 +35,7 @@ object PdpService :
     ): Boolean =
         runBlocking {
             // Overstyrer orgnr for å kunne teste mot pdp i dev
-            val orgnrOvertyrt = if (orgnr == "314120930") "311263986" else orgnr
+            val orgnrOvertyrt = if (orgnr == "314120930") "311368095" else orgnr
 
             sikkerLogger().info("PDP orgnr: $orgnrOvertyrt, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
