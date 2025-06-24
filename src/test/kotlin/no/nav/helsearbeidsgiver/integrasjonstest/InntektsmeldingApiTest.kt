@@ -4,7 +4,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
@@ -25,7 +25,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
         val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr(DEFAULT_ORG))
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1, InnsendingStatus.GODKJENT)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2, InnsendingStatus.MOTTATT)
-        runTest {
+        runBlocking {
             val response =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmelding/status/GODKJENT",
@@ -59,7 +59,8 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
             )
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2)
-        runTest {
+
+        runBlocking {
             val response =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmelding/navReferanseId/$im1NavReferanseId",
@@ -67,6 +68,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                 )
 
             val inntektsmeldingResponse = response.body<List<InntektsmeldingResponse>>()
+
             inntektsmeldingResponse.size shouldBe 1
             inntektsmeldingResponse[0].navReferanseId shouldBe im1NavReferanseId
             inntektsmeldingResponse[0].id shouldBe id1
@@ -82,7 +84,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
         val missingId = UUID.randomUUID()
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2)
-        runTest {
+        runBlocking {
             val ok =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmelding/$id1",

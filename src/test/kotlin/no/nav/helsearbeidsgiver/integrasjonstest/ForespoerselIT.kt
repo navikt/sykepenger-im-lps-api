@@ -8,7 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.mockk
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
@@ -36,6 +36,8 @@ class ForespoerselIT {
     private lateinit var services: Services
     private lateinit var forespoerselTolker: ForespoerselTolker
     private val authClient = mockk<AuthClient>(relaxed = true)
+
+    private val orgnr = "810007982"
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -76,20 +78,22 @@ class ForespoerselIT {
 
     @Test
     fun `les forespoersel på kafka og les gjennom apiet`() {
-        runTest {
-            forespoerselTolker.lesMelding(
-                TestData.FORESPOERSEL_MOTTATT,
-            )
-            val orgnr1 = "810007982"
+        forespoerselTolker.lesMelding(
+            TestData.FORESPOERSEL_MOTTATT,
+        )
+        runBlocking {
             val response =
+
                 client.get("/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
                 }
             response.status.value shouldBe 200
+
             val forespoerselSvar = response.body<List<Forespoersel>>()
+
             forespoerselSvar.size shouldBe 1
             forespoerselSvar[0].status shouldBe Status.AKTIV
-            forespoerselSvar[0].orgnr shouldBe orgnr1
+            forespoerselSvar[0].orgnr shouldBe orgnr
         }
     }
 

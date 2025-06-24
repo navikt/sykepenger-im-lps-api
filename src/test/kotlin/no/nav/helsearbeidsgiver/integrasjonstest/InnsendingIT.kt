@@ -13,7 +13,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.mockk
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
@@ -84,53 +84,56 @@ class InnsendingIT {
 
     @Test
     fun `les inntektsmelding på kafka og hent gjennom apiet`() {
-        runTest {
-            val orgnr1 = "810007982"
-            inntektsmeldingTolker.lesMelding(
-                buildJournalfoertInntektsmelding(orgNr = Orgnr(orgnr1)),
-            )
-            val response =
+        val orgnr1 = "810007982"
+        inntektsmeldingTolker.lesMelding(
+            buildJournalfoertInntektsmelding(orgNr = Orgnr(orgnr1)),
+        )
+        val response =
+            runBlocking {
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
-            response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<List<InntektsmeldingResponse>>()
-            forespoerselSvar.size shouldBe 1
-            forespoerselSvar[0].status shouldBe InnsendingStatus.GODKJENT
-            forespoerselSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
-        }
+            }
+
+        response.status shouldBe HttpStatusCode.OK
+        val forespoerselSvar = runBlocking { response.body<List<InntektsmeldingResponse>>() }
+        forespoerselSvar.size shouldBe 1
+        forespoerselSvar[0].status shouldBe InnsendingStatus.GODKJENT
+        forespoerselSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
     }
 
     @Test
-    fun `innsending av inntektsmelding på gyldig forespørsel lagres i db og lager bakgrunnsjobb`() =
-        runTest {
-            val requestBody = mockInntektsmeldingRequest().copy(sykmeldtFnr = DEFAULT_FNR)
-            val forespoerselDokument =
-                TestData
-                    .forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
-                    .copy(forespoerselId = requestBody.navReferanseId)
-            repositories.forespoerselRepository.lagreForespoersel(
-                forespoerselDokument,
-            )
-            val response =
+    fun `innsending av inntektsmelding på gyldig forespørsel lagres i db og lager bakgrunnsjobb`() {
+        val requestBody = mockInntektsmeldingRequest().copy(sykmeldtFnr = DEFAULT_FNR)
+        val forespoerselDokument =
+            TestData
+                .forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
+                .copy(forespoerselId = requestBody.navReferanseId)
+        repositories.forespoerselRepository.lagreForespoersel(
+            forespoerselDokument,
+        )
+        val response =
+            runBlocking {
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response.status shouldBe HttpStatusCode.Created
-            repositories.inntektsmeldingRepository
-                .hent(requestBody.navReferanseId)
-                .first()
-                .navReferanseId shouldBe requestBody.navReferanseId
-            repositories.bakgrunnsjobbRepository
-                .findByKjoeretidBeforeAndStatusIn(
-                    timeout = LocalDateTime.now(),
-                    tilstander = setOf(BakgrunnsjobbStatus.OPPRETTET),
-                    alle = true,
-                ).first()
-                .type shouldBe InnsendingProcessor.JOB_TYPE
-        }
+            }
+
+        response.status shouldBe HttpStatusCode.Created
+        repositories.inntektsmeldingRepository
+            .hent(requestBody.navReferanseId)
+            .first()
+            .navReferanseId shouldBe requestBody.navReferanseId
+        repositories.bakgrunnsjobbRepository
+            .findByKjoeretidBeforeAndStatusIn(
+                timeout = LocalDateTime.now(),
+                tilstander = setOf(BakgrunnsjobbStatus.OPPRETTET),
+                alle = true,
+            ).first()
+            .type shouldBe InnsendingProcessor.JOB_TYPE
+    }
 
     @AfterAll
     fun shutdownStuff() {
