@@ -88,18 +88,18 @@ class InnsendingIT {
         inntektsmeldingTolker.lesMelding(
             buildJournalfoertInntektsmelding(orgNr = Orgnr(orgnr1)),
         )
-        val response =
-            runBlocking {
+        runBlocking {
+            val response =
+
                 client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
-            }
-
-        response.status shouldBe HttpStatusCode.OK
-        val forespoerselSvar = runBlocking { response.body<List<InntektsmeldingResponse>>() }
-        forespoerselSvar.size shouldBe 1
-        forespoerselSvar[0].status shouldBe InnsendingStatus.GODKJENT
-        forespoerselSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
+            response.status shouldBe HttpStatusCode.OK
+            val forespoerselSvar = response.body<List<InntektsmeldingResponse>>()
+            forespoerselSvar.size shouldBe 1
+            forespoerselSvar[0].status shouldBe InnsendingStatus.GODKJENT
+            forespoerselSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
+        }
     }
 
     @Test

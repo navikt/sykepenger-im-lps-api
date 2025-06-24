@@ -37,8 +37,6 @@ class ForespoerselIT {
     private lateinit var forespoerselTolker: ForespoerselTolker
     private val authClient = mockk<AuthClient>(relaxed = true)
 
-    private val orgnr = "810007982"
-
     private val port = 33445
     private val mockOAuth2Server =
         MockOAuth2Server().apply {
@@ -81,11 +79,13 @@ class ForespoerselIT {
         forespoerselTolker.lesMelding(
             TestData.FORESPOERSEL_MOTTATT,
         )
+
+        val orgnr1 = "810007982"
+
         runBlocking {
             val response =
-
                 client.get("/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
             response.status.value shouldBe 200
 
@@ -93,7 +93,7 @@ class ForespoerselIT {
 
             forespoerselSvar.size shouldBe 1
             forespoerselSvar[0].status shouldBe Status.AKTIV
-            forespoerselSvar[0].orgnr shouldBe orgnr
+            forespoerselSvar[0].orgnr shouldBe orgnr1
         }
     }
 
