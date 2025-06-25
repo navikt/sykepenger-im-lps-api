@@ -11,4 +11,5 @@ object ForespoerselEntitet : Table("forespoersel") {
     val opprettet = datetime("opprettet")
     val dokument = text("dokument")
     val eksponertForespoerselId = uuid("eksponert_forespoersel_id").nullable()
+    val vedtaksperiodeId = uuid("vedtaksperiode_id").nullable()
 }
