@@ -87,8 +87,7 @@ private fun Route.innsending(services: Services) {
                     sisteInntektsmelding.tilSkjemaInntektsmelding(),
                 )
             ) {
-                // kan inkludere sisteInntektsmelding.id?
-                return@post call.respond(HttpStatusCode.Conflict, "Duplikat forrige innsending")
+                return@post call.respond(HttpStatusCode.Conflict, sisteInntektsmelding.id.toString())
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
