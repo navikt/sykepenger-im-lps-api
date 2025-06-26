@@ -40,6 +40,7 @@ class ForespoerselRepository(
                 it[opprettet] = LocalDateTime.now()
                 it[this.status] = status
                 it[this.eksponertForespoerselId] = eksponertForespoerselId
+                it[vedtaksperiodeId] = forespoersel.vedtaksperiodeId
                 it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
             }
         }
