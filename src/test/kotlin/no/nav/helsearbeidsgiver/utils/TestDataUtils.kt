@@ -37,6 +37,7 @@ private const val INNTEKTSMELDING_ID = "%%%INNTEKTSMELDING_ID%%%"
 private const val FORESPOERSEL_ID = "%%%FORESPOERSEL_ID%%%"
 private const val SYKMELDT_FNR = "%%%SYKMELDT%%%"
 private const val ORGNUMMER = "%%%ORGNR%%%"
+private const val VEDTAKSPERIODE_ID = "%%%VEDTAKSPERIODE_ID%%%"
 
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
@@ -87,24 +88,31 @@ fun buildInntektsmeldingJson(
         .replace(ORGNUMMER, orgNr.verdi)
 }
 
-fun buildForespoerselMottattJson(forespoerselId: String = UUID.randomUUID().toString()): String {
+fun buildForespoerselMottattJson(
+    forespoerselId: String = UUID.randomUUID().toString(),
+    vedtaksperiodeId: UUID = UUID.randomUUID(),
+): String {
     val filePath = "json/forespoersel.json"
     return readJsonFromResources(filePath)
         .replace(
             FORESPOERSEL_ID,
             forespoerselId,
         ).replace(ORGNUMMER, DEFAULT_ORG)
+        .replace(VEDTAKSPERIODE_ID, vedtaksperiodeId.toString())
 }
 
 fun buildForespoerselOppdatertJson(
     forespoerselId: String = UUID.randomUUID().toString(),
-    eksponertForespoerselıd: String = UUID.randomUUID().toString(),
+    eksponertForespoerselId: String = UUID.randomUUID().toString(),
+    orgnummer: String = DEFAULT_ORG,
+    vedtaksperiodeId: UUID = UUID.randomUUID(),
 ): String {
     val filePath = "json/forespoersel_oppdatert.json"
     return readJsonFromResources(filePath)
         .replace(FORESPOERSEL_ID, forespoerselId)
-        .replace("%%%EKSPONERT_FORESPOERSEL_ID%%%", eksponertForespoerselıd)
-        .replace(ORGNUMMER, DEFAULT_ORG)
+        .replace("%%%EKSPONERT_FORESPOERSEL_ID%%%", eksponertForespoerselId)
+        .replace(ORGNUMMER, orgnummer)
+        .replace(VEDTAKSPERIODE_ID, vedtaksperiodeId.toString())
 }
 
 fun buildInntektsmeldingDistribuertJson(

@@ -9,7 +9,7 @@
     "orgnr": "%%%ORGNR%%%",
     "fnr": "01447842099",
     "forespoerselId": "%%%FORESPOERSEL_ID%%%",
-    "vedtaksperiodeId": "be4faa37-a62a-4ae5-8f0c-47530d1e0789",
+    "vedtaksperiodeId": "%%%VEDTAKSPERIODE_ID%%%",
     "egenmeldingsperioder": [],
     "sykmeldingsperioder": [
       {

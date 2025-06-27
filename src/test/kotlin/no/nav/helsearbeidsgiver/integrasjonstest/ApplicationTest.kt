@@ -139,7 +139,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
                 forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselıd = forespoerselId.toString(),
+                eksponertForespoerselId = forespoerselId.toString(),
             )
 
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
@@ -181,26 +181,29 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `leser oppdatert forespoersel når den ikke finnes i db`() {
         val forespoerselId = UUID.randomUUID()
         val oppdatertForespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
 
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
                 forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselıd = forespoerselId.toString(),
+                eksponertForespoerselId = forespoerselId.toString(),
+                vedtaksperiodeId = vedtaksperiodeId,
             )
 
         val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
 
         Producer.sendMelding(oppdatertPriRecord)
 
-        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, forespoerselId)
+        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId)
     }
 
     @Test
     fun `leser oppdatert forespoersel når eksponert forespoersel er besvart`() {
         val forespoerselId = UUID.randomUUID()
         val oppdatertForespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
 
-        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
+        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString(), vedtaksperiodeId)
         val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
         val forespoersel = priMessage.forespoersel
         if (forespoersel != null) {
@@ -213,7 +216,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
                 forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselıd = forespoerselId.toString(),
+                eksponertForespoerselId = forespoerselId.toString(),
+                vedtaksperiodeId = vedtaksperiodeId,
             )
 
         val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
@@ -253,17 +257,19 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `Avviser duplikat forespoersel`() {
         val oppdatertForespoerselId = UUID.randomUUID()
         val eksponertForespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
         val forespoerselMottattJson =
             buildForespoerselOppdatertJson(
                 forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselıd = eksponertForespoerselId.toString(),
+                eksponertForespoerselId = eksponertForespoerselId.toString(),
+                vedtaksperiodeId = vedtaksperiodeId,
             )
 
         // Sender forespoersel til Kafka for første gang
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
         Producer.sendMelding(priRecord)
         // Henter forespoersel fra db
-        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, eksponertForespoerselId)
+        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, eksponertForespoerselId, vedtaksperiodeId)
         // Sender samme forespoersel til Kafka på nytt
         Producer.sendMelding(priRecord)
 
@@ -273,6 +279,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     private fun sjekkOmForespoerselFinnesIDB(
         oppdatertForespoerselId: UUID,
         eksponertForespoerselId: UUID?,
+        vedtaksperiodeId: UUID?,
     ) {
         runBlocking {
             val responseOppdatertFsp =
@@ -288,7 +295,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                     .selectAll()
                     .where {
                         (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
-                            (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId)
+                            (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
+                            (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId)
                     }.count() shouldBe 1
             }
         }
