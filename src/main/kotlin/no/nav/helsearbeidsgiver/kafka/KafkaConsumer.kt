@@ -27,10 +27,11 @@ suspend fun startKafkaConsumer(
             }
             consumer.commitSync()
         } catch (e: Exception) {
-            "Feil ved polling / lagring, avslutter! KafkaPartition = ${record.partition()} og Offset = ${record.offset()}".let {
-                logger.error(it)
-                sikkerLogger().error(it, e)
-            }
+            "Feil ved polling / lagring, avslutter! Pod må restartes! Topic = $topic, KafkaPartition = ${record.partition()} og Offset = ${record.offset()}"
+                .let {
+                    logger.error(it)
+                    sikkerLogger().error(it, e)
+                }
             // TODO; Forsøk igjen noen ganger først, disable evt lesing fra kafka i en periode.
             // Kan evt restarte med en gang, hvis vi har flere noder (exit går utover API ellers)
             throw e
