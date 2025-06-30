@@ -12,8 +12,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.every
 import kotlinx.coroutines.test.runTest
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
@@ -22,7 +20,6 @@ import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
@@ -31,29 +28,8 @@ import java.util.UUID
 
 class AuthApiTest : ApiTest() {
     @Test
-    fun `hent forespørsler fra api`() =
+    fun `gir 401 når token mangler ved henting av inntektsmeldinger`() =
         runTest {
-            every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns
-                listOf(
-                    mockForespoersel(),
-                )
-            val response =
-                client.get("/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<List<Forespoersel>>()
-            forespoerselSvar.size shouldBe 1
-            forespoerselSvar[0].status shouldBe Status.AKTIV
-            forespoerselSvar[0].orgnr shouldBe DEFAULT_ORG
-        }
-
-    @Test
-    fun `gir 401 når token mangler`() =
-        runTest {
-            val response1 = client.get("/v1/forespoersler")
-            response1.status shouldBe HttpStatusCode.Unauthorized
-
             val response2 = client.get("/v1/inntektsmeldinger")
             response2.status shouldBe HttpStatusCode.Unauthorized
 

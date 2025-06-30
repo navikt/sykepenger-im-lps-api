@@ -62,6 +62,17 @@ class ForespoerselRepository(
                 }.getOrNull(0)
         }
 
+    fun hentForespoersel(navReferanseId: UUID): Forespoersel? =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.navReferanseId eq navReferanseId)
+                }.map {
+                    it.toExposedforespoersel()
+                }.getOrNull(0)
+        }
+
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? =
         transaction(db) {
             ForespoerselEntitet

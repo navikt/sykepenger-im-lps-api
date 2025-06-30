@@ -94,6 +94,8 @@ class ForespoerselService(
             orgnr,
         )
 
+    fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
+
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 
     fun settBesvart(navReferanseId: UUID) {
