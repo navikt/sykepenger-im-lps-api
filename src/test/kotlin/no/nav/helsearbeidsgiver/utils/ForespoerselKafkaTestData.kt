@@ -9,8 +9,8 @@ import java.util.UUID
  *  Denne filen genererer testdata for forespørsel og oppdatering av forespørsel i Kafka. Kun ment for lokal testing.
  */
 fun sendNyforespoerselogOppdateringTilKafka() {
-    val forespoerselId = UUID.randomUUID().toString()
-    val oppdatertForespoerselId = UUID.randomUUID().toString()
+    val forespoerselId = UUID.randomUUID()
+    val oppdatertForespoerselId = UUID.randomUUID()
 
     val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId)
     println(forespoerselMottattJson)
