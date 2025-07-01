@@ -97,10 +97,11 @@ class ForespoerselAuthTest : ApiTest() {
     }
 
     @Test
-    fun `gir 200 OK ved henting av alle forespørsler på et orgnr`() {
+    fun `gir 200 OK ved henting av alle forespørsler på et orgnr hentet fra request uavhengig av systembrukerorgnr`() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                ForespoerselRequest(orgnr = orgnrMedTilgang),
+                request = ForespoerselRequest(orgnr = orgnrMedTilgang),
+                orgnr = orgnrMedTilgang,
             )
         } returns
             List(
@@ -117,6 +118,39 @@ class ForespoerselAuthTest : ApiTest() {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
                     setBody(ForespoerselRequest(orgnr = orgnrMedTilgang).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenTilgang))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val forespoerslerSvar = response.body<List<Forespoersel>>()
+            forespoerslerSvar.size shouldBe 3
+            forespoerslerSvar.forEach {
+                it.orgnr shouldBe orgnrMedTilgang
+            }
+        }
+    }
+
+    @Test
+    fun `gir 200 OK ved henting av alle forespørsler på et orgnr hentet fra systembruker på underenhet`() {
+        every {
+            repositories.forespoerselRepository.filtrerForespoersler(
+                request = ForespoerselRequest(),
+                orgnr = orgnrMedTilgang,
+            )
+        } returns
+            List(
+                3,
+            ) {
+                mockForespoersel().copy(
+                    orgnr = orgnrMedTilgang,
+                    navReferanseId = UUID.randomUUID(),
+                )
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest().toJson(serializer = ForespoerselRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -198,6 +232,7 @@ class ForespoerselAuthTest : ApiTest() {
             }
         response2.status shouldBe HttpStatusCode.Unauthorized
 
+        // Med orgnr i requesten
         val response3 =
             runBlocking {
                 client.post("/v1/forespoersler") {
@@ -207,5 +242,27 @@ class ForespoerselAuthTest : ApiTest() {
                 }
             }
         response3.status shouldBe HttpStatusCode.Unauthorized
+
+        // Med orgnr i systembrukertoken
+        val response4 =
+            runBlocking {
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest().toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenTilgang))
+                }
+            }
+        response4.status shouldBe HttpStatusCode.Unauthorized
+
+        // Med orgnr uten tilgang i requesten og med tilgang i systembrukertoken
+        val response6 =
+            runBlocking {
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest(orgnr = orgnrUtenTilgang).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedTilgang))
+                }
+            }
+        response6.status shouldBe HttpStatusCode.Unauthorized
     }
 }

@@ -91,18 +91,19 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val orgnr = request.orgnr ?: systembrukerOrgnr
 
-            if (!tokenValidationContext().harTilgangTilRessurs(ressurs = IM_RESSURS, orgnr = Orgnr(request.orgnr))) {
+            if (!tokenValidationContext().harTilgangTilRessurs(ressurs = IM_RESSURS, orgnr = Orgnr(orgnr))) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
 
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter forespørsler for bedrift med systembrukerOrgnr: [$systembrukerOrgnr] og requestOrgnr: [${request.orgnr}]",
+                "LPS: [$lpsOrgnr] henter forespørsler for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respond(forespoerselService.filtrerForespoersler(request))
+            call.respond(forespoerselService.filtrerForespoersler(request = request, orgnr = orgnr))
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {

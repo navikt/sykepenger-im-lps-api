@@ -93,14 +93,17 @@ class ForespoerselRepository(
                 }
         }
 
-    fun filtrerForespoersler(request: ForespoerselRequest): List<Forespoersel> =
+    fun filtrerForespoersler(
+        request: ForespoerselRequest,
+        orgnr: String,
+    ): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             ForespoerselEntitet
                 .selectAll()
                 .where {
                     listOfNotNull(
-                        orgnr eq request.orgnr,
+                        ForespoerselEntitet.orgnr eq orgnr,
                         request.fnr?.let { fnr eq it },
                         request.navReferanseId?.let { navReferanseId eq it },
                         request.status?.let { status eq it },

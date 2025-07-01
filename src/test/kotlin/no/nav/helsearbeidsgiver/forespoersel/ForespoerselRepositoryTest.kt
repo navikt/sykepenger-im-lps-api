@@ -93,7 +93,7 @@ class ForespoerselRepositoryTest {
                 navReferanseId = null,
                 status = null,
             )
-        val forespoersler = forespoerselRepository.filtrerForespoersler(request)
+        val forespoersler = forespoerselRepository.filtrerForespoersler(request, DEFAULT_ORG)
         forespoersler.size shouldBe 2
     }
 
@@ -114,18 +114,18 @@ class ForespoerselRepositoryTest {
                 orgnr = DEFAULT_ORG,
                 fom = now.toLocalDate(),
             )
-        val forespoersler = forespoerselRepository.filtrerForespoersler(request)
+        val forespoersler = forespoerselRepository.filtrerForespoersler(request, DEFAULT_ORG)
         forespoersler.size shouldBe 3
         val request2 = ForespoerselRequest(orgnr = DEFAULT_ORG, fom = now.toLocalDate().plusDays(1))
-        forespoerselRepository.filtrerForespoersler(request2).size shouldBe 1
+        forespoerselRepository.filtrerForespoersler(request2, DEFAULT_ORG).size shouldBe 1
         val request3 = ForespoerselRequest(orgnr = DEFAULT_ORG, fom = now.toLocalDate().plusDays(2))
-        forespoerselRepository.filtrerForespoersler(request3).size shouldBe 0
+        forespoerselRepository.filtrerForespoersler(request3, DEFAULT_ORG).size shouldBe 0
 
         val requestTom = ForespoerselRequest(orgnr = DEFAULT_ORG, tom = now.toLocalDate())
-        forespoerselRepository.filtrerForespoersler(requestTom).size shouldBe 2
+        forespoerselRepository.filtrerForespoersler(requestTom, DEFAULT_ORG).size shouldBe 2
 
         val requestForTidlig = ForespoerselRequest(orgnr = DEFAULT_ORG, tom = now.toLocalDate().minusDays(1))
-        forespoerselRepository.filtrerForespoersler(requestForTidlig).size shouldBe 0
+        forespoerselRepository.filtrerForespoersler(requestForTidlig, DEFAULT_ORG).size shouldBe 0
         shouldThrow<IllegalArgumentException> {
             ForespoerselRequest(orgnr = DEFAULT_ORG, tom = LocalDate.MAX)
         }

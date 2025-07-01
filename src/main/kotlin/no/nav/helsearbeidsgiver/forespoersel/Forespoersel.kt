@@ -46,7 +46,8 @@ enum class Type {
 
 @Serializable
 data class ForespoerselRequest(
-    val orgnr: String,
+    // TODO: orgnr skal gjøres påkrevd samtidig i InntektsmeldingRequest, SykmeldingFilterRequest og SykepengesoeknadFilterRequest
+    val orgnr: String? = null,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
     val status: Status? = null,
@@ -54,7 +55,7 @@ data class ForespoerselRequest(
     val tom: LocalDate? = null,
 ) {
     init {
-        require(erGyldig(orgnr))
+        orgnr?.let { require(erGyldig(orgnr)) }
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring

@@ -22,17 +22,20 @@ class ForespoerselService(
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
 
-    fun filtrerForespoersler(request: ForespoerselRequest): List<Forespoersel> {
+    fun filtrerForespoersler(
+        request: ForespoerselRequest,
+        orgnr: String,
+    ): List<Forespoersel> {
         runCatching {
-            sikkerLogger().info("Henter forespørsler for bedrift: ${request.orgnr}")
-            forespoerselRepository.filtrerForespoersler(request)
+            sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
+            forespoerselRepository.filtrerForespoersler(request, orgnr)
         }.onSuccess {
-            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: ${request.orgnr}")
+            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it
         }.onFailure {
-            sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: ${request.orgnr}", it)
+            sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
         }
-        throw RuntimeException("Feil ved henting av forespørsler for bedrift: ${request.orgnr}")
+        throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
 
     fun lagreOppdatertForespoersel(priMessage: PriMessage) {

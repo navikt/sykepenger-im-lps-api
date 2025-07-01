@@ -64,6 +64,7 @@ class ForespoerselRoutingTest : ApiTest() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
                 ForespoerselRequest(orgnr = DEFAULT_ORG),
+                orgnr = DEFAULT_ORG,
             )
         } returns
             List(
@@ -110,6 +111,7 @@ class ForespoerselRoutingTest : ApiTest() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
                 ForespoerselRequest(orgnr = DEFAULT_ORG),
+                orgnr = DEFAULT_ORG,
             )
         } returns emptyList()
 
