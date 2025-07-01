@@ -93,6 +93,7 @@ fun InntektsmeldingRequest.validerMotForespoersel(
     sluttbrukerOrgnr: String,
 ): String? =
     when {
+        forespoersel.navReferanseId != navReferanseId -> Feilmelding.UGYLDIG_REFERANSE // sjekker for sikkerhets skyld
         forespoersel.orgnr != sluttbrukerOrgnr -> Feilmelding.FEIL_ORGNR
         forespoersel.fnr != this.sykmeldtFnr -> Feilmelding.FEIL_FNR
         forespoersel.inntektPaakrevd && this.inntekt == null -> Feilmelding.INNTEKT_ER_PAAKREVD
@@ -114,4 +115,5 @@ internal object Feilmelding {
     const val AGP_ER_IKKE_PAAKREVD = "Agp er ikke paakrevd"
     const val UGYLDIG_AARSAK = "Ugyldig aarsak innsending"
     const val FORESPOERSEL_FORKASTET = "Forespoersel er trukket tilbake"
+    const val UGYLDIG_REFERANSE = "Ugyldig referanse"
 }
