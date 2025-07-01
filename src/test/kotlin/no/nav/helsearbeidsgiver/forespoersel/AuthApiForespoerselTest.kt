@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.authorization
+package no.nav.helsearbeidsgiver.forespoersel
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -14,10 +14,8 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.getPdpService
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRequest
-import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
