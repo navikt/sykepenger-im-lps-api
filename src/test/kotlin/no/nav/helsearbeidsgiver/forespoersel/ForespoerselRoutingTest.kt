@@ -106,6 +106,27 @@ class ForespoerselRoutingTest : ApiTest() {
     }
 
     @Test
+    fun `returnerer tom liste når det ikke er noen forespørsler på et orgnr`() {
+        every {
+            repositories.forespoerselRepository.filtrerForespoersler(
+                ForespoerselRequest(orgnr = DEFAULT_ORG),
+            )
+        } returns emptyList()
+
+        runBlocking {
+            val response =
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val forespoerslerSvar = response.body<List<Forespoersel>>()
+            forespoerslerSvar.size shouldBe 0
+        }
+    }
+
+    @Test
     fun `gir 400 dersom navReferanseId er ugyldig`() {
         val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
