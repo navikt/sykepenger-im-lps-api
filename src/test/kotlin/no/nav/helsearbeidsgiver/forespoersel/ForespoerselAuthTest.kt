@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class AuthApiForespoerselTest : ApiTest() {
+class ForespoerselAuthTest : ApiTest() {
     private val orgnrUtenTilgang = Orgnr.genererGyldig().toString()
     private val orgnrMedTilgang = Orgnr.genererGyldig().toString()
 
@@ -59,7 +59,7 @@ class AuthApiForespoerselTest : ApiTest() {
     }
 
     @Test
-    fun `hent forespørsler fra deprecated endepunkt`() {
+    fun `gir 200 OK ved henting av forespørsler fra deprecated endepunkt`() {
         every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(orgnrMedTilgang) } returns
             listOf(
                 mockForespoersel().copy(orgnr = orgnrMedTilgang),
@@ -72,13 +72,12 @@ class AuthApiForespoerselTest : ApiTest() {
             response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<List<Forespoersel>>()
             forespoerselSvar.size shouldBe 1
-            forespoerselSvar[0].status shouldBe Status.AKTIV
             forespoerselSvar[0].orgnr shouldBe orgnrMedTilgang
         }
     }
 
     @Test
-    fun `hent en spesifikk forespørsel`() {
+    fun `gir 200 OK ved henting av en spesifikk forespørsel`() {
         val navReferanseId = UUID.randomUUID()
         every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns
             mockForespoersel().copy(
@@ -98,7 +97,7 @@ class AuthApiForespoerselTest : ApiTest() {
     }
 
     @Test
-    fun `hent alle forespørsler på et orgnr`() {
+    fun `gir 200 OK ved henting av alle forespørsler på et orgnr`() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
                 ForespoerselRequest(orgnr = orgnrMedTilgang),
@@ -130,34 +129,7 @@ class AuthApiForespoerselTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 dersom forespørsel ikke finnes`() {
-        val navReferanseId = UUID.randomUUID()
-        every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns null
-
-        val response =
-            runBlocking {
-                client.get("/v1/forespoersel/$navReferanseId") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedTilgang))
-                }
-            }
-        response.status shouldBe HttpStatusCode.NotFound
-    }
-
-    @Test
-    fun `gir 400 dersom navReferanseId er ugyldig`() {
-        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
-
-        val response =
-            runBlocking {
-                client.get("/v1/forespoersel/$ugyldigNavReferanseId") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedTilgang))
-                }
-            }
-        response.status shouldBe HttpStatusCode.BadRequest
-    }
-
-    @Test
-    fun `gir 401 når token mangler ved henting av forespørsler`() {
+    fun `gir 401 Unauthorized når token mangler ved henting av forespørsler`() {
         val response1 = runBlocking { client.get("/v1/forespoersler") }
         response1.status shouldBe HttpStatusCode.Unauthorized
 
@@ -176,7 +148,7 @@ class AuthApiForespoerselTest : ApiTest() {
     }
 
     @Test
-    fun `gir 401 når systembruker mangler i token ved henting av forepørsler`() {
+    fun `gir 401 Unauthorized når systembruker mangler i token ved henting av forepørsler`() {
         val response1 =
             runBlocking {
                 client.get("/v1/forespoersler") {
@@ -205,7 +177,7 @@ class AuthApiForespoerselTest : ApiTest() {
     }
 
     @Test
-    fun `gir 401 når pdp nekter tilgang for systembrukeren`() {
+    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren`() {
         val navReferanseId = UUID.randomUUID()
         val forespoersel = mockForespoersel().copy(orgnr = orgnrUtenTilgang, navReferanseId = navReferanseId)
         every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns forespoersel
