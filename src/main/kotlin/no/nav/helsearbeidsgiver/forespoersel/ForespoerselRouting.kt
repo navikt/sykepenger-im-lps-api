@@ -77,7 +77,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             )
             call.respond(forespoersel)
         } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.NotFound, "Ugyldig identifikator")
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
@@ -86,19 +86,25 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 }
 
 private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
-    // Hent forespørsler for tilhørende systembrukers orgnr, filtrer basert på request.
+    // Hent forespørsler for orgnr, filtrer basert på request.
     // filterparametre fom og tom refererer til opprettetTid (Tidspunktet forespørselen ble opprettet av Nav)
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
+
+            if (!tokenValidationContext().harTilgangTilRessurs(ressurs = IM_RESSURS, orgnr = Orgnr(request.orgnr))) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
-            call.respond(forespoerselService.filtrerForespoerslerForOrgnr(sluttbrukerOrgnr, request))
+
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info(
+                "LPS: [$lpsOrgnr] henter forespørsler for bedrift med systembrukerOrgnr: [$systembrukerOrgnr] og requestOrgnr: [${request.orgnr}]",
+            )
+            call.respond(forespoerselService.filtrerForespoersler(request))
+        } catch (_: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")

@@ -1,4 +1,9 @@
-@file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class, YearMonthSerializer::class, UuidSerializer::class)
+@file:UseSerializers(
+    LocalDateSerializer::class,
+    LocalDateTimeSerializer::class,
+    YearMonthSerializer::class,
+    UuidSerializer::class,
+)
 
 package no.nav.helsearbeidsgiver.forespoersel
 
@@ -9,6 +14,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.YearMonthSerializer
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -40,6 +46,7 @@ enum class Type {
 
 @Serializable
 data class ForespoerselRequest(
+    val orgnr: String,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
     val status: Status? = null,
@@ -47,6 +54,7 @@ data class ForespoerselRequest(
     val tom: LocalDate? = null,
 ) {
     init {
+        require(erGyldig(orgnr))
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
