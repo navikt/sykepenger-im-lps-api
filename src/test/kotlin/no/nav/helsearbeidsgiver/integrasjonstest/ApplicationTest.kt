@@ -134,12 +134,12 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val forespoerselId = UUID.randomUUID()
         val oppdatertForespoerselId = UUID.randomUUID()
 
-        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString())
+        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId)
 
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselId = forespoerselId.toString(),
+                forespoerselId = oppdatertForespoerselId,
+                eksponertForespoerselId = forespoerselId,
             )
 
         val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
@@ -185,8 +185,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselId = forespoerselId.toString(),
+                forespoerselId = oppdatertForespoerselId,
+                eksponertForespoerselId = forespoerselId,
                 vedtaksperiodeId = vedtaksperiodeId,
             )
 
@@ -203,7 +203,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val oppdatertForespoerselId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
 
-        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId.toString(), vedtaksperiodeId)
+        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId, vedtaksperiodeId)
         val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
         val forespoersel = priMessage.forespoersel
         if (forespoersel != null) {
@@ -215,8 +215,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselId = forespoerselId.toString(),
+                forespoerselId = oppdatertForespoerselId,
+                eksponertForespoerselId = forespoerselId,
                 vedtaksperiodeId = vedtaksperiodeId,
             )
 
@@ -260,8 +260,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val vedtaksperiodeId = UUID.randomUUID()
         val forespoerselMottattJson =
             buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId.toString(),
-                eksponertForespoerselId = eksponertForespoerselId.toString(),
+                forespoerselId = oppdatertForespoerselId,
+                eksponertForespoerselId = eksponertForespoerselId,
                 vedtaksperiodeId = vedtaksperiodeId,
             )
 
