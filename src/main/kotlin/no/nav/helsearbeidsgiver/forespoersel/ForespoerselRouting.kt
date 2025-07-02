@@ -104,7 +104,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respond(forespoerselService.filtrerForespoersler(request = request, orgnr = orgnr))
+            call.respond(forespoerselService.filtrerForespoersler(orgnr = orgnr, request = request))
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {

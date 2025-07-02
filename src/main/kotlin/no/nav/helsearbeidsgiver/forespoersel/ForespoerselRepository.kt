@@ -94,8 +94,8 @@ class ForespoerselRepository(
         }
 
     fun filtrerForespoersler(
-        request: ForespoerselRequest,
         orgnr: String,
+        request: ForespoerselRequest,
     ): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)

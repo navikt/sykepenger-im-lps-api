@@ -103,8 +103,8 @@ class ForespoerselAuthTest : ApiTest() {
     fun `gir 200 OK ved henting av flere forespørsler på orgnr hentet fra request`() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                request = ForespoerselRequest(orgnr = orgnrMedPdpTilgang),
                 orgnr = orgnrMedPdpTilgang,
+                request = ForespoerselRequest(orgnr = orgnrMedPdpTilgang),
             )
         } returns
             List(
@@ -140,8 +140,8 @@ class ForespoerselAuthTest : ApiTest() {
         val requestUtenOrgnr = ForespoerselRequest()
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                request = requestUtenOrgnr,
                 orgnr = orgnrMedPdpTilgang,
+                request = requestUtenOrgnr,
             )
         } returns
             List(

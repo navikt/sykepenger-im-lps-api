@@ -63,8 +63,8 @@ class ForespoerselRoutingTest : ApiTest() {
     fun `hent alle forespørsler på et orgnr`() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                ForespoerselRequest(orgnr = DEFAULT_ORG),
                 orgnr = DEFAULT_ORG,
+                request = ForespoerselRequest(orgnr = DEFAULT_ORG),
             )
         } returns
             List(
@@ -110,8 +110,8 @@ class ForespoerselRoutingTest : ApiTest() {
     fun `returnerer tom liste når det ikke er noen forespørsler på et orgnr`() {
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                ForespoerselRequest(orgnr = DEFAULT_ORG),
                 orgnr = DEFAULT_ORG,
+                request = ForespoerselRequest(orgnr = DEFAULT_ORG),
             )
         } returns emptyList()
 

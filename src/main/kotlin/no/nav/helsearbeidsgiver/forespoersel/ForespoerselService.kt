@@ -23,12 +23,12 @@ class ForespoerselService(
     }
 
     fun filtrerForespoersler(
-        request: ForespoerselRequest,
         orgnr: String,
+        request: ForespoerselRequest,
     ): List<Forespoersel> {
         runCatching {
             sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
-            forespoerselRepository.filtrerForespoersler(request, orgnr)
+            forespoerselRepository.filtrerForespoersler(orgnr = orgnr, request = request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it
