@@ -64,7 +64,7 @@ private fun Route.innsending(services: Services) {
                     ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
 
             request.validerMotForespoersel(forespoersel, sluttbrukerOrgnr)?.let {
-                sikkerLogger().warn("Mottatt ugyldig innsending, dette skal ikke skje. Request: $request")
+                sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
             val sisteInntektsmelding =
