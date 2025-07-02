@@ -74,7 +74,7 @@ private fun Route.innsending(services: Services) {
 
             val inntektsmelding =
                 request.tilInntektsmelding(
-                    sluttbrukerOrgnr = Orgnr(forespoersel.orgnr),
+                    sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
                     lpsOrgnr = Orgnr(lpsOrgnr),
                     forespoersel = forespoersel,
                     vedtaksperiodeId = vedtaksperiodeId,
