@@ -13,7 +13,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.util.UUID
 
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
@@ -65,13 +65,18 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
                 return@get
             }
 
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS, Orgnr(forespoersel.orgnr))) {
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
+                    orgnrSet = setOf(forespoersel.orgnr, systembrukerOrgnr),
+                )
+            ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
 
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsel med id $navReferanseId for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
                     " og forespørselOrgnr: [${forespoersel.orgnr}]",
@@ -87,15 +92,19 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 }
 
 private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
-    // Hent forespørsler for orgnr, filtrer basert på request.
+    // Hent forespørsler, filtrer basert på request.
     // filterparametre fom og tom refererer til opprettetTid (Tidspunktet forespørselen ble opprettet av Nav)
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
             val orgnr = request.orgnr ?: systembrukerOrgnr
 
-            if (!tokenValidationContext().harTilgangTilRessurs(ressurs = IM_RESSURS, orgnr = Orgnr(orgnr))) {
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
+                    orgnrSet = setOf(orgnr, systembrukerOrgnr),
+                )
+            ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }

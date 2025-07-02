@@ -51,6 +51,30 @@ class ForespoerselAuthTest : ApiTest() {
                 ressurs = any(),
             )
         } returns true
+
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnrSet = setOf(orgnrMedPdpTilgang),
+                ressurs = any(),
+            )
+        } returns true
+
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnrSet = setOf(orgnrUtenPdpTilgang),
+                ressurs = any(),
+            )
+        } returns false
+
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnrSet = setOf(orgnrMedPdpTilgang, orgnrUtenPdpTilgang),
+                ressurs = any(),
+            )
+        } returns false
     }
 
     @AfterAll
@@ -88,10 +112,7 @@ class ForespoerselAuthTest : ApiTest() {
         runBlocking {
             val response =
                 client.get("/v1/forespoersel/$navReferanseId") {
-                    // Orgnr i token vil være enten på hovedenhet eller underenhet (og vanligvis ha pdp-tilgang),
-                    // men setter til orgnrUtenPdpTilgang i denne testen for å verifisere at vi ikke bryr oss om orgnr i token,
-                    // kun sjekker at systembruker har tilgang til forespørsel-ressursen med orgnr i _forespørselen_.
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<Forespoersel>()
@@ -121,10 +142,7 @@ class ForespoerselAuthTest : ApiTest() {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
                     setBody(ForespoerselRequest(orgnr = orgnrMedPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
-                    // Orgnr i token vil være enten på hovedenhet eller underenhet (og vanligvis ha pdp-tilgang),
-                    // men setter til orgnrUtenPdpTilgang i denne testen for å verifisere at vi ikke bryr oss om orgnr i token,
-                    // kun sjekker at systembruker har tilgang til forespørsel-ressursen med orgnr i _requesten_.
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerslerSvar = response.body<List<Forespoersel>>()

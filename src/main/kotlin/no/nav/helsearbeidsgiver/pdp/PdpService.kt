@@ -13,6 +13,12 @@ interface IPdpService {
         orgnr: String,
         ressurs: String,
     ): Boolean
+
+    fun harTilgang(
+        systembruker: String,
+        orgnrSet: Set<String>,
+        ressurs: String,
+    ): Boolean
 }
 
 object PdpService :
@@ -43,12 +49,37 @@ object PdpService :
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
         }
+
+    override fun harTilgang(
+        systembruker: String,
+        orgnrSet: Set<String>,
+        ressurs: String,
+    ): Boolean =
+        runBlocking {
+            sikkerLogger().info("PDP orgnr: $orgnrSet, systembruker: $systembruker, ressurs: $ressurs")
+            runCatching {
+                pdpClient.systemHarRettighetForOrganisasjoner(
+                    systembrukerId = systembruker,
+                    orgnrSet = orgnrSet,
+                    ressurs = ressurs,
+                )
+            }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
+        }
 }
 
 object LocalhostPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
+        ressurs: String,
+    ): Boolean {
+        sikkerLogger().info("Ingen PDP, har tilgang")
+        return true
+    }
+
+    override fun harTilgang(
+        systembruker: String,
+        orgnrSet: Set<String>,
         ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, har tilgang")
@@ -61,6 +92,15 @@ object IngenTilgangPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
         orgnr: String,
+        ressurs: String,
+    ): Boolean {
+        sikkerLogger().info("Ingen PDP, ingen tilgang")
+        return false
+    }
+
+    override fun harTilgang(
+        systembruker: String,
+        orgnrSet: Set<String>,
         ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, ingen tilgang")

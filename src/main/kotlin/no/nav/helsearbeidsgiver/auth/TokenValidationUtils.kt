@@ -6,7 +6,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.config.getPdpService
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v3.TokenValidationContextPrincipal
 
@@ -58,10 +57,10 @@ fun TokenValidationContext.harTilgangTilRessurs(ressurs: String): Boolean {
 
 fun TokenValidationContext.harTilgangTilRessurs(
     ressurs: String,
-    orgnr: Orgnr,
+    orgnrSet: Set<String>,
 ): Boolean {
     val systembruker = this.getSystembrukerId()
-    return getPdpService().harTilgang(systembruker, orgnr.toString(), ressurs)
+    return getPdpService().harTilgang(systembruker, orgnrSet, ressurs)
 }
 
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))
