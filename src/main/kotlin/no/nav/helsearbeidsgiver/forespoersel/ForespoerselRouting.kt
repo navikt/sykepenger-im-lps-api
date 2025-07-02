@@ -56,6 +56,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     get("/forespoersel/{navReferanseId}") {
         try {
             val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
+            // compiler krever notNull-sjekk, men brukes ikke - havner i catch-blokka
             requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)

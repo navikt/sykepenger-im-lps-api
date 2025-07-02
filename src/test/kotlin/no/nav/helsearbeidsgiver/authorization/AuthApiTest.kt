@@ -28,7 +28,7 @@ import java.util.UUID
 
 class AuthApiTest : ApiTest() {
     @Test
-    fun `gir 401 når token mangler ved henting av inntektsmeldinger`() =
+    fun `gir 401 når token mangler`() =
         runTest {
             val response2 = client.get("/v1/inntektsmeldinger")
             response2.status shouldBe HttpStatusCode.Unauthorized
