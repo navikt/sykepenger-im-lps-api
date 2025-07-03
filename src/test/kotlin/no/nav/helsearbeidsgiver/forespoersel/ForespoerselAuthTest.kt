@@ -170,7 +170,7 @@ class ForespoerselAuthTest : ApiTest() {
     }
 
     @Test
-    fun `gir 401 Unauthorized når systembruker mangler i token ved henting av forepørsler`() {
+    fun `gir 401 Unauthorized når systembruker mangler i token ved henting av forespørsler`() {
         val response1 =
             runBlocking {
                 client.get("/v1/forespoersler") {
@@ -269,7 +269,7 @@ class ForespoerselAuthTest : ApiTest() {
         response1.status shouldBe HttpStatusCode.Unauthorized
 
         // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i requesten.
-        // Det vil si at man forsøker å hente forespørsler for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummerent i tokenet.
+        // Det vil si at man forsøker å hente forespørsler for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
         val response2 =
             runBlocking {
                 client.post("/v1/forespoersler") {
