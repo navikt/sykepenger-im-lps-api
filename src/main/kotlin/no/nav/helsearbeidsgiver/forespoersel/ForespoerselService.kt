@@ -22,20 +22,20 @@ class ForespoerselService(
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
 
-    fun filtrerForespoerslerForOrgnr(
-        consumerOrgnr: String,
+    fun filtrerForespoersler(
+        orgnr: String,
         request: ForespoerselRequest,
     ): List<Forespoersel> {
         runCatching {
-            sikkerLogger().info("Henter forespørsler for bedrift: $consumerOrgnr")
-            forespoerselRepository.filtrerForespoersler(consumerOrgnr, request)
+            sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
+            forespoerselRepository.filtrerForespoersler(orgnr = orgnr, request = request)
         }.onSuccess {
-            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $consumerOrgnr")
+            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it
         }.onFailure {
-            sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $consumerOrgnr", it)
+            sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
         }
-        throw RuntimeException("Feil ved henting av forespørsler for bedrift: $consumerOrgnr")
+        throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
 
     fun lagreOppdatertForespoersel(priMessage: PriMessage) {
@@ -93,6 +93,8 @@ class ForespoerselService(
             navReferanseId,
             orgnr,
         )
+
+    fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
 
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 

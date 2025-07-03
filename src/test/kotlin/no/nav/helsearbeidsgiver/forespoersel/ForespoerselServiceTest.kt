@@ -28,10 +28,11 @@ class ForespoerselServiceTest {
     }
 
     @Test
-    fun filtrerForespoerslerForOrgnr() {
+    fun filtrerForespoersler() {
         val forespoersler = getForespoerslerTestdata()
         val request =
             ForespoerselRequest(
+                orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 navReferanseId = null,
                 status = null,
@@ -39,7 +40,7 @@ class ForespoerselServiceTest {
 
         every { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) } returns forespoersler
 
-        val response = forespoerselService.filtrerForespoerslerForOrgnr(DEFAULT_ORG, request)
+        val response = forespoerselService.filtrerForespoersler(DEFAULT_ORG, request)
         assertEquals(2, response.size)
 
         verify { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) }
