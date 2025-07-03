@@ -9,6 +9,8 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.LocalDate
 import java.util.UUID
 
 object TestData {
@@ -823,17 +825,18 @@ object TestData {
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
-        Type.KOMPLETT,
-        orgnr,
-        fnr,
-        UUID.randomUUID(),
-        forespoerselId,
-        emptyList(),
-        emptyList(),
-        ForespurtData(
+        type = Type.KOMPLETT,
+        orgnr = orgnr,
+        fnr = fnr,
+        vedtaksperiodeId = UUID.randomUUID(),
+        forespoerselId = forespoerselId,
+        sykmeldingsperioder = emptyList(),
+        egenmeldingsperioder = emptyList(),
+        forespurtData = ForespurtData(
             Arbeidsgiverperiode(true),
             Inntekt(paakrevd = true),
         ),
+        bestemmendeFravaersdager = mapOf(Orgnr(orgnr) to LocalDate.of(2025, 1, 1)),
     )
 
     fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
