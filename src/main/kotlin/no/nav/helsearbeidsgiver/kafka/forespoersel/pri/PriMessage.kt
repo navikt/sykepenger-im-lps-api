@@ -34,5 +34,5 @@ data class ForespoerselDokument(
     val sykmeldingsperioder: List<Periode>,
     val egenmeldingsperioder: List<Periode>,
     val forespurtData: ForespurtData,
-    val bestemmendeFravaersdager: Map<Orgnr, LocalDate>,
+    val bestemmendeFravaersdager: Map<Orgnr, LocalDate>? = null,
 )
