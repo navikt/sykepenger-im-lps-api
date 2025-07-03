@@ -61,6 +61,7 @@ class ForespoerselRoutingTest : ApiTest() {
 
     @Test
     fun `hent alle forespørsler på et orgnr`() {
+        val antallForventedeForespoersler = 3
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
                 orgnr = DEFAULT_ORG,
@@ -68,7 +69,7 @@ class ForespoerselRoutingTest : ApiTest() {
             )
         } returns
             List(
-                3,
+                antallForventedeForespoersler,
             ) {
                 mockForespoersel().copy(
                     orgnr = DEFAULT_ORG,
@@ -85,7 +86,7 @@ class ForespoerselRoutingTest : ApiTest() {
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerslerSvar = response.body<List<Forespoersel>>()
-            forespoerslerSvar.size shouldBe 3
+            forespoerslerSvar.size shouldBe antallForventedeForespoersler
             forespoerslerSvar.forEach {
                 it.orgnr shouldBe DEFAULT_ORG
             }

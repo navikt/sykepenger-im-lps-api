@@ -8,6 +8,9 @@ import no.nav.helsearbeidsgiver.config.configureAuthClient
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 interface IPdpService {
+    @Deprecated(
+        "Bruk harTilgang(systembruker: String, orgnumre: Set<String>, ressurs: String) istedenfor.",
+    )
     fun harTilgang(
         systembruker: String,
         orgnr: String,
@@ -16,7 +19,7 @@ interface IPdpService {
 
     fun harTilgang(
         systembruker: String,
-        orgnrSet: Set<String>,
+        orgnumre: Set<String>,
         ressurs: String,
     ): Boolean
 }
@@ -42,9 +45,9 @@ object PdpService :
         runBlocking {
             sikkerLogger().info("PDP orgnr: $orgnr, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
-                pdpClient.systemHarRettighetForOrganisasjon(
+                pdpClient.systemHarRettighetForOrganisasjoner(
                     systembrukerId = systembruker,
-                    orgnr = orgnr,
+                    orgnumre = setOf(orgnr),
                     ressurs = ressurs,
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
@@ -52,15 +55,15 @@ object PdpService :
 
     override fun harTilgang(
         systembruker: String,
-        orgnrSet: Set<String>,
+        orgnumre: Set<String>,
         ressurs: String,
     ): Boolean =
         runBlocking {
-            sikkerLogger().info("PDP orgnr: $orgnrSet, systembruker: $systembruker, ressurs: $ressurs")
+            sikkerLogger().info("PDP orgnr: $orgnumre, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjoner(
                     systembrukerId = systembruker,
-                    orgnrSet = orgnrSet,
+                    orgnumre = orgnumre,
                     ressurs = ressurs,
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
@@ -100,7 +103,7 @@ object IngenTilgangPdpService : IPdpService {
 
     override fun harTilgang(
         systembruker: String,
-        orgnrSet: Set<String>,
+        orgnumre: Set<String>,
         ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, ingen tilgang")

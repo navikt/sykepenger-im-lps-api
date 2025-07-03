@@ -12,7 +12,7 @@ import io.ktor.http.contentType
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.getPdpService
@@ -29,74 +29,35 @@ import java.util.UUID
 
 class ForespoerselAuthTest : ApiTest() {
     private val orgnrUtenPdpTilgang = Orgnr.genererGyldig().toString()
-    private val orgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
+    private val hovedenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
+    private val underenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
 
     @BeforeAll
     fun setup() {
         clearMocks(repositories.forespoerselRepository)
-
-        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnr = orgnrUtenPdpTilgang,
-                ressurs = any(),
-            )
-        } returns false
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnr = orgnrMedPdpTilgang,
-                ressurs = any(),
-            )
-        } returns true
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnrSet = setOf(orgnrMedPdpTilgang),
-                ressurs = any(),
-            )
-        } returns true
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnrSet = setOf(orgnrUtenPdpTilgang),
-                ressurs = any(),
-            )
-        } returns false
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnrSet = setOf(orgnrMedPdpTilgang, orgnrUtenPdpTilgang),
-                ressurs = any(),
-            )
-        } returns false
+        mockPdpTilganger()
     }
 
     @AfterAll
     fun tearDown() {
-        unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        unmockkAll()
     }
 
     @Test
     fun `gir 200 OK ved henting av forespørsler fra deprecated endepunkt`() {
-        every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(orgnrMedPdpTilgang) } returns
+        every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(underenhetOrgnrMedPdpTilgang) } returns
             listOf(
-                mockForespoersel().copy(orgnr = orgnrMedPdpTilgang),
+                mockForespoersel().copy(orgnr = underenhetOrgnrMedPdpTilgang),
             )
         runBlocking {
             val response =
                 client.get("/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(underenhetOrgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<List<Forespoersel>>()
             forespoerselSvar.size shouldBe 1
-            forespoerselSvar[0].orgnr shouldBe orgnrMedPdpTilgang
+            forespoerselSvar[0].orgnr shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
 
@@ -105,34 +66,35 @@ class ForespoerselAuthTest : ApiTest() {
         val navReferanseId = UUID.randomUUID()
         every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns
             mockForespoersel().copy(
-                orgnr = orgnrMedPdpTilgang,
+                orgnr = underenhetOrgnrMedPdpTilgang,
                 navReferanseId = navReferanseId,
             )
 
         runBlocking {
             val response =
                 client.get("/v1/forespoersel/$navReferanseId") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerselSvar = response.body<Forespoersel>()
-            forespoerselSvar.orgnr shouldBe orgnrMedPdpTilgang
+            forespoerselSvar.orgnr shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
 
     @Test
-    fun `gir 200 OK ved henting av flere forespørsler på orgnr hentet fra request`() {
+    fun `gir 200 OK ved henting av flere forespørsler på underenhetorgnr hentet fra request`() {
+        val antallForventedeForespoersler = 3
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                orgnr = orgnrMedPdpTilgang,
-                request = ForespoerselRequest(orgnr = orgnrMedPdpTilgang),
+                orgnr = underenhetOrgnrMedPdpTilgang,
+                request = ForespoerselRequest(orgnr = underenhetOrgnrMedPdpTilgang),
             )
         } returns
             List(
-                3,
+                antallForventedeForespoersler,
             ) {
                 mockForespoersel().copy(
-                    orgnr = orgnrMedPdpTilgang,
+                    orgnr = underenhetOrgnrMedPdpTilgang,
                     navReferanseId = UUID.randomUUID(),
                 )
             }
@@ -141,32 +103,33 @@ class ForespoerselAuthTest : ApiTest() {
             val response =
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest(orgnr = orgnrMedPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
+                    setBody(ForespoerselRequest(orgnr = underenhetOrgnrMedPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerslerSvar = response.body<List<Forespoersel>>()
-            forespoerslerSvar.size shouldBe 3
+            forespoerslerSvar.size shouldBe antallForventedeForespoersler
             forespoerslerSvar.forEach {
-                it.orgnr shouldBe orgnrMedPdpTilgang
+                it.orgnr shouldBe underenhetOrgnrMedPdpTilgang
             }
         }
     }
 
     @Test
-    fun `gir 200 OK ved henting av flere forespørsler på et orgnr hentet fra systembruker`() {
+    fun `gir 200 OK ved henting av flere forespørsler på underenhetorgnr hentet fra systembruker`() {
         val requestUtenOrgnr = ForespoerselRequest()
+        val antallForventedeForespoersler = 3
         every {
             repositories.forespoerselRepository.filtrerForespoersler(
-                orgnr = orgnrMedPdpTilgang,
+                orgnr = underenhetOrgnrMedPdpTilgang,
                 request = requestUtenOrgnr,
             )
         } returns
             List(
-                3,
+                antallForventedeForespoersler,
             ) {
                 mockForespoersel().copy(
-                    orgnr = orgnrMedPdpTilgang,
+                    orgnr = underenhetOrgnrMedPdpTilgang,
                     navReferanseId = UUID.randomUUID(),
                 )
             }
@@ -176,13 +139,13 @@ class ForespoerselAuthTest : ApiTest() {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
                     setBody(requestUtenOrgnr.toJson(serializer = ForespoerselRequest.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(underenhetOrgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
             val forespoerslerSvar = response.body<List<Forespoersel>>()
-            forespoerslerSvar.size shouldBe 3
+            forespoerslerSvar.size shouldBe antallForventedeForespoersler
             forespoerslerSvar.forEach {
-                it.orgnr shouldBe orgnrMedPdpTilgang
+                it.orgnr shouldBe underenhetOrgnrMedPdpTilgang
             }
         }
     }
@@ -195,7 +158,7 @@ class ForespoerselAuthTest : ApiTest() {
         val response2 = runBlocking { client.get("/v1/forespoersel/${UUID.randomUUID()}") }
         response2.status shouldBe HttpStatusCode.Unauthorized
 
-        val requestBody = ForespoerselRequest(orgnr = orgnrMedPdpTilgang)
+        val requestBody = ForespoerselRequest(orgnr = underenhetOrgnrMedPdpTilgang)
         val response3 =
             runBlocking {
                 client.post("/v1/forespoersler") {
@@ -228,7 +191,7 @@ class ForespoerselAuthTest : ApiTest() {
             runBlocking {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest(orgnr = orgnrMedPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
+                    setBody(ForespoerselRequest(orgnr = underenhetOrgnrMedPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             }
@@ -236,58 +199,147 @@ class ForespoerselAuthTest : ApiTest() {
     }
 
     @Test
-    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren`() {
+    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra deprecated endepunkt`() {
         val navReferanseId = UUID.randomUUID()
         val forespoersel = mockForespoersel().copy(orgnr = orgnrUtenPdpTilgang, navReferanseId = navReferanseId)
         every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns forespoersel
 
-        val response1 =
+        val response =
             runBlocking {
                 client.get("/v1/forespoersler") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
+        response.status shouldBe HttpStatusCode.Unauthorized
+    }
+
+    @Test
+    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av en spesifikk forespørsel`() {
+        val navReferanseIdIkkeTilgang = UUID.randomUUID()
+        val forespoerselIkkeTilgang =
+            mockForespoersel().copy(orgnr = orgnrUtenPdpTilgang, navReferanseId = navReferanseIdIkkeTilgang)
+        every { repositories.forespoerselRepository.hentForespoersel(navReferanseIdIkkeTilgang) } returns forespoerselIkkeTilgang
+
+        val navReferanseIdTilgang = UUID.randomUUID()
+        val forespoerselTilgang =
+            mockForespoersel().copy(orgnr = underenhetOrgnrMedPdpTilgang, navReferanseId = navReferanseIdTilgang)
+        every { repositories.forespoerselRepository.hentForespoersel(navReferanseIdTilgang) } returns forespoerselTilgang
+
+        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra forespørsel).
+        // Det vil si at man forsøker å hente en forespørsel som systembrukeren ikke skal ha tilgang til.
+        val response1 =
+            runBlocking {
+                client.get("/v1/forespoersel/$navReferanseIdIkkeTilgang") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                }
+            }
         response1.status shouldBe HttpStatusCode.Unauthorized
 
+        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra forespørsel).
         val response2 =
             runBlocking {
-                client.get("/v1/forespoersel/$navReferanseId") {
+                client.get("/v1/forespoersel/$navReferanseIdTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
         response2.status shouldBe HttpStatusCode.Unauthorized
 
-        // Med orgnr i requesten
+        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra forespørsel.
         val response3 =
+            runBlocking {
+                client.get("/v1/forespoersel/$navReferanseIdIkkeTilgang") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+                }
+            }
+        response3.status shouldBe HttpStatusCode.Unauthorized
+    }
+
+    @Test
+    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av flere forespørsler`() {
+        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra requesten).
+        // Det vil si at man forsøker å hente forespørsler for en organisasjon som systembrukeren ikke skal ha tilgang til.
+        val response1 =
             runBlocking {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
                     setBody(ForespoerselRequest(orgnr = orgnrUtenPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                }
+            }
+        response1.status shouldBe HttpStatusCode.Unauthorized
+
+        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i requesten.
+        // Det vil si at man forsøker å hente forespørsler for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummerent i tokenet.
+        val response2 =
+            runBlocking {
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest(orgnr = underenhetOrgnrMedPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+                }
+            }
+        response2.status shouldBe HttpStatusCode.Unauthorized
+
+        // Systembruker har _ikke_ tilgang til orgnr i token, og har heller ikke angitt orgnr i requesten .
+        // Det vil si at man forsøker å hente forespørsler for et orgnummer (fra tokenet) som pdp nekter systembrukeren tilgang til.
+        val response3 =
+            runBlocking {
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest(orgnr = null).toJson(serializer = ForespoerselRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
         response3.status shouldBe HttpStatusCode.Unauthorized
 
-        // Med orgnr i systembrukertoken
+        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
         val response4 =
             runBlocking {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest().toJson(serializer = ForespoerselRequest.serializer()))
+                    setBody(ForespoerselRequest(orgnr = orgnrUtenPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
         response4.status shouldBe HttpStatusCode.Unauthorized
+    }
 
-        // Med orgnr uten tilgang i requesten og med tilgang i systembrukertoken
-        val response6 =
-            runBlocking {
-                client.post("/v1/forespoersler") {
-                    contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest(orgnr = orgnrUtenPdpTilgang).toJson(serializer = ForespoerselRequest.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrMedPdpTilgang))
-                }
-            }
-        response6.status shouldBe HttpStatusCode.Unauthorized
+    private fun mockPdpTilganger() {
+        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnr = orgnrUtenPdpTilgang,
+                ressurs = any(),
+            )
+        } returns false
+
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnr = match { it == hovedenhetOrgnrMedPdpTilgang || it == underenhetOrgnrMedPdpTilgang },
+                ressurs = any(),
+            )
+        } returns true
+
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnumre = match { it.contains(orgnrUtenPdpTilgang) },
+                ressurs = any(),
+            )
+        } returns false
+
+        every {
+            getPdpService().harTilgang(
+                systembruker = any(),
+                orgnumre =
+                    match {
+                        (it.contains(hovedenhetOrgnrMedPdpTilgang) || it.contains(underenhetOrgnrMedPdpTilgang)) &&
+                            !it.contains(orgnrUtenPdpTilgang)
+                    },
+                ressurs = any(),
+            )
+        } returns true
     }
 }

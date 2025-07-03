@@ -49,6 +49,9 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
         systembrukerOrgnr.gyldigOrgnr()
 }
 
+@Deprecated(
+    "Bruk harTilgangTilRessurs(ressurs: String, orgnumre: Set<String>) istedenfor.",
+)
 fun TokenValidationContext.harTilgangTilRessurs(ressurs: String): Boolean {
     val systembruker = this.getSystembrukerId()
     val systembrukerOrgnr = this.getSystembrukerOrgnr()
@@ -57,17 +60,19 @@ fun TokenValidationContext.harTilgangTilRessurs(ressurs: String): Boolean {
 
 fun TokenValidationContext.harTilgangTilRessurs(
     ressurs: String,
-    orgnrSet: Set<String>,
+    orgnumre: Set<String>,
 ): Boolean {
     val systembruker = this.getSystembrukerId()
-    return getPdpService().harTilgang(systembruker, orgnrSet, ressurs)
+    return getPdpService().harTilgang(systembruker, orgnumre, ressurs)
 }
 
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))
 
 fun TokenValidationContext.gyldigScope(): Boolean =
     // Kan endre denne tilbake til å sjekke på eksakt match dersom vi bare benytter ett scope
-    Env.getPropertyAsList("maskinporten.eksponert_scopes").contains(this.getClaims("maskinporten").get("scope").toString())
+    Env
+        .getPropertyAsList("maskinporten.eksponert_scopes")
+        .contains(this.getClaims("maskinporten").get("scope").toString())
 
 private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")

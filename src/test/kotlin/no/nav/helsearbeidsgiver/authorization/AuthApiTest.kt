@@ -30,41 +30,35 @@ class AuthApiTest : ApiTest() {
     @Test
     fun `gir 401 når token mangler`() =
         runTest {
-            val response2 = client.get("/v1/inntektsmeldinger")
-            response2.status shouldBe HttpStatusCode.Unauthorized
+            val response1 = client.get("/v1/inntektsmeldinger")
+            response1.status shouldBe HttpStatusCode.Unauthorized
 
             val requestBody = mockInntektsmeldingRequest()
-            val response3 =
+            val response2 =
                 client.post("/v1/inntektsmelding") {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response3.status shouldBe HttpStatusCode.Unauthorized
+            response2.status shouldBe HttpStatusCode.Unauthorized
         }
 
     @Test
     fun `gir 401 når systembruker mangler i token`() =
         runTest {
             val response1 =
-                client.get("/v1/forespoersler") {
+                client.get("/v1/inntektsmeldinger") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             response1.status shouldBe HttpStatusCode.Unauthorized
 
-            val response2 =
-                client.get("/v1/inntektsmeldinger") {
-                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
-                }
-            response2.status shouldBe HttpStatusCode.Unauthorized
-
             val requestBody = mockInntektsmeldingRequest()
-            val response3 =
+            val response2 =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            response3.status shouldBe HttpStatusCode.Unauthorized
+            response2.status shouldBe HttpStatusCode.Unauthorized
         }
 
     @Test

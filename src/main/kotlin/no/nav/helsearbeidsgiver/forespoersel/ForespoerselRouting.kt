@@ -29,7 +29,7 @@ private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 @Deprecated(
     message =
         "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
-            "Bruk POST /forespoersler istedenfor.",
+            "Vi anbefaler å bruke POST /forespoersler istedenfor.",
     level = DeprecationLevel.WARNING,
 )
 private fun Route.forespoersler(forespoerselService: ForespoerselService) {
@@ -70,7 +70,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
-                    orgnrSet = setOf(forespoersel.orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -92,8 +92,8 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 }
 
 private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
-    // Hent forespørsler, filtrer basert på request.
-    // filterparametre fom og tom refererer til opprettetTid (Tidspunktet forespørselen ble opprettet av Nav)
+    // Filtrer forespørsler basert på request.
+    // Filterparametre fom og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet av Nav).
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
@@ -102,7 +102,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
-                    orgnrSet = setOf(orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
