@@ -832,10 +832,11 @@ object TestData {
         forespoerselId = forespoerselId,
         sykmeldingsperioder = emptyList(),
         egenmeldingsperioder = emptyList(),
-        forespurtData = ForespurtData(
-            Arbeidsgiverperiode(true),
-            Inntekt(paakrevd = true),
-        ),
+        forespurtData =
+            ForespurtData(
+                Arbeidsgiverperiode(true),
+                Inntekt(paakrevd = true),
+            ),
         bestemmendeFravaersdager = mapOf(Orgnr(orgnr) to LocalDate.of(2025, 1, 1)),
     )
 
