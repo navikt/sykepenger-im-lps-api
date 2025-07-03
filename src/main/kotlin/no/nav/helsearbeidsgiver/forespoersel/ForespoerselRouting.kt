@@ -13,17 +13,25 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.util.UUID
 
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
         forespoersler(forespoerselService)
+        forespoersel(forespoerselService)
         filtrerForespoersler(forespoerselService)
     }
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
+@Deprecated(
+    message =
+        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
+            "Vi anbefaler å bruke POST /forespoersler istedenfor.",
+    level = DeprecationLevel.WARNING,
+)
 private fun Route.forespoersler(forespoerselService: ForespoerselService) {
     // Hent forespørsler for tilhørende systembrukers orgnr.
     get("/forespoersler") {
@@ -41,27 +49,41 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
         }
     }
+}
 
+private fun Route.forespoersel(forespoerselService: ForespoerselService) {
+    // Hent forespørsel med navReferanseId.
     get("/forespoersel/{navReferanseId}") {
         try {
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-                return@get
-            }
             val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
             // compiler krever notNull-sjekk, men brukes ikke - havner i catch-blokka
             requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsel for bedrift: [$sluttbrukerOrgnr]")
-            val forespoersel = forespoerselService.hentForespoersel(navReferanseId, sluttbrukerOrgnr)
-            if (forespoersel != null) {
-                call.respond(forespoersel)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
+
+            val forespoersel = forespoerselService.hentForespoersel(navReferanseId)
+            if (forespoersel == null) {
+                call.respond(HttpStatusCode.NotFound, "Forespørsel med navReferanseId: $navReferanseId ikke funnet.")
+                return@get
             }
+
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
+                    orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
+                )
+            ) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
+            }
+
+            sikkerLogger().info(
+                "LPS: [$lpsOrgnr] henter forespørsel med id $navReferanseId for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
+                    " og forespørselOrgnr: [${forespoersel.orgnr}]",
+            )
+            call.respond(forespoersel)
         } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.NotFound, "Ugyldig identifikator")
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
@@ -70,19 +92,30 @@ private fun Route.forespoersler(forespoerselService: ForespoerselService) {
 }
 
 private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
-    // Hent forespørsler for tilhørende systembrukers orgnr, filtrer basert på request.
-    // filterparametre fom og tom refererer til opprettetTid (Tidspunktet forespørselen ble opprettet av Nav)
+    // Filtrer forespørsler basert på request.
+    // Filterparametre fom og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet av Nav).
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselRequest>()
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
+            val orgnr = request.orgnr ?: systembrukerOrgnr
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
+                    orgnumre = setOf(orgnr, systembrukerOrgnr),
+                )
+            ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
-            call.respond(forespoerselService.filtrerForespoerslerForOrgnr(sluttbrukerOrgnr, request))
+
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            sikkerLogger().info(
+                "LPS: [$lpsOrgnr] henter forespørsler for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+            )
+            call.respond(forespoerselService.filtrerForespoersler(orgnr = orgnr, request = request))
+        } catch (_: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")

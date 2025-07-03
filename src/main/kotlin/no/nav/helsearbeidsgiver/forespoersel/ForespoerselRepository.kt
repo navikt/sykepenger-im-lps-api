@@ -62,6 +62,17 @@ class ForespoerselRepository(
                 }.getOrNull(0)
         }
 
+    fun hentForespoersel(navReferanseId: UUID): Forespoersel? =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.navReferanseId eq navReferanseId)
+                }.map {
+                    it.toExposedforespoersel()
+                }.getOrNull(0)
+        }
+
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? =
         transaction(db) {
             ForespoerselEntitet
@@ -83,7 +94,7 @@ class ForespoerselRepository(
         }
 
     fun filtrerForespoersler(
-        consumerOrgnr: String,
+        orgnr: String,
         request: ForespoerselRequest,
     ): List<Forespoersel> =
         transaction(db) {
@@ -92,7 +103,7 @@ class ForespoerselRepository(
                 .selectAll()
                 .where {
                     listOfNotNull(
-                        orgnr eq consumerOrgnr,
+                        ForespoerselEntitet.orgnr eq orgnr,
                         request.fnr?.let { fnr eq it },
                         request.navReferanseId?.let { navReferanseId eq it },
                         request.status?.let { status eq it },
