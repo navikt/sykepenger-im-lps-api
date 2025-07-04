@@ -23,16 +23,19 @@ private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
-        hentSykmelding(sykmeldingService)
+        sykmeldinger(sykmeldingService)
+        sykmelding(sykmeldingService)
+        filtrerSykmeldinger(sykmeldingService)
     }
 }
 
-private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
+private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
     // Hent sykmelding med id
     // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
     get("/sykmelding/{id}") {
         fangFeil("Feil ved henting av sykmelding") {
-            val sykmeldingId = call.parameters["id"]?.toUuidOrNull() ?: throw ApiFeil(BadRequest, "Ugyldig sykmelding ID parameter")
+            val sykmeldingId =
+                call.parameters["id"]?.toUuidOrNull() ?: throw ApiFeil(BadRequest, "Ugyldig sykmelding ID parameter")
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
@@ -45,7 +48,15 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
             }
         }
     }
+}
 
+@Deprecated(
+    message =
+        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
+            "Vi anbefaler å bruke POST /sykmeldinger istedenfor.",
+    level = DeprecationLevel.WARNING,
+)
+private fun Route.sykmeldinger(sykmeldingService: SykmeldingService) {
     get("/sykmeldinger") {
         // Hent alle sykmeldinger for et orgnr
         // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
@@ -61,6 +72,9 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
             }
         }
     }
+}
+
+private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
     // Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)
     post("/sykmeldinger") {
         // Hent alle sykmeldinger for et orgnr, filtrert med parametere
