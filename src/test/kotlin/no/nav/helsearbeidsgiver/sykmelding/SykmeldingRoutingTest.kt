@@ -1,3 +1,5 @@
+@file:UseSerializers(LocalDateSerializer::class)
+
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
@@ -12,12 +14,15 @@ import io.ktor.http.contentType
 import io.mockk.clearMocks
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -154,11 +159,11 @@ class SykmeldingRoutingTest : ApiTest() {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        SykmeldingFilterRequest(
-                            fom = LocalDate.MIN,
-                            tom = LocalDate.MIN.plusDays(1),
+                        SykmeldingFilterRequestUtenValidering(
+                            fom = LocalDate.now().minusYears(3001),
+                            tom = LocalDate.now().minusYears(3000),
                         ).toJson(
-                            serializer = SykmeldingFilterRequest.serializer(),
+                            serializer = SykmeldingFilterRequestUtenValidering.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -176,10 +181,10 @@ class SykmeldingRoutingTest : ApiTest() {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        SykmeldingFilterRequest(
-                            fom = LocalDate.MIN.minusDays(1),
-                            tom = LocalDate.MIN.plusDays(1),
-                        ).toJson(serializer = SykmeldingFilterRequest.serializer()),
+                        SykmeldingFilterRequestUtenValidering(
+                            fom = LocalDate.now().minusYears(3000),
+                            tom = LocalDate.now().minusYears(3001),
+                        ).toJson(serializer = SykmeldingFilterRequestUtenValidering.serializer()),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
@@ -202,3 +207,10 @@ fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
         sykmeldtNavn = "Ola Nordmann",
         mottattAvNav = sykmelding.mottattTidspunkt.toLocalDateTime(),
     )
+
+@Serializable
+data class SykmeldingFilterRequestUtenValidering(
+    val fnr: String? = null,
+    val fom: LocalDate? = null,
+    val tom: LocalDate? = null,
+)

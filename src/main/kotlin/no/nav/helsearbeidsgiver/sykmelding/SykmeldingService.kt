@@ -28,6 +28,8 @@ class SykmeldingService(
         }
     }
 
+    fun hentSykmelding(id: UUID): Sykmelding? = sykmeldingRepository.hentSykmelding(id)?.tilSykmelding()
+
     fun hentSykmeldinger(
         orgnr: String,
         sykmeldingFilterRequest: SykmeldingFilterRequest? = null,

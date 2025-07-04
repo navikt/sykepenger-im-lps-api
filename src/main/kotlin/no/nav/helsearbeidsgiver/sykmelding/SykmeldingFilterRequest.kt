@@ -9,6 +9,7 @@ import java.time.LocalDate
 
 @Serializable
 data class SykmeldingFilterRequest(
+    // TODO: Legge til optional orgnr i denne requesten
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
