@@ -1,96 +1,197 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.install
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.routing.RoutingContext
-import io.ktor.server.routing.routing
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
+import io.ktor.http.contentType
+import io.mockk.clearMocks
 import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
-import no.nav.helsearbeidsgiver.auth.getSystembrukerId
-import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
-import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
-import no.nav.helsearbeidsgiver.utils.jsonMapper
-import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.toJson
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.UUID
 
-class SykmeldingRoutingTest :
-    FunSpec({
-        val sykmeldingService = mockk<SykmeldingService>()
+class SykmeldingRoutingTest : ApiTest() {
+    @BeforeAll
+    fun setup() {
+        clearMocks(repositories.sykmeldingRepository)
+    }
 
-        beforeTest {
-            mockkStatic("no.nav.helsearbeidsgiver.auth.TokenValidationUtilsKt")
-            val mockTokenValidationContext = mockk<TokenValidationContext>()
-            every { mockTokenValidationContext.getSystembrukerOrgnr() } returns "810007843"
-            every { mockTokenValidationContext.getConsumerOrgnr() } returns "810007842"
-            every { mockTokenValidationContext.getSystembrukerId() } returns "123"
-            every {
-                runBlocking { any<RoutingContext>().tokenValidationContext() }
-            } returns mockTokenValidationContext
-        }
-
-        afterTest { unmockkAll() }
-
-        fun routingTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
-            testApplication {
-                application {
-                    install(ContentNegotiation) { json() }
-                    routing { sykmeldingV1(sykmeldingService = sykmeldingService) }
+    @Test
+    fun `hent sykmeldinger fra deprecated endepunkt`() {
+        val sykmeldingId = UUID.randomUUID().toString()
+        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, null) } returns
+            listOf(
+                sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO(),
+            )
+        runBlocking {
+            val response =
+                client.get("/v1/sykmeldinger") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-                block()
+            response.status shouldBe HttpStatusCode.OK
+            val sykmeldingSvar = response.body<List<Sykmelding>>()
+            sykmeldingSvar.size shouldBe 1
+            sykmeldingSvar[0].sykmeldingId shouldBe sykmeldingId
+            sykmeldingSvar[0].arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent en spesifikk sykmelding`() {
+        val sykmeldingId = UUID.randomUUID()
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
+            sykmeldingMock().medId(sykmeldingId.toString()).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding/$sykmeldingId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val sykmeldingSvar = response.body<Sykmelding>()
+            sykmeldingSvar.sykmeldingId shouldBe sykmeldingId.toString()
+            sykmeldingSvar.arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent alle sykmeldinger på et orgnr`() {
+        val antallForventedeSykmeldinger = 3
+        every {
+            repositories.sykmeldingRepository.hentSykmeldinger(
+                DEFAULT_ORG,
+                any(),
+            )
+        } returns // TODO: Legg til filter på orgnr
+            List(
+                antallForventedeSykmeldinger,
+            ) {
+                sykmeldingMock().medId(UUID.randomUUID().toString()).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    // TODO: Legg til filter på orgnr
+                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val sykmeldingSvar = response.body<List<Sykmelding>>()
+            sykmeldingSvar.size shouldBe antallForventedeSykmeldinger
+            sykmeldingSvar.forEach {
+                it.arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
             }
         }
+    }
 
-        test("GET /v1/sykmelding/{id} skal returnere OK og sykmelding") {
+    @Test
+    fun `gir 404 dersom sykmelding ikke finnes`() {
+        val sykmeldingId = UUID.randomUUID().toString()
+        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
 
-            val sykmeldingDTO = sykmeldingMock().tilSykmeldingDTO()
-            val sykmelding = sykmeldingDTO.tilSykmelding()
-            val id = UUID.fromString(sykmeldingDTO.id)
-
-            every { sykmeldingService.hentSykmelding(id, any()) } returns sykmelding
-
-            routingTestApplication {
-                val response = client.get("/v1/sykmelding/$id")
-
-                response.status shouldBe HttpStatusCode.OK
-                jsonMapper.decodeFromString<Sykmelding>(response.bodyAsText()) shouldBe sykmelding
+        val response =
+            runBlocking {
+                client.get("/v1/sykmelding/$sykmeldingId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
             }
+        response.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    fun `returnerer tom liste når det ikke er noen sykmeldinger på et orgnr`() {
+        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
+
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    // TODO: Legg til filter på orgnr
+                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val sykmeldingSvar = response.body<List<Sykmelding>>()
+            sykmeldingSvar.size shouldBe 0
         }
+    }
 
-        test("GET /v1/sykmelding/{id} skal returnere NotFound når sykmelding ikke finnes") {
+    @Test
+    fun `gir 400 dersom navReferanseId er ugyldig`() {
+        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
-            every { sykmeldingService.hentSykmelding(any(), any()) } returns null
-            routingTestApplication {
-                val response = client.get("/v1/sykmelding/${UUID.randomUUID()}")
-
-                response.status shouldBe HttpStatusCode.NotFound
-                response.bodyAsText() shouldBe "Ingen sykmelding funnet"
+        val response =
+            runBlocking {
+                client.get("/v1/sykmelding/$ugyldigNavReferanseId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
             }
-        }
+        response.status shouldBe HttpStatusCode.BadRequest
+    }
 
-        test("GET /v1/sykmelding/{id} skal returnere BadRequest når UUID er ugyldig") {
-            routingTestApplication {
-                val response = client.get("/v1/sykmelding/noe-helt-feil-og-ugyldig")
+    @Test
+    fun `gir 400 dersom man ber om sykmeldinger fra lenge før vår tidsregning`() {
+        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
 
-                response.status shouldBe HttpStatusCode.BadRequest
-                response.bodyAsText() shouldBe "Ugyldig sykmelding ID parameter"
-            }
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykmeldingFilterRequest(
+                            fom = LocalDate.MIN,
+                            tom = LocalDate.MIN.plusDays(1),
+                        ).toJson(
+                            serializer = SykmeldingFilterRequest.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
         }
-    })
+    }
+
+    @Test
+    fun `gir 400 dersom man ber om sykmeldinger for skrekkelig langt inn i fremtiden`() {
+        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
+
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykmeldingFilterRequest(
+                            fom = LocalDate.MIN.minusDays(1),
+                            tom = LocalDate.MIN.plusDays(1),
+                        ).toJson(serializer = SykmeldingFilterRequest.serializer()),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
+
+    private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
+        copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
+}
 
 fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
     SykmeldingDTO(
