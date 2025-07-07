@@ -823,17 +823,18 @@ object TestData {
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
-        Type.KOMPLETT,
-        orgnr,
-        fnr,
-        UUID.randomUUID(),
-        forespoerselId,
-        emptyList(),
-        emptyList(),
-        ForespurtData(
-            Arbeidsgiverperiode(true),
-            Inntekt(paakrevd = true),
-        ),
+        type = Type.KOMPLETT,
+        orgnr = orgnr,
+        fnr = fnr,
+        vedtaksperiodeId = UUID.randomUUID(),
+        forespoerselId = forespoerselId,
+        sykmeldingsperioder = emptyList(),
+        egenmeldingsperioder = emptyList(),
+        forespurtData =
+            ForespurtData(
+                Arbeidsgiverperiode(true),
+                Inntekt(paakrevd = true),
+            ),
     )
 
     fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
