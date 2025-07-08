@@ -47,7 +47,7 @@ class SykmeldingRoutingTest : ApiTest() {
 
     @Test
     fun `hent sykmeldinger fra deprecated endepunkt`() {
-        val sykmeldingId = UUID.randomUUID().toString()
+        val sykmeldingId = UUID.randomUUID()
         every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, null) } returns
             listOf(
                 sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO(),
@@ -60,7 +60,7 @@ class SykmeldingRoutingTest : ApiTest() {
             response.status shouldBe HttpStatusCode.OK
             val sykmeldingSvar = response.body<List<Sykmelding>>()
             sykmeldingSvar.size shouldBe 1
-            sykmeldingSvar[0].sykmeldingId shouldBe sykmeldingId
+            sykmeldingSvar[0].sykmeldingId shouldBe sykmeldingId.toString()
             sykmeldingSvar[0].arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
         }
     }
@@ -69,7 +69,7 @@ class SykmeldingRoutingTest : ApiTest() {
     fun `hent en spesifikk sykmelding`() {
         val sykmeldingId = UUID.randomUUID()
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
-            sykmeldingMock().medId(sykmeldingId.toString()).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+            sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
 
         runBlocking {
             val response =
@@ -95,7 +95,7 @@ class SykmeldingRoutingTest : ApiTest() {
             List(
                 antallForventedeSykmeldinger,
             ) {
-                sykmeldingMock().medId(UUID.randomUUID().toString()).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+                sykmeldingMock().medId(UUID.randomUUID()).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
             }
 
         runBlocking {
@@ -222,7 +222,7 @@ class SykmeldingRoutingTest : ApiTest() {
         }
     }
 
-    private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
+    private fun SendSykmeldingAivenKafkaMessage.medId(id: UUID) = copy(sykmelding = sykmelding.copy(id = id.toString()))
 
     private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
         copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
