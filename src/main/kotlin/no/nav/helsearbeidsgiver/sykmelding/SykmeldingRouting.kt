@@ -33,7 +33,6 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
     get("/sykmelding/{id}") {
         try {
             val sykmeldingId = call.parameters["id"]?.toUuidOrNull()
-            // compiler krever notNull-sjekk, men brukes ikke - havner i catch-blokka
             requireNotNull(sykmeldingId) { "navReferanseId: $sykmeldingId ikke gyldig UUID" }
 
             val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
