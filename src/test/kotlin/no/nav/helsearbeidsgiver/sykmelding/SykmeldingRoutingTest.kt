@@ -26,7 +26,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import org.junit.After
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -40,7 +40,7 @@ class SykmeldingRoutingTest : ApiTest() {
         clearMocks(repositories.sykmeldingRepository)
     }
 
-    @After
+    @AfterAll
     fun teardown() {
         unmockkAll()
     }
