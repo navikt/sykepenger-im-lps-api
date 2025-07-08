@@ -54,16 +54,6 @@ class SykmeldingRepository(
                 .firstOrNull()
         }
 
-    private fun ResultRow.toSykmelding(): SykmeldingDTO =
-        SykmeldingDTO(
-            id = this[sykmeldingId].toString(),
-            orgnr = this[orgnr],
-            fnr = this[fnr],
-            sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
-            sykmeldtNavn = this[sykmeldtNavn],
-            mottattAvNav = this[mottattAvNav],
-        )
-
     fun hentSykmeldinger(
         orgnr: String,
         filter: SykmeldingFilterRequest? = null,
@@ -80,4 +70,14 @@ class SykmeldingRepository(
                     ).reduce { acc, cond -> acc and cond }
                 }.map { it.toSykmelding() }
         }
+
+    private fun ResultRow.toSykmelding(): SykmeldingDTO =
+        SykmeldingDTO(
+            id = this[sykmeldingId].toString(),
+            orgnr = this[orgnr],
+            fnr = this[fnr],
+            sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
+            sykmeldtNavn = this[sykmeldtNavn],
+            mottattAvNav = this[mottattAvNav],
+        )
 }

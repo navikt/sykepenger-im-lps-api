@@ -13,6 +13,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -24,15 +26,23 @@ import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import org.junit.jupiter.api.BeforeAll
+import org.junit.After
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 
 class SykmeldingRoutingTest : ApiTest() {
-    @BeforeAll
+    @AfterEach
     fun setup() {
         clearMocks(repositories.sykmeldingRepository)
+    }
+
+    @After
+    fun teardown() {
+        unmockkAll()
     }
 
     @Test
@@ -79,9 +89,9 @@ class SykmeldingRoutingTest : ApiTest() {
         every {
             repositories.sykmeldingRepository.hentSykmeldinger(
                 DEFAULT_ORG,
-                any(),
+                SykmeldingFilterRequest(orgnr = DEFAULT_ORG),
             )
-        } returns // TODO: Legg til filter på orgnr
+        } returns
             List(
                 antallForventedeSykmeldinger,
             ) {
@@ -92,8 +102,7 @@ class SykmeldingRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: Legg til filter på orgnr
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilterRequest(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilterRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -107,8 +116,8 @@ class SykmeldingRoutingTest : ApiTest() {
 
     @Test
     fun `gir 404 dersom sykmelding ikke finnes`() {
-        val sykmeldingId = UUID.randomUUID().toString()
-        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
+        val sykmeldingId = UUID.randomUUID()
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns null
 
         val response =
             runBlocking {
@@ -127,8 +136,7 @@ class SykmeldingRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: Legg til filter på orgnr
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilterRequest(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilterRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -192,6 +200,28 @@ class SykmeldingRoutingTest : ApiTest() {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["X", "*", ";Select * from sykmelding;", "heia", "98", "1234567"])
+    fun `Ugyldig request dersom orgnr ikke er gyldig`(orgnr: String) {
+        val repo = repositories.sykmeldingRepository // kan ikke referere til repositories.. i verify
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykmeldingFilterRequestUtenValidering(
+                            orgnr = orgnr,
+                        ).toJson(
+                            serializer = SykmeldingFilterRequestUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+            verify(exactly = 0) { repo.hentSykmeldinger(any()) }
+        }
+    }
+
     private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
 
     private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
@@ -210,6 +240,7 @@ fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
 
 @Serializable
 data class SykmeldingFilterRequestUtenValidering(
+    val orgnr: String? = null,
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,

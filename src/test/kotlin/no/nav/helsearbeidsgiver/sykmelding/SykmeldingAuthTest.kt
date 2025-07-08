@@ -82,7 +82,7 @@ class SykmeldingAuthTest : ApiTest() {
                 }
             response.status shouldBe HttpStatusCode.OK
             val sykmeldingSvar = response.body<Sykmelding>()
-            sykmeldingSvar.arbeidsgiver.orgnr shouldBe underenhetOrgnrMedPdpTilgang
+            sykmeldingSvar.arbeidsgiver.orgnr.toString() shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
 
@@ -90,7 +90,10 @@ class SykmeldingAuthTest : ApiTest() {
     fun `gir 200 OK ved henting av flere sykmeldinger på underenhetorgnr hentet fra request`() {
         val antallForventedeSykmeldinger = 3
         every {
-            repositories.sykmeldingRepository.hentSykmeldinger(underenhetOrgnrMedPdpTilgang, any())
+            repositories.sykmeldingRepository.hentSykmeldinger(
+                orgnr = underenhetOrgnrMedPdpTilgang,
+                filter = SykmeldingFilterRequest(orgnr = underenhetOrgnrMedPdpTilgang),
+            )
         } returns
             List(
                 antallForventedeSykmeldinger,
@@ -105,7 +108,11 @@ class SykmeldingAuthTest : ApiTest() {
             val response =
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer())) // TODO: Orgnr i request
+                    setBody(
+                        SykmeldingFilterRequest(
+                            orgnr = underenhetOrgnrMedPdpTilgang,
+                        ).toJson(serializer = SykmeldingFilterRequest.serializer()),
+                    )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -226,19 +233,19 @@ class SykmeldingAuthTest : ApiTest() {
                 .medId(sykmeldingIdIkkeTilgang.toString())
                 .medOrgnr(orgnrUtenPdpTilgang)
                 .tilSykmeldingDTO()
-
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingIdIkkeTilgang) } returns sykmeldingIkkeTilgang
         val sykmeldingIdTilgang = UUID.randomUUID()
         val sykmeldingTilgang =
             sykmeldingMock()
                 .medId(sykmeldingIdTilgang.toString())
                 .medOrgnr(underenhetOrgnrMedPdpTilgang)
                 .tilSykmeldingDTO()
-
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingIdTilgang) } returns sykmeldingTilgang
         // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra sykmelding).
         // Det vil si at man forsøker å hente en sykmelding som systembrukeren ikke skal ha tilgang til.
         val response1 =
             runBlocking {
-                client.get("/v1/sykmelding/$sykmeldingIkkeTilgang") {
+                client.get("/v1/sykmelding/$sykmeldingIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             }
@@ -247,7 +254,7 @@ class SykmeldingAuthTest : ApiTest() {
         // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra sykmelding).
         val response2 =
             runBlocking {
-                client.get("/v1/sykmelding/$sykmeldingTilgang") {
+                client.get("/v1/sykmelding/$sykmeldingIdTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
@@ -256,7 +263,7 @@ class SykmeldingAuthTest : ApiTest() {
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra sykmelding.
         val response3 =
             runBlocking {
-                client.get("/v1/sykmelding/$sykmeldingIkkeTilgang") {
+                client.get("/v1/sykmelding/$sykmeldingIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
@@ -271,8 +278,7 @@ class SykmeldingAuthTest : ApiTest() {
             runBlocking {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: orgnrUtenPdpTilgang i request
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilterRequest(orgnr = orgnrUtenPdpTilgang).toJson(serializer = SykmeldingFilterRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             }
@@ -284,8 +290,11 @@ class SykmeldingAuthTest : ApiTest() {
             runBlocking {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: underenhetOrgnrMedPdpTilgang i request
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(
+                        SykmeldingFilterRequest(
+                            orgnr = underenhetOrgnrMedPdpTilgang,
+                        ).toJson(serializer = SykmeldingFilterRequest.serializer()),
+                    )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
@@ -297,8 +306,7 @@ class SykmeldingAuthTest : ApiTest() {
             runBlocking {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: orgnr = null i request
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilterRequest(orgnr = null).toJson(serializer = SykmeldingFilterRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
@@ -309,8 +317,7 @@ class SykmeldingAuthTest : ApiTest() {
             runBlocking {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: orgnrUtenPdpTilgang i request
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilterRequest(orgnr = orgnrUtenPdpTilgang).toJson(serializer = SykmeldingFilterRequest.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
