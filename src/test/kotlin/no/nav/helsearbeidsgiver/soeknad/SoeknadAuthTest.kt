@@ -11,19 +11,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.clearMocks
 import io.mockk.every
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
-import no.nav.helsearbeidsgiver.config.getPdpService
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,10 +27,6 @@ import java.util.UUID
 
 // TODO: Duplisert - kan slå sammen alle *AuthTester?
 class SoeknadAuthTest : ApiTest() {
-    private val orgnrUtenPdpTilgang = Orgnr.genererGyldig().toString()
-    private val hovedenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
-    private val underenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
-
     @BeforeEach
     fun setup() {
         clearMocks(repositories.soeknadRepository)
@@ -321,44 +313,5 @@ class SoeknadAuthTest : ApiTest() {
                 }
             }
         response4.status shouldBe HttpStatusCode.Unauthorized
-    }
-
-    private fun mockPdpTilganger() { // TODO: duplisert, slå sammen
-        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnr = orgnrUtenPdpTilgang,
-                ressurs = any(),
-            )
-        } returns false
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnr = match { it == hovedenhetOrgnrMedPdpTilgang || it == underenhetOrgnrMedPdpTilgang },
-                ressurs = any(),
-            )
-        } returns true
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnumre = match { it.contains(orgnrUtenPdpTilgang) },
-                ressurs = any(),
-            )
-        } returns false
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnumre =
-                    match {
-                        (it.contains(hovedenhetOrgnrMedPdpTilgang) || it.contains(underenhetOrgnrMedPdpTilgang)) &&
-                            !it.contains(orgnrUtenPdpTilgang)
-                    },
-                ressurs = any(),
-            )
-        } returns true
     }
 }
