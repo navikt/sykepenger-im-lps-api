@@ -41,7 +41,7 @@ services:
     ports:
       - "33445:8080"
 
-  kafka:
+  lpsapi-kafka:
     image: apache/kafka:latest
     platform: linux/amd64
     ports:

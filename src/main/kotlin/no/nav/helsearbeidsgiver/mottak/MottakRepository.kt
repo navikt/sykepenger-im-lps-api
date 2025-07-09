@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.mottak.MottakRepository.MottakTable.melding
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -19,6 +20,7 @@ class MottakRepository(
         val id = integer("id").autoIncrement()
         val melding = text("melding")
         val gyldig = bool("gyldig")
+        val opprettet = datetime("opprettet")
         override val primaryKey = PrimaryKey(id)
     }
 
