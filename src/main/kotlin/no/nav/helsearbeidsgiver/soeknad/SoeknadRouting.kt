@@ -117,8 +117,6 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
                 "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             call.respond(soeknadService.hentSoeknader(orgnr, request))
-        } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
         } catch (e: Exception) {
