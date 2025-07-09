@@ -135,6 +135,13 @@ class SoeknadRepositoryTest {
     }
 
     @Test
+    fun `hentSoeknad takler at sendt-felter ikke er populert`() {
+        val soeknad = soeknadMock().copy(sendtNav = null, sendtArbeidsgiver = null)
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
+        soeknadRepository.hentSoeknad(soeknad.id) shouldBe soeknad
+    }
+
+    @Test
     fun `hentSoeknader skal bare hente søknader med riktig orgnr`() {
         val orgnr = Orgnr.genererGyldig()
         val soeknaderMedSammeOrgnr =

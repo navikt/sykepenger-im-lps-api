@@ -39,8 +39,9 @@ fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsp
 }
 
 private fun SykepengesoknadDTO.utledSendtTid(): LocalDateTime {
-    // sendtArbeidsgiver og sendtNav blir populert av samme verdi så en av dem vil alltid være satt.
-    val sendt = sendtArbeidsgiver ?: sendtNav
+    // sendtArbeidsgiver og sendtNav blir populert av samme verdi så en av dem skal alltid være satt.
+    // Lagt til fallback til "opprettet":  noen rader i dev manglet begge sendt-feltene..!
+    val sendt = sendtArbeidsgiver ?: sendtNav ?: opprettet
     requireNotNull(sendt)
     return sendt
 }
