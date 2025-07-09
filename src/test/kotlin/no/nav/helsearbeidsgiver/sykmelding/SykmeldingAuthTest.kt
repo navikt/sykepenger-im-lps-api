@@ -125,7 +125,7 @@ class SykmeldingAuthTest : ApiTest() {
     }
 
     @Test
-    fun `gir 200 OK ved henting av flere sykmeldinger på på underenhetorgnr hentet fra systembruker`() {
+    fun `gir 200 OK ved henting av flere sykmeldinger på underenhetorgnr hentet fra systembruker`() {
         val antallForventedeSykmeldinger = 3
         val requestUtenOrgnr = SykmeldingFilterRequest()
         every {
@@ -164,7 +164,7 @@ class SykmeldingAuthTest : ApiTest() {
         val response2 = runBlocking { client.get("/v1/sykmelding/${UUID.randomUUID()}") }
         response2.status shouldBe HttpStatusCode.Unauthorized
 
-        val requestBody = SykmeldingFilterRequest() // TODO: Orgnr i request
+        val requestBody = SykmeldingFilterRequest(orgnr = underenhetOrgnrMedPdpTilgang)
         val response3 =
             runBlocking {
                 client.post("/v1/sykmeldinger") {
@@ -197,8 +197,11 @@ class SykmeldingAuthTest : ApiTest() {
             runBlocking {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    // TODO: Underenhetorgnr i request
-                    setBody(SykmeldingFilterRequest().toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(
+                        SykmeldingFilterRequest(
+                            orgnr = underenhetOrgnrMedPdpTilgang,
+                        ).toJson(serializer = SykmeldingFilterRequest.serializer()),
+                    )
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             }
