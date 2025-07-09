@@ -16,17 +16,13 @@ class SoeknadService(
 ) {
     private val logger = logger()
 
-    fun hentSoeknader(orgnr: String): List<Sykepengesoeknad> =
-        soeknadRepository.hentSoeknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
-
-    fun hentSoeknad(
-        soeknadId: UUID,
+    fun hentSoeknader(
         orgnr: String,
-    ): Sykepengesoeknad? =
-        soeknadRepository.hentSoeknad(soeknadId)?.whitelistetForArbeidsgiver()?.konverter().takeIf {
-            it?.arbeidsgiver?.orgnr ==
-                orgnr
-        }
+        filter: SykepengesoeknadFilter? = null,
+    ): List<Sykepengesoeknad> = soeknadRepository.hentSoeknader(orgnr, filter).map { it.whitelistetForArbeidsgiver().konverter() }
+
+    fun hentSoeknad(soeknadId: UUID): Sykepengesoeknad? =
+        soeknadRepository.hentSoeknad(soeknadId)?.whitelistetForArbeidsgiver()?.konverter()
 
     fun behandleSoeknad(soeknad: SykepengesoknadDTO) {
         if (!soeknad.skalLagres()) {

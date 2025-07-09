@@ -2,13 +2,18 @@ package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sis.StatusISpeilEntitet
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.fnr
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.opprettet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
+import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -35,12 +40,21 @@ class SoeknadRepository(
         }
     }
 
-    fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
+    fun hentSoeknader(
+        orgnr: String,
+        filter: SykepengesoeknadFilter? = null,
+    ): List<SykepengesoknadDTO> =
         transaction(db) {
             SoeknadEntitet
                 .selectAll()
-                .where { SoeknadEntitet.orgnr eq orgnr }
-                .map { it[sykepengesoeknad] }
+                .where {
+                    listOfNotNull(
+                        SoeknadEntitet.orgnr eq orgnr,
+                        filter?.fnr?.let { fnr eq it },
+                        filter?.fom?.let { opprettet greaterEq it.tilTidspunktStartOfDay() },
+                        filter?.tom?.let { opprettet lessEq it.tilTidspunktEndOfDay() },
+                    ).reduce { acc, cond -> acc and cond }
+                }.map { it[sykepengesoeknad] }
         }
 
     fun hentSoeknad(id: UUID): SykepengesoknadDTO? =
