@@ -13,8 +13,8 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
-import java.util.UUID
 
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
@@ -55,8 +55,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     // Hent forespørsel med navReferanseId.
     get("/forespoersel/{navReferanseId}") {
         try {
-            val navReferanseId = call.parameters["navReferanseId"]?.let { UUID.fromString(it) }
-            // compiler krever notNull-sjekk, men brukes ikke - havner i catch-blokka
+            val navReferanseId = call.parameters["navReferanseId"]?.toUuidOrNull()
             requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)

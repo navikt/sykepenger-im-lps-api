@@ -10,7 +10,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -95,37 +94,21 @@ class SykmeldingServiceTest {
             sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, UUID.fromString(it.sykmelding.id), "Ola Nordmann") }
 
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
-        val orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
 
-        sykmeldingService.hentSykmelding(id, orgnr) shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO().tilSykmelding()
+        sykmeldingService.hentSykmelding(id) shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO().tilSykmelding()
     }
 
     @Test
     fun `hentSykmelding skal returnere null når id ikke eksisterer`() {
-        val sykmeldingKafkaMessage =
-            sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, UUID.fromString(it.sykmelding.id), "") }
+        sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, UUID.fromString(it.sykmelding.id), "") }
 
         val feilId = UUID.randomUUID()
 
         assertNull(
             sykmeldingService.hentSykmelding(
                 id = feilId,
-                orgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer,
             ),
         )
-    }
-
-    @Test
-    fun `hentSykmelding skal returnere null når id eksisterer men orgnr ikke matcher`() {
-        val sykmeldingKafkaMessage =
-            sykmeldingMock().also { sykmeldingService.lagreSykmelding(it, UUID.fromString(it.sykmelding.id), "") }
-
-        val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
-        val riktigOrgnr = sykmeldingKafkaMessage.event.arbeidsgiver!!.orgnummer
-        assertNotNull(sykmeldingService.hentSykmelding(id, riktigOrgnr))
-
-        val feilOrgnr = "feil-orgnr"
-        assertNull(sykmeldingService.hentSykmelding(id, feilOrgnr))
     }
 
     private fun SendSykmeldingAivenKafkaMessage.copyWithSyketilfelleStartDato(syketilfelleStartDato: LocalDate) =

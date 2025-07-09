@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -14,42 +14,69 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
-import no.nav.helsearbeidsgiver.utils.ApiFeil
-import no.nav.helsearbeidsgiver.utils.fangFeil
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
-        hentSykmelding(sykmeldingService)
+        sykmeldinger(sykmeldingService)
+        sykmelding(sykmeldingService)
+        filtrerSykmeldinger(sykmeldingService)
     }
 }
 
-private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
-    // Hent sykmelding med id
-    // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
+private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
+    // Hent sykmelding med sykmeldingId
     get("/sykmelding/{id}") {
-        fangFeil("Feil ved henting av sykmelding") {
-            val sykmeldingId = call.parameters["id"]?.toUuidOrNull() ?: throw ApiFeil(BadRequest, "Ugyldig sykmelding ID parameter")
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-                // kan ikke gjøre return@get her pga fangFeil-håndtering, men else-blokken slår uansett ikke til
-            } else {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift: [$sluttbrukerOrgnr]")
-                val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId, sluttbrukerOrgnr)
-                sykmelding?.let { call.respond(it) } ?: throw ApiFeil(NotFound, "Ingen sykmelding funnet")
+        try {
+            val sykmeldingId = call.parameters["id"]?.toUuidOrNull()
+            requireNotNull(sykmeldingId) { "navReferanseId: $sykmeldingId ikke gyldig UUID" }
+
+            val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
+            if (sykmelding == null) {
+                call.respond(NotFound, "Sykmelding med id: $sykmeldingId ikke funnet.")
+                return@get
             }
+
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SM_RESSURS,
+                    orgnumre = setOf(sykmelding.arbeidsgiver.orgnr.toString(), systembrukerOrgnr),
+                )
+            ) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
+            }
+            sikkerLogger().info(
+                "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
+                    " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
+            )
+            call.respond(sykmelding)
+        } catch (_: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av sykmelding", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmelding")
         }
     }
+}
 
+@Deprecated(
+    message =
+        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
+            "Vi anbefaler å bruke POST /sykmeldinger istedenfor.",
+    level = DeprecationLevel.WARNING,
+)
+private fun Route.sykmeldinger(sykmeldingService: SykmeldingService) {
     get("/sykmeldinger") {
         // Hent alle sykmeldinger for et orgnr
         // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
-        fangFeil("Feil ved henting av sykmeldinger") {
+        try {
             val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
@@ -59,23 +86,45 @@ private fun Route.hentSykmelding(sykmeldingService: SykmeldingService) {
                 val sykmeldinger = sykmeldingService.hentSykmeldinger(sluttbrukerOrgnr)
                 call.respond(sykmeldinger)
             }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av sykmeldinger", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmeldinger")
         }
     }
+}
+
+private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
     // Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)
     post("/sykmeldinger") {
         // Hent alle sykmeldinger for et orgnr, filtrert med parametere
-        // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
-        val sykmeldingFilterRequest = call.receive<SykmeldingFilterRequest>()
-        fangFeil("Feil ved henting av sykmeldinger") {
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
+        try {
+            val request = call.receive<SykmeldingFilterRequest>()
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
+            val orgnr = request.orgnr ?: systembrukerOrgnr
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SM_RESSURS,
+                    orgnumre = setOf(orgnr, systembrukerOrgnr),
+                )
+            ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-            } else {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmeldinger for bedrift: [$sluttbrukerOrgnr]")
-                val sykmeldinger = sykmeldingService.hentSykmeldinger(sluttbrukerOrgnr, sykmeldingFilterRequest)
-                call.respond(sykmeldinger)
+                return@post
             }
+
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            sikkerLogger().info(
+                "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+            )
+
+            call.respond(sykmeldingService.hentSykmeldinger(orgnr, request))
+        } catch (_: IllegalArgumentException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
+        } catch (_: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av sykmeldinger", e)
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmeldinger")
         }
     }
 }

@@ -44,7 +44,8 @@ class SykmeldingRepositoryTest {
 
         sykmeldingKafkaMessage.lagreSykmelding(sykmeldingRepository)
 
-        val lagretSykmelding = sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingKafkaMessage.sykmelding.id))
+        val lagretSykmelding =
+            sykmeldingRepository.hentSykmelding(UUID.fromString(sykmeldingKafkaMessage.sykmelding.id))
 
         lagretSykmelding?.sendSykmeldingAivenKafkaMessage shouldBe sykmeldingKafkaMessage
     }
@@ -92,9 +93,17 @@ class SykmeldingRepositoryTest {
             sykmeldtNavn = "Syyk i hodet",
         )
 
-        sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR))[0].id shouldBe id.toString()
+        sykmeldingRepository
+            .hentSykmeldinger(
+                DEFAULT_ORG,
+                filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR),
+            )[0]
+            .id shouldBe id.toString()
 
-        sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR.reversed())) shouldBe
+        sykmeldingRepository.hentSykmeldinger(
+            DEFAULT_ORG,
+            filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR.reversed()),
+        ) shouldBe
             emptyList()
     }
 
@@ -150,10 +159,9 @@ class SykmeldingRepositoryTest {
     }
 }
 
-private fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
+fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
 
-private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
-    copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
+fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) = copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
 
 private fun SendSykmeldingAivenKafkaMessage.medMottattTidspunkt(mottattTid: OffsetDateTime) =
     copy(sykmelding = sykmelding.copy(mottattTidspunkt = mottattTid))
