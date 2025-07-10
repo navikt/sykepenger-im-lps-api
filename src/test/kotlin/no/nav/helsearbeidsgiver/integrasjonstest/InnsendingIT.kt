@@ -109,7 +109,7 @@ class InnsendingIT {
                 TestData
                     .forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
                     .copy(forespoerselId = requestBody.navReferanseId)
-            repositories.forespoerselRepository.lagreForespoersel(
+            services.forespoerselService.lagreNyForespoersel(
                 forespoerselDokument,
             )
             val response =
