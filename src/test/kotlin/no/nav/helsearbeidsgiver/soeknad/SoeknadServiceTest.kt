@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
@@ -259,7 +260,7 @@ class SoeknadServiceTest {
         val soeknad = soeknadMock()
         val soeknadId = UUID.randomUUID()
 
-        val soeknadSomSkalLagres = soeknad.copy(id = soeknadId)
+        val soeknadSomSkalLagres = soeknad.medId(id = soeknadId)
 
         val soeknadSomIkkeSkalLagres =
             soeknad.copy(id = soeknadId, fom = soeknad.fom?.minusDays(1))
