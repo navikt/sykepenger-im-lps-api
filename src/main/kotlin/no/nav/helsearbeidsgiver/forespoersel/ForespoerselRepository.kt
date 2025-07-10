@@ -143,4 +143,13 @@ class ForespoerselRepository(
             opprettetTid = this[opprettet],
         )
     }
+
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where { navReferanseId eq forespoerselId }
+                .map { it[ForespoerselEntitet.eksponertForespoerselId] }
+                .firstOrNull() ?: throw IllegalArgumentException("Forespørsel med id $forespoerselId finnes ikke")
+        }
 }

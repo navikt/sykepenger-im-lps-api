@@ -58,12 +58,13 @@ fun InntektsmeldingRequest.tilInntektsmelding(
 
 fun InntektsmeldingRequest.tilInnsending(
     inntektsmeldingId: UUID,
+    eksponertForespoerselId: UUID,
     type: Inntektsmelding.Type,
     versjon: Int,
 ): Innsending {
     val skjemaInntektsmelding =
         SkjemaInntektsmelding(
-            forespoerselId = navReferanseId,
+            forespoerselId = eksponertForespoerselId,
             avsenderTlf = arbeidsgiverTlf,
             agp = agp,
             inntekt = inntekt,
@@ -79,9 +80,9 @@ fun InntektsmeldingRequest.tilInnsending(
     )
 }
 
-fun InntektsmeldingResponse.tilSkjemaInntektsmelding() =
+fun InntektsmeldingResponse.tilSkjemaInntektsmelding(eksponertForespoerselId: UUID) =
     SkjemaInntektsmelding(
-        forespoerselId = navReferanseId,
+        forespoerselId = eksponertForespoerselId,
         avsenderTlf = arbeidsgiver.tlf,
         agp = agp,
         inntekt = inntekt,

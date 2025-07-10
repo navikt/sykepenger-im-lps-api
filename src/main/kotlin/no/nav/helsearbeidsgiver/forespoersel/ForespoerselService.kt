@@ -137,4 +137,6 @@ class ForespoerselService(
         }
         return false
     }
+
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID = forespoerselRepository.hentEksponertForespoerselId(forespoerselId)
 }
