@@ -14,7 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 private val SOKNAD_RESSURS = Env.getProperty("ALTINN_SOKNAD_RESSURS")
@@ -99,7 +99,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
         // Hent alle søknader for et orgnr, filtrert med parametere
         try {
             val request = call.receive<SykepengesoeknadFilter>()
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
             val orgnr = request.orgnr ?: systembrukerOrgnr
 
             if (!tokenValidationContext().harTilgangTilRessurs(
