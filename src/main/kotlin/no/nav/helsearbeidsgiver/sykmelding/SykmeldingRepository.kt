@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -59,16 +59,15 @@ class SykmeldingRepository(
         filter: SykmeldingFilterRequest? = null,
     ): List<SykmeldingDTO> =
         transaction(db) {
-            SykmeldingEntitet
-                .selectAll()
-                .where {
-                    listOfNotNull(
-                        SykmeldingEntitet.orgnr eq orgnr,
-                        filter?.fnr?.let { fnr eq it },
-                        filter?.fom?.let { mottattAvNav greaterEq it.tilTidspunktStartOfDay() },
-                        filter?.tom?.let { mottattAvNav lessEq it.tilTidspunktEndOfDay() },
-                    ).reduce { acc, cond -> acc and cond }
-                }.map { it.toSykmelding() }
+            val query =
+                SykmeldingEntitet
+                    .selectAll()
+                    .where { SykmeldingEntitet.orgnr eq orgnr }
+            filter?.fnr?.let { query.andWhere { fnr eq it } }
+            filter?.fom?.let { query.andWhere { mottattAvNav greaterEq it.tilTidspunktStartOfDay() } }
+            filter?.tom?.let { query.andWhere { mottattAvNav lessEq it.tilTidspunktEndOfDay() } }
+            query
+                .map { it.toSykmelding() }
         }
 
     private fun ResultRow.toSykmelding(): SykmeldingDTO =
