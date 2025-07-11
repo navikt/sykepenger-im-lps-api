@@ -2,13 +2,18 @@ package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sis.StatusISpeilEntitet
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.fnr
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.opprettet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
+import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -35,12 +40,27 @@ class SoeknadRepository(
         }
     }
 
-    fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
+    fun hentSoeknader(
+        orgnr: String,
+        filter: SykepengesoeknadFilter? = null,
+    ): List<SykepengesoknadDTO> =
         transaction(db) {
-            SoeknadEntitet
-                .selectAll()
-                .where { SoeknadEntitet.orgnr eq orgnr }
-                .map { it[sykepengesoeknad] }
+            val query =
+                SoeknadEntitet
+                    .selectAll()
+                    .andWhere { SoeknadEntitet.orgnr eq orgnr }
+            filter?.fnr?.let {
+                query.andWhere { fnr eq it }
+            }
+            filter?.fom?.let {
+                query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() }
+            }
+            filter?.tom?.let {
+                query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
+            }
+            query.map {
+                it[sykepengesoeknad]
+            }
         }
 
     fun hentSoeknad(id: UUID): SykepengesoknadDTO? =

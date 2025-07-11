@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -63,8 +64,8 @@ class SoeknadRepositoryTest {
     @Test
     fun `oppdaterSoeknaderMedVedtaksperiodeId skal lagre vedtaksperiodeId på flere søknader`() {
         val soeknad = soeknadMock()
-        val soeknad2 = soeknadMock().copy(id = UUID.randomUUID())
-        val soeknad3 = soeknadMock().copy(id = UUID.randomUUID())
+        val soeknad2 = soeknadMock().medId(id = UUID.randomUUID())
+        val soeknad3 = soeknadMock().medId(id = UUID.randomUUID())
         val vedtaksperiodeId = UUID.randomUUID()
 
         soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
@@ -88,8 +89,8 @@ class SoeknadRepositoryTest {
     @Test
     fun `oppdaterSoeknaderMedVedtaksperiodeId skal bare oppdatere søknader som mangler vedtaksperiodeId`() {
         val soeknad = soeknadMock()
-        val soeknad2 = soeknadMock().copy(id = UUID.randomUUID())
-        val soeknad3 = soeknadMock().copy(id = UUID.randomUUID())
+        val soeknad2 = soeknadMock().medId(id = UUID.randomUUID())
+        val soeknad3 = soeknadMock().medId(id = UUID.randomUUID())
         val vedtaksperiodeId = UUID.randomUUID()
         val vedtaksperiodeId2 = UUID.randomUUID()
 
@@ -125,13 +126,20 @@ class SoeknadRepositoryTest {
 
     @Test
     fun `hentSoeknad skal hente søknad med id`() {
-        val soeknader = List(10) { UUID.randomUUID() }.map { id -> soeknadMock().copy(id = id) }
+        val soeknader = List(10) { UUID.randomUUID() }.map { id -> soeknadMock().medId(id = id) }
 
         soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
 
         val soeknadValgt = soeknader[2]
 
         soeknadRepository.hentSoeknad(soeknadValgt.id) shouldBe soeknadValgt
+    }
+
+    @Test
+    fun `hentSoeknad takler at sendt-felter ikke er populert`() {
+        val soeknad = soeknadMock().copy(sendtNav = null, sendtArbeidsgiver = null)
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
+        soeknadRepository.hentSoeknad(soeknad.id) shouldBe soeknad
     }
 
     @Test

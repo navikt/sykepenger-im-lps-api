@@ -844,4 +844,15 @@ object TestData {
         jsonMapper.decodeFromString<Sykmelding>(sykmeldingModel)
 
     fun soeknadMock(soeknad: String = SYKEPENGESOEKNAD): SykepengesoknadDTO = soeknad.fromJson(SykepengesoknadDTO.serializer())
+
+    fun SykepengesoknadDTO.medId(id: UUID) = this.copy(id = id)
+
+    fun SykepengesoknadDTO.medOrgnr(orgnr: String) =
+        this.copy(
+            arbeidsgiver =
+                SykepengesoknadDTO.ArbeidsgiverDTO(
+                    this.arbeidsgiver?.navn,
+                    orgnr,
+                ),
+        )
 }

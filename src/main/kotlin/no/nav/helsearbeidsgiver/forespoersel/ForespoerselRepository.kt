@@ -14,9 +14,11 @@ import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -99,20 +101,21 @@ class ForespoerselRepository(
     ): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
-            ForespoerselEntitet
-                .selectAll()
-                .where {
-                    listOfNotNull(
-                        ForespoerselEntitet.orgnr eq orgnr,
-                        request.fnr?.let { fnr eq it },
-                        request.navReferanseId?.let { navReferanseId eq it },
-                        request.status?.let { status eq it },
-                        request.fom?.let { opprettet greaterEq it.tilTidspunktStartOfDay() },
-                        request.tom?.let { opprettet lessEq it.tilTidspunktEndOfDay() },
-                    ).reduce { acc, cond -> acc and cond }
-                }.map {
-                    it.toExposedforespoersel()
-                }
+            val query =
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        ForespoerselEntitet.orgnr eq orgnr
+                    }
+
+            request.fnr?.let { query.andWhere { fnr eq it } }
+            request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
+            request.status?.let { query.andWhere { status eq it } }
+            request.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
+            request.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
+            query.map {
+                it.toExposedforespoersel()
+            }
         }
 
     fun oppdaterStatus(

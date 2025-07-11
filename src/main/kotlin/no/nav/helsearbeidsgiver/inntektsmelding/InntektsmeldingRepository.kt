@@ -24,6 +24,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -71,19 +72,18 @@ class InntektsmeldingRepository(
     ): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
-            InntektsmeldingEntitet
-                .selectAll()
-                .where {
-                    listOfNotNull(
-                        orgnr eq orgNr,
-                        request.status?.let { status eq it },
-                        request.innsendingId?.let { innsendingId eq it },
-                        request.fnr?.let { fnr eq it },
-                        request.navReferanseId?.let { navReferanseId eq it },
-                        request.fom?.let { innsendt greaterEq it.tilTidspunktStartOfDay() },
-                        request.tom?.let { innsendt lessEq it.tilTidspunktEndOfDay() },
-                    ).reduce { acc, cond -> acc and cond }
-                }.map { it.toExposedInntektsmelding() }
+            val query =
+                InntektsmeldingEntitet
+                    .selectAll()
+                    .where { orgnr eq orgNr }
+
+            request.status?.let { query.andWhere { status eq it } }
+            request.innsendingId?.let { query.andWhere { innsendingId eq it } }
+            request.fnr?.let { query.andWhere { fnr eq it } }
+            request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
+            request.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
+            request.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
+            query.map { it.toExposedInntektsmelding() }
         }
 
     fun hent(navReferanseId: UUID): List<InntektsmeldingResponse> =

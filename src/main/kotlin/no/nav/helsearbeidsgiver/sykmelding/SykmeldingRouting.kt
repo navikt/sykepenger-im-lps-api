@@ -16,7 +16,7 @@ import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
@@ -99,7 +99,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
         // Hent alle sykmeldinger for et orgnr, filtrert med parametere
         try {
             val request = call.receive<SykmeldingFilterRequest>()
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
             val orgnr = request.orgnr ?: systembrukerOrgnr
 
             if (!tokenValidationContext().harTilgangTilRessurs(
