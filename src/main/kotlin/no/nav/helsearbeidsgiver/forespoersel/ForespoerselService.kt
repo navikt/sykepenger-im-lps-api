@@ -99,8 +99,38 @@ class ForespoerselService(
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 
     fun settBesvart(navReferanseId: UUID) {
-        forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
-        logger().info("Oppdaterer status til BESVART for forespørsel med id: $navReferanseId")
+        val forespoersel =
+            forespoerselRepository.hentForespoersel(navReferanseId)
+                ?: run {
+                    sikkerLogger().warn("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til BESVART")
+                    return
+                }
+
+        when (forespoersel.status) {
+            Status.BESVART -> {
+                sikkerLogger().warn("Forespørsel med id: $navReferanseId er allerede BESVART, ingen oppdatering nødvendig")
+                return
+            }
+
+            Status.FORKASTET -> {
+                sikkerLogger().warn("Forespørsel med id: $navReferanseId er allerede FORKASTET, kan ikke oppdatere til BESVART")
+                val aktivForespoersel = forespoerselRepository.finnAktivForespoersler(navReferanseId)
+                if (aktivForespoersel == null) {
+                    sikkerLogger().warn("Ingen aktiv forespørsel funnet for navReferanseId: $navReferanseId")
+                    return
+                } else {
+                    forespoerselRepository.oppdaterStatus(
+                        aktivForespoersel.navReferanseId,
+                        Status.BESVART,
+                    )
+                    return
+                }
+            }
+            else -> {
+                forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
+                logger().info("Oppdaterer status til BESVART for forespørsel med id: $navReferanseId")
+            }
+        }
     }
 
     fun settForkastet(navReferanseId: UUID) {

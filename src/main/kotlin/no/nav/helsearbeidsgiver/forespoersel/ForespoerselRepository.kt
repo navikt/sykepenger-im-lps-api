@@ -115,6 +115,18 @@ class ForespoerselRepository(
                 }
         }
 
+    fun finnAktivForespoersler(eksponertForespoerselId: UUID): Forespoersel? =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
+                        (status eq Status.AKTIV)
+                }.map {
+                    it.toExposedforespoersel()
+                }.getOrNull(0)
+        }
+
     fun oppdaterStatus(
         navReferanseId: UUID,
         status: Status,
