@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
+import no.nav.helsearbeidsgiver.utils.buildForspoerselBesvartMelding
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.jsonMapper
@@ -274,6 +275,63 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         Producer.sendMelding(priRecord)
 
         sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+    }
+
+    @Test
+    fun `Setter forespoersel som besvart`() {
+        val forespoerselId = UUID.randomUUID()
+        val oppdatertForespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+
+        sendForespoerselMottatt(forespoerselId, vedtaksperiodeId)
+        sendForespoerselOppdatert(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId)
+        sendForespoerselBesvart(oppdatertForespoerselId)
+
+        runBlocking {
+            val oppdatertFsp = hentForespoersel(oppdatertForespoerselId)
+            oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
+            oppdatertFsp.status shouldBe Status.BESVART
+
+            val forespoersel = hentForespoersel(forespoerselId)
+            forespoersel.navReferanseId shouldBe forespoerselId
+            forespoersel.status shouldBe Status.FORKASTET
+        }
+    }
+
+    private fun sendForespoerselMottatt(
+        forespoerselId: UUID,
+        vedtaksperiodeId: UUID,
+    ) {
+        val mottattJson = buildForespoerselMottattJson(forespoerselId, vedtaksperiodeId)
+        Producer.sendMelding(ProducerRecord(priTopic, "key", mottattJson))
+    }
+
+    private fun sendForespoerselOppdatert(
+        oppdatertForespoerselId: UUID,
+        forespoerselId: UUID,
+        vedtaksperiodeId: UUID,
+    ) {
+        val oppdatertJson =
+            buildForespoerselOppdatertJson(
+                forespoerselId = oppdatertForespoerselId,
+                eksponertForespoerselId = forespoerselId,
+                vedtaksperiodeId = vedtaksperiodeId,
+            )
+        Producer.sendMelding(ProducerRecord(priTopic, "key", oppdatertJson))
+    }
+
+    private fun sendForespoerselBesvart(forespoerselId: UUID) {
+        val besvartJson = buildForspoerselBesvartMelding(forespoerselId)
+        Producer.sendMelding(ProducerRecord(priTopic, "key", besvartJson))
+    }
+
+    private suspend fun hentForespoersel(forespoerselId: UUID): Forespoersel {
+        val response =
+            fetchWithRetry(
+                url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
+                token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+            )
+        return response.body()
     }
 
     private fun sjekkOmForespoerselFinnesIDB(
