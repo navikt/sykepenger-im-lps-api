@@ -103,23 +103,27 @@ class ForespoerselService(
         val forespoersel =
             forespoerselRepository.hentForespoersel(navReferanseId)
                 ?: run {
-                    sikkerLogger().warn("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til BESVART")
+                    sikkerLogger().info("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til BESVART")
                     return
                 }
 
         when (forespoersel.status) {
             Status.BESVART -> {
-                sikkerLogger().warn("Forespørsel med id: $navReferanseId er allerede BESVART, ingen oppdatering nødvendig")
+                logger().info("Forespørsel med id: $navReferanseId er allerede BESVART, ingen oppdatering nødvendig")
                 return
             }
 
             Status.FORKASTET -> {
-                sikkerLogger().warn("Forespørsel med id: $navReferanseId er allerede FORKASTET, kan ikke oppdatere til BESVART")
                 val aktivForespoersel = forespoerselRepository.finnAktivForespoersler(navReferanseId)
                 if (aktivForespoersel == null) {
-                    sikkerLogger().warn("Ingen aktiv forespørsel funnet for navReferanseId: $navReferanseId")
+                    logger().info(
+                        "Forespørsel er FORKASTET og det har kommet en ny førespørsel som allerede er besvart Ingen aktiv forespørsel funnet for navReferanseId: $navReferanseId",
+                    )
                     return
                 } else {
+                    logger().info(
+                        "Forespørsel $navReferanseId er FORKASTET, oppdaterer status til BESVART for aktiv forespørsel med id: ${aktivForespoersel.navReferanseId}",
+                    )
                     forespoerselRepository.oppdaterStatus(
                         aktivForespoersel.navReferanseId,
                         Status.BESVART,
@@ -127,6 +131,7 @@ class ForespoerselService(
                     return
                 }
             }
+
             else -> {
                 forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
                 logger().info("Oppdaterer status til BESVART for forespørsel med id: $navReferanseId")
