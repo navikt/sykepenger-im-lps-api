@@ -51,6 +51,7 @@ class ForespoerselService(
             logger().info(
                 "Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId} og eksponertForespoerselId: $eksponertForespoerselId",
             )
+            endreStatusAktivForespoersel(eksponertForespoerselId)
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = Status.AKTIV,
@@ -64,7 +65,7 @@ class ForespoerselService(
         }
         if (priMessage.eksponertForespoerselId != null) {
             logger().info("Endrer status for eksponert forespørsel med id: $eksponertForespoerselId")
-            endreStatusAktivForespoersel(priMessage.eksponertForespoerselId, forespoersel)
+            //    endreStatusAktivForespoersel(priMessage.eksponertForespoerselId)
         }
     }
 
@@ -138,11 +139,8 @@ class ForespoerselService(
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
     }
 
-    private fun endreStatusAktivForespoersel(
-        eksponertForespoerselId: UUID,
-        forespoersel: ForespoerselDokument,
-    ) {
-        val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId, forespoersel.orgnr)
+    private fun endreStatusAktivForespoersel(eksponertForespoerselId: UUID) {
+        val ef = forespoerselRepository.finnAktivForespoersler(eksponertForespoerselId)
         if (ef == null) {
             sikkerLogger().warn("Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke")
         } else {
@@ -150,7 +148,7 @@ class ForespoerselService(
                 logger().info(
                     "Eksponert forespørsel med id: $eksponertForespoerselId er aktiv, oppdaterer status til forkastet.",
                 )
-                settForkastet(eksponertForespoerselId)
+                settForkastet(ef.navReferanseId)
             } else {
                 logger().info(
                     "Eksponert forespørsel med id: $eksponertForespoerselId er ikke aktiv, ingen oppdatering av status.",

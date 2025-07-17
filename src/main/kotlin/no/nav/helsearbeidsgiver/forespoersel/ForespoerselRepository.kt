@@ -117,14 +117,21 @@ class ForespoerselRepository(
 
     fun finnAktivForespoersler(eksponertForespoerselId: UUID): Forespoersel? =
         transaction(db) {
-            ForespoerselEntitet
-                .selectAll()
-                .where {
-                    (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
-                        (status eq Status.AKTIV)
-                }.map {
-                    it.toExposedforespoersel()
-                }.getOrNull(0)
+            val result =
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
+                            (status eq Status.AKTIV)
+                    }.map { it.toExposedforespoersel() }
+
+            when {
+                result.isEmpty() -> null
+                result.size == 1 -> result.first()
+                else -> throw IllegalStateException(
+                    "Forventet en aktiv forespærsel med fant ${result.size} aktive forespørsler med eksponertForespoerselId $eksponertForespoerselId",
+                )
+            }
         }
 
     fun oppdaterStatus(
