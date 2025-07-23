@@ -63,10 +63,6 @@ class ForespoerselService(
             sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
-        if (priMessage.eksponertForespoerselId != null) {
-            logger().info("Endrer status for eksponert forespørsel med id: $eksponertForespoerselId")
-            //    endreStatusAktivForespoersel(priMessage.eksponertForespoerselId)
-        }
     }
 
     fun lagreNyForespoersel(forespoersel: ForespoerselDokument) {

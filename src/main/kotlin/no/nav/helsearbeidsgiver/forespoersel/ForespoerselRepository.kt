@@ -125,12 +125,16 @@ class ForespoerselRepository(
                             (status eq Status.AKTIV)
                     }.map { it.toExposedforespoersel() }
 
-            when {
-                result.isEmpty() -> null
-                result.size == 1 -> result.first()
-                else -> throw IllegalStateException(
-                    "Forventet en aktiv forespærsel med fant ${result.size} aktive forespørsler med eksponertForespoerselId $eksponertForespoerselId",
-                )
+            result.firstOrNull().also {
+                if (result.size > 1) {
+                    logger().warn(
+                        "Fant flere aktive forespørsler med eksponertForespoerselId: $eksponertForespoerselId. " +
+                            "Dette er ikke forventet og kan indikere en feil.",
+                    )
+                    throw IllegalStateException(
+                        "Forventet en aktiv forespærsel med fant ${result.size} aktive forespørsler med eksponertForespoerselId $eksponertForespoerselId",
+                    )
+                }
             }
         }
 
