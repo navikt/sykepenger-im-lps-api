@@ -15,7 +15,7 @@ fun sendNyforespoerselogOppdateringTilKafka() {
     val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
     val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
     Producer.sendMelding(priRecord)
-    for (i in 1..10) {
+    repeat(10) {
         val oppdatertForespoerselId = UUID.randomUUID()
         val forespoerselOppdaterJson =
             buildForespoerselOppdatertJson(
@@ -31,7 +31,7 @@ fun sendNyforespoerselogOppdateringTilKafka() {
 }
 
 fun main() {
-    // sendNyforespoerselogOppdateringTilKafka()
+    sendNyforespoerselogOppdateringTilKafka()
     sendBesvart(UUID.fromString("d3b8f0c2-4c1e-4f5a-9b6e-7c8d9e0f1a2b"))
 }
 

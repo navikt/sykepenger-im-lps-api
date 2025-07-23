@@ -113,12 +113,12 @@ class ForespoerselService(
                 val aktivForespoersel = forespoerselRepository.finnAktivForespoersler(navReferanseId)
                 if (aktivForespoersel == null) {
                     logger().info(
-                        "Forespørsel er FORKASTET og det har kommet en ny førespørsel som allerede er besvart Ingen aktiv forespørsel funnet for navReferanseId: $navReferanseId",
+                        "Førespørsel allerede er besvart Ingen oppdatering av status for: $navReferanseId",
                     )
                     return
                 } else {
                     logger().info(
-                        "Forespørsel $navReferanseId er FORKASTET, oppdaterer status til BESVART for aktiv forespørsel med id: ${aktivForespoersel.navReferanseId}",
+                        "Forespørsel $navReferanseId er oppdatert, oppdaterer status til BESVART for aktiv forespørsel med id: ${aktivForespoersel.navReferanseId}",
                     )
                     forespoerselRepository.oppdaterStatus(
                         aktivForespoersel.navReferanseId,
