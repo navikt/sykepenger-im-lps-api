@@ -63,6 +63,20 @@ class InntektsmeldingService(
         im: Inntektsmelding,
         innsendingStatus: InnsendingStatus = InnsendingStatus.GODKJENT,
     ) {
+        inntektsmeldingRepository
+            .hentMedInnsendingId(innsendingId = im.id, orgnr = im.avsender.orgnr.verdi)
+            ?.let {
+                sikkerLogger().info("Inntektsmelding med innsendingId ${im.id} finnes allerede")
+                sikkerLogger().info("Duplikat inntektsmelding : $im")
+                return
+            }
+        lagreInntektsmelding(im, innsendingStatus)
+    }
+
+    private fun lagreInntektsmelding(
+        im: Inntektsmelding,
+        innsendingStatus: InnsendingStatus,
+    ) {
         runCatching {
             sikkerLogger().info("Oppretter inntektsmelding for orgnr: ${im.avsender.orgnr.verdi}")
             inntektsmeldingRepository.opprettInntektsmelding(

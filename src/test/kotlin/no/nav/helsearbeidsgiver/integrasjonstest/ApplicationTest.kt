@@ -71,6 +71,52 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     }
 
     @Test
+    fun `leser inntektsmelding fra kafka og logger det uten å stoppe konsumeren`() {
+        val inntektsmeldingId1 = UUID.randomUUID()
+        val orgnr = "810007982"
+        val imRecord1 =
+            ProducerRecord(
+                "helsearbeidsgiver.inntektsmelding",
+                "key",
+                buildJournalfoertInntektsmelding(
+                    orgNr = Orgnr(orgnr),
+                    inntektsmeldingId = inntektsmeldingId1,
+                ),
+            )
+        val inntektsmeldingId2 = UUID.randomUUID()
+        val imRecord2 =
+            ProducerRecord(
+                "helsearbeidsgiver.inntektsmelding",
+                "key",
+                buildJournalfoertInntektsmelding(
+                    orgNr = Orgnr(orgnr),
+                    inntektsmeldingId = inntektsmeldingId2,
+                ),
+            )
+        Producer.sendMelding(imRecord1)
+        Producer.sendMelding(imRecord1)
+        Producer.sendMelding(imRecord2)
+        runBlocking {
+            val response =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId1",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr),
+                )
+
+            response.status.value shouldBe 200
+        }
+        runBlocking {
+            val response =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId2",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr),
+                )
+
+            response.status.value shouldBe 200
+        }
+    }
+
+    @Test
     fun `leser forespoersel fra kafka og henter det via api`() {
         val priRecord = ProducerRecord("helsearbeidsgiver.pri", "key", TestData.FORESPOERSEL_MOTTATT)
         Producer.sendMelding(priRecord)
