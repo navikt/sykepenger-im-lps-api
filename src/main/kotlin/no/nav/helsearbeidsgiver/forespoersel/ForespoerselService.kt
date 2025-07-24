@@ -113,7 +113,7 @@ class ForespoerselService(
                 val aktivForespoersel = forespoerselRepository.finnAktivForespoersler(navReferanseId)
                 if (aktivForespoersel == null) {
                     logger().info(
-                        "Førespørsel allerede er besvart Ingen oppdatering av status for: $navReferanseId",
+                        "Førespørsel er oppdatert og allerede besvart Ingen oppdatering av status for: $navReferanseId",
                     )
                     return
                 } else {
