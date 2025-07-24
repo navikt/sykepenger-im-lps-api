@@ -30,8 +30,8 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 
 @WithKafkaContainer
 @WithPostgresContainer
@@ -80,7 +80,7 @@ abstract class LpsApiIntegrasjontest {
         server.start(wait = false)
     }
 
-    @AfterEach
+    @BeforeEach
     fun cleanUp() {
         transaction(db) {
             InntektsmeldingEntitet.deleteAll()

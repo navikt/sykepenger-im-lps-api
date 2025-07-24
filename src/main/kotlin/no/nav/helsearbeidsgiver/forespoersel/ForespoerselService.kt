@@ -51,6 +51,7 @@ class ForespoerselService(
             logger().info(
                 "Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId} og eksponertForespoerselId: $eksponertForespoerselId",
             )
+            endreStatusAktivForespoersel(eksponertForespoerselId)
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = Status.AKTIV,
@@ -61,10 +62,6 @@ class ForespoerselService(
         }.onFailure {
             sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
-        }
-        if (priMessage.eksponertForespoerselId != null) {
-            logger().info("Endrer status for eksponert forespørsel med id: $eksponertForespoerselId")
-            endreStatusAktivForespoersel(priMessage.eksponertForespoerselId, forespoersel)
         }
     }
 
@@ -99,8 +96,43 @@ class ForespoerselService(
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 
     fun settBesvart(navReferanseId: UUID) {
-        forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
-        logger().info("Oppdaterer status til BESVART for forespørsel med id: $navReferanseId")
+        val forespoersel =
+            forespoerselRepository.hentForespoersel(navReferanseId)
+                ?: run {
+                    sikkerLogger().info("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til BESVART")
+                    return
+                }
+
+        when (forespoersel.status) {
+            Status.BESVART -> {
+                logger().info("Forespørsel med id: $navReferanseId er allerede BESVART, ingen oppdatering nødvendig")
+                return
+            }
+
+            Status.FORKASTET -> {
+                val aktivForespoersel = forespoerselRepository.finnAktivForespoersler(navReferanseId)
+                if (aktivForespoersel == null) {
+                    logger().info(
+                        "Førespørsel er oppdatert og allerede besvart Ingen oppdatering av status for: $navReferanseId",
+                    )
+                    return
+                } else {
+                    logger().info(
+                        "Forespørsel $navReferanseId er oppdatert, oppdaterer status til BESVART for aktiv forespørsel med id: ${aktivForespoersel.navReferanseId}",
+                    )
+                    forespoerselRepository.oppdaterStatus(
+                        aktivForespoersel.navReferanseId,
+                        Status.BESVART,
+                    )
+                    return
+                }
+            }
+
+            else -> {
+                forespoerselRepository.oppdaterStatus(navReferanseId, Status.BESVART)
+                logger().info("Oppdaterer status til BESVART for forespørsel med id: $navReferanseId")
+            }
+        }
     }
 
     fun settForkastet(navReferanseId: UUID) {
@@ -108,11 +140,8 @@ class ForespoerselService(
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
     }
 
-    private fun endreStatusAktivForespoersel(
-        eksponertForespoerselId: UUID,
-        forespoersel: ForespoerselDokument,
-    ) {
-        val ef = forespoerselRepository.hentForespoersel(eksponertForespoerselId, forespoersel.orgnr)
+    private fun endreStatusAktivForespoersel(eksponertForespoerselId: UUID) {
+        val ef = forespoerselRepository.finnAktivForespoersler(eksponertForespoerselId)
         if (ef == null) {
             sikkerLogger().warn("Eksponert forespørsel med id: $eksponertForespoerselId finnes ikke")
         } else {
@@ -120,7 +149,7 @@ class ForespoerselService(
                 logger().info(
                     "Eksponert forespørsel med id: $eksponertForespoerselId er aktiv, oppdaterer status til forkastet.",
                 )
-                settForkastet(eksponertForespoerselId)
+                settForkastet(ef.navReferanseId)
             } else {
                 logger().info(
                     "Eksponert forespørsel med id: $eksponertForespoerselId er ikke aktiv, ingen oppdatering av status.",
@@ -137,4 +166,6 @@ class ForespoerselService(
         }
         return false
     }
+
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID = forespoerselRepository.hentEksponertForespoerselId(forespoerselId)
 }

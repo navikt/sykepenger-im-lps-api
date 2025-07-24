@@ -75,6 +75,12 @@ fun buildInntektsmelding(
         ),
     )
 
+fun buildForspoerselBesvartMelding(forespoerselId: UUID = UUID.randomUUID()): String {
+    val filePath = "json/forespoerselBesvart.json"
+    return readJsonFromResources(filePath)
+        .replace(FORESPOERSEL_ID, forespoerselId.toString())
+}
+
 fun buildInntektsmeldingJson(
     inntektsmeldingId: UUID = UUID.randomUUID(),
     forespoerselId: UUID = UUID.randomUUID(),

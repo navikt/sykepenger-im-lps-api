@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
+import no.nav.helsearbeidsgiver.utils.buildForspoerselBesvartMelding
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.jsonMapper
@@ -134,46 +135,19 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val forespoerselId = UUID.randomUUID()
         val oppdatertForespoerselId = UUID.randomUUID()
 
-        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId)
-
-        val forespoerselOppdaterJson =
-            buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId,
-                eksponertForespoerselId = forespoerselId,
-            )
-
-        val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
-        val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
-        Producer.sendMelding(priRecord)
-        Producer.sendMelding(oppdatertPriRecord)
+        sendKafkaMelding(buildForespoerselMottattJson(forespoerselId))
+        sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId, forespoerselId))
 
         runBlocking {
-            val responseOppdatertFsp =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-                )
-            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
-            val responseFsp =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-                )
-            val forespoerselSvar = responseFsp.body<Forespoersel>()
+            val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
+            val forespoerselSvar = hentForespoerselFraApi(forespoerselId)
 
             forespoerselSvar.navReferanseId shouldBe forespoerselId
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
             oppdatertFsp.status shouldBe Status.AKTIV
             forespoerselSvar.status shouldBe Status.FORKASTET
 
-            transaction(db) {
-                ForespoerselEntitet
-                    .selectAll()
-                    .where {
-                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
-                            (ForespoerselEntitet.eksponertForespoerselId eq forespoerselId)
-                    }.count() shouldBe 1
-            }
+            sjekkForespoerselEntitetIDb(oppdatertForespoerselId, forespoerselId)
         }
     }
 
@@ -183,18 +157,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val oppdatertForespoerselId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
 
-        val forespoerselOppdaterJson =
-            buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId,
-                eksponertForespoerselId = forespoerselId,
-                vedtaksperiodeId = vedtaksperiodeId,
-            )
-
-        val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
-
-        Producer.sendMelding(oppdatertPriRecord)
-
-        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId)
+        sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId))
+        sjekkForespoerselFinnesIDb(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId)
     }
 
     @Test
@@ -203,51 +167,23 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val oppdatertForespoerselId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
 
-        val forespoerselMottattJson = buildForespoerselMottattJson(forespoerselId = forespoerselId, vedtaksperiodeId)
-        val priMessage = jsonMapper.decodeFromString<PriMessage>(forespoerselMottattJson)
-        val forespoersel = priMessage.forespoersel
-        if (forespoersel != null) {
-            services.forespoerselService.lagreNyForespoersel(
-                forespoersel = forespoersel,
-            )
+        val mottattJson = buildForespoerselMottattJson(forespoerselId, vedtaksperiodeId)
+        val priMessage = jsonMapper.decodeFromString<PriMessage>(mottattJson)
+        priMessage.forespoersel?.let {
+            services.forespoerselService.lagreNyForespoersel(it)
             services.forespoerselService.settBesvart(forespoerselId)
         }
 
-        val forespoerselOppdaterJson =
-            buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId,
-                eksponertForespoerselId = forespoerselId,
-                vedtaksperiodeId = vedtaksperiodeId,
-            )
-
-        val oppdatertPriRecord = ProducerRecord(priTopic, "key", forespoerselOppdaterJson)
-
-        Producer.sendMelding(oppdatertPriRecord)
+        sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId))
 
         runBlocking {
-            val responseOppdatertFsp =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-                )
-            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
+            val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
             oppdatertFsp.status shouldBe Status.AKTIV
 
-            transaction(db) {
-                ForespoerselEntitet
-                    .selectAll()
-                    .where {
-                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
-                            (ForespoerselEntitet.eksponertForespoerselId eq forespoerselId)
-                    }.count() shouldBe 1
-            }
-            val responseFsp =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-                )
-            val forespoerselSvar = responseFsp.body<Forespoersel>()
+            sjekkForespoerselEntitetIDb(oppdatertForespoerselId, forespoerselId)
+
+            val forespoerselSvar = hentForespoerselFraApi(forespoerselId)
             forespoerselSvar.navReferanseId shouldBe forespoerselId
             forespoerselSvar.status shouldBe Status.BESVART
         }
@@ -258,51 +194,103 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val oppdatertForespoerselId = UUID.randomUUID()
         val eksponertForespoerselId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
-        val forespoerselMottattJson =
-            buildForespoerselOppdatertJson(
-                forespoerselId = oppdatertForespoerselId,
-                eksponertForespoerselId = eksponertForespoerselId,
-                vedtaksperiodeId = vedtaksperiodeId,
-            )
+        val json = buildForespoerselOppdatertJson(oppdatertForespoerselId, eksponertForespoerselId, vedtaksperiodeId)
 
-        // Sender forespoersel til Kafka for første gang
-        val priRecord = ProducerRecord(priTopic, "key", forespoerselMottattJson)
-        Producer.sendMelding(priRecord)
-        // Henter forespoersel fra db
-        sjekkOmForespoerselFinnesIDB(oppdatertForespoerselId, eksponertForespoerselId, vedtaksperiodeId)
-        // Sender samme forespoersel til Kafka på nytt
-        Producer.sendMelding(priRecord)
-
-        sjekkOmDetFinnesKunEnForespoerselIDB(oppdatertForespoerselId)
+        sendKafkaMelding(json)
+        sjekkForespoerselFinnesIDb(oppdatertForespoerselId, eksponertForespoerselId, vedtaksperiodeId)
+        sendKafkaMelding(json)
+        sjekkKunEnForespoerselIDb(oppdatertForespoerselId)
     }
 
-    private fun sjekkOmForespoerselFinnesIDB(
-        oppdatertForespoerselId: UUID,
-        eksponertForespoerselId: UUID?,
-        vedtaksperiodeId: UUID?,
-    ) {
+    @Test
+    fun `Setter forespoersel som besvart`() {
+        val forespoerselId = UUID.randomUUID()
+        val oppdatertForespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+
+        sendKafkaMelding(buildForespoerselMottattJson(forespoerselId, vedtaksperiodeId))
+        sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId))
+        sendKafkaMelding(buildForspoerselBesvartMelding(oppdatertForespoerselId))
+
         runBlocking {
-            val responseOppdatertFsp =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersel/$oppdatertForespoerselId",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-                )
-            val oppdatertFsp = responseOppdatertFsp.body<Forespoersel>()
+            val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
-            oppdatertFsp.status shouldBe Status.AKTIV
-            transaction(db) {
-                ForespoerselEntitet
-                    .selectAll()
-                    .where {
-                        (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
-                            (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
-                            (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId)
-                    }.count() shouldBe 1
-            }
+            oppdatertFsp.status shouldBe Status.BESVART
+
+            val forespoersel = hentForespoerselFraApi(forespoerselId)
+            forespoersel.navReferanseId shouldBe forespoerselId
+            forespoersel.status shouldBe Status.FORKASTET
         }
     }
 
-    private fun sjekkOmDetFinnesKunEnForespoerselIDB(forespoerselId: UUID?) {
+    @Test
+    fun `Sender flere oppdateringer på samme forespoersel`() {
+        val forespoerselId = UUID.randomUUID()
+        val oppdatertForespoerselId1 = UUID.randomUUID()
+        val oppdatertForespoerselId2 = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+
+        sendKafkaMelding(buildForespoerselMottattJson(forespoerselId, vedtaksperiodeId))
+        sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId1, forespoerselId, vedtaksperiodeId))
+        sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId2, forespoerselId, vedtaksperiodeId))
+        sendKafkaMelding(buildForspoerselBesvartMelding(forespoerselId))
+        runBlocking {
+            val forespoersel = hentForespoerselFraApi(forespoerselId)
+            forespoersel.status shouldBe Status.FORKASTET
+            val oppdatertFsp1 = hentForespoerselFraApi(oppdatertForespoerselId1)
+            oppdatertFsp1.status shouldBe Status.FORKASTET
+            val oppdatertFsp2 = hentForespoerselFraApi(oppdatertForespoerselId2)
+            oppdatertFsp2.status shouldBe Status.BESVART
+        }
+    }
+
+    private fun sendKafkaMelding(json: String) {
+        Producer.sendMelding(ProducerRecord(priTopic, "key", json))
+    }
+
+    private suspend fun hentForespoerselFraApi(forespoerselId: UUID): Forespoersel {
+        val response =
+            fetchWithRetry(
+                url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
+                token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+            )
+        return response.body()
+    }
+
+    private fun sjekkForespoerselEntitetIDb(
+        navReferanseId: UUID,
+        eksponertForespoerselId: UUID,
+    ) {
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.navReferanseId eq navReferanseId) and
+                        (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId)
+                }.count() shouldBe 1
+        }
+    }
+
+    private fun sjekkForespoerselFinnesIDb(
+        oppdatertForespoerselId: UUID,
+        eksponertForespoerselId: UUID?,
+        vedtaksperiodeId: UUID?,
+    ) = runBlocking {
+        val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
+        oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
+        oppdatertFsp.status shouldBe Status.AKTIV
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.navReferanseId eq oppdatertForespoerselId) and
+                        (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
+                        (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId)
+                }.count() shouldBe 1
+        }
+    }
+
+    private fun sjekkKunEnForespoerselIDb(forespoerselId: UUID?) =
         runBlocking {
             val response =
                 fetchWithRetry(
@@ -314,5 +302,4 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             forespoerselSvar.size shouldBe 1
             forespoerselSvar.first().navReferanseId shouldBe forespoerselId
         }
-    }
 }
