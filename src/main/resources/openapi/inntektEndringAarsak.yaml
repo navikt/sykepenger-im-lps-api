@@ -137,7 +137,7 @@
     VarigLoennsendring:
       title: "VarigLoennsendring"
       required:
-        -gjelderFra
+        - gjelderFra
       properties:
         aarsak:
           type: "string"
