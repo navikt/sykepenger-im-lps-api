@@ -118,6 +118,29 @@ class ForespoerselRepository(
             }
         }
 
+    fun finnAktivForespoersler(eksponertForespoerselId: UUID): Forespoersel? =
+        transaction(db) {
+            val result =
+                ForespoerselEntitet
+                    .selectAll()
+                    .where {
+                        (ForespoerselEntitet.eksponertForespoerselId eq eksponertForespoerselId) and
+                            (status eq Status.AKTIV)
+                    }.map { it.toExposedforespoersel() }
+
+            result.firstOrNull().also {
+                if (result.size > 1) {
+                    logger().warn(
+                        "Fant flere aktive forespørsler med eksponertForespoerselId: $eksponertForespoerselId. " +
+                            "Dette er ikke forventet og kan indikere en feil.",
+                    )
+                    throw IllegalStateException(
+                        "Forventet en aktiv forespærsel med fant ${result.size} aktive forespørsler med eksponertForespoerselId $eksponertForespoerselId",
+                    )
+                }
+            }
+        }
+
     fun oppdaterStatus(
         navReferanseId: UUID,
         status: Status,
@@ -146,4 +169,13 @@ class ForespoerselRepository(
             opprettetTid = this[opprettet],
         )
     }
+
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where { navReferanseId eq forespoerselId }
+                .map { it[ForespoerselEntitet.eksponertForespoerselId] }
+                .firstOrNull() ?: throw IllegalArgumentException("Forespørsel med id $forespoerselId finnes ikke")
+        }
 }

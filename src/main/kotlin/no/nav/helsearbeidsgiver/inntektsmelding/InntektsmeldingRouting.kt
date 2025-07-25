@@ -79,12 +79,13 @@ private fun Route.innsending(services: Services) {
                     forespoersel = forespoersel,
                     vedtaksperiodeId = vedtaksperiodeId,
                 )
-            val innsending = request.tilInnsending(inntektsmelding.id, inntektsmelding.type, VERSJON_1)
+            val eksponertForespoerselId = services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
+            val innsending = request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
 
             if (
                 sisteInntektsmelding != null &&
                 innsending.skjema.erDuplikat(
-                    sisteInntektsmelding.tilSkjemaInntektsmelding(),
+                    sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
                 )
             ) {
                 return@post call.respond(HttpStatusCode.Conflict, sisteInntektsmelding.id.toString())
