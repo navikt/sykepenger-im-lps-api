@@ -9,7 +9,7 @@ security:
 paths:
   /v1/forespoersel/{navReferanseId}:
     get:
-      description: ""
+      description: "Hent forespørsel med navReferanseId."
       parameters:
         - name: "navReferanseId"
           in: "path"
@@ -17,6 +17,15 @@ paths:
           schema:
             type: "string"
       responses:
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "401":
           description: "Unauthorized"
           content:
@@ -25,12 +34,8 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
-                Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
                   value: "Ikke tilgang til ressurs"
-                Example#4:
+                Example#2:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -38,12 +43,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Forespoersel"
-        "404":
-          description: "Not Found"
+        "400":
+          description: "Bad Request"
           content:
             '*/*':
               schema:
-                type: "object"
+                type: "string"
               examples:
                 Example#1:
                   value: "Ugyldig identifikator"
@@ -93,9 +98,9 @@ paths:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
     post:
-      description: "Hent forespørsler for tilhørende systembrukers orgnr, filtrer\
-        \ basert på request. <br> filterparametre fom og tom refererer til opprettetTid\
-        \ (Tidspunktet forespørselen ble opprettet av Nav)"
+      description: "Filtrer forespørsler basert på request. <br> Filterparametre fom\
+        \ og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet\
+        \ av Nav)."
       requestBody:
         content:
           application/json:
@@ -111,9 +116,9 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
@@ -126,6 +131,15 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Forespoersel"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
@@ -175,9 +189,6 @@ paths:
             '*/*':
               schema:
                 type: "string"
-              examples:
-                Example#1:
-                  value: "Duplikat forrige innsending"
         "201":
           description: "Created"
           content:
@@ -420,6 +431,17 @@ paths:
           schema:
             type: "string"
       responses:
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ikke gyldig søknadId"
+                Example#2:
+                  value: ""
         "401":
           description: "Unauthorized"
           content:
@@ -435,17 +457,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ikke gyldig søknadId"
-                Example#2:
-                  value: ""
         "200":
           description: "OK"
           content:
@@ -497,10 +508,59 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av søknader"
+    post:
+      description: "Filtrer søknader på fnr, underenhet og / eller dato (mottattAvNav)"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SykepengesoeknadFilter"
+        required: true
+      responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Sykepengesoeknad"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ugyldig filterparameter"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av sykepengesøknader"
   /v1/sykmelding/{id}:
     get:
-      description: "Hent sykmelding med id <br> Orgnr i systembruker token må samsvare\
-        \ med orgnr i sykmeldingen"
+      description: "Hent sykmelding med sykmeldingId"
       parameters:
         - name: "id"
           in: "path"
@@ -529,18 +589,28 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ugyldig identifikator"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av sykmelding"
   /v1/sykmeldinger:
     get:
       description: ""
       responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Sykmelding"
         "401":
           description: "Unauthorized"
           content:
@@ -556,6 +626,23 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Sykmelding"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av sykmeldinger"
     post:
       description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
       requestBody:
@@ -565,14 +652,6 @@ paths:
               $ref: "#/components/schemas/SykmeldingFilterRequest"
         required: true
       responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Sykmelding"
         "401":
           description: "Unauthorized"
           content:
@@ -581,13 +660,41 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Sykmelding"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ugyldig filterparameter"
+                Example#2:
+                  value: "Ugyldig identifikator"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Feil ved henting av sykmeldinger"
 servers:
   - url: https://sykepenger-api.ekstern.dev.nav.no
 components:
@@ -654,6 +761,9 @@ components:
     ForespoerselRequest:
       type: "object"
       properties:
+        orgnr:
+          type: "string"
+          nullable: true
         fnr:
           type: "string"
           nullable: true
@@ -855,7 +965,7 @@ components:
     NyStillingsprosent:
       title: "NyStillingsprosent"
       required:
-        -gjelderFra
+        - gjelderFra
       properties:
         aarsak:
           type: "string"
@@ -893,7 +1003,7 @@ components:
     VarigLoennsendring:
       title: "VarigLoennsendring"
       required:
-        -gjelderFra
+        - gjelderFra
       properties:
         aarsak:
           type: "string"
@@ -1209,6 +1319,23 @@ components:
         - "arbeidsgiver"
         - "soeknadsperioder"
         - "fravaer"
+    SykepengesoeknadFilter:
+      type: "object"
+      properties:
+        orgnr:
+          type: "string"
+          nullable: true
+        fnr:
+          type: "string"
+          nullable: true
+        fom:
+          type: "string"
+          format: "date"
+          nullable: true
+        tom:
+          type: "string"
+          format: "date"
+          nullable: true
     Sykmeldt:
       type: "object"
       properties:
@@ -1351,6 +1478,9 @@ components:
     SykmeldingFilterRequest:
       type: "object"
       properties:
+        orgnr:
+          type: "string"
+          nullable: true
         fnr:
           type: "string"
           nullable: true

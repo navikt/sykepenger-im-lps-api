@@ -99,7 +99,7 @@
     NyStillingsprosent:
       title: "NyStillingsprosent"
       required:
-        -gjelderFra
+        - gjelderFra
       properties:
         aarsak:
           type: "string"
@@ -137,7 +137,7 @@
     VarigLoennsendring:
       title: "VarigLoennsendring"
       required:
-        -gjelderFra
+        - gjelderFra
       properties:
         aarsak:
           type: "string"
