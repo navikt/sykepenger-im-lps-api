@@ -22,12 +22,15 @@ class InntektsmeldingServiceTest {
     private val inntektsmeldingService = InntektsmeldingService(inntektsmeldingRepository)
 
     @Test
-    fun `opprettInntektsmelding should call inntektsmeldingRepository`() {
+    fun `opprettInntektsmelding skal kalle inntektsmeldingRepository`() {
         val inntektsmelding =
             jsonMapper.decodeFromString(
                 Inntektsmelding.serializer(),
                 buildInntektsmeldingJson(),
             )
+        every {
+            inntektsmeldingRepository.hentMedInnsendingId(any(), inntektsmelding.id)
+        } returns null
         every {
             inntektsmeldingRepository.opprettInntektsmelding(
                 im = inntektsmelding,
@@ -42,6 +45,38 @@ class InntektsmeldingServiceTest {
                 innsendingStatus = InnsendingStatus.GODKJENT,
             )
         }
+    }
+
+    @Test
+    fun `opprettInntektsmelding skal ikke kalle inntektsmeldingRepository ved eksisterende inntektsmelding`() {
+        val inntektsmelding =
+            jsonMapper.decodeFromString(
+                Inntektsmelding.serializer(),
+                buildInntektsmeldingJson(),
+            )
+        every {
+            inntektsmeldingRepository.hentMedInnsendingId(any(), inntektsmelding.id)
+        } returns
+            InntektsmeldingResponse(
+                navReferanseId = inntektsmelding.type.id,
+                inntekt = inntektsmelding.inntekt,
+                refusjon = inntektsmelding.refusjon,
+                sykmeldtFnr = inntektsmelding.sykmeldt.fnr.verdi,
+                aarsakInnsending = AarsakInnsending.Ny,
+                typeInnsending = InnsendingType.FORESPURT,
+                innsendtTid = LocalDateTime.now(),
+                versjon = 1,
+                arbeidsgiver = Arbeidsgiver(inntektsmelding.avsender.orgnr.verdi, inntektsmelding.avsender.tlf),
+                avsender = Avsender("", ""),
+                status = InnsendingStatus.MOTTATT,
+                statusMelding = null,
+                agp = inntektsmelding.agp,
+                id = inntektsmelding.id,
+            )
+
+        inntektsmeldingService.opprettInntektsmelding(inntektsmelding)
+
+        verify(exactly = 0) { inntektsmeldingRepository.opprettInntektsmelding(any()) }
     }
 
     @Test
