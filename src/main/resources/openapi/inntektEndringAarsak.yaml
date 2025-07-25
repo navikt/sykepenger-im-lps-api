@@ -99,7 +99,7 @@
     NyStillingsprosent:
       title: "NyStillingsprosent"
       required:
-        -gjelderFra
+        - gjelderFra
       properties:
         aarsak:
           type: "string"
