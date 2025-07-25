@@ -73,7 +73,6 @@ class InntektsmeldingServiceTest {
                 agp = inntektsmelding.agp,
                 id = inntektsmelding.id,
             )
-        println("Mock class: ${inntektsmeldingRepository::class}")
 
         inntektsmeldingService.opprettInntektsmelding(inntektsmelding)
 
