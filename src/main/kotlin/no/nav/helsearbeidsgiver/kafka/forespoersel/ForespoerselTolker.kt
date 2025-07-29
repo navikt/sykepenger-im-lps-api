@@ -97,6 +97,11 @@ class ForespoerselTolker(
                 logger.info("Forespørsel kastet til infotrygd - håndteres ikke")
                 mottakRepository.opprett(ExposedMottak(melding, false))
             }
+
+            NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID -> {
+                logger.info("Forespørsel for vedtaksperiodeId mottatt - håndteres ikke i denne klassen")
+                sikkerLogger.info("Forespørsel for vedtaksperiodeId mottatt- forespørsel $forespoerselId")
+            }
         }
     }
 
