@@ -103,7 +103,9 @@ class ForespoerselTolker(
 
             NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID -> {
                 logger.info("Forespørsel for vedtaksperiodeId mottatt - håndteres ikke i denne klassen")
-                sikkerLogger.info("Forespørsel for vedtaksperiodeId mottatt- forespørsel $forespoerselId")
+                obj.forespoersel?.let { forespoersel ->
+                    forespoerselService.lagreEllerOppdaterForespoersel(forespoersel, obj.status, obj.eksponertForespoerselId)
+                }
             }
         }
     }

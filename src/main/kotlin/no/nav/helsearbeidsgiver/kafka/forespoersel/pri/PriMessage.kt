@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.forespoersel.Type
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -19,6 +20,7 @@ data class PriMessage(
     val forespoersel: ForespoerselDokument? = null,
     val forespoerselId: UUID? = null,
     val eksponertForespoerselId: UUID? = null,
+    val status: Status? = null,
 )
 
 /*
