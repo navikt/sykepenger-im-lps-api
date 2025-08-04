@@ -106,6 +106,15 @@ class InntektsmeldingRepository(
                 .firstOrNull()
         }
 
+    fun hentMedInnsendingId(innsendingId: UUID): InntektsmeldingResponse? =
+        transaction(db) {
+            InntektsmeldingEntitet
+                .selectAll()
+                .where { (InntektsmeldingEntitet.innsendingId eq innsendingId) }
+                .map { it.toExposedInntektsmelding() }
+                .firstOrNull()
+        }
+
     fun oppdaterStatus(
         inntektsmelding: Inntektsmelding,
         nyStatus: InnsendingStatus,
