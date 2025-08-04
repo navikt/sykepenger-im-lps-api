@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.buildForespoerselFraBacklog
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
 import no.nav.helsearbeidsgiver.utils.buildForspoerselBesvartMelding
@@ -287,6 +288,32 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             oppdatertFsp1.status shouldBe Status.FORKASTET
             val oppdatertFsp2 = hentForespoerselFraApi(oppdatertForespoerselId2)
             oppdatertFsp2.status shouldBe Status.BESVART
+        }
+    }
+
+    @Test
+    fun `Mottar forespørsel fra backlog`() {
+        val forespoerselId = UUID.randomUUID()
+        sendKafkaMelding(buildForespoerselMottattJson(forespoerselId))
+        runBlocking {
+            val oppdatertFsp2 = hentForespoerselFraApi(forespoerselId)
+            oppdatertFsp2.status shouldBe Status.AKTIV
+        }
+        val oppdatertForespoerselId1 = UUID.randomUUID()
+
+        sendKafkaMelding(buildForespoerselFraBacklog(forespoerselId = forespoerselId, status = Status.FORKASTET))
+        sendKafkaMelding(
+            buildForespoerselFraBacklog(
+                forespoerselId = oppdatertForespoerselId1,
+                eksponertForespoerselId = forespoerselId,
+                status = Status.AKTIV,
+            ),
+        )
+        runBlocking {
+            val forespoersel = hentForespoerselFraApi(forespoerselId)
+            forespoersel.status shouldBe Status.FORKASTET
+            val oppdatertFsp1 = hentForespoerselFraApi(oppdatertForespoerselId1)
+            oppdatertFsp1.status shouldBe Status.AKTIV
         }
     }
 
