@@ -49,24 +49,33 @@ private fun Route.innsending(services: Services) {
     post("/inntektsmelding") {
         try {
             val request = call.receive<InntektsmeldingRequest>()
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+
+            val forespoersel =
+                services.forespoerselService.hentForespoersel(request.navReferanseId)
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
+
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
+                    orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
+                )
+            ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
+
             sikkerLogger().info("Mottatt innsending: $request")
-            sikkerLogger().info("LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [$sluttbrukerOrgnr]")
+            sikkerLogger().info(
+                "LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [${forespoersel.orgnr}] med systembrukerOrgnr: [$systembrukerOrgnr]",
+            )
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
 
-            val forespoersel =
-                services.forespoerselService.hentForespoersel(request.navReferanseId, sluttbrukerOrgnr)
-                    ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
-
-            request.validerMotForespoersel(forespoersel, sluttbrukerOrgnr)?.let {
+            request.validerMotForespoersel(forespoersel)?.let {
                 sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
@@ -77,7 +86,7 @@ private fun Route.innsending(services: Services) {
 
             val inntektsmelding =
                 request.tilInntektsmelding(
-                    sluttbrukerOrgnr = Orgnr(sluttbrukerOrgnr),
+                    sluttbrukerOrgnr = Orgnr(forespoersel.orgnr),
                     lpsOrgnr = Orgnr(lpsOrgnr),
                     forespoersel = forespoersel,
                     vedtaksperiodeId = vedtaksperiodeId,

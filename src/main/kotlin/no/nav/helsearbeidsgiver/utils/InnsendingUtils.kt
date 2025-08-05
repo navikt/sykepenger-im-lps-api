@@ -89,13 +89,9 @@ fun InntektsmeldingResponse.tilSkjemaInntektsmelding(eksponertForespoerselId: UU
         refusjon = refusjon,
     )
 
-fun InntektsmeldingRequest.validerMotForespoersel(
-    forespoersel: Forespoersel,
-    sluttbrukerOrgnr: String,
-): String? =
+fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): String? =
     when {
         forespoersel.navReferanseId != navReferanseId -> Feilmelding.UGYLDIG_REFERANSE // sjekker for sikkerhets skyld
-        forespoersel.orgnr != sluttbrukerOrgnr -> Feilmelding.FEIL_ORGNR
         forespoersel.fnr != this.sykmeldtFnr -> Feilmelding.FEIL_FNR
         forespoersel.inntektPaakrevd && this.inntekt == null -> Feilmelding.INNTEKT_ER_PAAKREVD
         !forespoersel.inntektPaakrevd && this.inntekt != null -> Feilmelding.INNTEKT_ER_IKKE_PAAKREVD
