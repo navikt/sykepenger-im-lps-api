@@ -64,8 +64,7 @@ class KafkaErrorHandlingTest {
         }
     }
 
-// TODO : kommentert ut midlertidig håndtering av ugyldige meldinger
-    //  @Test
+    @Test
     fun `ugyldig forespørsel eller manglende forespørselId i forespørselmelding skal kaste exception og stoppe videre lesing fra kafka`() {
         every { mockMottakRepository.opprett(any()) } returns 100
         val mockForespoerselRepository = mockk<ForespoerselRepository>()

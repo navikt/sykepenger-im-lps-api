@@ -31,10 +31,7 @@ class ForespoerselTolker(
                     return
                 } else {
                     sikkerLogger.error("Ugyldig forespørselformat!", e)
-                    // TODO midlertidig håndtering av ugyldige meldinger
-                    mottakRepository.opprett(ExposedMottak(melding = melding, gyldig = false))
-                    return
-                    // throw e
+                    throw e
                 }
             }
         logger.info("Mottatt notis ${obj.notis}")
