@@ -196,6 +196,5 @@ class ForespoerselService(
             logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, oppdaterer status til $status.")
             forespoerselRepository.oppdaterStatus(forespoersel.forespoerselId, status)
         }
-        return
     }
 }
