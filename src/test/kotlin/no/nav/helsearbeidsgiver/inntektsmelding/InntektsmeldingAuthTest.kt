@@ -330,7 +330,7 @@ class InntektsmeldingAuthTest : ApiTest() {
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
         val response4 =
             runBlocking {
-                client.post("/v1/sykepengesoeknader") {
+                client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
                         InntektsmeldingFilterRequest(

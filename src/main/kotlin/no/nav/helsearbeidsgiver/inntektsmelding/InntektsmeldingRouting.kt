@@ -35,10 +35,11 @@ private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
-        filtrerInntektsmeldinger(services.inntektsmeldingService)
-        inntektsmeldinger(services.inntektsmeldingService)
         innsending(services)
+        inntektsmeldinger(services.inntektsmeldingService)
         inntektsmelding(services.inntektsmeldingService)
+        inntektsmeldingerForSystembrukerOrgnr(services.inntektsmeldingService)
+        inntektsmeldingerMedNavReferanseIdOgStatus(services.inntektsmeldingService)
     }
 }
 
@@ -103,7 +104,7 @@ private fun Route.innsending(services: Services) {
     }
 }
 
-private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmeldinger, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
@@ -130,35 +131,6 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
                     orgnr = orgnr,
                     request = request,
                 ).let {
-                    call.respond(it)
-                }
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
-        }
-    }
-}
-
-@Deprecated(
-    message =
-        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
-            "Vi anbefaler å bruke POST /inntektsmeldinger istedenfor.",
-    level = DeprecationLevel.WARNING,
-)
-private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
-    // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
-    get("/inntektsmeldinger") {
-        try {
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-                return@get
-            }
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
-            inntektsmeldingService
-                .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
-                .let {
                     call.respond(it)
                 }
         } catch (e: Exception) {
@@ -214,6 +186,44 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
         }
     }
+}
+
+@Deprecated(
+    message =
+        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
+            "Vi anbefaler å bruke POST /inntektsmeldinger istedenfor.",
+    level = DeprecationLevel.WARNING,
+)
+private fun Route.inntektsmeldingerForSystembrukerOrgnr(inntektsmeldingService: InntektsmeldingService) {
+    // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
+    get("/inntektsmeldinger") {
+        try {
+            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
+                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                return@get
+            }
+            sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmeldinger for bedrift: [$sluttbrukerOrgnr]")
+            inntektsmeldingService
+                .hentInntektsmeldingerByOrgNr(sluttbrukerOrgnr)
+                .let {
+                    call.respond(it)
+                }
+        } catch (e: Exception) {
+            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
+            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+        }
+    }
+}
+
+@Deprecated(
+    message =
+        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
+            "Vi anbefaler å bruke POST /inntektsmeldinger istedenfor.",
+    level = DeprecationLevel.WARNING,
+)
+private fun Route.inntektsmeldingerMedNavReferanseIdOgStatus(inntektsmeldingService: InntektsmeldingService) {
     // Hent alle inntektsmeldinger med navReferanseId
     get("/inntektsmelding/navReferanseId/{navReferanseId}") {
         try {
