@@ -186,13 +186,14 @@ class ForespoerselService(
     ) {
         val hentetForespoersel = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
         if (hentetForespoersel == null) {
-            logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes ikke, lagrer ny forespørsel.")
+            logger().info("Forespørsel med id: ${forespoersel.forespoerselId} og status $status finnes ikke, lagrer forespørsel.")
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = status ?: Status.AKTIV,
                 eksponertForespoerselId = eksponertForespoerselId ?: forespoersel.forespoerselId,
             )
         } else if (status != null && hentetForespoersel.status != status) {
+            logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, oppdaterer status til $status.")
             forespoerselRepository.oppdaterStatus(forespoersel.forespoerselId, status)
         }
         return
