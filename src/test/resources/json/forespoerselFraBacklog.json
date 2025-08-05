@@ -1,0 +1,40 @@
+{
+  "notis": "FORESPOERSEL_FOR_VEDTAKSPERIODE_ID",
+  "forespoerselId": "%%%FORESPOERSEL_ID%%%",
+  "forespoersel": {
+    "type": "KOMPLETT",
+    "orgnr": "%%%ORGNR%%%",
+    "fnr": "29469023476",
+    "forespoerselId": "%%%FORESPOERSEL_ID%%%",
+    "vedtaksperiodeId": "%%%VEDTAKSPERIODE_ID%%%",
+    "egenmeldingsperioder": [],
+    "sykmeldingsperioder": [
+      {
+        "fom": "2025-04-01",
+        "tom": "2025-04-30"
+      }
+    ],
+    "bestemmendeFravaersdager": {
+      "311567470": "2025-04-01"
+    },
+    "forespurtData": {
+      "arbeidsgiverperiode": {
+        "paakrevd": false
+      },
+      "inntekt": {
+        "paakrevd": true,
+        "forslag": null
+      },
+      "refusjon": {
+        "paakrevd": true,
+        "forslag": {
+          "perioder": [],
+          "opphoersdato": null
+        }
+      }
+    },
+    "erBesvart": true
+  },
+  "eksponertForespoerselId": "%%%EKSPONERT_FORESPOERSEL_ID%%%",
+  "status": "%%%STATUS%%%"
+}
