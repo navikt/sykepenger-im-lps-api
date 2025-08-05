@@ -310,10 +310,10 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             ),
         )
         runBlocking {
-            val forespoersel = hentForespoerselFraApi(forespoerselId)
-            forespoersel.status shouldBe Status.FORKASTET
             val oppdatertFsp1 = hentForespoerselFraApi(oppdatertForespoerselId1)
             oppdatertFsp1.status shouldBe Status.AKTIV
+            val forespoersel = hentForespoerselFraApi(forespoerselId)
+            forespoersel.status shouldBe Status.FORKASTET
         }
     }
 
