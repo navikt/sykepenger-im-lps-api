@@ -190,8 +190,8 @@ class SykmeldingRoutingTest : ApiTest() {
                     contentType(ContentType.Application.Json)
                     setBody(
                         SykmeldingFilterRequestUtenValidering(
-                            fom = LocalDate.now().minusYears(3000),
-                            tom = LocalDate.now().minusYears(3001),
+                            fom = LocalDate.now().plusYears(10000),
+                            tom = LocalDate.now().plusYears(10001),
                         ).toJson(serializer = SykmeldingFilterRequestUtenValidering.serializer()),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))

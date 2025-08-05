@@ -1,0 +1,316 @@
+@file:UseSerializers(LocalDateSerializer::class, UuidSerializer::class)
+
+package no.nav.helsearbeidsgiver.inntektsmelding
+
+import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.unmockkAll
+import io.mockk.verify
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import java.time.LocalDate
+import java.util.UUID
+
+class InntektsmeldingRoutingTest : ApiTest() {
+    @AfterEach
+    fun setup() {
+        clearMocks(repositories.inntektsmeldingRepository)
+    }
+
+    @AfterAll
+    fun teardown() {
+        unmockkAll()
+    }
+
+    @Test
+    fun `hent en spesifikk inntektsmelding`() {
+        val inntektsmeldingId = UUID.randomUUID()
+        val inntektsmelding =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgNr = Orgnr(DEFAULT_ORG))
+        every {
+            repositories.inntektsmeldingRepository.hentMedInnsendingId(
+                innsendingId = inntektsmeldingId,
+            )
+        } returns
+            mockInntektsmeldingResponse(inntektsmelding)
+
+        runBlocking {
+            val response =
+                client.get("/v1/inntektsmelding/$inntektsmeldingId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<InntektsmeldingResponse>()
+            inntektsmeldingSvar.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent alle inntektsmeldinger på et orgnr`() {
+        val antallForventedeInntektsmeldinger = 3
+        every {
+            repositories.inntektsmeldingRepository.hent(
+                orgNr = DEFAULT_ORG,
+                request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG),
+            )
+        } returns
+            List(
+                antallForventedeInntektsmeldinger,
+            ) {
+                val inntektsmelding =
+                    buildInntektsmelding(
+                        inntektsmeldingId = UUID.randomUUID(),
+                        orgNr = Orgnr(DEFAULT_ORG),
+                    )
+                mockInntektsmeldingResponse(inntektsmelding)
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterRequest(
+                            orgnr = DEFAULT_ORG,
+                        ).toJson(serializer = InntektsmeldingFilterRequest.serializer()),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe antallForventedeInntektsmeldinger
+            inntektsmeldingSvar.forEach {
+                it.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+            }
+        }
+    }
+
+    @Test
+    fun `gir 404 dersom inntektsmelding ikke finnes`() {
+        every {
+            repositories.inntektsmeldingRepository.hentMedInnsendingId(any())
+        } returns null
+
+        runBlocking {
+            val response =
+                client.get("/v1/inntektsmelding/${UUID.randomUUID()}") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.NotFound
+        }
+    }
+
+    @Test
+    fun `returnerer tom liste når det ikke er noen inntektsmeldinger på et orgnr`() {
+        every {
+            repositories.inntektsmeldingRepository.hent(
+                orgNr = any(),
+                request = any(),
+            )
+        } returns emptyList()
+
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterRequest(
+                            orgnr = DEFAULT_ORG,
+                        ).toJson(serializer = InntektsmeldingFilterRequest.serializer()),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe 0
+        }
+    }
+
+    @Test
+    fun `gir 400 dersom navReferanseId er ugyldig`() {
+        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
+
+        val response =
+            runBlocking {
+                client.get("/v1/inntektsmelding/$ugyldigNavReferanseId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            }
+        response.status shouldBe HttpStatusCode.BadRequest
+    }
+
+    @Test
+    fun `gir 400 dersom man ber om inntektsmeldinger fra lenge før vår tidsregning`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterRequestUtenValidering(
+                            fom = LocalDate.now().minusYears(3001),
+                            tom = LocalDate.now().minusYears(3000),
+                        ).toJson(
+                            serializer = InntektsmeldingFilterRequestUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 dersom man ber om inntektsmeldinger for skrekkelig langt inn i fremtiden`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterRequestUtenValidering(
+                            fom = LocalDate.now().plusYears(10000),
+                            tom = LocalDate.now().plusYears(10001),
+                        ).toJson(
+                            serializer = InntektsmeldingFilterRequestUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["X", "*", ";Select * from inntektsmelding;", "heia", "98", "1234567"])
+    fun `gir 400 dersom orgnr ikke er gyldig`(orgnr: String) {
+        val repo = repositories.inntektsmeldingRepository
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterRequestUtenValidering(
+                            orgnr = orgnr,
+                        ).toJson(
+                            serializer = InntektsmeldingFilterRequestUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+            verify(exactly = 0) { repo.hent(any(), any()) }
+        }
+    }
+
+    @Test
+    fun `hent inntektsmeldinger fra deprecatet inntektsmeldinger-endepunkt`() {
+        val inntektsmelding =
+            buildInntektsmelding(orgNr = Orgnr(DEFAULT_ORG))
+        every { repositories.inntektsmeldingRepository.hent(DEFAULT_ORG) } returns
+            listOf(
+                mockInntektsmeldingResponse(inntektsmelding),
+            )
+        runBlocking {
+            val response =
+                client.get("/v1/inntektsmeldinger") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe 1
+            inntektsmeldingSvar[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent inntektsmeldinger fra deprecatet status-endepunkt`() {
+        val statusMottatt = InnsendingStatus.MOTTATT
+        val inntektsmelding =
+            buildInntektsmelding(orgNr = Orgnr(DEFAULT_ORG))
+        every {
+            repositories.inntektsmeldingRepository.hent(
+                orgNr = DEFAULT_ORG,
+                request =
+                    InntektsmeldingFilterRequest(
+                        status = statusMottatt,
+                    ),
+            )
+        } returns
+            listOf(
+                mockInntektsmeldingResponse(inntektsmelding),
+            )
+        runBlocking {
+            val response =
+                client.get("/v1/inntektsmelding/status/$statusMottatt") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe 1
+            inntektsmeldingSvar[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent inntektsmeldinger fra deprecatet navReferanseId-endepunkt`() {
+        val inntektsmelding =
+            buildInntektsmelding(orgNr = Orgnr(DEFAULT_ORG))
+        every {
+            repositories.inntektsmeldingRepository.hent(
+                orgNr = DEFAULT_ORG,
+                request =
+                    InntektsmeldingFilterRequest(
+                        navReferanseId = inntektsmelding.id,
+                    ),
+            )
+        } returns
+            listOf(
+                mockInntektsmeldingResponse(inntektsmelding),
+            )
+        runBlocking {
+            val response =
+                client.get("/v1/inntektsmelding/navReferanseId/${inntektsmelding.id}") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe 1
+            inntektsmeldingSvar[0].arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Serializable
+    data class InntektsmeldingFilterRequestUtenValidering(
+        val orgnr: String? = null,
+        val innsendingId: UUID? = null,
+        val fnr: String? = null,
+        val navReferanseId: UUID? = null,
+        val fom: LocalDate? = null,
+        val tom: LocalDate? = null,
+        val status: InnsendingStatus? = null,
+    )
+}

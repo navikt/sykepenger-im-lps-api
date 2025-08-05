@@ -3,6 +3,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -133,6 +134,8 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
                 ).let {
                     call.respond(it)
                 }
+        } catch (_: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
