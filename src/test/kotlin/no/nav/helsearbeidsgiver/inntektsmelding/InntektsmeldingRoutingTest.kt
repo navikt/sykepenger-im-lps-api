@@ -51,7 +51,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     fun `hent en spesifikk inntektsmelding`() {
         val inntektsmeldingId = UUID.randomUUID()
         val inntektsmelding =
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgNr = Orgnr(DEFAULT_ORG))
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hentMedInnsendingId(
                 innsendingId = inntektsmeldingId,
@@ -75,7 +75,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
         val antallForventedeInntektsmeldinger = 3
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgNr = DEFAULT_ORG,
+                orgnr = DEFAULT_ORG,
                 request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG),
             )
         } returns
@@ -85,7 +85,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 val inntektsmelding =
                     buildInntektsmelding(
                         inntektsmeldingId = UUID.randomUUID(),
-                        orgNr = Orgnr(DEFAULT_ORG),
+                        orgnr = Orgnr(DEFAULT_ORG),
                     )
                 mockInntektsmeldingResponse(inntektsmelding)
             }
@@ -129,7 +129,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     fun `returnerer tom liste når det ikke er noen inntektsmeldinger på et orgnr`() {
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgNr = any(),
+                orgnr = any(),
                 request = any(),
             )
         } returns emptyList()
@@ -229,7 +229,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     @Test
     fun `hent inntektsmeldinger fra deprecatet inntektsmeldinger-endepunkt`() {
         val inntektsmelding =
-            buildInntektsmelding(orgNr = Orgnr(DEFAULT_ORG))
+            buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every { repositories.inntektsmeldingRepository.hent(DEFAULT_ORG) } returns
             listOf(
                 mockInntektsmeldingResponse(inntektsmelding),
@@ -250,10 +250,10 @@ class InntektsmeldingRoutingTest : ApiTest() {
     fun `hent inntektsmeldinger fra deprecatet status-endepunkt`() {
         val statusMottatt = InnsendingStatus.MOTTATT
         val inntektsmelding =
-            buildInntektsmelding(orgNr = Orgnr(DEFAULT_ORG))
+            buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgNr = DEFAULT_ORG,
+                orgnr = DEFAULT_ORG,
                 request =
                     InntektsmeldingFilterRequest(
                         status = statusMottatt,
@@ -278,10 +278,10 @@ class InntektsmeldingRoutingTest : ApiTest() {
     @Test
     fun `hent inntektsmeldinger fra deprecatet navReferanseId-endepunkt`() {
         val inntektsmelding =
-            buildInntektsmelding(orgNr = Orgnr(DEFAULT_ORG))
+            buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgNr = DEFAULT_ORG,
+                orgnr = DEFAULT_ORG,
                 request =
                     InntektsmeldingFilterRequest(
                         navReferanseId = inntektsmelding.id,

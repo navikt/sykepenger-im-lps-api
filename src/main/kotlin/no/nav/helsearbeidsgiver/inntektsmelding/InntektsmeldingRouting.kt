@@ -36,15 +36,15 @@ private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
-        innsending(services)
-        inntektsmeldinger(services.inntektsmeldingService)
-        inntektsmelding(services.inntektsmeldingService)
-        inntektsmeldingerForSystembrukerOrgnr(services.inntektsmeldingService)
-        inntektsmeldingerMedNavReferanseIdOgStatus(services.inntektsmeldingService)
+        sendInntektsmelding(services)
+        filtrerInntektsmeldinger(services.inntektsmeldingService)
+        hentInntektsmelding(services.inntektsmeldingService)
+        hentInntektsmeldingerForSystembrukerOrgnr(services.inntektsmeldingService)
+        hentInntektsmeldingerForNavReferanseIdOgStatus(services.inntektsmeldingService)
     }
 }
 
-private fun Route.innsending(services: Services) {
+private fun Route.sendInntektsmelding(services: Services) {
     // Send inn inntektsmelding
     post("/inntektsmelding") {
         try {
@@ -114,7 +114,7 @@ private fun Route.innsending(services: Services) {
     }
 }
 
-private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmeldinger, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
@@ -152,7 +152,7 @@ private fun Route.inntektsmeldinger(inntektsmeldingService: InntektsmeldingServi
     }
 }
 
-private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmelding med id
     get("/inntektsmelding/{inntektsmeldingId}") {
         try {
@@ -206,7 +206,7 @@ private fun Route.inntektsmelding(inntektsmeldingService: InntektsmeldingService
             "Vi anbefaler å bruke POST /inntektsmeldinger istedenfor.",
     level = DeprecationLevel.WARNING,
 )
-private fun Route.inntektsmeldingerForSystembrukerOrgnr(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.hentInntektsmeldingerForSystembrukerOrgnr(inntektsmeldingService: InntektsmeldingService) {
     // Hent alle inntektsmeldinger for tilhørende systembrukers orgnr
     get("/inntektsmeldinger") {
         try {
@@ -235,7 +235,7 @@ private fun Route.inntektsmeldingerForSystembrukerOrgnr(inntektsmeldingService: 
             "Vi anbefaler å bruke POST /inntektsmeldinger istedenfor.",
     level = DeprecationLevel.WARNING,
 )
-private fun Route.inntektsmeldingerMedNavReferanseIdOgStatus(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmeldingService: InntektsmeldingService) {
     // Hent alle inntektsmeldinger med navReferanseId
     get("/inntektsmelding/navReferanseId/{navReferanseId}") {
         try {

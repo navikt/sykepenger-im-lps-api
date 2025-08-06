@@ -136,7 +136,7 @@ class InntektsmeldingServiceTest {
                 fom = datoFra,
                 tom = datoTil,
             )
-        every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } returns
+        every { inntektsmeldingRepository.hent(orgnr = orgnr, request = request) } returns
             listOf(
                 InntektsmeldingResponse(
                     navReferanseId = navReferanseId,
@@ -158,7 +158,7 @@ class InntektsmeldingServiceTest {
         val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
 
         verify {
-            inntektsmeldingRepository.hent(orgNr = orgnr, request = request)
+            inntektsmeldingRepository.hent(orgnr = orgnr, request = request)
         }
         assertEquals(1, hentInntektsMeldingByRequest.size)
         val inntektsmelding = hentInntektsMeldingByRequest[0]
@@ -189,7 +189,7 @@ class InntektsmeldingServiceTest {
                 fom = datoFra,
                 tom = datoTil,
             )
-        every { inntektsmeldingRepository.hent(orgNr = orgnr, request = request) } throws Exception()
+        every { inntektsmeldingRepository.hent(orgnr = orgnr, request = request) } throws Exception()
         assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }
     }
 

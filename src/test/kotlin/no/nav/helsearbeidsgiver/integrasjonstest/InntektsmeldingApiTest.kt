@@ -20,9 +20,9 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
     @Test
     fun `henter inntektsmeldinger basert på status`() {
         val id1 = UUID.randomUUID()
-        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgnr = Orgnr(DEFAULT_ORG))
         val id2 = UUID.randomUUID()
-        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgnr = Orgnr(DEFAULT_ORG))
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1, InnsendingStatus.GODKJENT)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2, InnsendingStatus.MOTTATT)
         runTest {
@@ -46,7 +46,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
         val inntektsmelding1 =
             buildInntektsmelding(
                 inntektsmeldingId = id1,
-                orgNr = Orgnr(DEFAULT_ORG),
+                orgnr = Orgnr(DEFAULT_ORG),
                 forespoerselId = im1NavReferanseId,
             )
         val id2 = UUID.randomUUID()
@@ -54,7 +54,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
         val inntektsmelding2 =
             buildInntektsmelding(
                 inntektsmeldingId = id2,
-                orgNr = Orgnr(DEFAULT_ORG),
+                orgnr = Orgnr(DEFAULT_ORG),
                 forespoerselId = im2NavReferanseId,
             )
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
@@ -76,9 +76,9 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
     @Test
     fun `henter inntektsmelding basert på inntektsmeldingId`() {
         val id1 = UUID.randomUUID()
-        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgnr = Orgnr(DEFAULT_ORG))
         val id2 = UUID.randomUUID()
-        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgnr = Orgnr(DEFAULT_ORG))
         val missingId = UUID.randomUUID()
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2)

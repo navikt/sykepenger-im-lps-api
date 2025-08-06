@@ -41,7 +41,7 @@ class InntektsmeldingAuthTest : ApiTest() {
     @Test
     fun `gir 200 OK ved henting av inntektsmeldinger fra deprecated endepunkt`() {
         val inntektsmelding =
-            buildInntektsmelding(orgNr = Orgnr(underenhetOrgnrMedPdpTilgang))
+            buildInntektsmelding(orgnr = Orgnr(underenhetOrgnrMedPdpTilgang))
         every { repositories.inntektsmeldingRepository.hent(underenhetOrgnrMedPdpTilgang) } returns
             listOf(
                 mockInntektsmeldingResponse(inntektsmelding),
@@ -62,7 +62,7 @@ class InntektsmeldingAuthTest : ApiTest() {
     fun `gir 200 OK ved henting av en spesifikk inntektsmelding med inntektsmeldingId`() {
         val inntektsmeldingId = UUID.randomUUID()
         val inntektsmelding =
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgNr = Orgnr(underenhetOrgnrMedPdpTilgang))
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgnr = Orgnr(underenhetOrgnrMedPdpTilgang))
         every {
             repositories.inntektsmeldingRepository.hentMedInnsendingId(
                 innsendingId = inntektsmeldingId,
@@ -86,7 +86,7 @@ class InntektsmeldingAuthTest : ApiTest() {
         val antallForventedeInntektsmeldinger = 3
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgNr = underenhetOrgnrMedPdpTilgang,
+                orgnr = underenhetOrgnrMedPdpTilgang,
                 request = InntektsmeldingFilterRequest(orgnr = underenhetOrgnrMedPdpTilgang),
             )
         } returns
@@ -96,7 +96,7 @@ class InntektsmeldingAuthTest : ApiTest() {
                 val inntektsmelding =
                     buildInntektsmelding(
                         inntektsmeldingId = UUID.randomUUID(),
-                        orgNr = Orgnr(underenhetOrgnrMedPdpTilgang),
+                        orgnr = Orgnr(underenhetOrgnrMedPdpTilgang),
                     )
                 mockInntektsmeldingResponse(inntektsmelding)
             }
@@ -127,7 +127,7 @@ class InntektsmeldingAuthTest : ApiTest() {
         val requestUtenOrgnr = InntektsmeldingFilterRequest()
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgNr = underenhetOrgnrMedPdpTilgang,
+                orgnr = underenhetOrgnrMedPdpTilgang,
                 request = InntektsmeldingFilterRequest(),
             )
         } returns
@@ -137,7 +137,7 @@ class InntektsmeldingAuthTest : ApiTest() {
                 val inntektsmelding =
                     buildInntektsmelding(
                         inntektsmeldingId = UUID.randomUUID(),
-                        orgNr = Orgnr(underenhetOrgnrMedPdpTilgang),
+                        orgnr = Orgnr(underenhetOrgnrMedPdpTilgang),
                     )
                 mockInntektsmeldingResponse(inntektsmelding)
             }
@@ -215,7 +215,7 @@ class InntektsmeldingAuthTest : ApiTest() {
     @Test
     fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra deprecated endepunkt`() {
         val inntektsmelding =
-            buildInntektsmelding(orgNr = Orgnr(underenhetOrgnrMedPdpTilgang))
+            buildInntektsmelding(orgnr = Orgnr(underenhetOrgnrMedPdpTilgang))
         every { repositories.inntektsmeldingRepository.hent(underenhetOrgnrMedPdpTilgang) } returns
             listOf(
                 mockInntektsmeldingResponse(inntektsmelding),
@@ -233,7 +233,7 @@ class InntektsmeldingAuthTest : ApiTest() {
     fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av en spesifikk inntektsmelding`() {
         val inntektsmeldingIdIkkeTilgang = UUID.randomUUID()
         val inntektsmeldingIkkeTilgang =
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingIdIkkeTilgang, orgNr = Orgnr(orgnrUtenPdpTilgang))
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingIdIkkeTilgang, orgnr = Orgnr(orgnrUtenPdpTilgang))
         every {
             repositories.inntektsmeldingRepository.hentMedInnsendingId(
                 innsendingId = inntektsmeldingIdIkkeTilgang,
@@ -244,7 +244,7 @@ class InntektsmeldingAuthTest : ApiTest() {
         val inntektsmeldingTilgang =
             buildInntektsmelding(
                 inntektsmeldingId = inntektsmeldingIdTilgang,
-                orgNr = Orgnr(underenhetOrgnrMedPdpTilgang),
+                orgnr = Orgnr(underenhetOrgnrMedPdpTilgang),
             )
         every {
             repositories.inntektsmeldingRepository.hentMedInnsendingId(
