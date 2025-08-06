@@ -39,6 +39,7 @@ private const val SYKMELDT_FNR = "%%%SYKMELDT%%%"
 private const val ORGNUMMER = "%%%ORGNR%%%"
 private const val VEDTAKSPERIODE_ID = "%%%VEDTAKSPERIODE_ID%%%"
 private const val EKSPONERT_FORESPOERSEL_ID = "%%%EKSPONERT_FORESPOERSEL_ID%%%"
+private const val STATUS = "%%%STATUS%%%"
 
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
@@ -121,6 +122,22 @@ fun buildForespoerselOppdatertJson(
         .replace(EKSPONERT_FORESPOERSEL_ID, eksponertForespoerselId.toString())
         .replace(ORGNUMMER, orgnummer)
         .replace(VEDTAKSPERIODE_ID, vedtaksperiodeId.toString())
+}
+
+fun buildForespoerselFraBacklog(
+    forespoerselId: UUID = UUID.randomUUID(),
+    eksponertForespoerselId: UUID = UUID.randomUUID(),
+    vedtaksperiodeId: UUID = UUID.randomUUID(),
+    orgnummer: String = DEFAULT_ORG,
+    status: Status = Status.AKTIV,
+): String {
+    val filePath = "json/forespoerselFraBacklog.json"
+    return readJsonFromResources(filePath)
+        .replace(FORESPOERSEL_ID, forespoerselId.toString())
+        .replace(EKSPONERT_FORESPOERSEL_ID, eksponertForespoerselId.toString())
+        .replace(ORGNUMMER, orgnummer)
+        .replace(VEDTAKSPERIODE_ID, vedtaksperiodeId.toString())
+        .replace(STATUS, status.name)
 }
 
 fun buildInntektsmeldingDistribuertJson(
