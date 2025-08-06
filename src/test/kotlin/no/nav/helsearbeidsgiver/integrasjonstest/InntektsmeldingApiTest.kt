@@ -11,7 +11,6 @@ import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
-import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -92,15 +91,6 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
             val inntektsmeldingResponse = ok.body<InntektsmeldingResponse>()
             inntektsmeldingResponse.id shouldBe id1
 
-            // Riktig id, men feil orgnr som spør:
-            val ikkeTilgang =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/inntektsmelding/$id1",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(Orgnr.genererGyldig().verdi),
-                )
-            ikkeTilgang.status shouldBe HttpStatusCode.NotFound
-            ikkeTilgang.bodyAsText() shouldBe ""
-
             // Gyldig UUID, men finnes ikke i basen;
             val notFound =
                 fetchWithRetry(
@@ -108,7 +98,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
-            notFound.bodyAsText() shouldBe ""
+            notFound.bodyAsText() shouldBe "Inntektsmelding med inntektsmeldingId: $missingId ikke funnet."
 
             // Ugyldig UUID:
             val ugyldig =

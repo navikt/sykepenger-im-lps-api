@@ -41,9 +41,4 @@ class InnsendingUtilsTest {
         inntektsmelding.validerMotForespoersel(forespoerselMedForskjelligSykmeldt) shouldBe
             Feilmelding.FEIL_FNR
     }
-
-    @Test
-    fun validerAtOrgnrMatcher() {
-        inntektsmelding.validerMotForespoersel(forespoersel) shouldBe Feilmelding.FEIL_ORGNR
-    }
 }
