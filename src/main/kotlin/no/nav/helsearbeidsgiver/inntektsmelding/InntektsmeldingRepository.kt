@@ -58,16 +58,16 @@ class InntektsmeldingRepository(
         }
     }
 
-    fun hent(orgNr: String): List<InntektsmeldingResponse> =
+    fun hent(orgnr: String): List<InntektsmeldingResponse> =
         transaction(db) {
             InntektsmeldingEntitet
                 .selectAll()
-                .where { orgnr eq orgNr }
+                .where { InntektsmeldingEntitet.orgnr eq orgnr }
                 .map { it.toExposedInntektsmelding() }
         }
 
     fun hent(
-        orgNr: String,
+        orgnr: String,
         request: InntektsmeldingFilterRequest,
     ): List<InntektsmeldingResponse> =
         transaction(db) {
@@ -75,7 +75,7 @@ class InntektsmeldingRepository(
             val query =
                 InntektsmeldingEntitet
                     .selectAll()
-                    .where { orgnr eq orgNr }
+                    .where { InntektsmeldingEntitet.orgnr eq orgnr }
 
             request.status?.let { query.andWhere { status eq it } }
             request.innsendingId?.let { query.andWhere { innsendingId eq it } }
@@ -102,6 +102,15 @@ class InntektsmeldingRepository(
             InntektsmeldingEntitet
                 .selectAll()
                 .where { (InntektsmeldingEntitet.innsendingId eq innsendingId) and (InntektsmeldingEntitet.orgnr eq orgnr) }
+                .map { it.toExposedInntektsmelding() }
+                .firstOrNull()
+        }
+
+    fun hentMedInnsendingId(innsendingId: UUID): InntektsmeldingResponse? =
+        transaction(db) {
+            InntektsmeldingEntitet
+                .selectAll()
+                .where { (InntektsmeldingEntitet.innsendingId eq innsendingId) }
                 .map { it.toExposedInntektsmelding() }
                 .firstOrNull()
         }

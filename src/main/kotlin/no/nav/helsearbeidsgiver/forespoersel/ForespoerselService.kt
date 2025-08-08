@@ -85,15 +85,6 @@ class ForespoerselService(
         }
     }
 
-    fun hentForespoersel(
-        navReferanseId: UUID,
-        orgnr: String,
-    ): Forespoersel? =
-        forespoerselRepository.hentForespoersel(
-            navReferanseId,
-            orgnr,
-        )
-
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
 
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)

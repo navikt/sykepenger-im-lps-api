@@ -52,7 +52,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 "helsearbeidsgiver.inntektsmelding",
                 "key",
                 buildJournalfoertInntektsmelding(
-                    orgNr = Orgnr(orgnr),
+                    orgnr = Orgnr(orgnr),
                     inntektsmeldingId = inntektsmeldingId,
                 ),
             )
@@ -81,7 +81,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 "helsearbeidsgiver.inntektsmelding",
                 "key",
                 buildJournalfoertInntektsmelding(
-                    orgNr = Orgnr(orgnr),
+                    orgnr = Orgnr(orgnr),
                     inntektsmeldingId = inntektsmeldingId1,
                 ),
             )
@@ -91,7 +91,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 "helsearbeidsgiver.inntektsmelding",
                 "key",
                 buildJournalfoertInntektsmelding(
-                    orgNr = Orgnr(orgnr),
+                    orgnr = Orgnr(orgnr),
                     inntektsmeldingId = inntektsmeldingId2,
                 ),
             )

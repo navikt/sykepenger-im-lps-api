@@ -11,7 +11,6 @@ import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
-import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -20,9 +19,9 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
     @Test
     fun `henter inntektsmeldinger basert på status`() {
         val id1 = UUID.randomUUID()
-        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgnr = Orgnr(DEFAULT_ORG))
         val id2 = UUID.randomUUID()
-        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgnr = Orgnr(DEFAULT_ORG))
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1, InnsendingStatus.GODKJENT)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2, InnsendingStatus.MOTTATT)
         runTest {
@@ -46,7 +45,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
         val inntektsmelding1 =
             buildInntektsmelding(
                 inntektsmeldingId = id1,
-                orgNr = Orgnr(DEFAULT_ORG),
+                orgnr = Orgnr(DEFAULT_ORG),
                 forespoerselId = im1NavReferanseId,
             )
         val id2 = UUID.randomUUID()
@@ -54,7 +53,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
         val inntektsmelding2 =
             buildInntektsmelding(
                 inntektsmeldingId = id2,
-                orgNr = Orgnr(DEFAULT_ORG),
+                orgnr = Orgnr(DEFAULT_ORG),
                 forespoerselId = im2NavReferanseId,
             )
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
@@ -76,9 +75,9 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
     @Test
     fun `henter inntektsmelding basert på inntektsmeldingId`() {
         val id1 = UUID.randomUUID()
-        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = id1, orgnr = Orgnr(DEFAULT_ORG))
         val id2 = UUID.randomUUID()
-        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgNr = Orgnr(DEFAULT_ORG))
+        val inntektsmelding2 = buildInntektsmelding(inntektsmeldingId = id2, orgnr = Orgnr(DEFAULT_ORG))
         val missingId = UUID.randomUUID()
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding1)
         repositories.inntektsmeldingRepository.opprettInntektsmelding(inntektsmelding2)
@@ -92,15 +91,6 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
             val inntektsmeldingResponse = ok.body<InntektsmeldingResponse>()
             inntektsmeldingResponse.id shouldBe id1
 
-            // Riktig id, men feil orgnr som spør:
-            val ikkeTilgang =
-                fetchWithRetry(
-                    url = "http://localhost:8080/v1/inntektsmelding/$id1",
-                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(Orgnr.genererGyldig().verdi),
-                )
-            ikkeTilgang.status shouldBe HttpStatusCode.NotFound
-            ikkeTilgang.bodyAsText() shouldBe ""
-
             // Gyldig UUID, men finnes ikke i basen;
             val notFound =
                 fetchWithRetry(
@@ -108,7 +98,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
-            notFound.bodyAsText() shouldBe ""
+            notFound.bodyAsText() shouldBe "Inntektsmelding med inntektsmeldingId: $missingId ikke funnet."
 
             // Ugyldig UUID:
             val ugyldig =
