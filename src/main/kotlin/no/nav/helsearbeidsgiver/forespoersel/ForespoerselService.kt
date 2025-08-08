@@ -177,26 +177,45 @@ class ForespoerselService(
         return false
     }
 
-    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID = forespoerselRepository.hentEksponertForespoerselId(forespoerselId)
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID? = forespoerselRepository.hentEksponertForespoerselId(forespoerselId)
 
     fun lagreEllerOppdaterForespoersel(
         forespoersel: ForespoerselDokument,
         status: Status?,
         eksponertForespoerselId: UUID?,
     ) {
-        val hentetForespoersel = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
-        if (hentetForespoersel == null) {
+        val hentet = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
+
+        if (hentet == null) {
             logger().info("Forespørsel med id: ${forespoersel.forespoerselId} og status $status finnes ikke, lagrer forespørsel.")
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = status ?: Status.AKTIV,
-                eksponertForespoerselId = eksponertForespoerselId ?: forespoersel.forespoerselId,
+                eksponertForespoerselId = eksponertForespoerselId,
             )
-        } else if (status != null && hentetForespoersel.status != status) {
+            return
+        }
+
+        if (status != null && hentet.status != status) {
             logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, oppdaterer status til $status.")
             forespoerselRepository.oppdaterStatus(forespoersel.forespoerselId, status)
-        } else {
-            logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, ingen oppdatering nødvendig.")
         }
+        val hentEksponertForespoerselId = hentEksponertForespoerselId(forespoersel.forespoerselId)
+        if (hentEksponertForespoerselId == null ||
+            hentEksponertForespoerselId != eksponertForespoerselId
+        ) {
+            logger().info(
+                "Forespørsel med id: ${forespoersel.forespoerselId} oppdaterer eksponertForespoerselId til: $eksponertForespoerselId.",
+            )
+            if (eksponertForespoerselId != null) {
+                forespoerselRepository.oppdaterEksponertForespoerselId(
+                    forespoersel.forespoerselId,
+                    eksponertForespoerselId,
+                )
+            }
+            return
+        }
+
+        logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, ingen oppdatering nødvendig.")
     }
 }

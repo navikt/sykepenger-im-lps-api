@@ -79,7 +79,9 @@ private fun Route.innsending(services: Services) {
                     forespoersel = forespoersel,
                     vedtaksperiodeId = vedtaksperiodeId,
                 )
-            val eksponertForespoerselId = services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
+            val eksponertForespoerselId =
+                services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId) ?: request.navReferanseId
+
             val innsending = request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
 
             if (
