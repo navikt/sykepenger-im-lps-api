@@ -48,14 +48,14 @@ fun buildJournalfoertInntektsmelding(
     inntektsmeldingId: UUID = UUID.randomUUID(),
     forespoerselId: UUID = UUID.randomUUID(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
-    orgNr: Orgnr = Orgnr(DEFAULT_ORG),
+    orgnr: Orgnr = Orgnr(DEFAULT_ORG),
 ): String {
     val filePath = "json/journalfoertInntektsmelding.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
         .replace(FORESPOERSEL_ID, forespoerselId.toString())
         .replace(SYKMELDT_FNR, sykemeldtFnr.verdi)
-        .replace(ORGNUMMER, orgNr.verdi)
+        .replace(ORGNUMMER, orgnr.verdi)
 }
 
 fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
@@ -65,14 +65,14 @@ fun buildInntektsmelding(
     inntektsmeldingId: UUID = UUID.randomUUID(),
     forespoerselId: UUID = UUID.randomUUID(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
-    orgNr: Orgnr = Orgnr(DEFAULT_ORG),
+    orgnr: Orgnr = Orgnr(DEFAULT_ORG),
 ): Inntektsmelding =
     jsonMapper.decodeFromString<Inntektsmelding>(
         buildInntektsmeldingJson(
             inntektsmeldingId,
             forespoerselId,
             sykemeldtFnr,
-            orgNr,
+            orgnr,
         ),
     )
 
@@ -86,14 +86,14 @@ fun buildInntektsmeldingJson(
     inntektsmeldingId: UUID = UUID.randomUUID(),
     forespoerselId: UUID = UUID.randomUUID(),
     sykemeldtFnr: Fnr = Fnr(DEFAULT_FNR),
-    orgNr: Orgnr = Orgnr(DEFAULT_ORG),
+    orgnr: Orgnr = Orgnr(DEFAULT_ORG),
 ): String {
     val filePath = "json/im.json"
     return readJsonFromResources(filePath)
         .replace(INNTEKTSMELDING_ID, inntektsmeldingId.toString())
         .replace(FORESPOERSEL_ID, forespoerselId.toString())
         .replace(SYKMELDT_FNR, sykemeldtFnr.verdi)
-        .replace(ORGNUMMER, orgNr.verdi)
+        .replace(ORGNUMMER, orgnr.verdi)
 }
 
 fun buildForespoerselMottattJson(

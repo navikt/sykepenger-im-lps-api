@@ -87,7 +87,7 @@ class InnsendingIT {
         runTest {
             val orgnr1 = "810007982"
             inntektsmeldingTolker.lesMelding(
-                buildJournalfoertInntektsmelding(orgNr = Orgnr(orgnr1)),
+                buildJournalfoertInntektsmelding(orgnr = Orgnr(orgnr1)),
             )
             val response =
                 client.get("/v1/inntektsmeldinger") {

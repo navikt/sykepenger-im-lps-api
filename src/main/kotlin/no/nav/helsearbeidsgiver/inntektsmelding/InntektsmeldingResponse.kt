@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -83,6 +84,7 @@ data class Avsender(
 
 @Serializable
 data class InntektsmeldingFilterRequest(
+    val orgnr: String? = null,
     val innsendingId: UUID? = null,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
@@ -91,6 +93,7 @@ data class InntektsmeldingFilterRequest(
     val status: InnsendingStatus? = null,
 ) {
     init {
+        orgnr?.let { require(erGyldig(orgnr)) }
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring

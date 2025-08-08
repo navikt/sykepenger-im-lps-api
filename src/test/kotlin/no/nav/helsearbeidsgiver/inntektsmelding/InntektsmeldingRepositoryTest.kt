@@ -94,7 +94,7 @@ class InntektsmeldingRepositoryTest {
     }
 
     @Test
-    fun `hent should return list av inntektsmeldinger by orgNr`() {
+    fun `hent should return list av inntektsmeldinger by orgnr`() {
         val repository = InntektsmeldingRepository(db)
         val forespoerselId = UUID.randomUUID()
         val inntektsmeldingId = UUID.randomUUID()
@@ -114,7 +114,7 @@ class InntektsmeldingRepositoryTest {
     }
 
     @Test
-    fun `hent should return list av inntektsmeldinger by orgNr and request`() {
+    fun `hent should return list av inntektsmeldinger by orgnr and request`() {
         val repository = InntektsmeldingRepository(db)
         val forespoerselId = UUID.randomUUID()
         val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId)
@@ -141,7 +141,7 @@ class InntektsmeldingRepositoryTest {
     }
 
     @Test
-    fun `hent should return list av inntektsmeldinger by orgNr and request with no match`() {
+    fun `hent should return list av inntektsmeldinger by orgnr and request with no match`() {
         val repository = InntektsmeldingRepository(db)
         val forespoerselId1 = UUID.randomUUID()
         generateTestData(
@@ -212,7 +212,7 @@ class InntektsmeldingRepositoryTest {
         forespoerselId: UUID,
     ) {
         val repository = InntektsmeldingRepository(db)
-        val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId, orgNr = org, sykemeldtFnr = sykmeldtFnr)
+        val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId, orgnr = org, sykemeldtFnr = sykmeldtFnr)
         repository.opprettInntektsmelding(
             im = inntektsmeldingJson,
         )
