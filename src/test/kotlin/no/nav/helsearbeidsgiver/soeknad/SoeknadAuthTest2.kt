@@ -5,7 +5,7 @@ import io.ktor.client.statement.HttpResponse
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonElement
-import no.nav.helsearbeidsgiver.authorization.AuthTest
+import no.nav.helsearbeidsgiver.authorization.HentEntitetApiAuthTest
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
@@ -13,7 +13,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
-class SoeknadAuthTest2 : AuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengesoknadDTO>() {
+class SoeknadAuthTest2 : HentEntitetApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengesoknadDTO>() {
     override val filtreringEndepunkt = "/v1/sykepengesoeknader"
     override val enkeltEntitetEndepunkt = "/v1/sykepengesoeknad"
     override val utfasetEndepunkt = "/v1/sykepengesoeknader"
@@ -41,9 +41,9 @@ class SoeknadAuthTest2 : AuthTest<Sykepengesoeknad, SykepengesoeknadFilter, Syke
 
     override fun mockHentingAvEnkeltEntitet(
         id: UUID,
-        result: SykepengesoknadDTO,
+        resultat: SykepengesoknadDTO,
     ) {
-        every { repositories.soeknadRepository.hentSoeknad(id) } returns result
+        every { repositories.soeknadRepository.hentSoeknad(id) } returns resultat
     }
 
     override fun lesEntiteterFraRespons(respons: HttpResponse): List<Sykepengesoeknad> =

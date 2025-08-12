@@ -19,7 +19,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
 import java.util.UUID
 
-abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
+/**
+ * Generisk testklasse som verifiserer autorisasjonslogikken for API-endepunkter som henter sykmeldinger, sykepengesøknader, forespørsler og inntektsmeldinger.
+ *
+ * @param <Entitet> Entitetstypen som returneres i API-responsen, f.eks. Sykmelding.
+ * @param <FilterRequest> Requesten som brukes for å hente og filtrere flere entiteter, f.eks. SykmeldingFilterRequest.
+ * @param <EntitetDTO> DTO-typen for entiteten som brukes internt i testen, f.eks. SykmeldingDTO.
+ */
+abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
     @BeforeEach
     fun setup() {
         mockPdpTilganger()
@@ -45,7 +52,7 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
 
     abstract fun mockHentingAvEnkeltEntitet(
         id: UUID,
-        result: EntitetDTO,
+        resultat: EntitetDTO,
     )
 
     abstract fun mockHentingAvEntiteter(
@@ -54,9 +61,9 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
         resultat: List<EntitetDTO>,
     )
 
-    abstract fun lesEnkeltEntitetFraRespons(response: io.ktor.client.statement.HttpResponse): Entitet
+    abstract fun lesEnkeltEntitetFraRespons(respons: io.ktor.client.statement.HttpResponse): Entitet
 
-    abstract fun lesEntiteterFraRespons(response: io.ktor.client.statement.HttpResponse): List<Entitet>
+    abstract fun lesEntiteterFraRespons(respons: io.ktor.client.statement.HttpResponse): List<Entitet>
 
     abstract fun hentOrgnrFraEntitet(entitet: Entitet): String
 
@@ -90,7 +97,7 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
     @Test
     fun `gir 200 OK ved henting av en spesifikk entitet`() {
         val entitetId = UUID.randomUUID()
-        val mockEntitet = mockEntitet(entitetId, underenhetOrgnrMedPdpTilgang)
+        val mockEntitet = mockEntitet(id = entitetId, orgnr = underenhetOrgnrMedPdpTilgang)
 
         mockHentingAvEnkeltEntitet(entitetId, mockEntitet)
 
@@ -121,16 +128,16 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
         )
 
         runBlocking {
-            val response =
+            val respons =
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
                     setBody(serialiserFilterRequest(filter))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
 
-            response.status shouldBe HttpStatusCode.OK
+            respons.status shouldBe HttpStatusCode.OK
 
-            val entiteter = lesEntiteterFraRespons(response)
+            val entiteter = lesEntiteterFraRespons(respons)
             entiteter.size shouldBe antallForventedeEntiteter
 
             entiteter.forEach {
@@ -227,13 +234,13 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
         val mockEntitet = mockEntitet(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
         mockHentingAvEntiteter(underenhetOrgnrMedPdpTilgang, null, listOf(mockEntitet))
 
-        val response =
+        val respons =
             runBlocking {
                 client.get(utfasetEndepunkt) {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
-        response.status shouldBe HttpStatusCode.Unauthorized
+        respons.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test
@@ -243,11 +250,11 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
 
         mockHentingAvEnkeltEntitet(
             id = entitetIdTilgang,
-            result = mockEntitet(entitetIdTilgang, underenhetOrgnrMedPdpTilgang),
+            resultat = mockEntitet(entitetIdTilgang, underenhetOrgnrMedPdpTilgang),
         )
         mockHentingAvEnkeltEntitet(
             id = entitetIdIkkeTilgang,
-            result = mockEntitet(entitetIdTilgang, orgnrUtenPdpTilgang),
+            resultat = mockEntitet(entitetIdTilgang, orgnrUtenPdpTilgang),
         )
 
         // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra entitet).

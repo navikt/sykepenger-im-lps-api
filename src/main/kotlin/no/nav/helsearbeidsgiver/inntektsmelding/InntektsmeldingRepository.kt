@@ -58,17 +58,9 @@ class InntektsmeldingRepository(
         }
     }
 
-    fun hent(orgnr: String): List<InntektsmeldingResponse> =
-        transaction(db) {
-            InntektsmeldingEntitet
-                .selectAll()
-                .where { InntektsmeldingEntitet.orgnr eq orgnr }
-                .map { it.toExposedInntektsmelding() }
-        }
-
     fun hent(
         orgnr: String,
-        request: InntektsmeldingFilterRequest,
+        request: InntektsmeldingFilterRequest? = null,
     ): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
@@ -77,12 +69,12 @@ class InntektsmeldingRepository(
                     .selectAll()
                     .where { InntektsmeldingEntitet.orgnr eq orgnr }
 
-            request.status?.let { query.andWhere { status eq it } }
-            request.innsendingId?.let { query.andWhere { innsendingId eq it } }
-            request.fnr?.let { query.andWhere { fnr eq it } }
-            request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
-            request.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
-            request.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
+            request?.status?.let { query.andWhere { status eq it } }
+            request?.innsendingId?.let { query.andWhere { innsendingId eq it } }
+            request?.fnr?.let { query.andWhere { fnr eq it } }
+            request?.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
+            request?.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
+            request?.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
             query.map { it.toExposedInntektsmelding() }
         }
 

@@ -5,13 +5,13 @@ import io.ktor.client.statement.HttpResponse
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonElement
-import no.nav.helsearbeidsgiver.authorization.AuthTest
+import no.nav.helsearbeidsgiver.authorization.HentEntitetApiAuthTest
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
-class SykmeldingAuthTest2 : AuthTest<Sykmelding, SykmeldingFilterRequest, SykmeldingDTO>() {
+class SykmeldingAuthTest2 : HentEntitetApiAuthTest<Sykmelding, SykmeldingFilterRequest, SykmeldingDTO>() {
     override val filtreringEndepunkt = "/v1/sykmeldinger"
     override val enkeltEntitetEndepunkt = "/v1/sykmelding"
     override val utfasetEndepunkt = "/v1/sykmeldinger"
@@ -40,9 +40,9 @@ class SykmeldingAuthTest2 : AuthTest<Sykmelding, SykmeldingFilterRequest, Sykmel
 
     override fun mockHentingAvEnkeltEntitet(
         id: UUID,
-        result: SykmeldingDTO,
+        resultat: SykmeldingDTO,
     ) {
-        every { repositories.sykmeldingRepository.hentSykmelding(id) } returns result
+        every { repositories.sykmeldingRepository.hentSykmelding(id) } returns resultat
     }
 
     override fun lesEntiteterFraRespons(respons: HttpResponse): List<Sykmelding> = runBlocking { respons.body<List<Sykmelding>>() }

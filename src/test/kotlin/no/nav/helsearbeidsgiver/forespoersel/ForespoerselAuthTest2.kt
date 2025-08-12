@@ -5,12 +5,12 @@ import io.ktor.client.statement.HttpResponse
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonElement
-import no.nav.helsearbeidsgiver.authorization.AuthTest
+import no.nav.helsearbeidsgiver.authorization.HentEntitetApiAuthTest
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import java.util.UUID
 
-class ForespoerselAuthTest2 : AuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
+class ForespoerselAuthTest2 : HentEntitetApiAuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
     override val filtreringEndepunkt = "/v1/forespoersler"
     override val enkeltEntitetEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
@@ -45,9 +45,9 @@ class ForespoerselAuthTest2 : AuthTest<Forespoersel, ForespoerselRequest, Foresp
 
     override fun mockHentingAvEnkeltEntitet(
         id: UUID,
-        result: Forespoersel,
+        resultat: Forespoersel,
     ) {
-        every { repositories.forespoerselRepository.hentForespoersel(id) } returns result
+        every { repositories.forespoerselRepository.hentForespoersel(id) } returns resultat
     }
 
     override fun lesEntiteterFraRespons(respons: HttpResponse): List<Forespoersel> = runBlocking { respons.body<List<Forespoersel>>() }
