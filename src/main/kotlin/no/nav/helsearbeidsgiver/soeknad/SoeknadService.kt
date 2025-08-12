@@ -19,10 +19,18 @@ class SoeknadService(
     fun hentSoeknader(
         orgnr: String,
         filter: SykepengesoeknadFilter? = null,
-    ): List<Sykepengesoeknad> = soeknadRepository.hentSoeknader(orgnr, filter).map { it.whitelistetForArbeidsgiver().konverter() }
+    ): List<Sykepengesoeknad> =
+        soeknadRepository
+            .hentSoeknader(orgnr, filter)
+            .filter { it.skalSendesTilArbeidsgiver() }
+            .map { it.whitelistetForArbeidsgiver().konverter() }
 
     fun hentSoeknad(soeknadId: UUID): Sykepengesoeknad? =
-        soeknadRepository.hentSoeknad(soeknadId)?.whitelistetForArbeidsgiver()?.konverter()
+        soeknadRepository
+            .hentSoeknad(soeknadId)
+            ?.takeIf { it.skalSendesTilArbeidsgiver() }
+            ?.whitelistetForArbeidsgiver()
+            ?.konverter()
 
     fun behandleSoeknad(soeknad: SykepengesoknadDTO) {
         if (!soeknad.skalLagres()) {

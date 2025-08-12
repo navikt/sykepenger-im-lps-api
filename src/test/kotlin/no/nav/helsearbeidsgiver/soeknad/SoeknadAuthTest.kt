@@ -77,21 +77,47 @@ class SoeknadAuthTest : ApiTest() {
     }
 
     @Test
+    fun `gir 404 Not Found ved henting av en spesifikk soeknad som ikke skal vises til arbeidsgiver`() {
+        val soeknadId = UUID.randomUUID()
+        every { repositories.soeknadRepository.hentSoeknad(soeknadId) } returns
+            soeknadMock()
+                .copy(sendtArbeidsgiver = null)
+                .medId(soeknadId)
+                .medOrgnr(underenhetOrgnrMedPdpTilgang)
+
+        runBlocking {
+            val response =
+                client.get("/v1/sykepengesoeknad/$soeknadId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                }
+            response.status shouldBe HttpStatusCode.NotFound
+        }
+    }
+
+    @Test
     fun `gir 200 OK ved henting av flere soeknader på underenhetorgnr hentet fra request`() {
         val antallForventedesoeknader = 3
-        every {
-            repositories.soeknadRepository.hentSoeknader(
-                orgnr = underenhetOrgnrMedPdpTilgang,
-                filter = SykepengesoeknadFilter(orgnr = underenhetOrgnrMedPdpTilgang),
-            )
-        } returns
+        val lagredeSoeknader =
             List(
                 antallForventedesoeknader,
             ) {
                 soeknadMock()
                     .medId(UUID.randomUUID())
                     .medOrgnr(underenhetOrgnrMedPdpTilgang)
-            }
+            } +
+                listOf(
+                    soeknadMock()
+                        .copy(sendtArbeidsgiver = null)
+                        .medId(UUID.randomUUID())
+                        .medOrgnr(orgnrUtenPdpTilgang),
+                ) // Denne skal ikke være med i svaret))
+
+        every {
+            repositories.soeknadRepository.hentSoeknader(
+                orgnr = underenhetOrgnrMedPdpTilgang,
+                filter = SykepengesoeknadFilter(orgnr = underenhetOrgnrMedPdpTilgang),
+            )
+        } returns lagredeSoeknader
 
         runBlocking {
             val response =
