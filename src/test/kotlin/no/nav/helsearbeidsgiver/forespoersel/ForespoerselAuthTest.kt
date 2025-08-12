@@ -10,7 +10,7 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import java.util.UUID
 
-class ForespoerselAuthTest2 : HentEntitetApiAuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
+class ForespoerselAuthTest : HentEntitetApiAuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
     override val filtreringEndepunkt = "/v1/forespoersler"
     override val enkeltEntitetEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"

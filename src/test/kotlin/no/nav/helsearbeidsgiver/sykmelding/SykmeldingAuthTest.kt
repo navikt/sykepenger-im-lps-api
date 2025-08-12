@@ -11,7 +11,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
-class SykmeldingAuthTest2 : HentEntitetApiAuthTest<Sykmelding, SykmeldingFilterRequest, SykmeldingDTO>() {
+class SykmeldingAuthTest : HentEntitetApiAuthTest<Sykmelding, SykmeldingFilterRequest, SykmeldingDTO>() {
     override val filtreringEndepunkt = "/v1/sykmeldinger"
     override val enkeltEntitetEndepunkt = "/v1/sykmelding"
     override val utfasetEndepunkt = "/v1/sykmeldinger"

@@ -13,7 +13,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
-class SoeknadAuthTest2 : HentEntitetApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengesoknadDTO>() {
+class SoeknadAuthTest : HentEntitetApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengesoknadDTO>() {
     override val filtreringEndepunkt = "/v1/sykepengesoeknader"
     override val enkeltEntitetEndepunkt = "/v1/sykepengesoeknad"
     override val utfasetEndepunkt = "/v1/sykepengesoeknader"

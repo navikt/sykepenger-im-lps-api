@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-class InntektsmeldingAuthTest2 : HentEntitetApiAuthTest<InntektsmeldingResponse, InntektsmeldingFilterRequest, InntektsmeldingResponse>() {
+class InntektsmeldingAuthTest : HentEntitetApiAuthTest<InntektsmeldingResponse, InntektsmeldingFilterRequest, InntektsmeldingResponse>() {
     override val filtreringEndepunkt = "/v1/inntektsmeldinger"
     override val enkeltEntitetEndepunkt = "/v1/inntektsmelding"
     override val utfasetEndepunkt = "/v1/inntektsmeldinger"
