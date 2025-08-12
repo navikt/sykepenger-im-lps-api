@@ -14,7 +14,6 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
 class SoeknadAuthTest2 : AuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengesoknadDTO>() {
-    override val repository = repositories.soeknadRepository
     override val filtreringEndepunkt = "/v1/sykepengesoeknader"
     override val enkeltEntitetEndepunkt = "/v1/sykepengesoeknad"
     override val utfasetEndepunkt = "/v1/sykepengesoeknader"

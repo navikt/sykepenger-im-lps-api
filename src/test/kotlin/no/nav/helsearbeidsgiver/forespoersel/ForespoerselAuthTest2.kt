@@ -11,7 +11,6 @@ import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import java.util.UUID
 
 class ForespoerselAuthTest2 : AuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
-    override val repository = repositories.forespoerselRepository
     override val filtreringEndepunkt = "/v1/forespoersler"
     override val enkeltEntitetEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
@@ -41,7 +40,7 @@ class ForespoerselAuthTest2 : AuthTest<Forespoersel, ForespoerselRequest, Foresp
                 orgnr,
                 filter,
             )
-        } returns resultat // TODO: kan muligens erstattes av repository?
+        } returns resultat
     }
 
     override fun mockHentingAvEnkeltEntitet(

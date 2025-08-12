@@ -12,7 +12,6 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
 class SykmeldingAuthTest2 : AuthTest<Sykmelding, SykmeldingFilterRequest, SykmeldingDTO>() {
-    override val repository = repositories.sykmeldingRepository
     override val filtreringEndepunkt = "/v1/sykmeldinger"
     override val enkeltEntitetEndepunkt = "/v1/sykmelding"
     override val utfasetEndepunkt = "/v1/sykmeldinger"

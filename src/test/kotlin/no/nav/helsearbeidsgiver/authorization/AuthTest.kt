@@ -8,7 +8,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.mockk.clearMocks
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonElement
@@ -23,7 +22,6 @@ import java.util.UUID
 abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
     @BeforeEach
     fun setup() {
-        clearMocks(repository)
         mockPdpTilganger()
     }
 
@@ -32,7 +30,6 @@ abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
         unmockkAll()
     }
 
-    abstract val repository: Any
     abstract val enkeltEntitetEndepunkt: String
     abstract val filtreringEndepunkt: String
     abstract val utfasetEndepunkt: String
