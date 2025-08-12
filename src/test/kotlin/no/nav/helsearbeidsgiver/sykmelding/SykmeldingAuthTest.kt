@@ -32,7 +32,14 @@ class SykmeldingAuthTest : HentEntitetApiAuthTest<Sykmelding, SykmeldingFilterRe
 
     override fun mockHentingAvEntiteter(
         orgnr: String,
-        filter: SykmeldingFilterRequest?,
+        resultat: List<SykmeldingDTO>,
+    ) {
+        every { repositories.sykmeldingRepository.hentSykmeldinger(orgnr) } returns resultat
+    }
+
+    override fun mockHentingAvEntiteter(
+        orgnr: String,
+        filter: SykmeldingFilterRequest,
         resultat: List<SykmeldingDTO>,
     ) {
         every { repositories.sykmeldingRepository.hentSykmeldinger(orgnr, filter) } returns resultat

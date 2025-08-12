@@ -33,7 +33,14 @@ class SoeknadAuthTest : HentEntitetApiAuthTest<Sykepengesoeknad, Sykepengesoekna
 
     override fun mockHentingAvEntiteter(
         orgnr: String,
-        filter: SykepengesoeknadFilter?,
+        resultat: List<SykepengesoknadDTO>,
+    ) {
+        every { repositories.soeknadRepository.hentSoeknader(orgnr) } returns resultat
+    }
+
+    override fun mockHentingAvEntiteter(
+        orgnr: String,
+        filter: SykepengesoeknadFilter,
         resultat: List<SykepengesoknadDTO>,
     ) {
         every { repositories.soeknadRepository.hentSoeknader(orgnr, filter) } returns resultat

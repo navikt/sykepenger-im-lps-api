@@ -12,7 +12,8 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-class InntektsmeldingAuthTest : HentEntitetApiAuthTest<InntektsmeldingResponse, InntektsmeldingFilterRequest, InntektsmeldingResponse>() {
+class InntektsmeldingAuthTest :
+    HentEntitetApiAuthTest<InntektsmeldingResponse, InntektsmeldingFilterRequest, InntektsmeldingResponse>() {
     override val filtreringEndepunkt = "/v1/inntektsmeldinger"
     override val enkeltEntitetEndepunkt = "/v1/inntektsmelding"
     override val utfasetEndepunkt = "/v1/inntektsmeldinger"
@@ -36,15 +37,17 @@ class InntektsmeldingAuthTest : HentEntitetApiAuthTest<InntektsmeldingResponse, 
 
     override fun mockHentingAvEntiteter(
         orgnr: String,
-        filter: InntektsmeldingFilterRequest?,
         resultat: List<InntektsmeldingResponse>,
     ) {
-        every {
-            repositories.inntektsmeldingRepository.hent(
-                orgnr,
-                filter,
-            )
-        } returns resultat
+        every { repositories.inntektsmeldingRepository.hent(orgnr) } returns resultat
+    }
+
+    override fun mockHentingAvEntiteter(
+        orgnr: String,
+        filter: InntektsmeldingFilterRequest,
+        resultat: List<InntektsmeldingResponse>,
+    ) {
+        every { repositories.inntektsmeldingRepository.hent(orgnr, filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltEntitet(

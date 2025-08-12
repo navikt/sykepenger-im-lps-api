@@ -84,9 +84,24 @@ class ForespoerselRepository(
                 }.firstOrNull()
         }
 
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/forespoersler " +
+                "Bruk hent(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+    )
+    fun hentForespoersler(orgnr: String): List<Forespoersel> =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where { ForespoerselEntitet.orgnr eq orgnr }
+                .map {
+                    it.toExposedforespoersel()
+                }
+        }
+
     fun hentForespoersler(
         orgnr: String,
-        request: ForespoerselRequest? = null,
+        request: ForespoerselRequest,
     ): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
@@ -96,11 +111,11 @@ class ForespoerselRepository(
                     .where {
                         ForespoerselEntitet.orgnr eq orgnr
                     }
-            request?.fnr?.let { query.andWhere { fnr eq it } }
-            request?.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
-            request?.status?.let { query.andWhere { status eq it } }
-            request?.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
-            request?.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
+            request.fnr?.let { query.andWhere { fnr eq it } }
+            request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
+            request.status?.let { query.andWhere { status eq it } }
+            request.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
+            request.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
             query.map {
                 it.toExposedforespoersel()
             }

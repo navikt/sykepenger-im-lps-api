@@ -55,9 +55,20 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
         resultat: EntitetDTO,
     )
 
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner de utfasede endepunktene " +
+                "GET v1/sykmeldinger, GET v1/forespoersler, GET v1/sykepengesoeknader og GET v1/inntektsmeldinger ." +
+                "Bruk mockHentingAvEntiteter(orgnr: String, filter: FilterRequest, resultat: List<EntitetDTO>) istedenfor.",
+    )
     abstract fun mockHentingAvEntiteter(
         orgnr: String,
-        filter: FilterRequest?,
+        resultat: List<EntitetDTO>,
+    )
+
+    abstract fun mockHentingAvEntiteter(
+        orgnr: String,
+        filter: FilterRequest,
         resultat: List<EntitetDTO>,
     )
 
@@ -73,7 +84,6 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
 
         mockHentingAvEntiteter(
             orgnr = underenhetOrgnrMedPdpTilgang,
-            filter = null,
             resultat = listOf(mockEntitet),
         )
 
@@ -232,7 +242,7 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
     @Test
     fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra utfaset endepunkt`() {
         val mockEntitet = mockEntitet(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
-        mockHentingAvEntiteter(underenhetOrgnrMedPdpTilgang, null, listOf(mockEntitet))
+        mockHentingAvEntiteter(underenhetOrgnrMedPdpTilgang, listOf(mockEntitet))
 
         val respons =
             runBlocking {

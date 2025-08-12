@@ -32,15 +32,17 @@ class ForespoerselAuthTest : HentEntitetApiAuthTest<Forespoersel, ForespoerselRe
 
     override fun mockHentingAvEntiteter(
         orgnr: String,
-        filter: ForespoerselRequest?,
         resultat: List<Forespoersel>,
     ) {
-        every {
-            repositories.forespoerselRepository.hentForespoersler(
-                orgnr,
-                filter,
-            )
-        } returns resultat
+        every { repositories.forespoerselRepository.hentForespoersler(orgnr) } returns resultat
+    }
+
+    override fun mockHentingAvEntiteter(
+        orgnr: String,
+        filter: ForespoerselRequest,
+        resultat: List<Forespoersel>,
+    ) {
+        every { repositories.forespoerselRepository.hentForespoersler(orgnr, filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltEntitet(
