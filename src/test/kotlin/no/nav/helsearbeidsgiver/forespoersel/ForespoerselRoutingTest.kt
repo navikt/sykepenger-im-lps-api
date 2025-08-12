@@ -22,7 +22,7 @@ import java.util.UUID
 class ForespoerselRoutingTest : ApiTest() {
     @Test
     fun `hent forespørsler fra deprecated endepunkt`() {
-        every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns
+        every { repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG) } returns
             listOf(
                 mockForespoersel().copy(orgnr = DEFAULT_ORG),
             )
@@ -63,7 +63,7 @@ class ForespoerselRoutingTest : ApiTest() {
     fun `hent alle forespørsler på et orgnr`() {
         val antallForventedeForespoersler = 3
         every {
-            repositories.forespoerselRepository.filtrerForespoersler(
+            repositories.forespoerselRepository.hentForespoersler(
                 orgnr = DEFAULT_ORG,
                 request = ForespoerselRequest(orgnr = DEFAULT_ORG),
             )
@@ -110,7 +110,7 @@ class ForespoerselRoutingTest : ApiTest() {
     @Test
     fun `returnerer tom liste når det ikke er noen forespørsler på et orgnr`() {
         every {
-            repositories.forespoerselRepository.filtrerForespoersler(
+            repositories.forespoerselRepository.hentForespoersler(
                 orgnr = DEFAULT_ORG,
                 request = ForespoerselRequest(orgnr = DEFAULT_ORG),
             )

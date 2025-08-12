@@ -12,7 +12,7 @@ class ForespoerselService(
     fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> {
         runCatching {
             sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
-            forespoerselRepository.hentForespoerslerForOrgnr(orgnr)
+            forespoerselRepository.hentForespoersler(orgnr = orgnr, request = null)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it
@@ -28,7 +28,7 @@ class ForespoerselService(
     ): List<Forespoersel> {
         runCatching {
             sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
-            forespoerselRepository.filtrerForespoersler(orgnr = orgnr, request = request)
+            forespoerselRepository.hentForespoersler(orgnr = orgnr, request = request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it

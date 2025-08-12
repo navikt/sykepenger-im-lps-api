@@ -37,7 +37,7 @@ class ForespoerselAuthTest : ApiTest() {
 
     @Test
     fun `gir 200 OK ved henting av forespørsler fra deprecated endepunkt`() {
-        every { repositories.forespoerselRepository.hentForespoerslerForOrgnr(underenhetOrgnrMedPdpTilgang) } returns
+        every { repositories.forespoerselRepository.hentForespoersler(underenhetOrgnrMedPdpTilgang) } returns
             listOf(
                 mockForespoersel().copy(orgnr = underenhetOrgnrMedPdpTilgang),
             )
@@ -77,7 +77,7 @@ class ForespoerselAuthTest : ApiTest() {
     fun `gir 200 OK ved henting av flere forespørsler på underenhetorgnr hentet fra request`() {
         val antallForventedeForespoersler = 3
         every {
-            repositories.forespoerselRepository.filtrerForespoersler(
+            repositories.forespoerselRepository.hentForespoersler(
                 orgnr = underenhetOrgnrMedPdpTilgang,
                 request = ForespoerselRequest(orgnr = underenhetOrgnrMedPdpTilgang),
             )
@@ -112,7 +112,7 @@ class ForespoerselAuthTest : ApiTest() {
         val requestUtenOrgnr = ForespoerselRequest()
         val antallForventedeForespoersler = 3
         every {
-            repositories.forespoerselRepository.filtrerForespoersler(
+            repositories.forespoerselRepository.hentForespoersler(
                 orgnr = underenhetOrgnrMedPdpTilgang,
                 request = requestUtenOrgnr,
             )

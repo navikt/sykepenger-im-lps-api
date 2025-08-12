@@ -19,12 +19,12 @@ class ForespoerselServiceTest {
         val forespoersler =
             getForespoerslerTestdata()
 
-        every { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) } returns forespoersler
+        every { forespoerselRepository.hentForespoersler(DEFAULT_ORG) } returns forespoersler
 
         val response = forespoerselService.hentForespoerslerForOrgnr(DEFAULT_ORG)
         assertEquals(2, response.size)
 
-        verify { forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG) }
+        verify { forespoerselRepository.hentForespoersler(DEFAULT_ORG) }
     }
 
     @Test
@@ -38,12 +38,12 @@ class ForespoerselServiceTest {
                 status = null,
             )
 
-        every { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) } returns forespoersler
+        every { forespoerselRepository.hentForespoersler(DEFAULT_ORG, request) } returns forespoersler
 
         val response = forespoerselService.filtrerForespoersler(DEFAULT_ORG, request)
         assertEquals(2, response.size)
 
-        verify { forespoerselRepository.filtrerForespoersler(DEFAULT_ORG, request) }
+        verify { forespoerselRepository.hentForespoersler(DEFAULT_ORG, request) }
     }
 }
 
