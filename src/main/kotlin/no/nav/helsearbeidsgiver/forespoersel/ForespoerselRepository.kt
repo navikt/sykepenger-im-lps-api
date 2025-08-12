@@ -173,12 +173,28 @@ class ForespoerselRepository(
         )
     }
 
-    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID =
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID? =
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
                 .where { navReferanseId eq forespoerselId }
                 .map { it[ForespoerselEntitet.eksponertForespoerselId] }
-                .firstOrNull() ?: throw IllegalArgumentException("Forespørsel med id $forespoerselId finnes ikke")
+                .firstOrNull()
         }
+
+    fun oppdaterEksponertForespoerselId(
+        forespoerselId: UUID,
+        eksponertForespoerselId: UUID,
+    ) {
+        transaction(db) {
+            ForespoerselEntitet.update(
+                where = {
+                    ForespoerselEntitet.navReferanseId eq forespoerselId
+                },
+            ) {
+                it[ForespoerselEntitet.eksponertForespoerselId] = eksponertForespoerselId
+            }
+        }
+        logger().info("Oppdaterte eksponertForespoerselId for forespørsel med id: $forespoerselId til $eksponertForespoerselId")
+    }
 }

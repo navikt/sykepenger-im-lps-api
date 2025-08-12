@@ -92,9 +92,9 @@ private fun Route.sendInntektsmelding(services: Services) {
                     vedtaksperiodeId = vedtaksperiodeId,
                 )
             val eksponertForespoerselId =
-                services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
-            val innsending =
-                request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
+                services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId) ?: request.navReferanseId
+
+            val innsending = request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
 
             if (
                 sisteInntektsmelding != null &&
