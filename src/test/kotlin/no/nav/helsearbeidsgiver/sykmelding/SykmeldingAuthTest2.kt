@@ -46,9 +46,9 @@ class SykmeldingAuthTest2 : AuthTest<Sykmelding, SykmeldingFilterRequest, Sykmel
         every { repositories.sykmeldingRepository.hentSykmelding(id) } returns result
     }
 
-    override fun deserialiserEntiteterFraRespons(response: HttpResponse): List<*> = runBlocking { response.body<List<Sykmelding>>() }
+    override fun lesEntiteterFraRespons(respons: HttpResponse): List<Sykmelding> = runBlocking { respons.body<List<Sykmelding>>() }
 
-    override fun deserialiserEnkeltEntitetFraRespons(response: HttpResponse): Any = runBlocking { response.body<Sykmelding>() }
+    override fun lesEnkeltEntitetFraRespons(respons: HttpResponse): Sykmelding = runBlocking { respons.body<Sykmelding>() }
 
-    override fun hentOrgnrFraEntitet(entitet: Any): String = (entitet as Sykmelding).arbeidsgiver.orgnr.toString()
+    override fun hentOrgnrFraEntitet(entitet: Sykmelding): String = entitet.arbeidsgiver.orgnr.toString()
 }

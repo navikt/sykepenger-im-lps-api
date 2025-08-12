@@ -47,9 +47,10 @@ class SoeknadAuthTest2 : AuthTest<Sykepengesoeknad, SykepengesoeknadFilter, Syke
         every { repositories.soeknadRepository.hentSoeknad(id) } returns result
     }
 
-    override fun deserialiserEntiteterFraRespons(response: HttpResponse): List<*> = runBlocking { response.body<List<Sykepengesoeknad>>() }
+    override fun lesEntiteterFraRespons(respons: HttpResponse): List<Sykepengesoeknad> =
+        runBlocking { respons.body<List<Sykepengesoeknad>>() }
 
-    override fun deserialiserEnkeltEntitetFraRespons(response: HttpResponse): Any = runBlocking { response.body<Sykepengesoeknad>() }
+    override fun lesEnkeltEntitetFraRespons(respons: HttpResponse): Sykepengesoeknad = runBlocking { respons.body<Sykepengesoeknad>() }
 
-    override fun hentOrgnrFraEntitet(entitet: Any): String = (entitet as Sykepengesoeknad).arbeidsgiver.orgnr
+    override fun hentOrgnrFraEntitet(entitet: Sykepengesoeknad): String = entitet.arbeidsgiver.orgnr
 }

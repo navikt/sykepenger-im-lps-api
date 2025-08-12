@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
 import java.util.UUID
 
-abstract class AuthTest<T, F, M> : ApiTest() {
+abstract class AuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
     @BeforeEach
     fun setup() {
         clearMocks(repository)
@@ -37,31 +37,31 @@ abstract class AuthTest<T, F, M> : ApiTest() {
     abstract val filtreringEndepunkt: String
     abstract val utfasetEndepunkt: String
 
-    abstract fun lagFilterRequest(orgnr: String?): F
+    abstract fun lagFilterRequest(orgnr: String?): FilterRequest
 
-    abstract fun serialiserFilterRequest(filter: F): JsonElement
+    abstract fun serialiserFilterRequest(filter: FilterRequest): JsonElement
 
     abstract fun mockEntitet(
         id: UUID,
         orgnr: String,
-    ): M
+    ): EntitetDTO
 
     abstract fun mockHentingAvEnkeltEntitet(
         id: UUID,
-        result: M,
+        result: EntitetDTO,
     )
 
     abstract fun mockHentingAvEntiteter(
         orgnr: String,
-        filter: F?,
-        resultat: List<M>,
+        filter: FilterRequest?,
+        resultat: List<EntitetDTO>,
     )
 
-    abstract fun deserialiserEnkeltEntitetFraRespons(response: io.ktor.client.statement.HttpResponse): Any
+    abstract fun lesEnkeltEntitetFraRespons(response: io.ktor.client.statement.HttpResponse): Entitet
 
-    abstract fun deserialiserEntiteterFraRespons(response: io.ktor.client.statement.HttpResponse): List<*>
+    abstract fun lesEntiteterFraRespons(response: io.ktor.client.statement.HttpResponse): List<Entitet>
 
-    abstract fun hentOrgnrFraEntitet(entitet: Any): String // TODO: Sjekk om denne må være any
+    abstract fun hentOrgnrFraEntitet(entitet: Entitet): String
 
     @Test
     fun `gir 200 OK ved henting av entiteter fra utfaset endepunkt`() {
@@ -81,7 +81,7 @@ abstract class AuthTest<T, F, M> : ApiTest() {
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val entitetSvar = deserialiserEntiteterFraRespons(respons)
+            val entitetSvar = lesEntiteterFraRespons(respons)
             entitetSvar.size shouldBe 1
 
             val foersteSvarElement = entitetSvar[0]
@@ -104,7 +104,7 @@ abstract class AuthTest<T, F, M> : ApiTest() {
                 }
 
             respons.status shouldBe HttpStatusCode.OK
-            val entitet = deserialiserEnkeltEntitetFraRespons(respons)
+            val entitet = lesEnkeltEntitetFraRespons(respons)
             hentOrgnrFraEntitet(entitet) shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
@@ -133,10 +133,10 @@ abstract class AuthTest<T, F, M> : ApiTest() {
 
             response.status shouldBe HttpStatusCode.OK
 
-            val resourceList = deserialiserEntiteterFraRespons(response)
-            resourceList.size shouldBe antallForventedeEntiteter
+            val entiteter = lesEntiteterFraRespons(response)
+            entiteter.size shouldBe antallForventedeEntiteter
 
-            resourceList.forEach {
+            entiteter.forEach {
                 assertNotNull(it)
                 hentOrgnrFraEntitet(it) shouldBe underenhetOrgnrMedPdpTilgang
             }
@@ -167,10 +167,10 @@ abstract class AuthTest<T, F, M> : ApiTest() {
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val resourceList = deserialiserEntiteterFraRespons(respons)
-            resourceList.size shouldBe antallForventedeEntiteter
+            val entiteter = lesEntiteterFraRespons(respons)
+            entiteter.size shouldBe antallForventedeEntiteter
 
-            resourceList.forEach {
+            entiteter.forEach {
                 assertNotNull(it)
                 hentOrgnrFraEntitet(it) shouldBe underenhetOrgnrMedPdpTilgang
             }
@@ -227,9 +227,8 @@ abstract class AuthTest<T, F, M> : ApiTest() {
 
     @Test
     fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra utfaset endepunkt`() {
-        val mockResource = mockEntitet(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
-
-        mockHentingAvEntiteter(underenhetOrgnrMedPdpTilgang, null, listOf(mockResource))
+        val mockEntitet = mockEntitet(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
+        mockHentingAvEntiteter(underenhetOrgnrMedPdpTilgang, null, listOf(mockEntitet))
 
         val response =
             runBlocking {
