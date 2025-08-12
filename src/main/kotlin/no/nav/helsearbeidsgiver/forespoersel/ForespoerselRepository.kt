@@ -87,7 +87,7 @@ class ForespoerselRepository(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/forespoersler " +
-                "Bruk hent(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+                "Bruk hentForespoersler(orgnr: String, request: ForespoerselRequest) istedenfor.",
     )
     fun hentForespoersler(orgnr: String): List<Forespoersel> =
         transaction(db) {
