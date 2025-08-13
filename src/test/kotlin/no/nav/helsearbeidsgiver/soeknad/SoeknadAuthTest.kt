@@ -41,10 +41,10 @@ class SoeknadAuthTest : ApiTest() {
     @Test
     fun `gir 200 OK ved henting av soeknader fra deprecated endepunkt`() {
         every { repositories.soeknadRepository.hentSoeknader(underenhetOrgnrMedPdpTilgang, null) } returns
-            listOf(
-                soeknadMock()
-                    .medOrgnr(underenhetOrgnrMedPdpTilgang),
-            )
+                listOf(
+                    soeknadMock()
+                        .medOrgnr(underenhetOrgnrMedPdpTilgang),
+                )
         runBlocking {
             val response =
                 client.get("/v1/sykepengesoeknader") {
@@ -61,9 +61,9 @@ class SoeknadAuthTest : ApiTest() {
     fun `gir 200 OK ved henting av en spesifikk soeknad`() {
         val soeknadId = UUID.randomUUID()
         every { repositories.soeknadRepository.hentSoeknad(soeknadId) } returns
-            soeknadMock()
-                .medId(soeknadId)
-                .medOrgnr(underenhetOrgnrMedPdpTilgang)
+                soeknadMock()
+                    .medId(soeknadId)
+                    .medOrgnr(underenhetOrgnrMedPdpTilgang)
 
         runBlocking {
             val response =
@@ -77,21 +77,48 @@ class SoeknadAuthTest : ApiTest() {
     }
 
     @Test
+    fun `gir 404 Not Found ved henting av en spesifikk soeknad som ikke skal vises til arbeidsgiver`() {
+        val soeknadId = UUID.randomUUID()
+        every { repositories.soeknadRepository.hentSoeknad(soeknadId) } returns
+                soeknadMock()
+                    .copy(sendtArbeidsgiver = null)
+                    .medId(soeknadId)
+                    .medOrgnr(underenhetOrgnrMedPdpTilgang)
+
+        runBlocking {
+            val response =
+                client.get("/v1/sykepengesoeknad/$soeknadId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                }
+            response.status shouldBe HttpStatusCode.NotFound
+        }
+    }
+
+    @Test
     fun `gir 200 OK ved henting av flere soeknader på underenhetorgnr hentet fra request`() {
         val antallForventedesoeknader = 3
-        every {
-            repositories.soeknadRepository.hentSoeknader(
-                orgnr = underenhetOrgnrMedPdpTilgang,
-                filter = SykepengesoeknadFilter(orgnr = underenhetOrgnrMedPdpTilgang),
-            )
-        } returns
+        val lagredeSoeknader =
             List(
                 antallForventedesoeknader,
             ) {
                 soeknadMock()
                     .medId(UUID.randomUUID())
                     .medOrgnr(underenhetOrgnrMedPdpTilgang)
-            }
+            }.plus(
+                listOf(
+                    soeknadMock()
+                        .copy(sendtArbeidsgiver = null)
+                        .medId(UUID.randomUUID())
+                        .medOrgnr(orgnrUtenPdpTilgang),
+                )
+            ) // Denne skal ikke være med i svaret))
+
+        every {
+            repositories.soeknadRepository.hentSoeknader(
+                orgnr = underenhetOrgnrMedPdpTilgang,
+                filter = SykepengesoeknadFilter(orgnr = underenhetOrgnrMedPdpTilgang),
+            )
+        } returns lagredeSoeknader
 
         runBlocking {
             val response =
@@ -120,13 +147,13 @@ class SoeknadAuthTest : ApiTest() {
         every {
             repositories.soeknadRepository.hentSoeknader(underenhetOrgnrMedPdpTilgang, requestUtenOrgnr)
         } returns
-            List(
-                antallForventedesoeknader,
-            ) {
-                soeknadMock()
-                    .medId(UUID.randomUUID())
-                    .medOrgnr(underenhetOrgnrMedPdpTilgang)
-            }
+                List(
+                    antallForventedesoeknader,
+                ) {
+                    soeknadMock()
+                        .medId(UUID.randomUUID())
+                        .medOrgnr(underenhetOrgnrMedPdpTilgang)
+                }
 
         runBlocking {
             val response =
@@ -200,11 +227,11 @@ class SoeknadAuthTest : ApiTest() {
     fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra deprecated endepunkt`() {
         val soeknadId = UUID.randomUUID()
         every { repositories.soeknadRepository.hentSoeknader(underenhetOrgnrMedPdpTilgang) } returns
-            listOf(
-                soeknadMock()
-                    .medId(soeknadId)
-                    .medOrgnr(underenhetOrgnrMedPdpTilgang),
-            )
+                listOf(
+                    soeknadMock()
+                        .medId(soeknadId)
+                        .medOrgnr(underenhetOrgnrMedPdpTilgang),
+                )
 
         val response =
             runBlocking {
