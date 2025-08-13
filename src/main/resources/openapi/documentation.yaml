@@ -63,7 +63,8 @@ paths:
                   value: "Feil ved henting av forespørsler"
   /v1/forespoersler:
     get:
-      description: "Hent forespørsler for tilhørende systembrukers orgnr."
+      deprecated: true
+      description: "Endepunktet er utfaset: Bruk POST /v1/forespoersler"
       responses:
         "401":
           description: "Unauthorized"
@@ -260,7 +261,8 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmelding/navReferanseId/{navReferanseId}:
     get:
-      description: "Hent alle inntektsmeldinger med navReferanseId"
+      deprecated: true
+      description: "Endepunktet er utfaset: Bruk POST /v1/inntektsmeldinger"
       parameters:
         - name: "navReferanseId"
           in: "path"
@@ -302,7 +304,8 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmelding/status/{status}:
     get:
-      description: "Hent alle inntektsmeldinger med status"
+      deprecated: true
+      description: "Endepunktet er utfaset: Bruk POST /v1/inntektsmeldinger"
       parameters:
         - name: "status"
           in: "path"
@@ -344,7 +347,8 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmeldinger:
     get:
-      description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
+      deprecated: true
+      description: "Endepunktet er utfaset: Bruk POST /v1/inntektsmeldinger"
       responses:
         "401":
           description: "Unauthorized"
@@ -477,7 +481,8 @@ paths:
                   value: "Feil ved henting av søknad"
   /v1/sykepengesoeknader:
     get:
-      description: "Hent sykepengesøknader sendt til tilhørende systembrukers orgnr."
+      deprecated: true
+      description: "Endepunktet er utfaset: Bruk POST /v1/sykepengesoeknader"
       responses:
         "401":
           description: "Unauthorized"
@@ -612,7 +617,8 @@ paths:
                   value: "Feil ved henting av sykmelding"
   /v1/sykmeldinger:
     get:
-      description: ""
+      deprecated: true
+      description: "Endepunktet er utfaset: Bruk POST /v1/sykmeldinger"
       responses:
         "401":
           description: "Unauthorized"
