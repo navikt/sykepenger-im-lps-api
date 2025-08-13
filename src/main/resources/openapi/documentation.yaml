@@ -159,6 +159,15 @@ paths:
               $ref: "#/components/schemas/InntektsmeldingRequest"
         required: true
       responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+              examples:
+                Example#1:
+                  value: "Ugyldig NavReferanseId"
         "401":
           description: "Unauthorized"
           content:
@@ -174,15 +183,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-              examples:
-                Example#1:
-                  value: "Ugyldig NavReferanseId"
         "409":
           description: "Conflict"
           content:
@@ -214,6 +214,15 @@ paths:
           schema:
             type: "string"
       responses:
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "401":
           description: "Unauthorized"
           content:
@@ -225,22 +234,12 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/InntektsmeldingResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "400":
           description: "Bad Request"
           content:
@@ -380,8 +379,7 @@ paths:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
     post:
-      description: "Hent inntektsmeldinger for tilhørende systembrukers orgnr, filtrer\
-        \ basert på request"
+      description: "Hent inntektsmeldinger, filtrer basert på request"
       requestBody:
         content:
           application/json:
@@ -397,13 +395,9 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
+                  value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
+                  value: "Ikke tilgang til ressurs"
         "200":
           description: "OK"
           content:
@@ -412,6 +406,15 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/InntektsmeldingResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
           content:
@@ -1176,6 +1179,9 @@ components:
     InntektsmeldingFilterRequest:
       type: "object"
       properties:
+        orgnr:
+          type: "string"
+          nullable: true
         innsendingId:
           type: "string"
           format: "uuid"
