@@ -39,9 +39,8 @@ fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsp
 }
 
 private fun SykepengesoknadDTO.utledSendtTid(): LocalDateTime {
-    val sendt = sendtArbeidsgiver
-    requireNotNull(sendt)
-    return sendt
+    requireNotNull(sendtArbeidsgiver)
+    return sendtArbeidsgiver
 }
 
 private fun SykepengesoknadDTO.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.Arbeidsgiver {
