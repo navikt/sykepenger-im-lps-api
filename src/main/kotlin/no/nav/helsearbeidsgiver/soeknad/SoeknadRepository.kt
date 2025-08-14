@@ -40,22 +40,35 @@ class SoeknadRepository(
         }
     }
 
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/soeknader ." +
+                "Bruk hentSoeknader(orgnr: String, filter: SykepengesoeknadFilter) istedenfor.",
+    )
+    fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
+        transaction(db) {
+            SoeknadEntitet
+                .selectAll()
+                .where { SoeknadEntitet.orgnr eq orgnr }
+                .map { it[sykepengesoeknad] }
+        }
+
     fun hentSoeknader(
         orgnr: String,
-        filter: SykepengesoeknadFilter? = null,
+        filter: SykepengesoeknadFilter,
     ): List<SykepengesoknadDTO> =
         transaction(db) {
             val query =
                 SoeknadEntitet
                     .selectAll()
                     .andWhere { SoeknadEntitet.orgnr eq orgnr }
-            filter?.fnr?.let {
+            filter.fnr?.let {
                 query.andWhere { fnr eq it }
             }
-            filter?.fom?.let {
+            filter.fom?.let {
                 query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() }
             }
-            filter?.tom?.let {
+            filter.tom?.let {
                 query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
             }
             query.map {

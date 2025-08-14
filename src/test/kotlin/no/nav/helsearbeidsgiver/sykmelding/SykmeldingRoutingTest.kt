@@ -48,7 +48,7 @@ class SykmeldingRoutingTest : ApiTest() {
     @Test
     fun `hent sykmeldinger fra deprecated endepunkt`() {
         val sykmeldingId = UUID.randomUUID()
-        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG, null) } returns
+        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns
             listOf(
                 sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO(),
             )
