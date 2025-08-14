@@ -58,6 +58,12 @@ class InntektsmeldingRepository(
         }
     }
 
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
+                "Bruk hent(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+        level = DeprecationLevel.WARNING,
+    )
     fun hent(orgnr: String): List<InntektsmeldingResponse> =
         transaction(db) {
             InntektsmeldingEntitet

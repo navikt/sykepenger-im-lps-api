@@ -22,6 +22,12 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av siste inntektsmelding for forespoerselId: $navReferanseId")
     }
 
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
+                "Bruk hentInntektsMeldingByRequest(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+        level = DeprecationLevel.WARNING,
+    )
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<InntektsmeldingResponse> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for orgnr: $orgnr")

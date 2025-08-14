@@ -31,7 +31,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-// TODO: Delvis duplisert - kan slå sammen alle *AuthTester?
+// TODO: Delvis duplisert - kan muligens bakes inn i HentEntitetApiAuthTest
 class InnsendingAuthTest : ApiTest() {
     @BeforeEach
     fun setup() {

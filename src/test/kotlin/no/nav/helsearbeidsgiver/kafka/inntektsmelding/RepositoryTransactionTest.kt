@@ -47,23 +47,23 @@ class RepositoryTransactionTest {
                 launch {
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                     repositories.mottakRepository.opprett(ExposedMottak(event))
-                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
                 }
                 launch {
                     val forespoerselID = lagreInntektsmelding()
-                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
                     repositories.forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR))
-                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
                     repositories.forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
                 launch {
-                    repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
             }
         }
-        assertEquals(100, repositories.forespoerselRepository.hentForespoerslerForOrgnr(DEFAULT_ORG).count())
+        assertEquals(100, repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG).count())
         assertEquals(100, repositories.inntektsmeldingRepository.hent(DEFAULT_ORG).count())
     }
 

@@ -54,18 +54,31 @@ class SykmeldingRepository(
                 .firstOrNull()
         }
 
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/sykmeldinger ." +
+                "Bruk hentSykmeldinger(orgnr: String, filter: SykmeldingFilterRequest) istedenfor.",
+    )
+    fun hentSykmeldinger(orgnr: String): List<SykmeldingDTO> =
+        transaction(db) {
+            SykmeldingEntitet
+                .selectAll()
+                .where { SykmeldingEntitet.orgnr eq orgnr }
+                .map { it.toSykmelding() }
+        }
+
     fun hentSykmeldinger(
         orgnr: String,
-        filter: SykmeldingFilterRequest? = null,
+        filter: SykmeldingFilterRequest,
     ): List<SykmeldingDTO> =
         transaction(db) {
             val query =
                 SykmeldingEntitet
                     .selectAll()
                     .where { SykmeldingEntitet.orgnr eq orgnr }
-            filter?.fnr?.let { query.andWhere { fnr eq it } }
-            filter?.fom?.let { query.andWhere { mottattAvNav greaterEq it.tilTidspunktStartOfDay() } }
-            filter?.tom?.let { query.andWhere { mottattAvNav lessEq it.tilTidspunktEndOfDay() } }
+            filter.fnr?.let { query.andWhere { fnr eq it } }
+            filter.fom?.let { query.andWhere { mottattAvNav greaterEq it.tilTidspunktStartOfDay() } }
+            filter.tom?.let { query.andWhere { mottattAvNav lessEq it.tilTidspunktEndOfDay() } }
             query
                 .map { it.toSykmelding() }
         }

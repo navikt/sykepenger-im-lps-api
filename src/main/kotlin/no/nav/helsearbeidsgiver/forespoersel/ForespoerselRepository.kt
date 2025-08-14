@@ -84,7 +84,12 @@ class ForespoerselRepository(
                 }.firstOrNull()
         }
 
-    fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> =
+    @Deprecated(
+        message =
+            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/forespoersler " +
+                "Bruk hentForespoersler(orgnr: String, request: ForespoerselRequest) istedenfor.",
+    )
+    fun hentForespoersler(orgnr: String): List<Forespoersel> =
         transaction(db) {
             ForespoerselEntitet
                 .selectAll()
@@ -94,7 +99,7 @@ class ForespoerselRepository(
                 }
         }
 
-    fun filtrerForespoersler(
+    fun hentForespoersler(
         orgnr: String,
         request: ForespoerselRequest,
     ): List<Forespoersel> =
@@ -106,7 +111,6 @@ class ForespoerselRepository(
                     .where {
                         ForespoerselEntitet.orgnr eq orgnr
                     }
-
             request.fnr?.let { query.andWhere { fnr eq it } }
             request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
             request.status?.let { query.andWhere { status eq it } }
