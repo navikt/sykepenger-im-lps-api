@@ -7,13 +7,13 @@ import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import java.util.UUID
 
-class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, SykmeldingDTO>() {
+class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilter, SykmeldingDTO>() {
     override val filtreringEndepunkt = "/v1/sykmeldinger"
     override val enkeltDokumentEndepunkt = "/v1/sykmelding"
     override val utfasetEndepunkt = "/v1/sykmeldinger"
 
     override val dokumentSerializer: KSerializer<Sykmelding> = Sykmelding.serializer()
-    override val filterSerializer: KSerializer<SykmeldingFilterRequest> = SykmeldingFilterRequest.serializer()
+    override val filterSerializer: KSerializer<SykmeldingFilter> = SykmeldingFilter.serializer()
 
     override fun mockDokument(
         id: UUID,
@@ -24,7 +24,7 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
             .medOrgnr(orgnr)
             .tilSykmeldingDTO()
 
-    override fun lagFilter(orgnr: String): SykmeldingFilterRequest = SykmeldingFilterRequest(orgnr = orgnr)
+    override fun lagFilter(orgnr: String): SykmeldingFilter = SykmeldingFilter(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -34,7 +34,7 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
     }
 
     override fun mockHentingAvDokumenter(
-        filter: SykmeldingFilterRequest,
+        filter: SykmeldingFilter,
         resultat: List<SykmeldingDTO>,
     ) {
         every { repositories.sykmeldingRepository.hentSykmeldinger(filter = filter) } returns resultat

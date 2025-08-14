@@ -87,7 +87,7 @@ class ForespoerselRepositoryTest {
         forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2))
 
         val request =
-            ForespoerselRequest(
+            ForespoerselFilter(
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 navReferanseId = null,
@@ -110,27 +110,27 @@ class ForespoerselRepositoryTest {
         every { LocalDateTime.now() } returns now.plusDays(1)
         forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID3))
         val request =
-            ForespoerselRequest(
+            ForespoerselFilter(
                 orgnr = DEFAULT_ORG,
                 fom = now.toLocalDate(),
             )
         val forespoersler = forespoerselRepository.hentForespoersler(request)
         forespoersler.size shouldBe 3
-        val request2 = ForespoerselRequest(orgnr = DEFAULT_ORG, fom = now.toLocalDate().plusDays(1))
+        val request2 = ForespoerselFilter(orgnr = DEFAULT_ORG, fom = now.toLocalDate().plusDays(1))
         forespoerselRepository.hentForespoersler(request2).size shouldBe 1
-        val request3 = ForespoerselRequest(orgnr = DEFAULT_ORG, fom = now.toLocalDate().plusDays(2))
+        val request3 = ForespoerselFilter(orgnr = DEFAULT_ORG, fom = now.toLocalDate().plusDays(2))
         forespoerselRepository.hentForespoersler(request3).size shouldBe 0
 
-        val requestTom = ForespoerselRequest(orgnr = DEFAULT_ORG, tom = now.toLocalDate())
+        val requestTom = ForespoerselFilter(orgnr = DEFAULT_ORG, tom = now.toLocalDate())
         forespoerselRepository.hentForespoersler(requestTom).size shouldBe 2
 
-        val requestForTidlig = ForespoerselRequest(orgnr = DEFAULT_ORG, tom = now.toLocalDate().minusDays(1))
+        val requestForTidlig = ForespoerselFilter(orgnr = DEFAULT_ORG, tom = now.toLocalDate().minusDays(1))
         forespoerselRepository.hentForespoersler(requestForTidlig).size shouldBe 0
         shouldThrow<IllegalArgumentException> {
-            ForespoerselRequest(orgnr = DEFAULT_ORG, tom = LocalDate.MAX)
+            ForespoerselFilter(orgnr = DEFAULT_ORG, tom = LocalDate.MAX)
         }
         shouldThrow<IllegalArgumentException> {
-            ForespoerselRequest(orgnr = DEFAULT_ORG, fom = LocalDate.of(-1, 12, 12))
+            ForespoerselFilter(orgnr = DEFAULT_ORG, fom = LocalDate.of(-1, 12, 12))
         }
         unmockkStatic(LocalDateTime::class)
     }

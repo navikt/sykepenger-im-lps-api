@@ -45,7 +45,7 @@ enum class Type {
 }
 
 @Serializable
-data class ForespoerselRequest(
+data class ForespoerselFilter(
     val orgnr: String,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,

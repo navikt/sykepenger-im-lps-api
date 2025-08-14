@@ -120,7 +120,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     // Hent inntektsmeldinger, filtrer basert på request
     post("/inntektsmeldinger") {
         try {
-            val request = call.receive<InntektsmeldingFilterRequest>()
+            val request = call.receive<InntektsmeldingFilter>()
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
 
@@ -249,7 +249,7 @@ private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmelding
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
             inntektsmeldingService
                 .hentInntektsMeldingByRequest(
-                    InntektsmeldingFilterRequest(
+                    InntektsmeldingFilter(
                         orgnr = sluttbrukerOrgnr,
                         navReferanseId = navReferanseId,
                     ),
@@ -274,7 +274,7 @@ private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmelding
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
             inntektsmeldingService
                 .hentInntektsMeldingByRequest(
-                    InntektsmeldingFilterRequest(
+                    InntektsmeldingFilter(
                         orgnr = sluttbrukerOrgnr,
                         status = status,
                     ),

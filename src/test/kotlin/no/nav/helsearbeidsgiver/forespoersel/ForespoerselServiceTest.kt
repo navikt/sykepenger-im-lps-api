@@ -31,7 +31,7 @@ class ForespoerselServiceTest {
     fun filtrerForespoersler() {
         val forespoersler = getForespoerslerTestdata()
         val request =
-            ForespoerselRequest(
+            ForespoerselFilter(
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
                 navReferanseId = null,

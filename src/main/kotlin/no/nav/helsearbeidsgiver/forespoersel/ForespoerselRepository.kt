@@ -99,7 +99,7 @@ class ForespoerselRepository(
                 }
         }
 
-    fun hentForespoersler(request: ForespoerselRequest): List<Forespoersel> =
+    fun hentForespoersler(request: ForespoerselFilter): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             val query =

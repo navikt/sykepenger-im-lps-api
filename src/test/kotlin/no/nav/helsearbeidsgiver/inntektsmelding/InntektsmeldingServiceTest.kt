@@ -133,7 +133,7 @@ class InntektsmeldingServiceTest {
         val innsendt = LocalDateTime.now()
         val skjema = buildInntektsmelding(forespoerselId = navReferanseId).tilSkjema()
         val request =
-            InntektsmeldingFilterRequest(
+            InntektsmeldingFilter(
                 orgnr = orgnr,
                 fnr = fnr,
                 navReferanseId = navReferanseId,
@@ -187,7 +187,7 @@ class InntektsmeldingServiceTest {
         val datoFra = LocalDate.now()
         val datoTil = datoFra.plusDays(1)
         val request =
-            InntektsmeldingFilterRequest(
+            InntektsmeldingFilter(
                 orgnr = orgnr,
                 fnr = fnr,
                 navReferanseId = navReferanseId,

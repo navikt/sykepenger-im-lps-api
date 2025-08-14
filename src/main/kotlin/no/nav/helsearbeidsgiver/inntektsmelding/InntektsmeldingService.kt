@@ -25,7 +25,7 @@ class InntektsmeldingService(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
-                "Bruk hentInntektsMeldingByRequest(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+                "Bruk hentInntektsMeldingByRequest(orgnr: String, request: InntektsmeldingFilter) istedenfor.",
         level = DeprecationLevel.WARNING,
     )
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<InntektsmeldingResponse> {
@@ -41,7 +41,7 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av inntektsmeldinger for orgnr: $orgnr")
     }
 
-    fun hentInntektsMeldingByRequest(request: InntektsmeldingFilterRequest): List<InntektsmeldingResponse> {
+    fun hentInntektsMeldingByRequest(request: InntektsmeldingFilter): List<InntektsmeldingResponse> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for request: $request")
             inntektsmeldingRepository.hent(request = request)

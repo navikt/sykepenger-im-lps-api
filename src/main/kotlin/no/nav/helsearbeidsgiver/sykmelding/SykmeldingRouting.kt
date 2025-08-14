@@ -98,7 +98,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
     post("/sykmeldinger") {
         // Hent alle sykmeldinger for et orgnr, filtrert med parametere
         try {
-            val request = call.receive<SykmeldingFilterRequest>()
+            val request = call.receive<SykmeldingFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilRessurs(

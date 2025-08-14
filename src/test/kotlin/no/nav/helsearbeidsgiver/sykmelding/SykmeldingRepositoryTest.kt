@@ -95,12 +95,12 @@ class SykmeldingRepositoryTest {
 
         sykmeldingRepository
             .hentSykmeldinger(
-                filter = SykmeldingFilterRequest(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR),
+                filter = SykmeldingFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR),
             )[0]
             .id shouldBe id.toString()
 
         sykmeldingRepository.hentSykmeldinger(
-            filter = SykmeldingFilterRequest(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR.reversed()),
+            filter = SykmeldingFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR.reversed()),
         ) shouldBe
             emptyList()
     }
@@ -126,7 +126,7 @@ class SykmeldingRepositoryTest {
             val sykmeldingerFraOgMed =
                 sykmeldingRepository.hentSykmeldinger(
                     filter =
-                        SykmeldingFilterRequest(
+                        SykmeldingFilter(
                             orgnr = DEFAULT_ORG,
                             fom = mottattDato.plusDays(i.toLong()),
                         ),
@@ -136,7 +136,7 @@ class SykmeldingRepositoryTest {
             val sykmeldingerTilOgMed =
                 sykmeldingRepository.hentSykmeldinger(
                     filter =
-                        SykmeldingFilterRequest(
+                        SykmeldingFilter(
                             orgnr = DEFAULT_ORG,
                             tom = mottattDato.minusDays(1).plusDays(i.toLong()),
                         ),
@@ -147,7 +147,7 @@ class SykmeldingRepositoryTest {
         val sykmeldingerFomOgTom =
             sykmeldingRepository.hentSykmeldinger(
                 filter =
-                    SykmeldingFilterRequest(
+                    SykmeldingFilter(
                         orgnr = DEFAULT_ORG,
                         fom = mottattDato,
                         tom = mottattDato.plusDays(1),

@@ -83,7 +83,7 @@ data class Avsender(
 )
 
 @Serializable
-data class InntektsmeldingFilterRequest(
+data class InntektsmeldingFilter(
     val orgnr: String,
     val innsendingId: UUID? = null,
     val fnr: String? = null,

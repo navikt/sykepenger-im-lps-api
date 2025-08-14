@@ -61,7 +61,7 @@ class InntektsmeldingRepository(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
-                "Bruk hent(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+                "Bruk hent(orgnr: String, request: InntektsmeldingFilter) istedenfor.",
         level = DeprecationLevel.WARNING,
     )
     fun hent(orgnr: String): List<InntektsmeldingResponse> =
@@ -72,7 +72,7 @@ class InntektsmeldingRepository(
                 .map { it.toExposedInntektsmelding() }
         }
 
-    fun hent(request: InntektsmeldingFilterRequest): List<InntektsmeldingResponse> =
+    fun hent(request: InntektsmeldingFilter): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             val query =

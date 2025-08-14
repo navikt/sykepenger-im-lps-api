@@ -88,7 +88,7 @@ class SykmeldingRoutingTest : ApiTest() {
         val antallForventedeSykmeldinger = 3
         every {
             repositories.sykmeldingRepository.hentSykmeldinger(
-                SykmeldingFilterRequest(orgnr = DEFAULT_ORG),
+                SykmeldingFilter(orgnr = DEFAULT_ORG),
             )
         } returns
             List(
@@ -101,7 +101,7 @@ class SykmeldingRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    setBody(SykmeldingFilterRequest(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilter(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -135,7 +135,7 @@ class SykmeldingRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
-                    setBody(SykmeldingFilterRequest(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilterRequest.serializer()))
+                    setBody(SykmeldingFilter(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -166,12 +166,12 @@ class SykmeldingRoutingTest : ApiTest() {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        SykmeldingFilterRequestUtenValidering(
+                        SykmeldingFilterUtenValidering(
                             orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().minusYears(3001),
                             tom = LocalDate.now().minusYears(3000),
                         ).toJson(
-                            serializer = SykmeldingFilterRequestUtenValidering.serializer(),
+                            serializer = SykmeldingFilterUtenValidering.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -189,11 +189,11 @@ class SykmeldingRoutingTest : ApiTest() {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        SykmeldingFilterRequestUtenValidering(
+                        SykmeldingFilterUtenValidering(
                             orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().plusYears(10000),
                             tom = LocalDate.now().plusYears(10001),
-                        ).toJson(serializer = SykmeldingFilterRequestUtenValidering.serializer()),
+                        ).toJson(serializer = SykmeldingFilterUtenValidering.serializer()),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
@@ -210,10 +210,10 @@ class SykmeldingRoutingTest : ApiTest() {
                 client.post("/v1/sykmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        SykmeldingFilterRequestUtenValidering(
+                        SykmeldingFilterUtenValidering(
                             orgnr = orgnr,
                         ).toJson(
-                            serializer = SykmeldingFilterRequestUtenValidering.serializer(),
+                            serializer = SykmeldingFilterUtenValidering.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -240,7 +240,7 @@ fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
     )
 
 @Serializable
-data class SykmeldingFilterRequestUtenValidering(
+data class SykmeldingFilterUtenValidering(
     val orgnr: String,
     val fnr: String? = null,
     val fom: LocalDate? = null,

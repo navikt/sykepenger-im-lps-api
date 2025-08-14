@@ -9,7 +9,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.time.LocalDate
 
 @Serializable
-data class SykmeldingFilterRequest(
+data class SykmeldingFilter(
     val orgnr: String,
     val fnr: String? = null,
     val fom: LocalDate? = null,

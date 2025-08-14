@@ -127,7 +127,7 @@ class InntektsmeldingRepositoryTest {
 
         val result =
             repository.hent(
-                InntektsmeldingFilterRequest(
+                InntektsmeldingFilter(
                     orgnr = DEFAULT_ORG,
                     fnr = DEFAULT_FNR,
                     navReferanseId = forespoerselId,
@@ -163,7 +163,7 @@ class InntektsmeldingRepositoryTest {
 
         val result =
             repository.hent(
-                InntektsmeldingFilterRequest(
+                InntektsmeldingFilter(
                     orgnr = org2.verdi,
                     fnr = null,
                     navReferanseId = null,
@@ -196,12 +196,12 @@ class InntektsmeldingRepositoryTest {
         repository.oppdaterStatus(inntektsmelding1, nyStatus = InnsendingStatus.GODKJENT)
         val oppdatertInntektsmelding =
             repository.hent(
-                request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
+                request = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
         val ikkeOppdatertInntektsmelding =
             repository.hent(
-                request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
+                request = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
             )[0]
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }

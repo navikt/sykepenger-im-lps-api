@@ -8,13 +8,13 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, InntektsmeldingFilterRequest, InntektsmeldingResponse>() {
+class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, InntektsmeldingFilter, InntektsmeldingResponse>() {
     override val filtreringEndepunkt = "/v1/inntektsmeldinger"
     override val enkeltDokumentEndepunkt = "/v1/inntektsmelding"
     override val utfasetEndepunkt = "/v1/inntektsmeldinger"
 
     override val dokumentSerializer: KSerializer<InntektsmeldingResponse> = InntektsmeldingResponse.serializer()
-    override val filterSerializer: KSerializer<InntektsmeldingFilterRequest> = InntektsmeldingFilterRequest.serializer()
+    override val filterSerializer: KSerializer<InntektsmeldingFilter> = InntektsmeldingFilter.serializer()
 
     override fun mockDokument(
         id: UUID,
@@ -28,7 +28,7 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
         return mockInntektsmeldingResponse(inntektsmelding)
     }
 
-    override fun lagFilter(orgnr: String): InntektsmeldingFilterRequest = InntektsmeldingFilterRequest(orgnr = orgnr)
+    override fun lagFilter(orgnr: String): InntektsmeldingFilter = InntektsmeldingFilter(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -38,7 +38,7 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
     }
 
     override fun mockHentingAvDokumenter(
-        filter: InntektsmeldingFilterRequest,
+        filter: InntektsmeldingFilter,
         resultat: List<InntektsmeldingResponse>,
     ) {
         every { repositories.inntektsmeldingRepository.hent(request = filter) } returns resultat

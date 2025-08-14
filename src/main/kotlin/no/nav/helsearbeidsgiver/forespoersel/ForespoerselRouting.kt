@@ -98,7 +98,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
     // Filterparametre fom og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet av Nav).
     post("/forespoersler") {
         try {
-            val request = call.receive<ForespoerselRequest>()
+            val request = call.receive<ForespoerselFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilRessurs(
