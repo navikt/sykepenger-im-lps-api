@@ -24,7 +24,7 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
             .medOrgnr(orgnr)
             .tilSykmeldingDTO()
 
-    override fun lagFilter(orgnr: String?): SykmeldingFilterRequest = SykmeldingFilterRequest(orgnr = orgnr)
+    override fun lagFilter(orgnr: String): SykmeldingFilterRequest = SykmeldingFilterRequest(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -34,11 +34,10 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
     }
 
     override fun mockHentingAvDokumenter(
-        orgnr: String,
         filter: SykmeldingFilterRequest,
         resultat: List<SykmeldingDTO>,
     ) {
-        every { repositories.sykmeldingRepository.hentSykmeldinger(orgnr, filter) } returns resultat
+        every { repositories.sykmeldingRepository.hentSykmeldinger(filter = filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(

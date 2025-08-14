@@ -24,12 +24,9 @@ class SoeknadService(
     fun hentSoeknader(orgnr: String): List<Sykepengesoeknad> =
         soeknadRepository.hentSoeknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
 
-    fun hentSoeknader(
-        orgnr: String,
-        filter: SykepengesoeknadFilter,
-    ): List<Sykepengesoeknad> =
+    fun hentSoeknader(filter: SykepengesoeknadFilter): List<Sykepengesoeknad> =
         soeknadRepository
-            .hentSoeknader(orgnr, filter)
+            .hentSoeknader(filter)
             .filter { it.skalSendesTilArbeidsgiver() }
             .map { it.whitelistetForArbeidsgiver().konverter() }
 

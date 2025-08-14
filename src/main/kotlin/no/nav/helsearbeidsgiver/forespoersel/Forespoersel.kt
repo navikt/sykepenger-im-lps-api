@@ -46,8 +46,7 @@ enum class Type {
 
 @Serializable
 data class ForespoerselRequest(
-    // TODO: orgnr skal gjøres påkrevd samtidig i InntektsmeldingRequest, SykmeldingFilterRequest og SykepengesoeknadFilterRequest
-    val orgnr: String? = null,
+    val orgnr: String,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
     val status: Status? = null,

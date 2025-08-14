@@ -99,17 +99,14 @@ class ForespoerselRepository(
                 }
         }
 
-    fun hentForespoersler(
-        orgnr: String,
-        request: ForespoerselRequest,
-    ): List<Forespoersel> =
+    fun hentForespoersler(request: ForespoerselRequest): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             val query =
                 ForespoerselEntitet
                     .selectAll()
                     .where {
-                        ForespoerselEntitet.orgnr eq orgnr
+                        orgnr eq request.orgnr
                     }
             request.fnr?.let { query.andWhere { fnr eq it } }
             request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }

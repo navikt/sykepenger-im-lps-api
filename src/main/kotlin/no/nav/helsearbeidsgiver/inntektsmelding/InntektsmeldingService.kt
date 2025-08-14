@@ -41,13 +41,10 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av inntektsmeldinger for orgnr: $orgnr")
     }
 
-    fun hentInntektsMeldingByRequest(
-        orgnr: String,
-        request: InntektsmeldingFilterRequest,
-    ): List<InntektsmeldingResponse> {
+    fun hentInntektsMeldingByRequest(request: InntektsmeldingFilterRequest): List<InntektsmeldingResponse> {
         runCatching {
             sikkerLogger().info("Henter inntektsmeldinger for request: $request")
-            inntektsmeldingRepository.hent(orgnr = orgnr, request = request)
+            inntektsmeldingRepository.hent(request = request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
             return it

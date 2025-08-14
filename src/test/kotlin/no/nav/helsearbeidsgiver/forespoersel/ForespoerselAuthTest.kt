@@ -24,21 +24,20 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, 
                 navReferanseId = id,
             )
 
-    override fun lagFilter(orgnr: String?): ForespoerselRequest = ForespoerselRequest(orgnr = orgnr)
+    override fun lagFilter(orgnr: String): ForespoerselRequest = ForespoerselRequest(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
         resultat: List<Forespoersel>,
     ) {
-        every { repositories.forespoerselRepository.hentForespoersler(orgnr) } returns resultat
+        every { repositories.forespoerselRepository.hentForespoersler(orgnr = orgnr) } returns resultat
     }
 
     override fun mockHentingAvDokumenter(
-        orgnr: String,
         filter: ForespoerselRequest,
         resultat: List<Forespoersel>,
     ) {
-        every { repositories.forespoerselRepository.hentForespoersler(orgnr, filter) } returns resultat
+        every { repositories.forespoerselRepository.hentForespoersler(request = filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(

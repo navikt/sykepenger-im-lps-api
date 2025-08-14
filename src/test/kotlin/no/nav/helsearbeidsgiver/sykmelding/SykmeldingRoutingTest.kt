@@ -88,7 +88,6 @@ class SykmeldingRoutingTest : ApiTest() {
         val antallForventedeSykmeldinger = 3
         every {
             repositories.sykmeldingRepository.hentSykmeldinger(
-                DEFAULT_ORG,
                 SykmeldingFilterRequest(orgnr = DEFAULT_ORG),
             )
         } returns
@@ -168,6 +167,7 @@ class SykmeldingRoutingTest : ApiTest() {
                     contentType(ContentType.Application.Json)
                     setBody(
                         SykmeldingFilterRequestUtenValidering(
+                            orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().minusYears(3001),
                             tom = LocalDate.now().minusYears(3000),
                         ).toJson(
@@ -190,6 +190,7 @@ class SykmeldingRoutingTest : ApiTest() {
                     contentType(ContentType.Application.Json)
                     setBody(
                         SykmeldingFilterRequestUtenValidering(
+                            orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().plusYears(10000),
                             tom = LocalDate.now().plusYears(10001),
                         ).toJson(serializer = SykmeldingFilterRequestUtenValidering.serializer()),
@@ -218,7 +219,7 @@ class SykmeldingRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
-            verify(exactly = 0) { repo.hentSykmeldinger(any()) }
+            verify(exactly = 0) { repo.hentSykmeldinger(filter = any()) }
         }
     }
 
@@ -240,7 +241,7 @@ fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
 
 @Serializable
 data class SykmeldingFilterRequestUtenValidering(
-    val orgnr: String? = null,
+    val orgnr: String,
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,

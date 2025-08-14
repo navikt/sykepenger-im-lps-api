@@ -72,16 +72,13 @@ class InntektsmeldingRepository(
                 .map { it.toExposedInntektsmelding() }
         }
 
-    fun hent(
-        orgnr: String,
-        request: InntektsmeldingFilterRequest,
-    ): List<InntektsmeldingResponse> =
+    fun hent(request: InntektsmeldingFilterRequest): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             val query =
                 InntektsmeldingEntitet
                     .selectAll()
-                    .where { InntektsmeldingEntitet.orgnr eq orgnr }
+                    .where { orgnr eq request.orgnr }
 
             request.status?.let { query.andWhere { status eq it } }
             request.innsendingId?.let { query.andWhere { innsendingId eq it } }

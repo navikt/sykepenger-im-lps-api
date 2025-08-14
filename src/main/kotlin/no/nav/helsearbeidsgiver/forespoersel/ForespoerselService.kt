@@ -27,13 +27,11 @@ class ForespoerselService(
         throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
     }
 
-    fun filtrerForespoersler(
-        orgnr: String,
-        request: ForespoerselRequest,
-    ): List<Forespoersel> {
+    fun filtrerForespoersler(request: ForespoerselRequest): List<Forespoersel> {
+        val orgnr = request.orgnr
         runCatching {
             sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
-            forespoerselRepository.hentForespoersler(orgnr = orgnr, request = request)
+            forespoerselRepository.hentForespoersler(request)
         }.onSuccess {
             sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it

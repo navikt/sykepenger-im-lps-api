@@ -20,11 +20,8 @@ class SykmeldingService(
             it.tilSykmelding()
         }
 
-    fun hentSykmeldinger(
-        orgnr: String,
-        sykmeldingFilterRequest: SykmeldingFilterRequest,
-    ): List<Sykmelding> =
-        sykmeldingRepository.hentSykmeldinger(orgnr, sykmeldingFilterRequest).map {
+    fun hentSykmeldinger(sykmeldingFilterRequest: SykmeldingFilterRequest): List<Sykmelding> =
+        sykmeldingRepository.hentSykmeldinger(sykmeldingFilterRequest).map {
             it.tilSykmelding()
         }
 

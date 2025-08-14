@@ -10,13 +10,13 @@ import java.time.LocalDate
 
 @Serializable
 data class SykmeldingFilterRequest(
-    val orgnr: String? = null,
+    val orgnr: String,
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
 ) {
     init {
-        orgnr?.let { require(erGyldig(orgnr)) }
+        require(erGyldig(orgnr))
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring

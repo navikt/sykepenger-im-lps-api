@@ -67,15 +67,12 @@ class SykmeldingRepository(
                 .map { it.toSykmelding() }
         }
 
-    fun hentSykmeldinger(
-        orgnr: String,
-        filter: SykmeldingFilterRequest,
-    ): List<SykmeldingDTO> =
+    fun hentSykmeldinger(filter: SykmeldingFilterRequest): List<SykmeldingDTO> =
         transaction(db) {
             val query =
                 SykmeldingEntitet
                     .selectAll()
-                    .where { SykmeldingEntitet.orgnr eq orgnr }
+                    .where { orgnr eq filter.orgnr }
             filter.fnr?.let { query.andWhere { fnr eq it } }
             filter.fom?.let { query.andWhere { mottattAvNav greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { mottattAvNav lessEq it.tilTidspunktEndOfDay() } }

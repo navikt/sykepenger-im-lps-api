@@ -52,7 +52,8 @@ class InntektsmeldingRepositoryTest {
         val repository = InntektsmeldingRepository(db)
         val inntektsmeldingId = UUID.randomUUID()
         val forespoerselId = UUID.randomUUID()
-        val inntektsmeldingJson = buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
         val forventetSkjema = inntektsmeldingJson.tilSkjema()
         repository.opprettInntektsmelding(
             im = inntektsmeldingJson,
@@ -74,7 +75,8 @@ class InntektsmeldingRepositoryTest {
         val repository = InntektsmeldingRepository(db)
         val inntektsmeldingId = UUID.randomUUID()
         val forespoerselId = UUID.randomUUID()
-        val inntektsmeldingJson = buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
 
         repository.opprettInntektsmelding(
             im = inntektsmeldingJson,
@@ -125,8 +127,8 @@ class InntektsmeldingRepositoryTest {
 
         val result =
             repository.hent(
-                DEFAULT_ORG,
                 InntektsmeldingFilterRequest(
+                    orgnr = DEFAULT_ORG,
                     fnr = DEFAULT_FNR,
                     navReferanseId = forespoerselId,
                     fom = innsendtDato.minusDays(1),
@@ -161,8 +163,8 @@ class InntektsmeldingRepositoryTest {
 
         val result =
             repository.hent(
-                org2.verdi,
                 InntektsmeldingFilterRequest(
+                    orgnr = org2.verdi,
                     fnr = null,
                     navReferanseId = null,
                     fom = null,
@@ -194,14 +196,12 @@ class InntektsmeldingRepositoryTest {
         repository.oppdaterStatus(inntektsmelding1, nyStatus = InnsendingStatus.GODKJENT)
         val oppdatertInntektsmelding =
             repository.hent(
-                DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(navReferanseId = forespoerselId),
+                request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
         val ikkeOppdatertInntektsmelding =
             repository.hent(
-                DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(navReferanseId = inntektsmelding2.type.id),
+                request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
             )[0]
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }
@@ -212,7 +212,8 @@ class InntektsmeldingRepositoryTest {
         forespoerselId: UUID,
     ) {
         val repository = InntektsmeldingRepository(db)
-        val inntektsmeldingJson = buildInntektsmelding(forespoerselId = forespoerselId, orgnr = org, sykemeldtFnr = sykmeldtFnr)
+        val inntektsmeldingJson =
+            buildInntektsmelding(forespoerselId = forespoerselId, orgnr = org, sykemeldtFnr = sykmeldtFnr)
         repository.opprettInntektsmelding(
             im = inntektsmeldingJson,
         )

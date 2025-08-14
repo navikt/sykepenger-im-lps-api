@@ -100,11 +100,10 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
         try {
             val request = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
-            val orgnr = request.orgnr ?: systembrukerOrgnr
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SOKNAD_RESSURS,
-                    orgnumre = setOf(orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(request.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -114,9 +113,9 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [${request.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respond(soeknadService.hentSoeknader(orgnr, request))
+            call.respond(soeknadService.hentSoeknader(filter = request))
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
         } catch (e: Exception) {

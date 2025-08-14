@@ -48,7 +48,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     abstract val dokumentSerializer: KSerializer<Dokument>
     abstract val filterSerializer: KSerializer<Filter>
 
-    abstract fun lagFilter(orgnr: String?): Filter
+    abstract fun lagFilter(orgnr: String): Filter
 
     abstract fun mockDokument(
         id: UUID,
@@ -72,7 +72,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     )
 
     abstract fun mockHentingAvDokumenter(
-        orgnr: String,
         filter: Filter,
         resultat: List<DokumentDTO>,
     )
@@ -130,7 +129,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         val filter = lagFilter(underenhetOrgnrMedPdpTilgang)
 
         mockHentingAvDokumenter(
-            orgnr = underenhetOrgnrMedPdpTilgang,
             filter = filter,
             resultat =
                 List(antallForventedeDokumenter) {
@@ -144,40 +142,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                     contentType(ContentType.Application.Json)
                     setBody(filter.toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
-                }
-
-            respons.status shouldBe HttpStatusCode.OK
-
-            val dokumenter = respons.bodyAsText().fromJson(ListSerializer(dokumentSerializer))
-            dokumenter.size shouldBe antallForventedeDokumenter
-
-            dokumenter.forEach {
-                assertNotNull(it)
-                hentOrgnrFraDokument(it) shouldBe underenhetOrgnrMedPdpTilgang
-            }
-        }
-    }
-
-    @Test
-    fun `gir 200 OK ved henting av flere dokumenter på underenhetorgnr hentet fra systembruker`() {
-        val antallForventedeDokumenter = 3
-        val requestUtenOrgnr = lagFilter(null)
-
-        mockHentingAvDokumenter(
-            orgnr = underenhetOrgnrMedPdpTilgang,
-            filter = requestUtenOrgnr,
-            resultat =
-                List(antallForventedeDokumenter) {
-                    mockDokument(UUID.randomUUID(), underenhetOrgnrMedPdpTilgang)
-                },
-        )
-
-        runBlocking {
-            val respons =
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(requestUtenOrgnr.toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(underenhetOrgnrMedPdpTilgang))
                 }
 
             respons.status shouldBe HttpStatusCode.OK
@@ -322,18 +286,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                 }
             }
         respons2.status shouldBe HttpStatusCode.Unauthorized
-
-        // Systembruker har _ikke_ tilgang til orgnr i token, og har heller ikke angitt orgnr i requesten .
-        // Det vil si at man forsøker å hente dokumenter for et orgnummer (fra tokenet) som pdp nekter systembrukeren tilgang til.
-        val respons3 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(lagFilter(orgnr = null).toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons3.status shouldBe HttpStatusCode.Unauthorized
 
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
         val respons4 =

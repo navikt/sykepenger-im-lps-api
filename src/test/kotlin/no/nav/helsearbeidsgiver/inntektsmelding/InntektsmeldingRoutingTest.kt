@@ -75,7 +75,6 @@ class InntektsmeldingRoutingTest : ApiTest() {
         val antallForventedeInntektsmeldinger = 3
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = DEFAULT_ORG,
                 request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG),
             )
         } returns
@@ -129,7 +128,6 @@ class InntektsmeldingRoutingTest : ApiTest() {
     fun `returnerer tom liste når det ikke er noen inntektsmeldinger på et orgnr`() {
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = any(),
                 request = any(),
             )
         } returns emptyList()
@@ -222,7 +220,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
-            verify(exactly = 0) { repo.hent(any(), any()) }
+            verify(exactly = 0) { repo.hent(request = any()) }
         }
     }
 
@@ -253,9 +251,9 @@ class InntektsmeldingRoutingTest : ApiTest() {
             buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = DEFAULT_ORG,
                 request =
                     InntektsmeldingFilterRequest(
+                        orgnr = DEFAULT_ORG,
                         status = statusMottatt,
                     ),
             )
@@ -281,9 +279,9 @@ class InntektsmeldingRoutingTest : ApiTest() {
             buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = DEFAULT_ORG,
                 request =
                     InntektsmeldingFilterRequest(
+                        orgnr = DEFAULT_ORG,
                         navReferanseId = inntektsmelding.id,
                     ),
             )

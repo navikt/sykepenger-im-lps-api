@@ -100,11 +100,10 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
         try {
             val request = call.receive<SykmeldingFilterRequest>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
-            val orgnr = request.orgnr ?: systembrukerOrgnr
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SM_RESSURS,
-                    orgnumre = setOf(orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(request.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -114,10 +113,10 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${request.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
 
-            call.respond(sykmeldingService.hentSykmeldinger(orgnr, request))
+            call.respond(sykmeldingService.hentSykmeldinger(request))
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (_: BadRequestException) {
