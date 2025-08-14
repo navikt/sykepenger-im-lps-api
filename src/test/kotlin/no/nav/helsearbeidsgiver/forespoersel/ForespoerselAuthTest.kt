@@ -4,18 +4,17 @@ import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonElement
-import no.nav.helsearbeidsgiver.authorization.HentEntitetApiAuthTest
-import no.nav.helsearbeidsgiver.utils.json.toJson
+import kotlinx.serialization.KSerializer
+import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import java.util.UUID
 
-class ForespoerselAuthTest : HentEntitetApiAuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
+class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
     override val filtreringEndepunkt = "/v1/forespoersler"
-    override val enkeltEntitetEndepunkt = "/v1/forespoersel"
+    override val enkeltDokumentEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
 
-    override fun mockEntitet(
+    override fun mockDokument(
         id: UUID,
         orgnr: String,
     ): Forespoersel =
@@ -25,19 +24,18 @@ class ForespoerselAuthTest : HentEntitetApiAuthTest<Forespoersel, ForespoerselRe
                 navReferanseId = id,
             )
 
-    override fun lagFilterRequest(orgnr: String?): ForespoerselRequest = ForespoerselRequest(orgnr = orgnr)
+    override fun lagFilter(orgnr: String?): ForespoerselRequest = ForespoerselRequest(orgnr = orgnr)
 
-    override fun serialiserFilterRequest(filter: ForespoerselRequest): JsonElement =
-        filter.toJson(serializer = ForespoerselRequest.serializer())
+    override val filterSerializer: KSerializer<ForespoerselRequest> = ForespoerselRequest.serializer()
 
-    override fun mockHentingAvEntiteter(
+    override fun mockHentingAvDokumenter(
         orgnr: String,
         resultat: List<Forespoersel>,
     ) {
         every { repositories.forespoerselRepository.hentForespoersler(orgnr) } returns resultat
     }
 
-    override fun mockHentingAvEntiteter(
+    override fun mockHentingAvDokumenter(
         orgnr: String,
         filter: ForespoerselRequest,
         resultat: List<Forespoersel>,
@@ -45,16 +43,16 @@ class ForespoerselAuthTest : HentEntitetApiAuthTest<Forespoersel, ForespoerselRe
         every { repositories.forespoerselRepository.hentForespoersler(orgnr, filter) } returns resultat
     }
 
-    override fun mockHentingAvEnkeltEntitet(
+    override fun mockHentingAvEnkeltDokument(
         id: UUID,
         resultat: Forespoersel,
     ) {
         every { repositories.forespoerselRepository.hentForespoersel(id) } returns resultat
     }
 
-    override fun lesEntiteterFraRespons(respons: HttpResponse): List<Forespoersel> = runBlocking { respons.body<List<Forespoersel>>() }
+    override fun lesDokumenterFraRespons(respons: HttpResponse): List<Forespoersel> = runBlocking { respons.body<List<Forespoersel>>() }
 
-    override fun lesEnkeltEntitetFraRespons(respons: HttpResponse): Forespoersel = runBlocking { respons.body<Forespoersel>() }
+    override fun lesEnkeltDokumentFraRespons(respons: HttpResponse): Forespoersel = runBlocking { respons.body<Forespoersel>() }
 
-    override fun hentOrgnrFraEntitet(entitet: Forespoersel): String = entitet.orgnr
+    override fun hentOrgnrFraDokument(dokument: Forespoersel): String = dokument.orgnr
 }

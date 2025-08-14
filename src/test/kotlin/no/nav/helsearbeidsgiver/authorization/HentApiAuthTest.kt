@@ -5,13 +5,15 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -22,11 +24,11 @@ import java.util.UUID
 /**
  * Generisk testklasse som verifiserer autorisasjonslogikken for API-endepunkter som henter sykmeldinger, sykepengesøknader, forespørsler og inntektsmeldinger.
  *
- * @param <Entitet> Entitetstypen som returneres i API-responsen, f.eks. Sykmelding.
- * @param <FilterRequest> Requesten som brukes for å hente og filtrere flere entiteter, f.eks. SykmeldingFilterRequest.
- * @param <EntitetDTO> DTO-typen for entiteten som brukes internt i testen, f.eks. SykmeldingDTO.
+ * @param <Dokument> Dokumenttypen som returneres i API-responsen, f.eks. Sykmelding.
+ * @param <Filter> Filteret som brukes for å hente og filtrere dokumenter, f.eks. SykepengesoeknadFilter.
+ * @param <DokumentDTO> DTO-typen for dokumentet som brukes internt i testen, f.eks. SykmeldingDTO.
  */
-abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiTest() {
+abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     @BeforeEach
     fun setup() {
         mockPdpTilganger()
@@ -37,54 +39,54 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
         unmockkAll()
     }
 
-    abstract val enkeltEntitetEndepunkt: String
+    abstract val enkeltDokumentEndepunkt: String
     abstract val filtreringEndepunkt: String
     abstract val utfasetEndepunkt: String
 
-    abstract fun lagFilterRequest(orgnr: String?): FilterRequest
+    abstract fun lagFilter(orgnr: String?): Filter
 
-    abstract fun serialiserFilterRequest(filter: FilterRequest): JsonElement
+    abstract val filterSerializer: KSerializer<Filter>
 
-    abstract fun mockEntitet(
+    abstract fun mockDokument(
         id: UUID,
         orgnr: String,
-    ): EntitetDTO
+    ): DokumentDTO
 
-    abstract fun mockHentingAvEnkeltEntitet(
+    abstract fun mockHentingAvEnkeltDokument(
         id: UUID,
-        resultat: EntitetDTO,
+        resultat: DokumentDTO,
     )
 
     @Deprecated(
         message =
             "Kan slettes når vi fjerner de utfasede endepunktene " +
                 "GET v1/sykmeldinger, GET v1/forespoersler, GET v1/sykepengesoeknader og GET v1/inntektsmeldinger ." +
-                "Bruk mockHentingAvEntiteter(orgnr: String, filter: FilterRequest, resultat: List<EntitetDTO>) istedenfor.",
+                "Bruk mockHentingAvDokumenter(orgnr: String, filter: Filter, resultat: List<DokumentDTO>) istedenfor.",
     )
-    abstract fun mockHentingAvEntiteter(
+    abstract fun mockHentingAvDokumenter(
         orgnr: String,
-        resultat: List<EntitetDTO>,
+        resultat: List<DokumentDTO>,
     )
 
-    abstract fun mockHentingAvEntiteter(
+    abstract fun mockHentingAvDokumenter(
         orgnr: String,
-        filter: FilterRequest,
-        resultat: List<EntitetDTO>,
+        filter: Filter,
+        resultat: List<DokumentDTO>,
     )
 
-    abstract fun lesEnkeltEntitetFraRespons(respons: io.ktor.client.statement.HttpResponse): Entitet
+    abstract fun lesEnkeltDokumentFraRespons(respons: HttpResponse): Dokument
 
-    abstract fun lesEntiteterFraRespons(respons: io.ktor.client.statement.HttpResponse): List<Entitet>
+    abstract fun lesDokumenterFraRespons(respons: HttpResponse): List<Dokument>
 
-    abstract fun hentOrgnrFraEntitet(entitet: Entitet): String
+    abstract fun hentOrgnrFraDokument(dokument: Dokument): String
 
     @Test
-    fun `gir 200 OK ved henting av entiteter fra utfaset endepunkt`() {
-        val mockEntitet = mockEntitet(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
+    fun `gir 200 OK ved henting av dokumenter fra utfaset endepunkt`() {
+        val mockDokument = mockDokument(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
 
-        mockHentingAvEntiteter(
+        mockHentingAvDokumenter(
             orgnr = underenhetOrgnrMedPdpTilgang,
-            resultat = listOf(mockEntitet),
+            resultat = listOf(mockDokument),
         )
 
         runBlocking {
@@ -95,45 +97,45 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val entitetSvar = lesEntiteterFraRespons(respons)
-            entitetSvar.size shouldBe 1
+            val dokumentSvar = lesDokumenterFraRespons(respons)
+            dokumentSvar.size shouldBe 1
 
-            val foersteSvarElement = entitetSvar[0]
+            val foersteSvarElement = dokumentSvar[0]
             assertNotNull(foersteSvarElement)
-            hentOrgnrFraEntitet(foersteSvarElement) shouldBe underenhetOrgnrMedPdpTilgang
+            hentOrgnrFraDokument(foersteSvarElement) shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
 
     @Test
-    fun `gir 200 OK ved henting av en spesifikk entitet`() {
-        val entitetId = UUID.randomUUID()
-        val mockEntitet = mockEntitet(id = entitetId, orgnr = underenhetOrgnrMedPdpTilgang)
+    fun `gir 200 OK ved henting av en spesifikk dokument`() {
+        val dokumentId = UUID.randomUUID()
+        val mockDokument = mockDokument(id = dokumentId, orgnr = underenhetOrgnrMedPdpTilgang)
 
-        mockHentingAvEnkeltEntitet(entitetId, mockEntitet)
+        mockHentingAvEnkeltDokument(dokumentId, mockDokument)
 
         runBlocking {
             val respons =
-                client.get(urlString = "$enkeltEntitetEndepunkt/$entitetId") {
+                client.get(urlString = "$enkeltDokumentEndepunkt/$dokumentId") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
 
             respons.status shouldBe HttpStatusCode.OK
-            val entitet = lesEnkeltEntitetFraRespons(respons)
-            hentOrgnrFraEntitet(entitet) shouldBe underenhetOrgnrMedPdpTilgang
+            val dokument = lesEnkeltDokumentFraRespons(respons)
+            hentOrgnrFraDokument(dokument) shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
 
     @Test
-    fun `gir 200 OK ved henting av flere entiteter på underenhetorgnr hentet fra request`() {
-        val antallForventedeEntiteter = 3
-        val filter = lagFilterRequest(underenhetOrgnrMedPdpTilgang)
+    fun `gir 200 OK ved henting av flere dokumenter på underenhetorgnr hentet fra request`() {
+        val antallForventedeDokumenter = 3
+        val filter = lagFilter(underenhetOrgnrMedPdpTilgang)
 
-        mockHentingAvEntiteter(
+        mockHentingAvDokumenter(
             orgnr = underenhetOrgnrMedPdpTilgang,
             filter = filter,
             resultat =
-                List(antallForventedeEntiteter) {
-                    mockEntitet(UUID.randomUUID(), underenhetOrgnrMedPdpTilgang)
+                List(antallForventedeDokumenter) {
+                    mockDokument(UUID.randomUUID(), underenhetOrgnrMedPdpTilgang)
                 },
         )
 
@@ -141,33 +143,33 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
             val respons =
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(filter))
+                    setBody(filter.toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val entiteter = lesEntiteterFraRespons(respons)
-            entiteter.size shouldBe antallForventedeEntiteter
+            val dokumenter = lesDokumenterFraRespons(respons)
+            dokumenter.size shouldBe antallForventedeDokumenter
 
-            entiteter.forEach {
+            dokumenter.forEach {
                 assertNotNull(it)
-                hentOrgnrFraEntitet(it) shouldBe underenhetOrgnrMedPdpTilgang
+                hentOrgnrFraDokument(it) shouldBe underenhetOrgnrMedPdpTilgang
             }
         }
     }
 
     @Test
-    fun `gir 200 OK ved henting av flere entiteter på underenhetorgnr hentet fra systembruker`() {
-        val antallForventedeEntiteter = 3
-        val requestUtenOrgnr = lagFilterRequest(null)
+    fun `gir 200 OK ved henting av flere dokumenter på underenhetorgnr hentet fra systembruker`() {
+        val antallForventedeDokumenter = 3
+        val requestUtenOrgnr = lagFilter(null)
 
-        mockHentingAvEntiteter(
+        mockHentingAvDokumenter(
             orgnr = underenhetOrgnrMedPdpTilgang,
             filter = requestUtenOrgnr,
             resultat =
-                List(antallForventedeEntiteter) {
-                    mockEntitet(UUID.randomUUID(), underenhetOrgnrMedPdpTilgang)
+                List(antallForventedeDokumenter) {
+                    mockDokument(UUID.randomUUID(), underenhetOrgnrMedPdpTilgang)
                 },
         )
 
@@ -175,43 +177,43 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
             val respons =
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(requestUtenOrgnr))
+                    setBody(requestUtenOrgnr.toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(underenhetOrgnrMedPdpTilgang))
                 }
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val entiteter = lesEntiteterFraRespons(respons)
-            entiteter.size shouldBe antallForventedeEntiteter
+            val dokumenter = lesDokumenterFraRespons(respons)
+            dokumenter.size shouldBe antallForventedeDokumenter
 
-            entiteter.forEach {
+            dokumenter.forEach {
                 assertNotNull(it)
-                hentOrgnrFraEntitet(it) shouldBe underenhetOrgnrMedPdpTilgang
+                hentOrgnrFraDokument(it) shouldBe underenhetOrgnrMedPdpTilgang
             }
         }
     }
 
     @Test
-    fun `gir 401 Unauthorized når token mangler ved henting av entiteter`() {
+    fun `gir 401 Unauthorized når token mangler ved henting av dokumenter`() {
         val respons1 = runBlocking { client.get(filtreringEndepunkt) }
         respons1.status shouldBe HttpStatusCode.Unauthorized
 
-        val respons2 = runBlocking { client.get("$enkeltEntitetEndepunkt/${UUID.randomUUID()}") }
+        val respons2 = runBlocking { client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") }
         respons2.status shouldBe HttpStatusCode.Unauthorized
 
-        val requestBody = lagFilterRequest(underenhetOrgnrMedPdpTilgang)
+        val requestBody = lagFilter(underenhetOrgnrMedPdpTilgang)
         val respons3 =
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(requestBody))
+                    setBody(requestBody.toJson(filterSerializer))
                 }
             }
         respons3.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test
-    fun `gir 401 Unauthorized når systembruker mangler i token ved henting av entiteter`() {
+    fun `gir 401 Unauthorized når systembruker mangler i token ved henting av dokumenter`() {
         val respons1 =
             runBlocking {
                 client.get(filtreringEndepunkt) {
@@ -222,7 +224,7 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
 
         val respons2 =
             runBlocking {
-                client.get("$enkeltEntitetEndepunkt/${UUID.randomUUID()}") {
+                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             }
@@ -232,7 +234,7 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(lagFilterRequest(underenhetOrgnrMedPdpTilgang)))
+                    setBody(lagFilter(underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             }
@@ -241,8 +243,8 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
 
     @Test
     fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra utfaset endepunkt`() {
-        val mockEntitet = mockEntitet(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
-        mockHentingAvEntiteter(underenhetOrgnrMedPdpTilgang, listOf(mockEntitet))
+        val mockDokument = mockDokument(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
+        mockHentingAvDokumenter(underenhetOrgnrMedPdpTilgang, listOf(mockDokument))
 
         val respons =
             runBlocking {
@@ -254,42 +256,42 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
     }
 
     @Test
-    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av en spesifikk entitet`() {
-        val entitetIdTilgang = UUID.randomUUID()
-        val entitetIdIkkeTilgang = UUID.randomUUID()
+    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av en spesifikk dokument`() {
+        val dokumentIdTilgang = UUID.randomUUID()
+        val dokumentIdIkkeTilgang = UUID.randomUUID()
 
-        mockHentingAvEnkeltEntitet(
-            id = entitetIdTilgang,
-            resultat = mockEntitet(entitetIdTilgang, underenhetOrgnrMedPdpTilgang),
+        mockHentingAvEnkeltDokument(
+            id = dokumentIdTilgang,
+            resultat = mockDokument(dokumentIdTilgang, underenhetOrgnrMedPdpTilgang),
         )
-        mockHentingAvEnkeltEntitet(
-            id = entitetIdIkkeTilgang,
-            resultat = mockEntitet(entitetIdTilgang, orgnrUtenPdpTilgang),
+        mockHentingAvEnkeltDokument(
+            id = dokumentIdIkkeTilgang,
+            resultat = mockDokument(dokumentIdTilgang, orgnrUtenPdpTilgang),
         )
 
-        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra entitet).
-        // Det vil si at man forsøker å hente en entitet som systembrukeren ikke skal ha tilgang til.
+        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
+        // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
         val respons1 =
             runBlocking {
-                client.get("$enkeltEntitetEndepunkt/$entitetIdIkkeTilgang") {
+                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             }
         respons1.status shouldBe HttpStatusCode.Unauthorized
 
-        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra entitet).
+        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra dokument).
         val respons2 =
             runBlocking {
-                client.get("$enkeltEntitetEndepunkt/$entitetIdTilgang") {
+                client.get("$enkeltDokumentEndepunkt/$dokumentIdTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
         respons2.status shouldBe HttpStatusCode.Unauthorized
 
-        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra entitet.
+        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
         val respons3 =
             runBlocking {
-                client.get("$enkeltEntitetEndepunkt/$entitetIdIkkeTilgang") {
+                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
@@ -297,38 +299,38 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
     }
 
     @Test
-    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av flere entiteter`() {
+    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av flere dokumenter`() {
         // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra requesten).
-        // Det vil si at man forsøker å hente entiteter for en organisasjon som systembrukeren ikke skal ha tilgang til.
+        // Det vil si at man forsøker å hente dokumenter for en organisasjon som systembrukeren ikke skal ha tilgang til.
         val respons1 =
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(lagFilterRequest(orgnr = orgnrUtenPdpTilgang)))
+                    setBody(lagFilter(orgnr = orgnrUtenPdpTilgang).toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             }
         respons1.status shouldBe HttpStatusCode.Unauthorized
 
         // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i requesten.
-        // Det vil si at man forsøker å hente entiteter for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
+        // Det vil si at man forsøker å hente dokumenter for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
         val respons2 =
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(lagFilterRequest(orgnr = underenhetOrgnrMedPdpTilgang)))
+                    setBody(lagFilter(orgnr = underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
         respons2.status shouldBe HttpStatusCode.Unauthorized
 
         // Systembruker har _ikke_ tilgang til orgnr i token, og har heller ikke angitt orgnr i requesten .
-        // Det vil si at man forsøker å hente entiteter for et orgnummer (fra tokenet) som pdp nekter systembrukeren tilgang til.
+        // Det vil si at man forsøker å hente dokumenter for et orgnummer (fra tokenet) som pdp nekter systembrukeren tilgang til.
         val respons3 =
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(lagFilterRequest(orgnr = null)))
+                    setBody(lagFilter(orgnr = null).toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
@@ -339,7 +341,7 @@ abstract class HentEntitetApiAuthTest<Entitet, FilterRequest, EntitetDTO> : ApiT
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
-                    setBody(serialiserFilterRequest(lagFilterRequest(orgnr = orgnrUtenPdpTilgang)))
+                    setBody(lagFilter(orgnr = orgnrUtenPdpTilgang).toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
