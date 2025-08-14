@@ -104,7 +104,9 @@ class ForespoerselTolker(
                     logger.info(
                         "Lagrer eller oppdaterer forespørsel med id: ${forespoersel.forespoerselId} for vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}",
                     )
-                    forespoerselService.lagreEllerOppdaterForespoersel(forespoersel, obj.status, obj.eksponertForespoerselId)
+
+                    obj.eksponertForespoerselId?.let { forespoerselService.lagreEllerOppdaterForespoersel(forespoersel, obj.status, it) }
+                        ?: logger.error("Eksponert forespørsel ID er null for forespørsel med id: ${forespoersel.forespoerselId}")
                 }
             }
         }

@@ -168,12 +168,21 @@ class ForespoerselService(
         return false
     }
 
-    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID? = forespoerselRepository.hentEksponertForespoerselId(forespoerselId)
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID =
+        forespoerselRepository
+            .hentEksponertForespoerselId(forespoerselId)
+            ?.also {
+                logger().info("Hentet eksponert forespørsel med id: $it for forespørsel med id: $forespoerselId")
+            }
+            ?: run {
+                logger().error("Forespørsel med id: $forespoerselId finnes ikke")
+                throw IllegalStateException("Forespørsel med id: $forespoerselId finnes ikke")
+            }
 
     fun lagreEllerOppdaterForespoersel(
         forespoersel: ForespoerselDokument,
         status: Status?,
-        eksponertForespoerselId: UUID?,
+        eksponertForespoerselId: UUID,
     ) {
         val hentet = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
 
