@@ -1,9 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import io.ktor.client.call.body
-import io.ktor.client.statement.HttpResponse
 import io.mockk.every
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -15,6 +12,9 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
     override val filtreringEndepunkt = "/v1/inntektsmeldinger"
     override val enkeltDokumentEndepunkt = "/v1/inntektsmelding"
     override val utfasetEndepunkt = "/v1/inntektsmeldinger"
+
+    override val dokumentSerializer: KSerializer<InntektsmeldingResponse> = InntektsmeldingResponse.serializer()
+    override val filterSerializer: KSerializer<InntektsmeldingFilterRequest> = InntektsmeldingFilterRequest.serializer()
 
     override fun mockDokument(
         id: UUID,
@@ -29,8 +29,6 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
     }
 
     override fun lagFilter(orgnr: String?): InntektsmeldingFilterRequest = InntektsmeldingFilterRequest(orgnr = orgnr)
-
-    override val filterSerializer: KSerializer<InntektsmeldingFilterRequest> = InntektsmeldingFilterRequest.serializer()
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -53,12 +51,6 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
     ) {
         every { repositories.inntektsmeldingRepository.hentMedInnsendingId(id) } returns resultat
     }
-
-    override fun lesDokumenterFraRespons(respons: HttpResponse): List<InntektsmeldingResponse> =
-        runBlocking { respons.body<List<InntektsmeldingResponse>>() }
-
-    override fun lesEnkeltDokumentFraRespons(respons: HttpResponse): InntektsmeldingResponse =
-        runBlocking { respons.body<InntektsmeldingResponse>() }
 
     override fun hentOrgnrFraDokument(dokument: InntektsmeldingResponse): String = dokument.arbeidsgiver.orgnr
 }

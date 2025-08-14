@@ -6,7 +6,6 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -28,6 +27,9 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     override val enkeltDokumentEndepunkt = "/v1/sykepengesoeknad"
     override val utfasetEndepunkt = "/v1/sykepengesoeknader"
 
+    override val dokumentSerializer: KSerializer<Sykepengesoeknad> = Sykepengesoeknad.serializer()
+    override val filterSerializer: KSerializer<SykepengesoeknadFilter> = SykepengesoeknadFilter.serializer()
+
     override fun mockDokument(
         id: UUID,
         orgnr: String,
@@ -37,8 +39,6 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
             .medOrgnr(orgnr)
 
     override fun lagFilter(orgnr: String?): SykepengesoeknadFilter = SykepengesoeknadFilter(orgnr = orgnr)
-
-    override val filterSerializer: KSerializer<SykepengesoeknadFilter> = SykepengesoeknadFilter.serializer()
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -61,11 +61,6 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     ) {
         every { repositories.soeknadRepository.hentSoeknad(id) } returns resultat
     }
-
-    override fun lesDokumenterFraRespons(respons: HttpResponse): List<Sykepengesoeknad> =
-        runBlocking { respons.body<List<Sykepengesoeknad>>() }
-
-    override fun lesEnkeltDokumentFraRespons(respons: HttpResponse): Sykepengesoeknad = runBlocking { respons.body<Sykepengesoeknad>() }
 
     override fun hentOrgnrFraDokument(dokument: Sykepengesoeknad): String = dokument.arbeidsgiver.orgnr
 

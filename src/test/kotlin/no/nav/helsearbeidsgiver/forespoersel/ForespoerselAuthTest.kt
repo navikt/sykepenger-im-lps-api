@@ -1,9 +1,6 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
-import io.ktor.client.call.body
-import io.ktor.client.statement.HttpResponse
 import io.mockk.every
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
@@ -13,6 +10,9 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, 
     override val filtreringEndepunkt = "/v1/forespoersler"
     override val enkeltDokumentEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
+
+    override val dokumentSerializer: KSerializer<Forespoersel> = Forespoersel.serializer()
+    override val filterSerializer: KSerializer<ForespoerselRequest> = ForespoerselRequest.serializer()
 
     override fun mockDokument(
         id: UUID,
@@ -25,8 +25,6 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, 
             )
 
     override fun lagFilter(orgnr: String?): ForespoerselRequest = ForespoerselRequest(orgnr = orgnr)
-
-    override val filterSerializer: KSerializer<ForespoerselRequest> = ForespoerselRequest.serializer()
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -49,10 +47,6 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, 
     ) {
         every { repositories.forespoerselRepository.hentForespoersel(id) } returns resultat
     }
-
-    override fun lesDokumenterFraRespons(respons: HttpResponse): List<Forespoersel> = runBlocking { respons.body<List<Forespoersel>>() }
-
-    override fun lesEnkeltDokumentFraRespons(respons: HttpResponse): Forespoersel = runBlocking { respons.body<Forespoersel>() }
 
     override fun hentOrgnrFraDokument(dokument: Forespoersel): String = dokument.orgnr
 }

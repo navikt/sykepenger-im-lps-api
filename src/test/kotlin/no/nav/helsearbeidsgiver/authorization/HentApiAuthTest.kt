@@ -5,14 +5,16 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
 import org.junit.jupiter.api.AfterAll
@@ -43,9 +45,10 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     abstract val filtreringEndepunkt: String
     abstract val utfasetEndepunkt: String
 
-    abstract fun lagFilter(orgnr: String?): Filter
-
+    abstract val dokumentSerializer: KSerializer<Dokument>
     abstract val filterSerializer: KSerializer<Filter>
+
+    abstract fun lagFilter(orgnr: String?): Filter
 
     abstract fun mockDokument(
         id: UUID,
@@ -74,10 +77,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         resultat: List<DokumentDTO>,
     )
 
-    abstract fun lesEnkeltDokumentFraRespons(respons: HttpResponse): Dokument
-
-    abstract fun lesDokumenterFraRespons(respons: HttpResponse): List<Dokument>
-
     abstract fun hentOrgnrFraDokument(dokument: Dokument): String
 
     @Test
@@ -97,7 +96,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val dokumentSvar = lesDokumenterFraRespons(respons)
+            val dokumentSvar = respons.bodyAsText().fromJson(ListSerializer(dokumentSerializer))
             dokumentSvar.size shouldBe 1
 
             val foersteSvarElement = dokumentSvar[0]
@@ -120,7 +119,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                 }
 
             respons.status shouldBe HttpStatusCode.OK
-            val dokument = lesEnkeltDokumentFraRespons(respons)
+            val dokument = respons.bodyAsText().fromJson(dokumentSerializer)
             hentOrgnrFraDokument(dokument) shouldBe underenhetOrgnrMedPdpTilgang
         }
     }
@@ -149,7 +148,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val dokumenter = lesDokumenterFraRespons(respons)
+            val dokumenter = respons.bodyAsText().fromJson(ListSerializer(dokumentSerializer))
             dokumenter.size shouldBe antallForventedeDokumenter
 
             dokumenter.forEach {
@@ -183,7 +182,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
             respons.status shouldBe HttpStatusCode.OK
 
-            val dokumenter = lesDokumenterFraRespons(respons)
+            val dokumenter = respons.bodyAsText().fromJson(ListSerializer(dokumentSerializer))
             dokumenter.size shouldBe antallForventedeDokumenter
 
             dokumenter.forEach {

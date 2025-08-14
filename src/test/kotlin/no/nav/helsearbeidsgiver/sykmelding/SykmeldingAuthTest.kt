@@ -1,9 +1,6 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.ktor.client.call.body
-import io.ktor.client.statement.HttpResponse
 import io.mockk.every
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
@@ -15,6 +12,9 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
     override val enkeltDokumentEndepunkt = "/v1/sykmelding"
     override val utfasetEndepunkt = "/v1/sykmeldinger"
 
+    override val dokumentSerializer: KSerializer<Sykmelding> = Sykmelding.serializer()
+    override val filterSerializer: KSerializer<SykmeldingFilterRequest> = SykmeldingFilterRequest.serializer()
+
     override fun mockDokument(
         id: UUID,
         orgnr: String,
@@ -25,8 +25,6 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
             .tilSykmeldingDTO()
 
     override fun lagFilter(orgnr: String?): SykmeldingFilterRequest = SykmeldingFilterRequest(orgnr = orgnr)
-
-    override val filterSerializer: KSerializer<SykmeldingFilterRequest> = SykmeldingFilterRequest.serializer()
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -49,10 +47,6 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilterRequest, 
     ) {
         every { repositories.sykmeldingRepository.hentSykmelding(id) } returns resultat
     }
-
-    override fun lesDokumenterFraRespons(respons: HttpResponse): List<Sykmelding> = runBlocking { respons.body<List<Sykmelding>>() }
-
-    override fun lesEnkeltDokumentFraRespons(respons: HttpResponse): Sykmelding = runBlocking { respons.body<Sykmelding>() }
 
     override fun hentOrgnrFraDokument(dokument: Sykmelding): String = dokument.arbeidsgiver.orgnr.toString()
 }
