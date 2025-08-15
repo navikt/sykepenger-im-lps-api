@@ -346,8 +346,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
     private fun sjekkForespoerselFinnesIDb(
         oppdatertForespoerselId: UUID,
-        eksponertForespoerselId: UUID?,
-        vedtaksperiodeId: UUID?,
+        eksponertForespoerselId: UUID,
+        vedtaksperiodeId: UUID,
     ) = runBlocking {
         val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
         oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId

@@ -31,7 +31,7 @@ class ForespoerselRepository(
     fun lagreForespoersel(
         forespoersel: ForespoerselDokument,
         status: Status = Status.AKTIV,
-        eksponertForespoerselId: UUID? = null,
+        eksponertForespoerselId: UUID,
     ) {
         transaction(db) {
             ForespoerselEntitet.insert {
