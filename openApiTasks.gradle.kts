@@ -79,7 +79,7 @@ security:
                     }
                 }
 
-        // Legg til tags seksjon for å gruppere endepunkter
+        // Legg til tags for å gruppere endepunkter
         if (!content.contains("tags:")) {
             content =
                 content.replace(
@@ -88,62 +88,77 @@ security:
 tags:
   - name: "Sykmelding"
   - name: "Sykepengesøknad"
-  - name: "Forespørsel"
+  - name: "Forespørsel om inntektsmelding"
   - name: "Inntektsmelding"
 """,
                 )
-            println("Lagt til tags seksjon.")
             modified = true
         }
 
         val pathPatterns =
             mapOf(
-                // Match any HTTP method for each endpoint type with cleaner formatting
-                // Forespørsel endpoints
-                Regex("""(  /v1/forespoersel[^:]*:)(\s+)(get|post|put|delete|patch):(?!\s+tags:)""") to
-                    """$1$2$3:
-$2  tags:
-$2    - "Forespørsel"""",
-                Regex("""(  /v1/forespoersler:)(\s+)(get:)(?!\s+tags:)""") to
-                        """$1$2$3
-$2  tags:
-$2    - "Forespørsel"""",
-                Regex("""(  /v1/forespoersler:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
-                        """$1$2$3
-$2  tags:
-$2    - "Forespørsel"""",
-                // Sykmelding endpoints
-                Regex("""(  /v1/sykmelding[^:]*:)(\s+)(get|post|put|delete|patch):(?!\s+tags:)""") to
-                    """$1$2$3:
-$2  tags:
-$2    - "Sykmelding"""",
-                Regex("""(  /v1/sykmeldinger:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
-                        """$1$2$3
-$2  tags:
-$2    - "Sykmelding"""",
-                // Sykepengesøknad endpoints
-                Regex("""(  /v1/sykepengesoeknad[^:]*:)(\s+)(get|post|put|delete|patch):(?!\s+tags:)""") to
-                    """$1$2$3:
-$2  tags:
-$2    - "Sykepengesøknad"""",
-                Regex("""(  /v1/sykepengesoeknader:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
-                        """$1$2$3
-$2  tags:
-$2    - "Sykepengesøknad"""",
-                // Inntektsmelding endpoints
-                Regex("""(  /v1/inntektsmelding[^:]*:)(\s+)(get|post|put|delete|patch):(?!\s+tags:)""") to
-                        """$1$2$3:
-$2  tags:
-$2    - "Inntektsmelding"""",
+                // GET /v1/forespoersel/{navReferanseId}
+                Regex("""(  /v1/forespoersel/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                    """$1$2$3:$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: "Hent forespørsel"""",
 
-                Regex("""(  /v1/inntektsmeldinger:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:
-$2  tags:
-$2    - "Inntektsmelding"""",
+                // GET /v1/forespoersler
+                Regex("""(  /v1/forespoersler:)(\s+)(get:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/forespoersler istedenfor"""",
+
+                // POST /v1/forespoersler
+                Regex("""(  /v1/forespoersler:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: Hent forespørsler""",
+
+                // GET /v1/sykmelding/{sykmeldingId}
+                Regex("""(  /v1/sykmelding/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                    """$1$2$3:$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmelding"""",
+
+                // GET /v1/sykmeldinger
+                Regex("""(  /v1/sykmeldinger:)(\s+)(get:)(?!\s+tags:)""") to
+                        """$1$2$3$2  tags:$2    - "Sykmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/sykmeldinger istedenfor"""",
+
+                // POST /v1/sykmeldinger
+                Regex("""(  /v1/sykmeldinger:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmeldinger"""",
+
+                // GET /v1/sykepengesoeknad/{soeknadId}
+                Regex("""(  /v1/sykepengesoeknad/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                    """$1$2$3:$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknad"""",
+
+                // GET /v1/sykepengesoeknader
+                Regex("""(  /v1/sykepengesoeknader:)(\s+)(get:)(?!\s+tags:)""") to
+                        """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  deprecated: true$2  summary: "Bruk POST /v1/sykepengesoeknader istedenfor"""",
+
+                // POST /v1/sykepengesoeknader
+                Regex("""(  /v1/sykepengesoeknader:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknader"""",
+
+                // GET /v1/inntektsmelding/status/{status}
+                Regex("""(  /v1/inntektsmelding/status[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
+
+                // GET /v1/inntektsmelding/navreferanseId/{navReferanseId}
+                Regex("""(  /v1/inntektsmelding/navReferanseId[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
+
+                //GET /v1/inntektsmelding/{inntektsmeldingId}
+                Regex("""(  /v1/inntektsmelding/\{[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmelding"""",
+
+                // GET /v1/inntektsmeldinger
+                Regex("""(  /v1/inntektsmeldinger[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
+
+                // POST /v1/inntektsmeldinger
                 Regex("""(  /v1/inntektsmeldinger:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to
-                        """$1
-$2  tags:
-$2    - "Inntektsmelding"""",
+                    """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmeldinger"""",
+
+                // POST /v1/inntektsmelding
+                Regex("""(  /v1/inntektsmelding:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to
+                        """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Send inn inntektsmelding"""",
+
+                // Fjern helsesjekk-endepunkter
+                Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
             )
 
         var newContent = content
@@ -152,7 +167,7 @@ $2    - "Inntektsmelding"""",
         }
 
         if (newContent != content) {
-            println("Lagt til tags til endepunkter.")
+            println("Lagt til tags og sammendrag til endepunkter.")
             content = newContent
             modified = true
         }
