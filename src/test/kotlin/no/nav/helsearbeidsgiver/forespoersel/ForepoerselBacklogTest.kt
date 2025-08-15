@@ -45,12 +45,12 @@ class ForepoerselBacklogTest {
 
         forespoerselService.hentEksponertForespoerselId(forespoerselId) shouldBe forespoerselId
 
-        priMessage.forespoersel?.let {
-            priMessage.eksponertForespoerselId?.let { it1 ->
+        priMessage.forespoersel?.let { forespoersel ->
+            priMessage.eksponertForespoerselId?.let { eksponertFsp ->
                 forespoerselService.lagreEllerOppdaterForespoersel(
-                    it,
+                    forespoersel = forespoersel,
                     status = priMessage.status,
-                    eksponertForespoerselId = it1,
+                    eksponertForespoerselId = eksponertFsp,
                 )
             }
         }
