@@ -72,20 +72,20 @@ class InntektsmeldingRepository(
                 .map { it.toExposedInntektsmelding() }
         }
 
-    fun hent(request: InntektsmeldingFilter): List<InntektsmeldingResponse> =
+    fun hent(filter: InntektsmeldingFilter): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             val query =
                 InntektsmeldingEntitet
                     .selectAll()
-                    .where { orgnr eq request.orgnr }
+                    .where { orgnr eq filter.orgnr }
 
-            request.status?.let { query.andWhere { status eq it } }
-            request.innsendingId?.let { query.andWhere { innsendingId eq it } }
-            request.fnr?.let { query.andWhere { fnr eq it } }
-            request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
-            request.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
-            request.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
+            filter.status?.let { query.andWhere { status eq it } }
+            filter.innsendingId?.let { query.andWhere { innsendingId eq it } }
+            filter.fnr?.let { query.andWhere { fnr eq it } }
+            filter.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
+            filter.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
+            filter.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
             query.map { it.toExposedInntektsmelding() }
         }
 

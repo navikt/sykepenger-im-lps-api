@@ -37,7 +37,7 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselFilter, F
         filter: ForespoerselFilter,
         resultat: List<Forespoersel>,
     ) {
-        every { repositories.forespoerselRepository.hentForespoersler(request = filter) } returns resultat
+        every { repositories.forespoerselRepository.hentForespoersler(filter = filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(

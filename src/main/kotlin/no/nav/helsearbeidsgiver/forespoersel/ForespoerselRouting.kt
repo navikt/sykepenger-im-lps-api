@@ -97,12 +97,12 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
     // Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV.
     post("/forespoersler") {
         try {
-            val request = call.receive<ForespoerselFilter>()
+            val filter = call.receive<ForespoerselFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
-                    orgnumre = setOf(request.orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -111,9 +111,9 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${request.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respond(forespoerselService.filtrerForespoersler(request))
+            call.respond(forespoerselService.filtrerForespoersler(filter))
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {

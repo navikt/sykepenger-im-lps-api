@@ -41,7 +41,7 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
         filter: InntektsmeldingFilter,
         resultat: List<InntektsmeldingResponse>,
     ) {
-        every { repositories.inntektsmeldingRepository.hent(request = filter) } returns resultat
+        every { repositories.inntektsmeldingRepository.hent(filter = filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(

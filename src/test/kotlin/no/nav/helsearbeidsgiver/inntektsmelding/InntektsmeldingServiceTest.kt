@@ -123,7 +123,7 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsMeldingByRequest må kalle inntektsmeldingRepository`() {
+    fun `hentInntektsMelding må kalle inntektsmeldingRepository`() {
         val navReferanseId = UUID.randomUUID()
         val innsendingId = UUID.randomUUID()
         val orgnr = Orgnr.genererGyldig().toString()
@@ -132,7 +132,7 @@ class InntektsmeldingServiceTest {
         val datoTil = datoFra.plusDays(1)
         val innsendt = LocalDateTime.now()
         val skjema = buildInntektsmelding(forespoerselId = navReferanseId).tilSkjema()
-        val request =
+        val filter =
             InntektsmeldingFilter(
                 orgnr = orgnr,
                 fnr = fnr,
@@ -140,7 +140,7 @@ class InntektsmeldingServiceTest {
                 fom = datoFra,
                 tom = datoTil,
             )
-        every { inntektsmeldingRepository.hent(request = request) } returns
+        every { inntektsmeldingRepository.hent(filter = filter) } returns
             listOf(
                 InntektsmeldingResponse(
                     navReferanseId = navReferanseId,
@@ -159,13 +159,13 @@ class InntektsmeldingServiceTest {
                     id = innsendingId,
                 ),
             )
-        val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(request)
+        val hentInntektsMelding = inntektsmeldingService.hentInntektsMelding(filter)
 
         verify {
-            inntektsmeldingRepository.hent(request = request)
+            inntektsmeldingRepository.hent(filter = filter)
         }
-        assertEquals(1, hentInntektsMeldingByRequest.size)
-        val inntektsmelding = hentInntektsMeldingByRequest[0]
+        assertEquals(1, hentInntektsMelding.size)
+        val inntektsmelding = hentInntektsMelding[0]
         assertEquals(navReferanseId, inntektsmelding.navReferanseId)
         assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
         assertEquals(fnr, inntektsmelding.sykmeldtFnr)
@@ -194,8 +194,8 @@ class InntektsmeldingServiceTest {
                 fom = datoFra,
                 tom = datoTil,
             )
-        every { inntektsmeldingRepository.hent(request = request) } throws Exception()
-        assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(request) }
+        every { inntektsmeldingRepository.hent(filter = request) } throws Exception()
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsMelding(request) }
     }
 
     @Test

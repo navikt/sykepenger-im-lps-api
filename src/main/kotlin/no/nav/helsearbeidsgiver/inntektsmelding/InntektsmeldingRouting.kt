@@ -120,13 +120,13 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     // Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
     post("/inntektsmeldinger") {
         try {
-            val request = call.receive<InntektsmeldingFilter>()
+            val filter = call.receive<InntektsmeldingFilter>()
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
-                    orgnumre = setOf(request.orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -135,11 +135,11 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${request.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             inntektsmeldingService
-                .hentInntektsMeldingByRequest(
-                    request = request,
+                .hentInntektsMelding(
+                    filter = filter,
                 ).let {
                     call.respond(it)
                 }
@@ -248,7 +248,7 @@ private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmelding
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
             inntektsmeldingService
-                .hentInntektsMeldingByRequest(
+                .hentInntektsMelding(
                     InntektsmeldingFilter(
                         orgnr = sluttbrukerOrgnr,
                         navReferanseId = navReferanseId,
@@ -273,7 +273,7 @@ private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmelding
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
             inntektsmeldingService
-                .hentInntektsMeldingByRequest(
+                .hentInntektsMelding(
                     InntektsmeldingFilter(
                         orgnr = sluttbrukerOrgnr,
                         status = status,

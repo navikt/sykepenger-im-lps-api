@@ -64,7 +64,7 @@ class ForespoerselRoutingTest : ApiTest() {
         val antallForventedeForespoersler = 3
         every {
             repositories.forespoerselRepository.hentForespoersler(
-                request = ForespoerselFilter(orgnr = DEFAULT_ORG),
+                filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
             )
         } returns
             List(
@@ -109,7 +109,7 @@ class ForespoerselRoutingTest : ApiTest() {
     fun `returnerer tom liste når det ikke er noen forespørsler på et orgnr`() {
         every {
             repositories.forespoerselRepository.hentForespoersler(
-                request = ForespoerselFilter(orgnr = DEFAULT_ORG),
+                filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
             )
         } returns emptyList()
 

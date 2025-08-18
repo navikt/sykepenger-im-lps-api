@@ -196,12 +196,12 @@ class InntektsmeldingRepositoryTest {
         repository.oppdaterStatus(inntektsmelding1, nyStatus = InnsendingStatus.GODKJENT)
         val oppdatertInntektsmelding =
             repository.hent(
-                request = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
         val ikkeOppdatertInntektsmelding =
             repository.hent(
-                request = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
             )[0]
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }
