@@ -126,8 +126,8 @@ class InntektsmeldingServiceTest {
     fun `hentInntektsMelding må kalle inntektsmeldingRepository`() {
         val navReferanseId = UUID.randomUUID()
         val innsendingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig().toString()
-        val fnr = Fnr.genererGyldig().toString()
+        val orgnr = Orgnr.genererGyldig().verdi
+        val fnr = Fnr.genererGyldig().verdi
         val datoFra = LocalDate.now()
         val datoTil = datoFra.plusDays(1)
         val innsendt = LocalDateTime.now()
