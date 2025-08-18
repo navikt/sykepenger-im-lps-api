@@ -94,7 +94,7 @@ private fun Route.sykmeldinger(sykmeldingService: SykmeldingService) {
 }
 
 private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
-    // Filtrer sykmeldinger på fnr og / eller dato sykmeldingen ble mottatt av NAV.
+    // Filtrer sykmeldinger på orgnr (underenhet), fnr og/eller dato sykmeldingen ble mottatt av NAV.
     post("/sykmeldinger") {
         try {
             val request = call.receive<SykmeldingFilter>()

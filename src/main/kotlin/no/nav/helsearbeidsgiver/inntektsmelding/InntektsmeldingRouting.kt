@@ -117,7 +117,7 @@ private fun Route.sendInntektsmelding(services: Services) {
 }
 
 private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
-    // Filtrer inntektsmeldinger på fnr, innsendingId, navReferanseId, status og / eller dato inntektsmeldingen ble mottatt av NAV.
+    // Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
     post("/inntektsmeldinger") {
         try {
             val request = call.receive<InntektsmeldingFilter>()
