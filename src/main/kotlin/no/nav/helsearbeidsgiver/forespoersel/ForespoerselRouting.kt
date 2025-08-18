@@ -94,8 +94,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 }
 
 private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
-    // Filtrer forespørsler basert på request.
-    // Filterparametre fom og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet av Nav).
+    // Filtrer forespørsler om inntektsmelding på fnr, navReferanseId, status og / eller dato forespørselen ble opprettet av NAV.
     post("/forespoersler") {
         try {
             val request = call.receive<ForespoerselFilter>()

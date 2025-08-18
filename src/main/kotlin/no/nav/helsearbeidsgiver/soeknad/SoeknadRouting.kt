@@ -94,9 +94,8 @@ private fun Route.soeknader(soeknadService: SoeknadService) {
 }
 
 private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
-    // Filtrer søknader på fnr, underenhet og / eller dato (mottattAvNav)
+    // Filtrer søknader på fnr og / eller dato søknaden ble mottatt av NAV.
     post("/sykepengesoeknader") {
-        // Hent alle søknader for et orgnr, filtrert med parametere
         try {
             val request = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }

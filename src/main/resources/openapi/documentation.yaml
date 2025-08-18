@@ -122,9 +122,8 @@ paths:
       tags:
         - "Forespørsel om inntektsmelding"
       summary: Hent forespørsler
-      description: "Filtrer forespørsler basert på request. <br> Filterparametre fom\
-        \ og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet\
-        \ av Nav)."
+      description: "Filtrer forespørsler om inntektsmelding på fnr, navReferanseId,\
+        \ status og / eller dato forespørselen ble opprettet av NAV."
       requestBody:
         content:
           application/json:
@@ -428,7 +427,8 @@ paths:
       tags:
         - "Inntektsmelding"
       summary: "Hent inntektsmeldinger"
-      description: "Hent inntektsmeldinger, filtrer basert på request"
+      description: "Filtrer inntektsmeldinger på fnr, innsendingId, navReferanseId,\
+        \ status og / eller dato inntektsmeldingen ble mottatt av NAV."
       requestBody:
         content:
           application/json:
@@ -575,7 +575,8 @@ paths:
       tags:
         - "Sykepengesøknad"
       summary: "Hent sykepengesøknader"
-      description: "Filtrer søknader på fnr, underenhet og / eller dato (mottattAvNav)"
+      description: "Filtrer søknader på fnr og / eller dato søknaden ble mottatt av\
+        \ NAV."
       requestBody:
         content:
           application/json:
@@ -624,14 +625,14 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av sykepengesøknader"
-  /v1/sykmelding/{id}:
+  /v1/sykmelding/{sykmeldingId}:
     get:
       tags:
         - "Sykmelding"
       summary: "Hent sykmelding"
       description: "Hent sykmelding med sykmeldingId"
       parameters:
-        - name: "id"
+        - name: "sykmeldingId"
           in: "path"
           required: true
           schema:
@@ -720,7 +721,8 @@ paths:
       tags:
         - "Sykmelding"
       summary: "Hent sykmeldinger"
-      description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
+      description: "Filtrer sykmeldinger på fnr og / eller dato sykmeldingen ble mottatt\
+        \ av NAV."
       requestBody:
         content:
           application/json:

@@ -30,9 +30,9 @@ fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
 
 private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
     // Hent sykmelding med sykmeldingId
-    get("/sykmelding/{id}") {
+    get("/sykmelding/{sykmeldingId}") {
         try {
-            val sykmeldingId = call.parameters["id"]?.toUuidOrNull()
+            val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
             requireNotNull(sykmeldingId) { "navReferanseId: $sykmeldingId ikke gyldig UUID" }
 
             val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
@@ -94,9 +94,8 @@ private fun Route.sykmeldinger(sykmeldingService: SykmeldingService) {
 }
 
 private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
-    // Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)
+    // Filtrer sykmeldinger på fnr og / eller dato sykmeldingen ble mottatt av NAV.
     post("/sykmeldinger") {
-        // Hent alle sykmeldinger for et orgnr, filtrert med parametere
         try {
             val request = call.receive<SykmeldingFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
