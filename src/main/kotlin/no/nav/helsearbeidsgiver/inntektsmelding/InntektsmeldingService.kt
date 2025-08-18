@@ -25,7 +25,7 @@ class InntektsmeldingService(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
-                "Bruk hentInntektsMeldingByRequest(orgnr: String, request: InntektsmeldingFilter) istedenfor.",
+                "Bruk hentInntektsMeldingByRequest(request: InntektsmeldingFilter) istedenfor.",
         level = DeprecationLevel.WARNING,
     )
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<InntektsmeldingResponse> {

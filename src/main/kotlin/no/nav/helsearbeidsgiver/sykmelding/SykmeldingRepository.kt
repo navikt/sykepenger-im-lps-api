@@ -57,7 +57,7 @@ class SykmeldingRepository(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/sykmeldinger ." +
-                "Bruk hentSykmeldinger(orgnr: String, filter: SykmeldingFilter) istedenfor.",
+                "Bruk hentSykmeldinger(filter: SykmeldingFilter) istedenfor.",
     )
     fun hentSykmeldinger(orgnr: String): List<SykmeldingDTO> =
         transaction(db) {

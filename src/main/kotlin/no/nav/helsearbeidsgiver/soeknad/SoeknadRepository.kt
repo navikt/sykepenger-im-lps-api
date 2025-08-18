@@ -44,7 +44,7 @@ class SoeknadRepository(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/soeknader ." +
-                "Bruk hentSoeknader(orgnr: String, filter: SykepengesoeknadFilter) istedenfor.",
+                "Bruk hentSoeknader(filter: SykepengesoeknadFilter) istedenfor.",
     )
     fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
         transaction(db) {
