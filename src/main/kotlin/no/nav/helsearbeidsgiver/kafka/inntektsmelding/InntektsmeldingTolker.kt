@@ -45,7 +45,15 @@ class InntektsmeldingTolker(
     }
 
     private fun innsendtFraNavPortal(type: Inntektsmelding.Type): Boolean =
-        type is Inntektsmelding.Type.Forespurt || type is Inntektsmelding.Type.Selvbestemt
+        when (type) {
+            is Inntektsmelding.Type.Forespurt,
+            is Inntektsmelding.Type.Selvbestemt,
+            is Inntektsmelding.Type.Fisker,
+            is Inntektsmelding.Type.UtenArbeidsforhold,
+            is Inntektsmelding.Type.Behandlingsdager,
+            -> true
+            is Inntektsmelding.Type.ForespurtEkstern -> false
+        }
 
     private fun parseRecord(record: String): JournalfoertInntektsmelding = jsonMapper.decodeFromString<JournalfoertInntektsmelding>(record)
 }
