@@ -25,7 +25,7 @@ class InntektsmeldingService(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
-                "Bruk hentInntektsMeldingByRequest(orgnr: String, request: InntektsmeldingFilterRequest) istedenfor.",
+                "Bruk hentInntektsMelding(filter: InntektsmeldingFilter) istedenfor.",
         level = DeprecationLevel.WARNING,
     )
     fun hentInntektsmeldingerByOrgNr(orgnr: String): List<InntektsmeldingResponse> {
@@ -41,20 +41,17 @@ class InntektsmeldingService(
         throw RuntimeException("Feil ved henting av inntektsmeldinger for orgnr: $orgnr")
     }
 
-    fun hentInntektsMeldingByRequest(
-        orgnr: String,
-        request: InntektsmeldingFilterRequest,
-    ): List<InntektsmeldingResponse> {
+    fun hentInntektsMelding(filter: InntektsmeldingFilter): List<InntektsmeldingResponse> {
         runCatching {
-            sikkerLogger().info("Henter inntektsmeldinger for request: $request")
-            inntektsmeldingRepository.hent(orgnr = orgnr, request = request)
+            sikkerLogger().info("Henter inntektsmeldinger for request: $filter")
+            inntektsmeldingRepository.hent(filter = filter)
         }.onSuccess {
-            sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $request")
+            sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $filter")
             return it
         }.onFailure {
-            sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $request", it)
+            sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $filter", it)
         }
-        throw RuntimeException("Feil ved henting av inntektsmeldinger for request: $request")
+        throw RuntimeException("Feil ved henting av inntektsmeldinger for request: $filter")
     }
 
     fun hentInntektsmeldingMedInnsendingId(innsendingId: UUID): InntektsmeldingResponse? {

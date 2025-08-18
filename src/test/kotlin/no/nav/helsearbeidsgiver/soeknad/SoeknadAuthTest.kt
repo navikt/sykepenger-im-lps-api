@@ -38,7 +38,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
             .medId(id)
             .medOrgnr(orgnr)
 
-    override fun lagFilter(orgnr: String?): SykepengesoeknadFilter = SykepengesoeknadFilter(orgnr = orgnr)
+    override fun lagFilter(orgnr: String): SykepengesoeknadFilter = SykepengesoeknadFilter(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
@@ -48,11 +48,10 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     }
 
     override fun mockHentingAvDokumenter(
-        orgnr: String,
         filter: SykepengesoeknadFilter,
         resultat: List<SykepengesoknadDTO>,
     ) {
-        every { repositories.soeknadRepository.hentSoeknader(orgnr, filter) } returns resultat
+        every { repositories.soeknadRepository.hentSoeknader(filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(
@@ -110,7 +109,6 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
             )
 
         mockHentingAvDokumenter(
-            orgnr = underenhetOrgnrMedPdpTilgang,
             filter = filter,
             resultat = soeknaderSomSkalVisesTilArbeidsgiver + soeknadSomIkkeSkalVisesTilArbeidsgiver,
         )

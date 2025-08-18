@@ -9,7 +9,10 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.tilSkjema
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
@@ -120,23 +123,24 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsMeldingByRequest må kalle inntektsmeldingRepository`() {
+    fun `hentInntektsMelding må kalle inntektsmeldingRepository`() {
         val navReferanseId = UUID.randomUUID()
         val innsendingId = UUID.randomUUID()
-        val orgnr = "987654322"
-        val fnr = "12345678901"
+        val orgnr = Orgnr.genererGyldig().verdi
+        val fnr = Fnr.genererGyldig().verdi
         val datoFra = LocalDate.now()
         val datoTil = datoFra.plusDays(1)
         val innsendt = LocalDateTime.now()
         val skjema = buildInntektsmelding(forespoerselId = navReferanseId).tilSkjema()
-        val request =
-            InntektsmeldingFilterRequest(
+        val filter =
+            InntektsmeldingFilter(
+                orgnr = orgnr,
                 fnr = fnr,
                 navReferanseId = navReferanseId,
                 fom = datoFra,
                 tom = datoTil,
             )
-        every { inntektsmeldingRepository.hent(orgnr = orgnr, request = request) } returns
+        every { inntektsmeldingRepository.hent(filter = filter) } returns
             listOf(
                 InntektsmeldingResponse(
                     navReferanseId = navReferanseId,
@@ -155,13 +159,13 @@ class InntektsmeldingServiceTest {
                     id = innsendingId,
                 ),
             )
-        val hentInntektsMeldingByRequest = inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request)
+        val hentInntektsMelding = inntektsmeldingService.hentInntektsMelding(filter)
 
         verify {
-            inntektsmeldingRepository.hent(orgnr = orgnr, request = request)
+            inntektsmeldingRepository.hent(filter = filter)
         }
-        assertEquals(1, hentInntektsMeldingByRequest.size)
-        val inntektsmelding = hentInntektsMeldingByRequest[0]
+        assertEquals(1, hentInntektsMelding.size)
+        val inntektsmelding = hentInntektsMelding[0]
         assertEquals(navReferanseId, inntektsmelding.navReferanseId)
         assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
         assertEquals(fnr, inntektsmelding.sykmeldtFnr)
@@ -177,20 +181,21 @@ class InntektsmeldingServiceTest {
 
     @Test
     fun `hentInntektsMeldingByRequest should return empty list on failure`() {
-        val orgnr = "987654322"
-        val fnr = "12345678901"
+        val orgnr = Orgnr.genererGyldig().toString()
+        val fnr = Fnr.genererGyldig().toString()
         val navReferanseId = UUID.randomUUID()
         val datoFra = LocalDate.now()
         val datoTil = datoFra.plusDays(1)
         val request =
-            InntektsmeldingFilterRequest(
+            InntektsmeldingFilter(
+                orgnr = orgnr,
                 fnr = fnr,
                 navReferanseId = navReferanseId,
                 fom = datoFra,
                 tom = datoTil,
             )
-        every { inntektsmeldingRepository.hent(orgnr = orgnr, request = request) } throws Exception()
-        assertThrows<Exception> { inntektsmeldingService.hentInntektsMeldingByRequest(orgnr, request) }
+        every { inntektsmeldingRepository.hent(filter = request) } throws Exception()
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsMelding(request) }
     }
 
     @Test

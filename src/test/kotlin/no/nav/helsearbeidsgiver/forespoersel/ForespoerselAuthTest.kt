@@ -6,13 +6,13 @@ import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import java.util.UUID
 
-class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, Forespoersel>() {
+class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselFilter, Forespoersel>() {
     override val filtreringEndepunkt = "/v1/forespoersler"
     override val enkeltDokumentEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
 
     override val dokumentSerializer: KSerializer<Forespoersel> = Forespoersel.serializer()
-    override val filterSerializer: KSerializer<ForespoerselRequest> = ForespoerselRequest.serializer()
+    override val filterSerializer: KSerializer<ForespoerselFilter> = ForespoerselFilter.serializer()
 
     override fun mockDokument(
         id: UUID,
@@ -24,21 +24,20 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselRequest, 
                 navReferanseId = id,
             )
 
-    override fun lagFilter(orgnr: String?): ForespoerselRequest = ForespoerselRequest(orgnr = orgnr)
+    override fun lagFilter(orgnr: String): ForespoerselFilter = ForespoerselFilter(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         orgnr: String,
         resultat: List<Forespoersel>,
     ) {
-        every { repositories.forespoerselRepository.hentForespoersler(orgnr) } returns resultat
+        every { repositories.forespoerselRepository.hentForespoersler(orgnr = orgnr) } returns resultat
     }
 
     override fun mockHentingAvDokumenter(
-        orgnr: String,
-        filter: ForespoerselRequest,
+        filter: ForespoerselFilter,
         resultat: List<Forespoersel>,
     ) {
-        every { repositories.forespoerselRepository.hentForespoersler(orgnr, filter) } returns resultat
+        every { repositories.forespoerselRepository.hentForespoersler(filter = filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(

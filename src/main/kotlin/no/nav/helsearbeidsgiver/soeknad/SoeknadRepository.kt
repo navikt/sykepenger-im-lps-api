@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sis.StatusISpeilEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.fnr
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.opprettet
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.orgnr
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -43,7 +44,7 @@ class SoeknadRepository(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/soeknader ." +
-                "Bruk hentSoeknader(orgnr: String, filter: SykepengesoeknadFilter) istedenfor.",
+                "Bruk hentSoeknader(filter: SykepengesoeknadFilter) istedenfor.",
     )
     fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
         transaction(db) {
@@ -53,15 +54,12 @@ class SoeknadRepository(
                 .map { it[sykepengesoeknad] }
         }
 
-    fun hentSoeknader(
-        orgnr: String,
-        filter: SykepengesoeknadFilter,
-    ): List<SykepengesoknadDTO> =
+    fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengesoknadDTO> =
         transaction(db) {
             val query =
                 SoeknadEntitet
                     .selectAll()
-                    .andWhere { SoeknadEntitet.orgnr eq orgnr }
+                    .andWhere { orgnr eq filter.orgnr }
             filter.fnr?.let {
                 query.andWhere { fnr eq it }
             }

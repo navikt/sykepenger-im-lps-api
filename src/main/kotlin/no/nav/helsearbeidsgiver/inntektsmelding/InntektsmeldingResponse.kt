@@ -84,8 +84,8 @@ data class Avsender(
 )
 
 @Serializable
-data class InntektsmeldingFilterRequest(
-    val orgnr: String? = null,
+data class InntektsmeldingFilter(
+    val orgnr: String,
     val innsendingId: UUID? = null,
     val fnr: String? = null,
     val navReferanseId: UUID? = null,
@@ -94,7 +94,7 @@ data class InntektsmeldingFilterRequest(
     val status: InnsendingStatus? = null,
 ) {
     init {
-        orgnr?.let { require(erGyldig(orgnr)) }
+        require(erGyldig(orgnr))
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring

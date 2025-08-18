@@ -99,23 +99,20 @@ class ForespoerselRepository(
                 }
         }
 
-    fun hentForespoersler(
-        orgnr: String,
-        request: ForespoerselRequest,
-    ): List<Forespoersel> =
+    fun hentForespoersler(filter: ForespoerselFilter): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
             val query =
                 ForespoerselEntitet
                     .selectAll()
                     .where {
-                        ForespoerselEntitet.orgnr eq orgnr
+                        orgnr eq filter.orgnr
                     }
-            request.fnr?.let { query.andWhere { fnr eq it } }
-            request.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
-            request.status?.let { query.andWhere { status eq it } }
-            request.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
-            request.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
+            filter.fnr?.let { query.andWhere { fnr eq it } }
+            filter.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
+            filter.status?.let { query.andWhere { status eq it } }
+            filter.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
+            filter.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
             query.map {
                 it.toExposedforespoersel()
             }

@@ -75,8 +75,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
         val antallForventedeInntektsmeldinger = 3
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = DEFAULT_ORG,
-                request = InntektsmeldingFilterRequest(orgnr = DEFAULT_ORG),
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG),
             )
         } returns
             List(
@@ -95,9 +94,9 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        InntektsmeldingFilterRequest(
+                        InntektsmeldingFilter(
                             orgnr = DEFAULT_ORG,
-                        ).toJson(serializer = InntektsmeldingFilterRequest.serializer()),
+                        ).toJson(serializer = InntektsmeldingFilter.serializer()),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
@@ -129,8 +128,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     fun `returnerer tom liste når det ikke er noen inntektsmeldinger på et orgnr`() {
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = any(),
-                request = any(),
+                filter = any(),
             )
         } returns emptyList()
 
@@ -139,9 +137,9 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        InntektsmeldingFilterRequest(
+                        InntektsmeldingFilter(
                             orgnr = DEFAULT_ORG,
-                        ).toJson(serializer = InntektsmeldingFilterRequest.serializer()),
+                        ).toJson(serializer = InntektsmeldingFilter.serializer()),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
@@ -171,11 +169,12 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        InntektsmeldingFilterRequestUtenValidering(
+                        InntektsmeldingFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().minusYears(3001),
                             tom = LocalDate.now().minusYears(3000),
                         ).toJson(
-                            serializer = InntektsmeldingFilterRequestUtenValidering.serializer(),
+                            serializer = InntektsmeldingFilterUtenValidering.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -191,11 +190,31 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        InntektsmeldingFilterRequestUtenValidering(
+                        InntektsmeldingFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().plusYears(10000),
                             tom = LocalDate.now().plusYears(10001),
                         ).toJson(
-                            serializer = InntektsmeldingFilterRequestUtenValidering.serializer(),
+                            serializer = InntektsmeldingFilterUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 dersom man forsøker å hente inntektsmeldinger uten å spesifisere orgnr i filteret`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterUtenValidering(
+                            orgnr = null,
+                        ).toJson(
+                            serializer = InntektsmeldingFilterUtenValidering.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -213,16 +232,16 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        InntektsmeldingFilterRequestUtenValidering(
+                        InntektsmeldingFilterUtenValidering(
                             orgnr = orgnr,
                         ).toJson(
-                            serializer = InntektsmeldingFilterRequestUtenValidering.serializer(),
+                            serializer = InntektsmeldingFilterUtenValidering.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
-            verify(exactly = 0) { repo.hent(any(), any()) }
+            verify(exactly = 0) { repo.hent(filter = any()) }
         }
     }
 
@@ -253,9 +272,9 @@ class InntektsmeldingRoutingTest : ApiTest() {
             buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = DEFAULT_ORG,
-                request =
-                    InntektsmeldingFilterRequest(
+                filter =
+                    InntektsmeldingFilter(
+                        orgnr = DEFAULT_ORG,
                         status = statusMottatt,
                     ),
             )
@@ -281,9 +300,9 @@ class InntektsmeldingRoutingTest : ApiTest() {
             buildInntektsmelding(orgnr = Orgnr(DEFAULT_ORG))
         every {
             repositories.inntektsmeldingRepository.hent(
-                orgnr = DEFAULT_ORG,
-                request =
-                    InntektsmeldingFilterRequest(
+                filter =
+                    InntektsmeldingFilter(
+                        orgnr = DEFAULT_ORG,
                         navReferanseId = inntektsmelding.id,
                     ),
             )
@@ -304,7 +323,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Serializable
-    data class InntektsmeldingFilterRequestUtenValidering(
+    data class InntektsmeldingFilterUtenValidering(
         val orgnr: String? = null,
         val innsendingId: UUID? = null,
         val fnr: String? = null,

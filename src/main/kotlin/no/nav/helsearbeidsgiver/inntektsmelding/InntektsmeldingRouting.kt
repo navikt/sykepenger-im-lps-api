@@ -92,9 +92,11 @@ private fun Route.sendInntektsmelding(services: Services) {
                     vedtaksperiodeId = vedtaksperiodeId,
                 )
             val eksponertForespoerselId =
-                services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId) ?: request.navReferanseId
+                services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
+                    ?: request.navReferanseId
 
-            val innsending = request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
+            val innsending =
+                request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
 
             if (
                 sisteInntektsmelding != null &&
@@ -115,17 +117,16 @@ private fun Route.sendInntektsmelding(services: Services) {
 }
 
 private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
-    // Hent inntektsmeldinger, filtrer basert på request
+    // Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
     post("/inntektsmeldinger") {
         try {
-            val request = call.receive<InntektsmeldingFilterRequest>()
+            val filter = call.receive<InntektsmeldingFilter>()
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
-            val orgnr = request.orgnr ?: systembrukerOrgnr
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
-                    orgnumre = setOf(orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -134,12 +135,11 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             inntektsmeldingService
-                .hentInntektsMeldingByRequest(
-                    orgnr = orgnr,
-                    request = request,
+                .hentInntektsMelding(
+                    filter = filter,
                 ).let {
                     call.respond(it)
                 }
@@ -248,9 +248,9 @@ private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmelding
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med navReferanseId: [$navReferanseId]")
             inntektsmeldingService
-                .hentInntektsMeldingByRequest(
-                    sluttbrukerOrgnr,
-                    InntektsmeldingFilterRequest(
+                .hentInntektsMelding(
+                    InntektsmeldingFilter(
+                        orgnr = sluttbrukerOrgnr,
                         navReferanseId = navReferanseId,
                     ),
                 ).let {
@@ -273,9 +273,9 @@ private fun Route.hentInntektsmeldingerForNavReferanseIdOgStatus(inntektsmelding
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter inntektsmelding med status: [$status]")
             inntektsmeldingService
-                .hentInntektsMeldingByRequest(
-                    sluttbrukerOrgnr,
-                    InntektsmeldingFilterRequest(
+                .hentInntektsMelding(
+                    InntektsmeldingFilter(
+                        orgnr = sluttbrukerOrgnr,
                         status = status,
                     ),
                 ).let {
