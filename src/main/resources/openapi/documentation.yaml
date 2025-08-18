@@ -1275,9 +1275,6 @@ components:
             - "FERIE"
             - "PERMISJON"
             - "UTLANDSOPPHOLD"
-            - "UTDANNING_FULLTID"
-            - "UTDANNING_DELTID"
-            - "UKJENT"
       required:
         - "fom"
         - "type"
