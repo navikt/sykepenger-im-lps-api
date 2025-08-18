@@ -46,10 +46,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -96,11 +92,7 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
                   value: "Ikke tilgang til ressurs"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -142,10 +134,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -205,10 +193,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "409":
           description: "Conflict"
           content:
@@ -263,10 +247,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -316,10 +296,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -362,10 +338,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -401,10 +373,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -447,10 +415,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -512,10 +476,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -549,10 +509,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -595,10 +551,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -655,10 +607,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
           content:
@@ -695,10 +643,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -741,10 +685,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
