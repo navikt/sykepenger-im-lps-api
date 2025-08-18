@@ -137,13 +137,6 @@ class ForespoerselService(
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
     }
 
-    fun oppdaterStatus(
-        navReferanseId: UUID,
-        status: Status,
-    ) {
-        forespoerselRepository.oppdaterStatus(navReferanseId, status)
-    }
-
     private fun endreStatusAktivForespoersel(eksponertForespoerselId: UUID) {
         val ef = forespoerselRepository.finnAktivForespoersler(eksponertForespoerselId)
         if (ef == null) {
@@ -171,12 +164,21 @@ class ForespoerselService(
         return false
     }
 
-    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID? = forespoerselRepository.hentEksponertForespoerselId(forespoerselId)
+    fun hentEksponertForespoerselId(forespoerselId: UUID): UUID =
+        forespoerselRepository
+            .hentEksponertForespoerselId(forespoerselId)
+            ?.also {
+                logger().info("Hentet eksponert forespørsel med id: $it for forespørsel med id: $forespoerselId")
+            }
+            ?: run {
+                logger().error("Forespørsel med id: $forespoerselId finnes ikke")
+                throw NoSuchElementException("Forespørsel med id: $forespoerselId finnes ikke")
+            }
 
     fun lagreEllerOppdaterForespoersel(
         forespoersel: ForespoerselDokument,
         status: Status?,
-        eksponertForespoerselId: UUID?,
+        eksponertForespoerselId: UUID,
     ) {
         val hentet = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
 
@@ -195,18 +197,14 @@ class ForespoerselService(
             forespoerselRepository.oppdaterStatus(forespoersel.forespoerselId, status)
         }
         val hentEksponertForespoerselId = hentEksponertForespoerselId(forespoersel.forespoerselId)
-        if (hentEksponertForespoerselId == null ||
-            hentEksponertForespoerselId != eksponertForespoerselId
-        ) {
+        if (hentEksponertForespoerselId != eksponertForespoerselId) {
             logger().info(
                 "Forespørsel med id: ${forespoersel.forespoerselId} oppdaterer eksponertForespoerselId til: $eksponertForespoerselId.",
             )
-            if (eksponertForespoerselId != null) {
-                forespoerselRepository.oppdaterEksponertForespoerselId(
-                    forespoersel.forespoerselId,
-                    eksponertForespoerselId,
-                )
-            }
+            forespoerselRepository.oppdaterEksponertForespoerselId(
+                forespoersel.forespoerselId,
+                eksponertForespoerselId,
+            )
             return
         }
 

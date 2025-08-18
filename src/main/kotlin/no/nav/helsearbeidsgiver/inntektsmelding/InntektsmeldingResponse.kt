@@ -64,6 +64,7 @@ enum class InnsendingType {
                 is Inntektsmelding.Type.Selvbestemt,
                 is Inntektsmelding.Type.Fisker,
                 is Inntektsmelding.Type.UtenArbeidsforhold,
+                is Inntektsmelding.Type.Behandlingsdager,
                 -> ARBEIDSGIVER_INITIERT
                 is Inntektsmelding.Type.ForespurtEkstern -> FORESPURT_EKSTERN
             }

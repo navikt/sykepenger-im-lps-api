@@ -42,6 +42,7 @@ class ForespoerselRepositoryTest {
         val forespoerselID = UUID.randomUUID()
         forespoerselRepository.lagreForespoersel(
             forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID),
+            eksponertForespoerselId = forespoerselID,
         )
         val forespoersler = forespoerselRepository.hentForespoersler(DEFAULT_ORG)
         forespoersler.size shouldBe 1
@@ -55,14 +56,17 @@ class ForespoerselRepositoryTest {
     fun hentVedtaksperiodeId() {
         val dokument = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
         dokument.forespoerselId
-        forespoerselRepository.lagreForespoersel(dokument, Status.AKTIV)
+        forespoerselRepository.lagreForespoersel(dokument, Status.AKTIV, eksponertForespoerselId = dokument.forespoerselId)
         forespoerselRepository.hentVedtaksperiodeId(dokument.forespoerselId) shouldBe dokument.vedtaksperiodeId
     }
 
     @Test
     fun settForkastet() {
         val forespoerselID = UUID.randomUUID()
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID))
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID),
+            eksponertForespoerselId = forespoerselID,
+        )
 
         forespoerselRepository.oppdaterStatus(forespoerselID, Status.FORKASTET)
         forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.FORKASTET
@@ -72,8 +76,14 @@ class ForespoerselRepositoryTest {
     fun hentForespoerslerForOrgnr() {
         val forespoerselID1 = UUID.randomUUID()
         val forespoerselID2 = UUID.randomUUID()
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1))
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2))
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1),
+            eksponertForespoerselId = forespoerselID1,
+        )
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2),
+            eksponertForespoerselId = forespoerselID2,
+        )
 
         val forespoersler = forespoerselRepository.hentForespoersler(DEFAULT_ORG)
         forespoersler.size shouldBe 2
@@ -83,8 +93,14 @@ class ForespoerselRepositoryTest {
     fun filtrerForespoersler() {
         val forespoerselID1 = UUID.randomUUID()
         val forespoerselID2 = UUID.randomUUID()
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1))
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2))
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1),
+            eksponertForespoerselId = forespoerselID1,
+        )
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2),
+            eksponertForespoerselId = forespoerselID2,
+        )
 
         val request =
             ForespoerselFilter(
@@ -105,10 +121,19 @@ class ForespoerselRepositoryTest {
         val forespoerselID1 = UUID.randomUUID()
         val forespoerselID2 = UUID.randomUUID()
         val forespoerselID3 = UUID.randomUUID()
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1))
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2))
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1),
+            eksponertForespoerselId = forespoerselID1,
+        )
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2),
+            eksponertForespoerselId = forespoerselID2,
+        )
         every { LocalDateTime.now() } returns now.plusDays(1)
-        forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID3))
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID3),
+            eksponertForespoerselId = forespoerselID3,
+        )
         val request =
             ForespoerselFilter(
                 orgnr = DEFAULT_ORG,
