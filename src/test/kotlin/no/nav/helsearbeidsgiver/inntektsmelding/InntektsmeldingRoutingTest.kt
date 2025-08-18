@@ -170,6 +170,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
                     contentType(ContentType.Application.Json)
                     setBody(
                         InntektsmeldingFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().minusYears(3001),
                             tom = LocalDate.now().minusYears(3000),
                         ).toJson(
@@ -190,8 +191,28 @@ class InntektsmeldingRoutingTest : ApiTest() {
                     contentType(ContentType.Application.Json)
                     setBody(
                         InntektsmeldingFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
                             fom = LocalDate.now().plusYears(10000),
                             tom = LocalDate.now().plusYears(10001),
+                        ).toJson(
+                            serializer = InntektsmeldingFilterUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 dersom man forsøker å hente inntektsmeldinger uten å spesifisere orgnr i filteret`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterUtenValidering(
+                            orgnr = null,
                         ).toJson(
                             serializer = InntektsmeldingFilterUtenValidering.serializer(),
                         ),
