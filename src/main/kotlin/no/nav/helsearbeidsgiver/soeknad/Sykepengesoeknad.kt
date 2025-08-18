@@ -83,8 +83,5 @@ data class Sykepengesoeknad(
         FERIE,
         PERMISJON,
         UTLANDSOPPHOLD, // Skal vi fjerne denne?
-        UTDANNING_FULLTID,
-        UTDANNING_DELTID,
-        UKJENT, // Skal vi fjerne denne?
     }
 }
