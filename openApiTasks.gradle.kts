@@ -79,7 +79,7 @@ security:
                     }
                 }
 
-        // Legg til tags for å gruppere endepunkter
+        // Legg til tags for å gruppere endepunkter i denne rekkefølgen
         if (!content.contains("tags:")) {
             content =
                 content.replace(
