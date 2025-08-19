@@ -63,26 +63,6 @@ class SykmeldingRepositoryTest {
     }
 
     @Test
-    fun `hentSykmeldingerForOrgnr skal hente alle sykmeldinger med gitt orgnr`() {
-        val orgnr = "987654321"
-        val sykmeldinger = List(10) { UUID.randomUUID() }.map { id -> sykmeldingMock().medId(id.toString()) }
-        val sykmeldingerMedGittOrgnr =
-            List(10) { UUID.randomUUID() }
-                .map { id -> sykmeldingMock().medId(id.toString()) }
-                .map { it.medOrgnr(orgnr) }
-
-        sykmeldinger.forEach { it.lagreSykmelding(sykmeldingRepository) }
-
-        sykmeldingRepository.hentSykmeldinger(orgnr) shouldBe emptyList()
-
-        sykmeldingerMedGittOrgnr.forEach { it.lagreSykmelding(sykmeldingRepository) }
-
-        val sykmeldingerFraDatabase = sykmeldingRepository.hentSykmeldinger(orgnr)
-        sykmeldingerFraDatabase.size shouldBe sykmeldingerMedGittOrgnr.size
-        sykmeldingerFraDatabase.forEach { it.orgnr shouldBe orgnr }
-    }
-
-    @Test
     fun `filter for fnr på sykmeldinger skal gi korrekt filtrert resultat`() {
         val id = UUID.randomUUID()
         sykmeldingRepository.lagreSykmelding(

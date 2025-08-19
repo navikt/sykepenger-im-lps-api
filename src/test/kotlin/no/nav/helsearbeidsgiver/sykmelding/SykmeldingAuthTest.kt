@@ -26,11 +26,12 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilter, Sykmeld
 
     override fun lagFilter(orgnr: String): SykmeldingFilter = SykmeldingFilter(orgnr = orgnr)
 
+    // TODO: Fjern
     override fun mockHentingAvDokumenter(
         orgnr: String,
         resultat: List<SykmeldingDTO>,
     ) {
-        every { repositories.sykmeldingRepository.hentSykmeldinger(orgnr) } returns resultat
+        return
     }
 
     override fun mockHentingAvDokumenter(
