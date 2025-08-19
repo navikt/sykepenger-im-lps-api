@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.soeknad
 
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sis.StatusISpeilEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.fnr
@@ -69,6 +70,7 @@ class SoeknadRepository(
             filter.tom?.let {
                 query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
             }
+            query.limit(MAX_ANTALL_I_RESPONS + 1)
             query.map {
                 it[sykepengesoeknad]
             }
