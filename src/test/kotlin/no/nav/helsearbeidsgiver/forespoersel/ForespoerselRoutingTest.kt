@@ -12,6 +12,7 @@ import io.ktor.http.contentType
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -93,7 +94,6 @@ class ForespoerselRoutingTest : ApiTest() {
 
     @Test
     fun `hvis over max antall forespørsler skal response begrenses og en header settes`() {
-        val antallForventedeForespoersler = 1000
         every {
             repositories.forespoerselRepository.hentForespoersler(
                 filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
@@ -116,9 +116,9 @@ class ForespoerselRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
-            response.headers["X-Warning-limit-reached"].toString() shouldBe antallForventedeForespoersler.toString()
+            response.headers["X-Warning-limit-reached"].toString() shouldBe MAX_ANTALL_I_RESPONS.toString()
             val forespoerslerSvar = response.body<List<Forespoersel>>()
-            forespoerslerSvar.size shouldBe antallForventedeForespoersler
+            forespoerslerSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
     }
 

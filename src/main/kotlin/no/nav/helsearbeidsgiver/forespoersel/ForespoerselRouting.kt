@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
@@ -26,7 +27,6 @@ fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-private const val MAX_ANTALL_I_RESPONS = 1000
 
 @Deprecated(
     message =

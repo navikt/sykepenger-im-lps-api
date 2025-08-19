@@ -64,6 +64,8 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.jetbrains.exposed.sql.Database
 
+val MAX_ANTALL_I_RESPONS = 1000 // Max antall entiteter som kan returneres i API-kall
+
 data class Repositories(
     val inntektsmeldingRepository: InntektsmeldingRepository,
     val forespoerselRepository: ForespoerselRepository,

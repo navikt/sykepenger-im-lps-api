@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
@@ -113,7 +114,7 @@ class ForespoerselRepository(
             filter.status?.let { query.andWhere { status eq it } }
             filter.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
-            query.limit(1001)
+            query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {
                 it.toExposedforespoersel()
             }
