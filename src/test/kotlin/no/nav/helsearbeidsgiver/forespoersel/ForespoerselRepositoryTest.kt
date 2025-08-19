@@ -163,9 +163,12 @@ class ForespoerselRepositoryTest {
     @Test
     fun begrensAntall() {
         for (i in 1..1050) {
-            forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, UUID.randomUUID()))
+            forespoerselRepository.lagreForespoersel(
+                forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, UUID.randomUUID()),
+                eksponertForespoerselId = UUID.randomUUID(),
+            )
         }
-        val filter = ForespoerselRequest(orgnr = DEFAULT_ORG)
-        forespoerselRepository.hentForespoersler(DEFAULT_ORG, filter).size shouldBe 1001
+        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG)
+        forespoerselRepository.hentForespoersler(filter).size shouldBe 1001
     }
 }

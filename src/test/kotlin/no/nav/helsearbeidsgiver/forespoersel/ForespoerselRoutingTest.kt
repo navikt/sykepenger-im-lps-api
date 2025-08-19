@@ -96,8 +96,7 @@ class ForespoerselRoutingTest : ApiTest() {
         val antallForventedeForespoersler = 1000
         every {
             repositories.forespoerselRepository.hentForespoersler(
-                orgnr = DEFAULT_ORG,
-                request = ForespoerselRequest(orgnr = DEFAULT_ORG),
+                filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
             )
         } returns
             List(
@@ -113,7 +112,7 @@ class ForespoerselRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselRequest.serializer()))
+                    setBody(ForespoerselFilter(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
