@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -114,8 +115,8 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-
-            call.respond(sykmeldingService.hentSykmeldinger(filter))
+            respondWithMaxLimit(call, sykmeldingService.hentSykmeldinger(filter))
+            return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (_: BadRequestException) {
