@@ -16,14 +16,6 @@ class SoeknadService(
 ) {
     private val logger = logger()
 
-    @Deprecated(
-        message =
-            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/soeknader ." +
-                "Bruk hentSoeknader(filter: SykepengesoeknadFilter) istedenfor.",
-    )
-    fun hentSoeknader(orgnr: String): List<Sykepengesoeknad> =
-        soeknadRepository.hentSoeknader(orgnr).map { it.whitelistetForArbeidsgiver().konverter() }
-
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<Sykepengesoeknad> =
         soeknadRepository
             .hentSoeknader(filter)

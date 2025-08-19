@@ -49,6 +49,7 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
         systembrukerOrgnr.gyldigOrgnr()
 }
 
+// TODO: Fjern
 @Deprecated(
     "Bruk harTilgangTilRessurs(ressurs: String, orgnumre: Set<String>) istedenfor.",
 )

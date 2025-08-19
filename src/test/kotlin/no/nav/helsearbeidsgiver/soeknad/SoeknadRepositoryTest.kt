@@ -165,7 +165,7 @@ class SoeknadRepositoryTest {
             }
         soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
-        soeknadRepository.hentSoeknader(orgnr.verdi) shouldContainOnly soeknaderMedSammeOrgnr
+        soeknadRepository.hentSoeknader(filter = SykepengesoeknadFilter(orgnr = orgnr.verdi)) shouldContainOnly soeknaderMedSammeOrgnr
     }
 
     @Test
