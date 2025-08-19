@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.configureRepositories
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselFilter
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -47,26 +48,26 @@ class RepositoryTransactionTest {
                 launch {
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                     repositories.mottakRepository.opprett(ExposedMottak(event))
-                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
                 }
                 launch {
                     val forespoerselID = lagreInntektsmelding()
-                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
                     repositories.forespoerselRepository.lagreForespoersel(
                         forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR),
                         eksponertForespoerselId = forespoerselID,
                     )
-                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
                     repositories.forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
                 launch {
-                    repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG)
+                    repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
                     repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
                 }
             }
         }
-        assertEquals(100, repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG).count())
+        assertEquals(100, repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG)).count())
         assertEquals(100, repositories.inntektsmeldingRepository.hent(DEFAULT_ORG).count())
     }
 

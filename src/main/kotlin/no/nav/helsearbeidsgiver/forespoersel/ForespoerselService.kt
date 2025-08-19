@@ -9,24 +9,6 @@ import java.util.UUID
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
 ) {
-    @Deprecated(
-        message =
-            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/forespoersler ." +
-                "Bruk filtrerForespoersler(orgnr: String, request: ForespoerselRequest) istedenfor.",
-    )
-    fun hentForespoerslerForOrgnr(orgnr: String): List<Forespoersel> {
-        runCatching {
-            sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
-            forespoerselRepository.hentForespoersler(orgnr = orgnr)
-        }.onSuccess {
-            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
-            return it
-        }.onFailure {
-            sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
-        }
-        throw RuntimeException("Feil ved henting av forespørsler for bedrift: $orgnr")
-    }
-
     fun filtrerForespoersler(filter: ForespoerselFilter): List<Forespoersel> {
         val orgnr = filter.orgnr
         runCatching {

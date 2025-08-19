@@ -21,25 +21,6 @@ import java.util.UUID
 
 class ForespoerselRoutingTest : ApiTest() {
     @Test
-    fun `hent forespørsler fra deprecated endepunkt`() {
-        every { repositories.forespoerselRepository.hentForespoersler(DEFAULT_ORG) } returns
-            listOf(
-                mockForespoersel().copy(orgnr = DEFAULT_ORG),
-            )
-        runBlocking {
-            val response =
-                client.get("/v1/forespoersler") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<List<Forespoersel>>()
-            forespoerselSvar.size shouldBe 1
-            forespoerselSvar[0].status shouldBe Status.AKTIV
-            forespoerselSvar[0].orgnr shouldBe DEFAULT_ORG
-        }
-    }
-
-    @Test
     fun `hent en spesifikk forespørsel`() {
         val navReferanseId = UUID.randomUUID()
         every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns
