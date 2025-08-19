@@ -367,12 +367,11 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         runBlocking {
             val response =
                 fetchWithRetry(
-                    url = "http://localhost:8080/v1/forespoersler",
+                    url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
                 )
             response.status.value shouldBe 200
-            val forespoerselSvar = response.body<List<Forespoersel>>()
-            forespoerselSvar.size shouldBe 1
-            forespoerselSvar.first().navReferanseId shouldBe forespoerselId
+            val forespoerselSvar = response.body<Forespoersel>()
+            forespoerselSvar.navReferanseId shouldBe forespoerselId
         }
 }

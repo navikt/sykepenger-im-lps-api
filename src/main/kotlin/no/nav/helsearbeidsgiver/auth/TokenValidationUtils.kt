@@ -49,16 +49,6 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
         systembrukerOrgnr.gyldigOrgnr()
 }
 
-// TODO: Fjern
-@Deprecated(
-    "Bruk harTilgangTilRessurs(ressurs: String, orgnumre: Set<String>) istedenfor.",
-)
-fun TokenValidationContext.harTilgangTilRessurs(ressurs: String): Boolean {
-    val systembruker = this.getSystembrukerId()
-    val systembrukerOrgnr = this.getSystembrukerOrgnr()
-    return getPdpService().harTilgang(systembruker, systembrukerOrgnr, ressurs)
-}
-
 fun TokenValidationContext.harTilgangTilRessurs(
     ressurs: String,
     orgnumre: Set<String>,
