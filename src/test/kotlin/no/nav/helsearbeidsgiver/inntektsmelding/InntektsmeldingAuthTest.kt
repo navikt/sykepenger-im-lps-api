@@ -30,14 +30,6 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
 
     override fun lagFilter(orgnr: String): InntektsmeldingFilter = InntektsmeldingFilter(orgnr = orgnr)
 
-    // TODO: Fjern
-    override fun mockHentingAvDokumenter(
-        orgnr: String,
-        resultat: List<InntektsmeldingResponse>,
-    ) {
-        return
-    }
-
     override fun mockHentingAvDokumenter(
         filter: InntektsmeldingFilter,
         resultat: List<InntektsmeldingResponse>,

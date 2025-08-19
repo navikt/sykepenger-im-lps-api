@@ -26,14 +26,6 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilter, Sykmeld
 
     override fun lagFilter(orgnr: String): SykmeldingFilter = SykmeldingFilter(orgnr = orgnr)
 
-    // TODO: Fjern
-    override fun mockHentingAvDokumenter(
-        orgnr: String,
-        resultat: List<SykmeldingDTO>,
-    ) {
-        return
-    }
-
     override fun mockHentingAvDokumenter(
         filter: SykmeldingFilter,
         resultat: List<SykmeldingDTO>,

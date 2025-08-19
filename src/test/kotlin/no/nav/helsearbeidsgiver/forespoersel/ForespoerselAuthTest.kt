@@ -26,14 +26,6 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselFilter, F
 
     override fun lagFilter(orgnr: String): ForespoerselFilter = ForespoerselFilter(orgnr = orgnr)
 
-    // TODO: Fjern
-    override fun mockHentingAvDokumenter(
-        orgnr: String,
-        resultat: List<Forespoersel>,
-    ) {
-        return
-    }
-
     override fun mockHentingAvDokumenter(
         filter: ForespoerselFilter,
         resultat: List<Forespoersel>,
