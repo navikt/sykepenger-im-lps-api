@@ -41,7 +41,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
-            notFound.bodyAsText() shouldBe "Inntektsmelding med inntektsmeldingId: $missingId ikke funnet."
+            notFound.bodyAsText() shouldBe "Inntektsmelding med innsendingId: $missingId ikke funnet."
 
             // Ugyldig UUID:
             val ugyldig =

@@ -56,9 +56,6 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             )
             call.respond(forespoersel)
         } catch (_: IllegalArgumentException) {
-            // TODO: Kan hende at vi må catche denne kun rundt navReferanse-parsing - gjelder andre entiteter /ruter også.
-            // Eller vi kan pakke inn feil i egne service-exceptions el.l.
-            // I søknad-rute boblet en require fra entitet-laget opp hit, og ga en uforståelig badrequest-feilmelding (og ingen logger)
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)

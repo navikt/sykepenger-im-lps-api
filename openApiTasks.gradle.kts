@@ -101,10 +101,6 @@ tags:
                 Regex("""(  /v1/forespoersel/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
                     """$1$2$3:$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: "Hent forespørsel"""",
 
-                // GET /v1/forespoersler
-                Regex("""(  /v1/forespoersler:)(\s+)(get:)(?!\s+tags:)""") to
-                    """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/forespoersler istedenfor"""",
-
                 // POST /v1/forespoersler
                 Regex("""(  /v1/forespoersler:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
                     """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: Hent forespørsler""",
@@ -112,10 +108,6 @@ tags:
                 // GET /v1/sykmelding/{sykmeldingId}
                 Regex("""(  /v1/sykmelding/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
                     """$1$2$3:$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmelding"""",
-
-                // GET /v1/sykmeldinger
-                Regex("""(  /v1/sykmeldinger:)(\s+)(get:)(?!\s+tags:)""") to
-                        """$1$2$3$2  tags:$2    - "Sykmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/sykmeldinger istedenfor"""",
 
                 // POST /v1/sykmeldinger
                 Regex("""(  /v1/sykmeldinger:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
@@ -125,29 +117,13 @@ tags:
                 Regex("""(  /v1/sykepengesoeknad/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
                     """$1$2$3:$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknad"""",
 
-                // GET /v1/sykepengesoeknader
-                Regex("""(  /v1/sykepengesoeknader:)(\s+)(get:)(?!\s+tags:)""") to
-                        """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  deprecated: true$2  summary: "Bruk POST /v1/sykepengesoeknader istedenfor"""",
-
                 // POST /v1/sykepengesoeknader
                 Regex("""(  /v1/sykepengesoeknader:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
                     """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknader"""",
 
-                // GET /v1/inntektsmelding/status/{status}
-                Regex("""(  /v1/inntektsmelding/status[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
-
-                // GET /v1/inntektsmelding/navreferanseId/{navReferanseId}
-                Regex("""(  /v1/inntektsmelding/navReferanseId[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
-
                 //GET /v1/inntektsmelding/{inntektsmeldingId}
                 Regex("""(  /v1/inntektsmelding/\{[^:]*:)(\s+)(get):(?!\s+tags:)""") to
                         """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmelding"""",
-
-                // GET /v1/inntektsmeldinger
-                Regex("""(  /v1/inntektsmeldinger[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
 
                 // POST /v1/inntektsmeldinger
                 Regex("""(  /v1/inntektsmeldinger:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to

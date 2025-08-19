@@ -151,21 +151,21 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
 private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmelding med id
-    get("/inntektsmelding/{inntektsmeldingId}") {
+    get("/inntektsmelding/{innsendingId}") {
         try {
-            val inntektsmeldingId = call.parameters["inntektsmeldingId"]?.let { UUID.fromString(it) }
-            requireNotNull(inntektsmeldingId)
+            val innsendingId = call.parameters["innsendingId"]?.let { UUID.fromString(it) }
+            requireNotNull(innsendingId)
 
             val inntektsmelding =
                 inntektsmeldingService
                     .hentInntektsmeldingMedInnsendingId(
-                        innsendingId = inntektsmeldingId,
+                        innsendingId = innsendingId,
                     )
 
             if (inntektsmelding == null) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    "Inntektsmelding med inntektsmeldingId: $inntektsmeldingId ikke funnet.",
+                    "Inntektsmelding med innsendingId: $innsendingId ikke funnet.",
                 )
                 return@get
             }
@@ -183,7 +183,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             }
 
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter inntektsmelding med id $inntektsmeldingId for bedrift med " +
+                "LPS: [$lpsOrgnr] henter inntektsmelding med id $innsendingId for bedrift med " +
                     "systembrukerOrgnr: [$systembrukerOrgnr] og inntektsmeldingOrgnr: [${inntektsmelding.arbeidsgiver.orgnr}]",
             )
 
