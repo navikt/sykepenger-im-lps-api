@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselFilter
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilter
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -46,7 +47,7 @@ class RepositoryTransactionTest {
                 ).replace("%%%FORESPORSELID%%%", UUID.randomUUID().toString())
             for (i in 1..100) {
                 launch {
-                    repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
+                    repositories.inntektsmeldingRepository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
                     repositories.mottakRepository.opprett(ExposedMottak(event))
                     repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
                 }
@@ -59,16 +60,24 @@ class RepositoryTransactionTest {
                     )
                     repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
                     repositories.forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
-                    repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
+                    repositories.inntektsmeldingRepository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
                 }
                 launch {
                     repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
-                    repositories.inntektsmeldingRepository.hent(DEFAULT_ORG)
+                    repositories.inntektsmeldingRepository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
                 }
             }
         }
-        assertEquals(100, repositories.forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG)).count())
-        assertEquals(100, repositories.inntektsmeldingRepository.hent(DEFAULT_ORG).count())
+        assertEquals(
+            100,
+            repositories.forespoerselRepository
+                .hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
+                .count(),
+        )
+        assertEquals(
+            100,
+            repositories.inntektsmeldingRepository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG)).count(),
+        )
     }
 
     fun lagreInntektsmelding(): UUID {

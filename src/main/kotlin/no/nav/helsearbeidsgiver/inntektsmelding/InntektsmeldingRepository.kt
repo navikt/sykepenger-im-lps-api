@@ -58,20 +58,6 @@ class InntektsmeldingRepository(
         }
     }
 
-    @Deprecated(
-        message =
-            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/inntektsmeldinger " +
-                "Bruk hent(request: InntektsmeldingFilter) istedenfor.",
-        level = DeprecationLevel.WARNING,
-    )
-    fun hent(orgnr: String): List<InntektsmeldingResponse> =
-        transaction(db) {
-            InntektsmeldingEntitet
-                .selectAll()
-                .where { InntektsmeldingEntitet.orgnr eq orgnr }
-                .map { it.toExposedInntektsmelding() }
-        }
-
     fun hent(filter: InntektsmeldingFilter): List<InntektsmeldingResponse> =
         transaction(db) {
             addLogger(StdOutSqlLogger)
