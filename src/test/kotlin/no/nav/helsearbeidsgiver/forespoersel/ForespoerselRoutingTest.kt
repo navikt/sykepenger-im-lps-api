@@ -64,15 +64,13 @@ class ForespoerselRoutingTest : ApiTest() {
         val antallForventedeForespoersler = 3
         every {
             repositories.forespoerselRepository.hentForespoersler(
-                orgnr = DEFAULT_ORG,
-                request = ForespoerselRequest(orgnr = DEFAULT_ORG),
+                filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
             )
         } returns
             List(
                 antallForventedeForespoersler,
             ) {
                 mockForespoersel().copy(
-                    orgnr = DEFAULT_ORG,
                     navReferanseId = UUID.randomUUID(),
                 )
             }
@@ -81,7 +79,7 @@ class ForespoerselRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselRequest.serializer()))
+                    setBody(ForespoerselFilter(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -143,8 +141,7 @@ class ForespoerselRoutingTest : ApiTest() {
     fun `returnerer tom liste når det ikke er noen forespørsler på et orgnr`() {
         every {
             repositories.forespoerselRepository.hentForespoersler(
-                orgnr = DEFAULT_ORG,
-                request = ForespoerselRequest(orgnr = DEFAULT_ORG),
+                filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
             )
         } returns emptyList()
 
@@ -152,7 +149,7 @@ class ForespoerselRoutingTest : ApiTest() {
             val response =
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
-                    setBody(ForespoerselRequest(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselRequest.serializer()))
+                    setBody(ForespoerselFilter(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK

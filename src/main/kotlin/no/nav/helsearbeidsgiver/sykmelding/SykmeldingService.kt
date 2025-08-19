@@ -13,18 +13,15 @@ class SykmeldingService(
     @Deprecated(
         message =
             "Kan slettes når vi fjerner det utfasede endepunktet GET v1/sykmeldinger ." +
-                "Bruk hentSykmeldinger(orgnr: String, filter: SykmeldingFilterRequest) istedenfor.",
+                "Bruk hentSykmeldinger(filter: SykmeldingFilter) istedenfor.",
     )
     fun hentSykmeldinger(orgnr: String): List<Sykmelding> =
         sykmeldingRepository.hentSykmeldinger(orgnr).map {
             it.tilSykmelding()
         }
 
-    fun hentSykmeldinger(
-        orgnr: String,
-        sykmeldingFilterRequest: SykmeldingFilterRequest,
-    ): List<Sykmelding> =
-        sykmeldingRepository.hentSykmeldinger(orgnr, sykmeldingFilterRequest).map {
+    fun hentSykmeldinger(filter: SykmeldingFilter): List<Sykmelding> =
+        sykmeldingRepository.hentSykmeldinger(filter).map {
             it.tilSykmelding()
         }
 

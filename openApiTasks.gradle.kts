@@ -79,6 +79,99 @@ security:
                     }
                 }
 
+        // Legg til tags for å gruppere endepunkter i denne rekkefølgen
+        if (!content.contains("tags:")) {
+            content =
+                content.replace(
+                    "openapi: \"3.1.0\"",
+                    """openapi: "3.1.0"
+tags:
+  - name: "Sykmelding"
+  - name: "Sykepengesøknad"
+  - name: "Forespørsel om inntektsmelding"
+  - name: "Inntektsmelding"
+""",
+                )
+            modified = true
+        }
+
+        val pathPatterns =
+            mapOf(
+                // GET /v1/forespoersel/{navReferanseId}
+                Regex("""(  /v1/forespoersel/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                    """$1$2$3:$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: "Hent forespørsel"""",
+
+                // GET /v1/forespoersler
+                Regex("""(  /v1/forespoersler:)(\s+)(get:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/forespoersler istedenfor"""",
+
+                // POST /v1/forespoersler
+                Regex("""(  /v1/forespoersler:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: Hent forespørsler""",
+
+                // GET /v1/sykmelding/{sykmeldingId}
+                Regex("""(  /v1/sykmelding/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                    """$1$2$3:$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmelding"""",
+
+                // GET /v1/sykmeldinger
+                Regex("""(  /v1/sykmeldinger:)(\s+)(get:)(?!\s+tags:)""") to
+                        """$1$2$3$2  tags:$2    - "Sykmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/sykmeldinger istedenfor"""",
+
+                // POST /v1/sykmeldinger
+                Regex("""(  /v1/sykmeldinger:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmeldinger"""",
+
+                // GET /v1/sykepengesoeknad/{soeknadId}
+                Regex("""(  /v1/sykepengesoeknad/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                    """$1$2$3:$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknad"""",
+
+                // GET /v1/sykepengesoeknader
+                Regex("""(  /v1/sykepengesoeknader:)(\s+)(get:)(?!\s+tags:)""") to
+                        """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  deprecated: true$2  summary: "Bruk POST /v1/sykepengesoeknader istedenfor"""",
+
+                // POST /v1/sykepengesoeknader
+                Regex("""(  /v1/sykepengesoeknader:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
+                    """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknader"""",
+
+                // GET /v1/inntektsmelding/status/{status}
+                Regex("""(  /v1/inntektsmelding/status[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
+
+                // GET /v1/inntektsmelding/navreferanseId/{navReferanseId}
+                Regex("""(  /v1/inntektsmelding/navReferanseId[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
+
+                //GET /v1/inntektsmelding/{inntektsmeldingId}
+                Regex("""(  /v1/inntektsmelding/\{[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmelding"""",
+
+                // GET /v1/inntektsmeldinger
+                Regex("""(  /v1/inntektsmeldinger[^:]*:)(\s+)(get):(?!\s+tags:)""") to
+                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  deprecated: true$2  summary: "Bruk POST /v1/inntektsmeldinger istedenfor"""",
+
+                // POST /v1/inntektsmeldinger
+                Regex("""(  /v1/inntektsmeldinger:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to
+                    """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmeldinger"""",
+
+                // POST /v1/inntektsmelding
+                Regex("""(  /v1/inntektsmelding:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to
+                        """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Send inn inntektsmelding"""",
+
+                // Fjern helsesjekk-endepunkter
+                Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
+            )
+
+        var newContent = content
+        for ((pattern, replacement) in pathPatterns) {
+            newContent = pattern.replace(newContent, replacement)
+        }
+
+        if (newContent != content) {
+            println("Lagt til tags og sammendrag til endepunkter.")
+            content = newContent
+            modified = true
+        }
+
         if (modified) {
             openApiFile.writeText(content)
             println("OpenApi fil oppdatert.")

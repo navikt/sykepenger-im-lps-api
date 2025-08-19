@@ -18,9 +18,9 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 
 abstract class ApiTest {
-    val orgnrUtenPdpTilgang = Orgnr.genererGyldig().toString()
-    val hovedenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
-    val underenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().toString()
+    val orgnrUtenPdpTilgang = Orgnr.genererGyldig().verdi
+    val hovedenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().verdi
+    val underenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().verdi
 
     val repositories: Repositories = mockk<Repositories>(relaxed = true)
     val services: Services =

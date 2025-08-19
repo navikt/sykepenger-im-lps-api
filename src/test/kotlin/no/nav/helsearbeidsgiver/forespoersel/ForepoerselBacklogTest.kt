@@ -40,17 +40,19 @@ class ForepoerselBacklogTest {
                 buildForespoerselOppdatertJson(forespoerselId = forespoerselId, eksponertForespoerselId = eksponertForespoerselId),
             )
         priMessage.forespoersel?.let {
-            forespoerselRepository.lagreForespoersel(it)
+            forespoerselRepository.lagreForespoersel(it, eksponertForespoerselId = forespoerselId)
         }
 
-        forespoerselService.hentEksponertForespoerselId(forespoerselId) shouldBe null
+        forespoerselService.hentEksponertForespoerselId(forespoerselId) shouldBe forespoerselId
 
-        priMessage.forespoersel?.let {
-            forespoerselService.lagreEllerOppdaterForespoersel(
-                it,
-                status = priMessage.status,
-                eksponertForespoerselId = priMessage.eksponertForespoerselId,
-            )
+        priMessage.forespoersel?.let { forespoersel ->
+            priMessage.eksponertForespoerselId?.let { eksponertFsp ->
+                forespoerselService.lagreEllerOppdaterForespoersel(
+                    forespoersel = forespoersel,
+                    status = priMessage.status,
+                    eksponertForespoerselId = eksponertFsp,
+                )
+            }
         }
 
         forespoerselService.hentEksponertForespoerselId(forespoerselId).let {

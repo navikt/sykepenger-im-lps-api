@@ -30,9 +30,9 @@ fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
 
 private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
     // Hent sykmelding med sykmeldingId
-    get("/sykmelding/{id}") {
+    get("/sykmelding/{sykmeldingId}") {
         try {
-            val sykmeldingId = call.parameters["id"]?.toUuidOrNull()
+            val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
             requireNotNull(sykmeldingId) { "navReferanseId: $sykmeldingId ikke gyldig UUID" }
 
             val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
@@ -94,17 +94,15 @@ private fun Route.sykmeldinger(sykmeldingService: SykmeldingService) {
 }
 
 private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
-    // Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)
+    // Filtrer sykmeldinger på orgnr (underenhet), fnr og/eller dato sykmeldingen ble mottatt av NAV.
     post("/sykmeldinger") {
-        // Hent alle sykmeldinger for et orgnr, filtrert med parametere
         try {
-            val request = call.receive<SykmeldingFilterRequest>()
+            val filter = call.receive<SykmeldingFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
-            val orgnr = request.orgnr ?: systembrukerOrgnr
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SM_RESSURS,
-                    orgnumre = setOf(orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -114,10 +112,10 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
 
-            call.respond(sykmeldingService.hentSykmeldinger(orgnr, request))
+            call.respond(sykmeldingService.hentSykmeldinger(filter))
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (_: BadRequestException) {

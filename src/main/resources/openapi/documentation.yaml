@@ -1,4 +1,10 @@
 openapi: "3.1.0"
+tags:
+  - name: "Sykmelding"
+  - name: "Sykepengesøknad"
+  - name: "Forespørsel om inntektsmelding"
+  - name: "Inntektsmelding"
+
 info:
   title: "Sykepenger API"
   description: "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger"
@@ -9,6 +15,9 @@ security:
 paths:
   /v1/forespoersel/{navReferanseId}:
     get:
+      tags:
+        - "Forespørsel om inntektsmelding"
+      summary: "Hent forespørsel"
       description: "Hent forespørsel med navReferanseId."
       parameters:
         - name: "navReferanseId"
@@ -63,8 +72,11 @@ paths:
                   value: "Feil ved henting av forespørsler"
   /v1/forespoersler:
     get:
+      tags:
+        - "Forespørsel om inntektsmelding"
       deprecated: true
-      description: "Endepunktet er utfaset: Bruk POST /v1/forespoersler"
+      summary: "Bruk POST /v1/forespoersler istedenfor"
+      description: "Hent forespørsler for tilhørende systembrukers orgnr."
       responses:
         "401":
           description: "Unauthorized"
@@ -76,11 +88,7 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
                   value: "Ikke tilgang til ressurs"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -99,14 +107,17 @@ paths:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
     post:
-      description: "Filtrer forespørsler basert på request. <br> Filterparametre fom\
-        \ og tom refererer til opprettetTid (tidspunktet forespørselen ble opprettet\
-        \ av Nav)."
+      tags:
+        - "Forespørsel om inntektsmelding"
+      summary: Hent forespørsler
+      description: "Filtrer forespørsler om inntektsmelding på orgnr (underenhet),\
+        \ fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av\
+        \ NAV."
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ForespoerselRequest"
+              $ref: "#/components/schemas/ForespoerselFilter"
         required: true
       responses:
         "401":
@@ -120,10 +131,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -152,6 +159,9 @@ paths:
                   value: "Feil ved henting av forespørsler"
   /v1/inntektsmelding:
     post:
+      tags:
+        - "Inntektsmelding"
+      summary: "Send inn inntektsmelding"
       description: "Send inn inntektsmelding"
       requestBody:
         content:
@@ -180,10 +190,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "409":
           description: "Conflict"
           content:
@@ -207,6 +213,9 @@ paths:
                   value: "En feil oppstod"
   /v1/inntektsmelding/{inntektsmeldingId}:
     get:
+      tags:
+        - "Inntektsmelding"
+      summary: "Hent inntektsmelding"
       description: "Hent inntektsmelding med id"
       parameters:
         - name: "inntektsmeldingId"
@@ -261,8 +270,11 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmelding/navReferanseId/{navReferanseId}:
     get:
+      tags:
+        - "Inntektsmelding"
       deprecated: true
-      description: "Endepunktet er utfaset: Bruk POST /v1/inntektsmeldinger"
+      summary: "Bruk POST /v1/inntektsmeldinger istedenfor"
+      description: "Hent alle inntektsmeldinger med navReferanseId"
       parameters:
         - name: "navReferanseId"
           in: "path"
@@ -280,10 +292,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -304,8 +312,11 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmelding/status/{status}:
     get:
+      tags:
+        - "Inntektsmelding"
       deprecated: true
-      description: "Endepunktet er utfaset: Bruk POST /v1/inntektsmeldinger"
+      summary: "Bruk POST /v1/inntektsmeldinger istedenfor"
+      description: "Hent alle inntektsmeldinger med status"
       parameters:
         - name: "status"
           in: "path"
@@ -323,10 +334,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -347,8 +354,11 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmeldinger:
     get:
+      tags:
+        - "Inntektsmelding"
       deprecated: true
-      description: "Endepunktet er utfaset: Bruk POST /v1/inntektsmeldinger"
+      summary: "Bruk POST /v1/inntektsmeldinger istedenfor"
+      description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
       responses:
         "401":
           description: "Unauthorized"
@@ -360,10 +370,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -383,12 +389,16 @@ paths:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
     post:
-      description: "Hent inntektsmeldinger, filtrer basert på request"
+      tags:
+        - "Inntektsmelding"
+      summary: "Hent inntektsmeldinger"
+      description: "Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId,\
+        \ navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV."
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InntektsmeldingFilterRequest"
+              $ref: "#/components/schemas/InntektsmeldingFilter"
         required: true
       responses:
         "401":
@@ -430,6 +440,9 @@ paths:
                   value: "Feil ved henting av inntektsmeldinger"
   /v1/sykepengesoeknad/{soeknadId}:
     get:
+      tags:
+        - "Sykepengesøknad"
+      summary: "Hent sykepengesøknad"
       description: "Hent én sykepengesøknad basert på søknadId"
       parameters:
         - name: "soeknadId"
@@ -460,10 +473,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -481,8 +490,11 @@ paths:
                   value: "Feil ved henting av søknad"
   /v1/sykepengesoeknader:
     get:
+      tags:
+        - "Sykepengesøknad"
       deprecated: true
-      description: "Endepunktet er utfaset: Bruk POST /v1/sykepengesoeknader"
+      summary: "Bruk POST /v1/sykepengesoeknader istedenfor"
+      description: "Hent sykepengesøknader sendt til tilhørende systembrukers orgnr."
       responses:
         "401":
           description: "Unauthorized"
@@ -494,10 +506,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -517,7 +525,11 @@ paths:
                 Example#1:
                   value: "Feil ved henting av søknader"
     post:
-      description: "Filtrer søknader på fnr, underenhet og / eller dato (mottattAvNav)"
+      tags:
+        - "Sykepengesøknad"
+      summary: "Hent sykepengesøknader"
+      description: "Filtrer søknader på orgnr (underenhet), fnr og/eller dato søknaden\
+        \ ble mottatt av NAV."
       requestBody:
         content:
           application/json:
@@ -536,10 +548,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -566,11 +574,14 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av sykepengesøknader"
-  /v1/sykmelding/{id}:
+  /v1/sykmelding/{sykmeldingId}:
     get:
+      tags:
+        - "Sykmelding"
+      summary: "Hent sykmelding"
       description: "Hent sykmelding med sykmeldingId"
       parameters:
-        - name: "id"
+        - name: "sykmeldingId"
           in: "path"
           required: true
           schema:
@@ -593,10 +604,6 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
           content:
@@ -617,8 +624,11 @@ paths:
                   value: "Feil ved henting av sykmelding"
   /v1/sykmeldinger:
     get:
+      tags:
+        - "Sykmelding"
       deprecated: true
-      description: "Endepunktet er utfaset: Bruk POST /v1/sykmeldinger"
+      summary: "Bruk POST /v1/sykmeldinger istedenfor"
+      description: ""
       responses:
         "401":
           description: "Unauthorized"
@@ -630,10 +640,6 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -653,12 +659,16 @@ paths:
                 Example#1:
                   value: "Feil ved henting av sykmeldinger"
     post:
-      description: "Filtrer sykmeldinger på fnr og / eller dato (mottattAvNav)"
+      tags:
+        - "Sykmelding"
+      summary: "Hent sykmeldinger"
+      description: "Filtrer sykmeldinger på orgnr (underenhet), fnr og/eller dato\
+        \ sykmeldingen ble mottatt av NAV."
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SykmeldingFilterRequest"
+              $ref: "#/components/schemas/SykmeldingFilter"
         required: true
       responses:
         "401":
@@ -672,10 +682,6 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -767,12 +773,11 @@ components:
         - "arbeidsgiverperiodePaakrevd"
         - "inntektPaakrevd"
         - "opprettetTid"
-    ForespoerselRequest:
+    ForespoerselFilter:
       type: "object"
       properties:
         orgnr:
           type: "string"
-          nullable: true
         fnr:
           type: "string"
           nullable: true
@@ -795,6 +800,8 @@ components:
           type: "string"
           format: "date"
           nullable: true
+      required:
+        - "orgnr"
     RedusertLoennIAgp:
       type: "object"
       properties:
@@ -1182,12 +1189,11 @@ components:
         - "arbeidsgiver"
         - "avsender"
         - "status"
-    InntektsmeldingFilterRequest:
+    InntektsmeldingFilter:
       type: "object"
       properties:
         orgnr:
           type: "string"
-          nullable: true
         innsendingId:
           type: "string"
           format: "uuid"
@@ -1214,6 +1220,8 @@ components:
             - "MOTTATT"
             - "FEILET"
             - "GODKJENT"
+      required:
+        - "orgnr"
     Soeknadsperiode:
       type: "object"
       properties:
@@ -1267,9 +1275,6 @@ components:
             - "FERIE"
             - "PERMISJON"
             - "UTLANDSOPPHOLD"
-            - "UTDANNING_FULLTID"
-            - "UTDANNING_DELTID"
-            - "UKJENT"
       required:
         - "fom"
         - "type"
@@ -1336,7 +1341,6 @@ components:
       properties:
         orgnr:
           type: "string"
-          nullable: true
         fnr:
           type: "string"
           nullable: true
@@ -1348,6 +1352,8 @@ components:
           type: "string"
           format: "date"
           nullable: true
+      required:
+        - "orgnr"
     Sykmeldt:
       type: "object"
       properties:
@@ -1487,12 +1493,11 @@ components:
         - "oppfoelging"
         - "kontaktMedPasient"
         - "arbeidsgiver"
-    SykmeldingFilterRequest:
+    SykmeldingFilter:
       type: "object"
       properties:
         orgnr:
           type: "string"
-          nullable: true
         fnr:
           type: "string"
           nullable: true
@@ -1504,3 +1509,5 @@ components:
           type: "string"
           format: "date"
           nullable: true
+      required:
+        - "orgnr"

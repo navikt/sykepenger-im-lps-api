@@ -95,14 +95,12 @@ class SykmeldingRepositoryTest {
 
         sykmeldingRepository
             .hentSykmeldinger(
-                DEFAULT_ORG,
-                filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR),
+                filter = SykmeldingFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR),
             )[0]
             .id shouldBe id.toString()
 
         sykmeldingRepository.hentSykmeldinger(
-            DEFAULT_ORG,
-            filter = SykmeldingFilterRequest(fnr = DEFAULT_FNR.reversed()),
+            filter = SykmeldingFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR.reversed()),
         ) shouldBe
             emptyList()
     }
@@ -127,9 +125,9 @@ class SykmeldingRepositoryTest {
         for (i in 0..antallSykmeldinger) {
             val sykmeldingerFraOgMed =
                 sykmeldingRepository.hentSykmeldinger(
-                    DEFAULT_ORG,
                     filter =
-                        SykmeldingFilterRequest(
+                        SykmeldingFilter(
+                            orgnr = DEFAULT_ORG,
                             fom = mottattDato.plusDays(i.toLong()),
                         ),
                 )
@@ -137,9 +135,9 @@ class SykmeldingRepositoryTest {
 
             val sykmeldingerTilOgMed =
                 sykmeldingRepository.hentSykmeldinger(
-                    DEFAULT_ORG,
                     filter =
-                        SykmeldingFilterRequest(
+                        SykmeldingFilter(
+                            orgnr = DEFAULT_ORG,
                             tom = mottattDato.minusDays(1).plusDays(i.toLong()),
                         ),
                 )
@@ -148,9 +146,9 @@ class SykmeldingRepositoryTest {
 
         val sykmeldingerFomOgTom =
             sykmeldingRepository.hentSykmeldinger(
-                DEFAULT_ORG,
                 filter =
-                    SykmeldingFilterRequest(
+                    SykmeldingFilter(
+                        orgnr = DEFAULT_ORG,
                         fom = mottattDato,
                         tom = mottattDato.plusDays(1),
                     ),
