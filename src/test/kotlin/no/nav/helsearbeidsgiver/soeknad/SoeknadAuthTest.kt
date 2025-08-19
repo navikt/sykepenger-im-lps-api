@@ -159,7 +159,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
             respons.status shouldBe HttpStatusCode.OK
-            respons.headers["X-Warning-limit-reached"].toString() shouldBe MAX_ANTALL_I_RESPONS.toString()
+            respons.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
             val soeknadSvar = respons.body<List<Sykepengesoeknad>>()
             soeknadSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }

@@ -140,7 +140,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
-            response.headers["X-Warning-limit-reached"].toString() shouldBe MAX_ANTALL_I_RESPONS.toString()
+            response.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
             val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
             inntektsmeldingSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }

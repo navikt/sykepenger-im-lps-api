@@ -35,7 +35,7 @@ suspend inline fun <reified T> respondWithMaxLimit(
     entities: List<T>,
 ) {
     if (entities.size > MAX_ANTALL_I_RESPONS) {
-        call.response.header("X-Warning-limit-reached", MAX_ANTALL_I_RESPONS.toString())
+        call.response.header("X-Warning-limit-reached", MAX_ANTALL_I_RESPONS)
         val liste = entities.subList(0, MAX_ANTALL_I_RESPONS)
         call.respond(liste)
     } else {

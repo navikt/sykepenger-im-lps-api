@@ -116,7 +116,7 @@ class ForespoerselRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
-            response.headers["X-Warning-limit-reached"].toString() shouldBe MAX_ANTALL_I_RESPONS.toString()
+            response.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
             val forespoerslerSvar = response.body<List<Forespoersel>>()
             forespoerslerSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
