@@ -1,8 +1,11 @@
 package no.nav.helsearbeidsgiver.plugins
 
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.response.header
+import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
@@ -23,5 +26,19 @@ fun Application.configureRouting(services: Services) {
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
             soeknadV1(soeknadService = services.soeknadService)
         }
+    }
+}
+
+suspend inline fun <reified T> respondWithMaxLimit(
+    call: ApplicationCall,
+    entities: List<T>,
+    limit: Int = 1000,
+) {
+    if (entities.size > limit) {
+        call.response.header("X-Warning-limit-reached", limit.toString())
+        val liste = entities.subList(0, limit)
+        call.respond(liste)
+    } else {
+        call.respond(entities)
     }
 }

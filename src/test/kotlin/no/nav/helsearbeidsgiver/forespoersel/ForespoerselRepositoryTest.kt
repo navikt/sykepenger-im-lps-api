@@ -134,4 +134,13 @@ class ForespoerselRepositoryTest {
         }
         unmockkStatic(LocalDateTime::class)
     }
+
+    @Test
+    fun begrensAntall() {
+        for (i in 1..1050) {
+            forespoerselRepository.lagreForespoersel(forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, UUID.randomUUID()))
+        }
+        val filter = ForespoerselRequest(orgnr = DEFAULT_ORG)
+        forespoerselRepository.hentForespoersler(DEFAULT_ORG, filter).size shouldBe 1001
+    }
 }

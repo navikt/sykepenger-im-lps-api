@@ -94,6 +94,38 @@ class ForespoerselRoutingTest : ApiTest() {
     }
 
     @Test
+    fun `hvis over max antall forespørsler skal response begrenses og en header settes`() {
+        val antallForventedeForespoersler = 1000
+        every {
+            repositories.forespoerselRepository.hentForespoersler(
+                orgnr = DEFAULT_ORG,
+                request = ForespoerselRequest(orgnr = DEFAULT_ORG),
+            )
+        } returns
+            List(
+                1100,
+            ) {
+                mockForespoersel().copy(
+                    orgnr = DEFAULT_ORG,
+                    navReferanseId = UUID.randomUUID(),
+                )
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselRequest(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselRequest.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            response.headers["X-Warning-limit-reached"].toString() shouldBe antallForventedeForespoersler.toString()
+            val forespoerslerSvar = response.body<List<Forespoersel>>()
+            forespoerslerSvar.size shouldBe antallForventedeForespoersler
+        }
+    }
+
+    @Test
     fun `gir 404 dersom forespørsel ikke finnes`() {
         val navReferanseId = UUID.randomUUID()
         every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } returns null

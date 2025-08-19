@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -25,6 +26,7 @@ fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
+private const val MAX_ANTALL_I_RESPONS = 1000
 
 @Deprecated(
     message =
@@ -115,7 +117,9 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [$orgnr] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respond(forespoerselService.filtrerForespoersler(orgnr = orgnr, request = request))
+            val forespoersler = forespoerselService.filtrerForespoersler(orgnr = orgnr, request = request)
+            respondWithMaxLimit(call, forespoersler, MAX_ANTALL_I_RESPONS)
+            return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {

@@ -116,6 +116,7 @@ class ForespoerselRepository(
             request.status?.let { query.andWhere { status eq it } }
             request.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
             request.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
+            query.limit(1001)
             query.map {
                 it.toExposedforespoersel()
             }
