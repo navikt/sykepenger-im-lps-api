@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -137,12 +138,13 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            inntektsmeldingService
-                .hentInntektsMelding(
-                    filter = filter,
-                ).let {
-                    call.respond(it)
-                }
+            val inntektsmeldinger =
+                inntektsmeldingService
+                    .hentInntektsMelding(
+                        filter = filter,
+                    )
+            respondWithMaxLimit(call, inntektsmeldinger)
+            return@post
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
         } catch (e: Exception) {

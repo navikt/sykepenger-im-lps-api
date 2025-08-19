@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -86,6 +87,7 @@ class InntektsmeldingRepository(
             filter.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
             filter.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
+            query.limit(MAX_ANTALL_I_RESPONS + 1)
             query.map { it.toExposedInntektsmelding() }
         }
 

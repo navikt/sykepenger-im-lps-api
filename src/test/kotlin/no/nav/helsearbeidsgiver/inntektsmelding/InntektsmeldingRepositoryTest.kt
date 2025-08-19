@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -206,17 +207,20 @@ class InntektsmeldingRepositoryTest {
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
     }
 
-    private fun generateTestData(
-        org: Orgnr,
-        sykmeldtFnr: Fnr,
-        forespoerselId: UUID,
-    ) {
+    @Test
+    fun `repository skal begrense antall entiteter som returneres - kan max returnere maxLimit + 1`() {
         val repository = InntektsmeldingRepository(db)
-        val inntektsmeldingJson =
-            buildInntektsmelding(forespoerselId = forespoerselId, orgnr = org, sykemeldtFnr = sykmeldtFnr)
-        repository.opprettInntektsmelding(
-            im = inntektsmeldingJson,
-        )
+        for (i in 1..MAX_ANTALL_I_RESPONS + 10) {
+            val forespoerselId = UUID.randomUUID()
+            val inntektsmeldingId = UUID.randomUUID()
+
+            val inntektsmeldingJson =
+                buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+            repository.opprettInntektsmelding(
+                inntektsmeldingJson,
+            )
+        }
+        repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG)).size shouldBe MAX_ANTALL_I_RESPONS + 1
     }
 
     @Test
@@ -235,5 +239,18 @@ class InntektsmeldingRepositoryTest {
         assertEquals(DEFAULT_FNR, result[0].sykmeldtFnr)
         assertEquals(inntektsmeldingId, result[0].id)
         assertEquals(forespoerselId, result[0].navReferanseId)
+    }
+
+    private fun generateTestData(
+        org: Orgnr,
+        sykmeldtFnr: Fnr,
+        forespoerselId: UUID,
+    ) {
+        val repository = InntektsmeldingRepository(db)
+        val inntektsmeldingJson =
+            buildInntektsmelding(forespoerselId = forespoerselId, orgnr = org, sykemeldtFnr = sykmeldtFnr)
+        repository.opprettInntektsmelding(
+            im = inntektsmeldingJson,
+        )
     }
 }

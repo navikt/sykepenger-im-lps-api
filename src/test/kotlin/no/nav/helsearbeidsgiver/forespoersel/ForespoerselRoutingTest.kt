@@ -93,7 +93,7 @@ class ForespoerselRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hvis over max antall forespørsler skal response begrenses og en header settes`() {
+    fun `hvis query gir flere enn max antall entiteter skal response begrenses og en header settes`() {
         every {
             repositories.forespoerselRepository.hentForespoersler(
                 filter = ForespoerselFilter(orgnr = DEFAULT_ORG),

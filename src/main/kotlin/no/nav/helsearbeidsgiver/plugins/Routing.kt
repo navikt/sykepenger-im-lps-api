@@ -7,6 +7,7 @@ import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
@@ -32,11 +33,10 @@ fun Application.configureRouting(services: Services) {
 suspend inline fun <reified T> respondWithMaxLimit(
     call: ApplicationCall,
     entities: List<T>,
-    limit: Int = 1000,
 ) {
-    if (entities.size > limit) {
-        call.response.header("X-Warning-limit-reached", limit.toString())
-        val liste = entities.subList(0, limit)
+    if (entities.size > MAX_ANTALL_I_RESPONS) {
+        call.response.header("X-Warning-limit-reached", MAX_ANTALL_I_RESPONS.toString())
+        val liste = entities.subList(0, MAX_ANTALL_I_RESPONS)
         call.respond(liste)
     } else {
         call.respond(entities)
