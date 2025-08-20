@@ -81,7 +81,7 @@ class ForespoerselRoutingTest : ApiTest() {
             )
         } returns
             List(
-                1100,
+                MAX_ANTALL_I_RESPONS + 10,
             ) {
                 mockForespoersel().copy(
                     orgnr = DEFAULT_ORG,
