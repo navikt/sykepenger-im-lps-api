@@ -46,6 +46,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -53,7 +57,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/Forespoersel"
         "400":
-          description: "Bad Request"
+          description: "Bad Request <br> TODO: Kan hende at vi må catche denne kun\
+            \ rundt navReferanse-parsing - gjelder andre entiteter /ruter også. <br>\
+            \ Eller vi kan pakke inn feil i egne service-exceptions el.l. <br> I sø\
+            knad-rute boblet en require fra entitet-laget opp hit, og ga en uforstå\
+            elig badrequest-feilmelding (og ingen logger)"
           content:
             '*/*':
               schema:
@@ -88,7 +96,11 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
                   value: "Ikke tilgang til ressurs"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -131,8 +143,18 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
+          headers:
+            X-Warning-limit-reached:
+              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
+              schema:
+                type: integer
+                example: 1000
           content:
             '*/*':
               schema:
@@ -190,6 +212,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "409":
           description: "Conflict"
           content:
@@ -244,8 +270,18 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
+          headers:
+            X-Warning-limit-reached:
+              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
+              schema:
+                type: integer
+                example: 1000
           content:
             '*/*':
               schema:
@@ -293,6 +329,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -335,6 +375,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -370,6 +414,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -412,8 +460,18 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
+          headers:
+            X-Warning-limit-reached:
+              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
+              schema:
+                type: integer
+                example: 1000
           content:
             '*/*':
               schema:
@@ -473,6 +531,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -506,6 +568,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -548,8 +614,18 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
+          headers:
+            X-Warning-limit-reached:
+              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
+              schema:
+                type: integer
+                example: 1000
           content:
             '*/*':
               schema:
@@ -604,6 +680,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
           content:
@@ -640,6 +720,10 @@ paths:
                 Example#1:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
+                  value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -682,8 +766,18 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
+          headers:
+            X-Warning-limit-reached:
+              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
+              schema:
+                type: integer
+                example: 1000
           content:
             '*/*':
               schema:
