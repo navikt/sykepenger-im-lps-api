@@ -59,7 +59,7 @@ class InntektsmeldingRepositoryTest {
             im = inntektsmeldingJson,
         )
 
-        val result = repository.hent(DEFAULT_ORG)[0]
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))[0]
 
         assertEquals(forventetSkjema.forespoerselId, result.navReferanseId)
         assertEquals(inntektsmeldingJson.id, result.id)
@@ -81,7 +81,7 @@ class InntektsmeldingRepositoryTest {
         repository.opprettInntektsmelding(
             im = inntektsmeldingJson,
         )
-        val result = repository.hent(DEFAULT_ORG)
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
         assertEquals(1, result.size)
 
         assertThrows<ExposedSQLException> {
@@ -90,7 +90,7 @@ class InntektsmeldingRepositoryTest {
             )
         }
 
-        val result2 = repository.hent(DEFAULT_ORG)
+        val result2 = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
         assertEquals(1, result2.size)
         assertEquals(inntektsmeldingJson.id, result2[0].id)
     }
@@ -106,7 +106,7 @@ class InntektsmeldingRepositoryTest {
             inntektsmeldingJson,
         )
 
-        val result = repository.hent(DEFAULT_ORG)
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
 
         assertEquals(1, result.size)
         assertEquals(DEFAULT_ORG, result[0].arbeidsgiver.orgnr)
@@ -191,7 +191,7 @@ class InntektsmeldingRepositoryTest {
             im = inntektsmelding2,
             innsendingStatus = InnsendingStatus.MOTTATT,
         )
-        val result = repository.hent(DEFAULT_ORG)
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
         result[0].status shouldBe InnsendingStatus.MOTTATT
         repository.oppdaterStatus(inntektsmelding1, nyStatus = InnsendingStatus.GODKJENT)
         val oppdatertInntektsmelding =

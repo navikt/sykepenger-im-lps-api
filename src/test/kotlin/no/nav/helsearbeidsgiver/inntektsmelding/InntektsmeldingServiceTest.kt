@@ -83,46 +83,6 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsmeldingerByOrgNr should call inntektsmeldingRepository`() {
-        val orgnr = "123456789"
-        val fnr = "12345678901"
-        val innsendt = LocalDateTime.now()
-        val navReferanseId = UUID.randomUUID()
-        val innsendingId = UUID.randomUUID()
-        val skjema = buildInntektsmelding(forespoerselId = navReferanseId).tilSkjema()
-        every { inntektsmeldingRepository.hent(orgnr) } returns
-            listOf(
-                InntektsmeldingResponse(
-                    navReferanseId = navReferanseId,
-                    agp = skjema.agp,
-                    inntekt = skjema.inntekt,
-                    refusjon = skjema.refusjon,
-                    sykmeldtFnr = fnr,
-                    aarsakInnsending = AarsakInnsending.Ny,
-                    typeInnsending = InnsendingType.FORESPURT,
-                    innsendtTid = innsendt,
-                    versjon = 1,
-                    arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
-                    avsender = Avsender("", ""),
-                    status = InnsendingStatus.MOTTATT,
-                    statusMelding = null,
-                    id = innsendingId,
-                ),
-            )
-        val hentInntektsmeldingerByOrgNr = inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr)
-
-        verify {
-            inntektsmeldingRepository.hent(orgnr)
-        }
-        assertEquals(1, hentInntektsmeldingerByOrgNr.size)
-        val inntektsmelding = hentInntektsmeldingerByOrgNr[0]
-        assertEquals(orgnr, inntektsmelding.arbeidsgiver.orgnr)
-        assertEquals(fnr, inntektsmelding.sykmeldtFnr)
-        assertEquals(navReferanseId, inntektsmelding.navReferanseId)
-        assertEquals(innsendt, inntektsmelding.innsendtTid)
-    }
-
-    @Test
     fun `hentInntektsMelding må kalle inntektsmeldingRepository`() {
         val navReferanseId = UUID.randomUUID()
         val innsendingId = UUID.randomUUID()
@@ -172,11 +132,11 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsmeldingerByOrgNr kaster exception ved error`() {
-        val orgnr = "123456789"
-        every { inntektsmeldingRepository.hent(orgnr) } throws Exception()
+    fun `henting av inntektsmelding kaster exception ved feil`() {
+        val orgnr = Orgnr.genererGyldig().verdi
+        every { inntektsmeldingRepository.hent(filter = InntektsmeldingFilter(orgnr = orgnr)) } throws Exception()
 
-        assertThrows<Exception> { inntektsmeldingService.hentInntektsmeldingerByOrgNr(orgnr) }
+        assertThrows<Exception> { inntektsmeldingService.hentInntektsMelding(filter = InntektsmeldingFilter(orgnr = orgnr)) }
     }
 
     @Test

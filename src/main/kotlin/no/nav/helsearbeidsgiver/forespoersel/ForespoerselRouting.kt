@@ -18,38 +18,12 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
-        forespoersler(forespoerselService)
         forespoersel(forespoerselService)
         filtrerForespoersler(forespoerselService)
     }
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-
-@Deprecated(
-    message =
-        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
-            "Vi anbefaler å bruke POST /forespoersler istedenfor.",
-    level = DeprecationLevel.WARNING,
-)
-private fun Route.forespoersler(forespoerselService: ForespoerselService) {
-    // Hent forespørsler for tilhørende systembrukers orgnr.
-    get("/forespoersler") {
-        try {
-            if (!tokenValidationContext().harTilgangTilRessurs(IM_RESSURS)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-                return@get
-            }
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter forespørsler for bedrift: [$sluttbrukerOrgnr]")
-            call.respond(forespoerselService.hentForespoerslerForOrgnr(sluttbrukerOrgnr))
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av forespørsler", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
-        }
-    }
-}
 
 private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     // Hent forespørsel med navReferanseId.
@@ -82,9 +56,6 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             )
             call.respond(forespoersel)
         } catch (_: IllegalArgumentException) {
-            // TODO: Kan hende at vi må catche denne kun rundt navReferanse-parsing - gjelder andre entiteter /ruter også.
-            // Eller vi kan pakke inn feil i egne service-exceptions el.l.
-            // I søknad-rute boblet en require fra entitet-laget opp hit, og ga en uforståelig badrequest-feilmelding (og ingen logger)
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)

@@ -44,7 +44,7 @@ class ForespoerselRepositoryTest {
             forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID),
             eksponertForespoerselId = forespoerselID,
         )
-        val forespoersler = forespoerselRepository.hentForespoersler(DEFAULT_ORG)
+        val forespoersler = forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(DEFAULT_ORG))
         forespoersler.size shouldBe 1
         forespoersler[0].status shouldBe Status.AKTIV
         forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
@@ -56,7 +56,11 @@ class ForespoerselRepositoryTest {
     fun hentVedtaksperiodeId() {
         val dokument = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR)
         dokument.forespoerselId
-        forespoerselRepository.lagreForespoersel(dokument, Status.AKTIV, eksponertForespoerselId = dokument.forespoerselId)
+        forespoerselRepository.lagreForespoersel(
+            dokument,
+            Status.AKTIV,
+            eksponertForespoerselId = dokument.forespoerselId,
+        )
         forespoerselRepository.hentVedtaksperiodeId(dokument.forespoerselId) shouldBe dokument.vedtaksperiodeId
     }
 
@@ -85,7 +89,7 @@ class ForespoerselRepositoryTest {
             eksponertForespoerselId = forespoerselID2,
         )
 
-        val forespoersler = forespoerselRepository.hentForespoersler(DEFAULT_ORG)
+        val forespoersler = forespoerselRepository.hentForespoersler(filter = ForespoerselFilter(orgnr = DEFAULT_ORG))
         forespoersler.size shouldBe 2
     }
 

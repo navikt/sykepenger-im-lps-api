@@ -84,21 +84,6 @@ class ForespoerselRepository(
                 }.firstOrNull()
         }
 
-    @Deprecated(
-        message =
-            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/forespoersler " +
-                "Bruk hentForespoersler(orgnr: String, request: ForespoerselRequest) istedenfor.",
-    )
-    fun hentForespoersler(orgnr: String): List<Forespoersel> =
-        transaction(db) {
-            ForespoerselEntitet
-                .selectAll()
-                .where { ForespoerselEntitet.orgnr eq orgnr }
-                .map {
-                    it.toExposedforespoersel()
-                }
-        }
-
     fun hentForespoersler(filter: ForespoerselFilter): List<Forespoersel> =
         transaction(db) {
             addLogger(StdOutSqlLogger)

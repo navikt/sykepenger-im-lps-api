@@ -46,6 +46,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -71,41 +75,6 @@ paths:
                 Example#1:
                   value: "Feil ved henting av forespørsler"
   /v1/forespoersler:
-    get:
-      tags:
-        - "Forespørsel om inntektsmelding"
-      deprecated: true
-      summary: "Bruk POST /v1/forespoersler istedenfor"
-      description: "Hent forespørsler for tilhørende systembrukers orgnr."
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Uautorisert tilgang"
-                Example#2:
-                  value: "Ikke tilgang til ressurs"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Forespoersel"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Feil ved henting av forespørsler"
     post:
       tags:
         - "Forespørsel om inntektsmelding"
@@ -131,6 +100,10 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -190,6 +163,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "409":
           description: "Conflict"
           content:
@@ -211,14 +188,14 @@ paths:
               examples:
                 Example#1:
                   value: "En feil oppstod"
-  /v1/inntektsmelding/{inntektsmeldingId}:
+  /v1/inntektsmelding/{innsendingId}:
     get:
       tags:
         - "Inntektsmelding"
       summary: "Hent inntektsmelding"
       description: "Hent inntektsmelding med id"
       parameters:
-        - name: "inntektsmeldingId"
+        - name: "innsendingId"
           in: "path"
           required: true
           schema:
@@ -244,6 +221,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -268,126 +249,7 @@ paths:
               examples:
                 Example#1:
                   value: "Feil ved henting av inntektsmeldinger"
-  /v1/inntektsmelding/navReferanseId/{navReferanseId}:
-    get:
-      tags:
-        - "Inntektsmelding"
-      deprecated: true
-      summary: "Bruk POST /v1/inntektsmeldinger istedenfor"
-      description: "Hent alle inntektsmeldinger med navReferanseId"
-      parameters:
-        - name: "navReferanseId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
-                  value: "Uautorisert tilgang"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/InntektsmeldingResponse"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Feil ved henting av inntektsmeldinger"
-  /v1/inntektsmelding/status/{status}:
-    get:
-      tags:
-        - "Inntektsmelding"
-      deprecated: true
-      summary: "Bruk POST /v1/inntektsmeldinger istedenfor"
-      description: "Hent alle inntektsmeldinger med status"
-      parameters:
-        - name: "status"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
-                  value: "Uautorisert tilgang"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/InntektsmeldingResponse"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Feil ved henting av inntektsmeldinger"
   /v1/inntektsmeldinger:
-    get:
-      tags:
-        - "Inntektsmelding"
-      deprecated: true
-      summary: "Bruk POST /v1/inntektsmeldinger istedenfor"
-      description: "Hent alle inntektsmeldinger for tilhørende systembrukers orgnr"
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
-                  value: "Uautorisert tilgang"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/InntektsmeldingResponse"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Feil ved henting av inntektsmeldinger"
     post:
       tags:
         - "Inntektsmelding"
@@ -412,6 +274,10 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -473,6 +339,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -489,41 +359,6 @@ paths:
                 Example#1:
                   value: "Feil ved henting av søknad"
   /v1/sykepengesoeknader:
-    get:
-      tags:
-        - "Sykepengesøknad"
-      deprecated: true
-      summary: "Bruk POST /v1/sykepengesoeknader istedenfor"
-      description: "Hent sykepengesøknader sendt til tilhørende systembrukers orgnr."
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
-                  value: "Uautorisert tilgang"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Sykepengesoeknad"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Feil ved henting av søknader"
     post:
       tags:
         - "Sykepengesøknad"
@@ -548,6 +383,10 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -604,6 +443,10 @@ paths:
                   value: "Ikke tilgang til ressurs"
                 Example#2:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
           content:
@@ -623,41 +466,6 @@ paths:
                 Example#1:
                   value: "Feil ved henting av sykmelding"
   /v1/sykmeldinger:
-    get:
-      tags:
-        - "Sykmelding"
-      deprecated: true
-      summary: "Bruk POST /v1/sykmeldinger istedenfor"
-      description: ""
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
-                  value: "Uautorisert tilgang"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Sykmelding"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Feil ved henting av sykmeldinger"
     post:
       tags:
         - "Sykmelding"
@@ -682,6 +490,10 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#2:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:

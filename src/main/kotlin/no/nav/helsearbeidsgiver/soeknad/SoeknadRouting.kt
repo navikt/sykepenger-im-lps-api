@@ -23,7 +23,6 @@ fun Route.soeknadV1(soeknadService: SoeknadService) {
     route("/v1") {
         soeknad(soeknadService)
         filtrerSoeknader(soeknadService)
-        soeknader(soeknadService)
     }
 }
 
@@ -60,35 +59,6 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av søknader", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknad")
-        }
-    }
-}
-
-@Deprecated(
-    message =
-        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
-            "Vi anbefaler å bruke POST /sykepengesoeknader istedenfor.",
-    level = DeprecationLevel.WARNING,
-)
-private fun Route.soeknader(soeknadService: SoeknadService) {
-    // Hent sykepengesøknader sendt til tilhørende systembrukers orgnr.
-    get("/sykepengesoeknader") {
-        try {
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknader for bedrift: [$sluttbrukerOrgnr]")
-            if (!tokenValidationContext().harTilgangTilRessurs(SOKNAD_RESSURS)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-                return@get
-            }
-            val soeknader: List<Sykepengesoeknad> =
-                soeknadService.hentSoeknader(
-                    sluttbrukerOrgnr,
-                )
-            call.respond(soeknader)
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av søknader", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknader")
         }
     }
 }
