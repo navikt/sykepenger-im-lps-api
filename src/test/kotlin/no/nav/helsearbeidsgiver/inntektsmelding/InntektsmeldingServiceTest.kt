@@ -132,7 +132,7 @@ class InntektsmeldingServiceTest {
     }
 
     @Test
-    fun `hentInntektsmeldingerByOrgNr kaster exception ved error`() {
+    fun `henting av inntektsmelding kaster exception ved feil`() {
         val orgnr = Orgnr.genererGyldig().verdi
         every { inntektsmeldingRepository.hent(filter = InntektsmeldingFilter(orgnr = orgnr)) } throws Exception()
 
