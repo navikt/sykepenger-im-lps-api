@@ -4,7 +4,10 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.every
@@ -18,12 +21,14 @@ import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselFilter
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
@@ -89,7 +94,9 @@ class ForespoerselIT {
                 TestData.FORESPOERSEL_MOTTATT,
             )
             val response =
-                client.get("/v1/forespoersler") {
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselFilter(orgnr = orgnr.toString()).toJson(serializer = ForespoerselFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr.toString()))
                 }
             response.status.value shouldBe 200

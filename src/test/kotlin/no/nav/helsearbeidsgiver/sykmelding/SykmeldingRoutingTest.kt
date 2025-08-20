@@ -47,26 +47,6 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent sykmeldinger fra deprecated endepunkt`() {
-        val sykmeldingId = UUID.randomUUID()
-        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns
-            listOf(
-                sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO(),
-            )
-        runBlocking {
-            val response =
-                client.get("/v1/sykmeldinger") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            response.status shouldBe HttpStatusCode.OK
-            val sykmeldingSvar = response.body<List<Sykmelding>>()
-            sykmeldingSvar.size shouldBe 1
-            sykmeldingSvar[0].sykmeldingId shouldBe sykmeldingId.toString()
-            sykmeldingSvar[0].arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
-        }
-    }
-
-    @Test
     fun `hent en spesifikk sykmelding`() {
         val sykmeldingId = UUID.randomUUID()
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
@@ -156,23 +136,6 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `returnerer tom liste når det ikke er noen sykmeldinger på et orgnr`() {
-        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
-
-        runBlocking {
-            val response =
-                client.post("/v1/sykmeldinger") {
-                    contentType(ContentType.Application.Json)
-                    setBody(SykmeldingFilter(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilter.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            response.status shouldBe HttpStatusCode.OK
-            val sykmeldingSvar = response.body<List<Sykmelding>>()
-            sykmeldingSvar.size shouldBe 0
-        }
-    }
-
-    @Test
     fun `gir 400 dersom navReferanseId er ugyldig`() {
         val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
@@ -187,7 +150,8 @@ class SykmeldingRoutingTest : ApiTest() {
 
     @Test
     fun `gir 400 dersom man ber om sykmeldinger fra lenge før vår tidsregning`() {
-        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
+        val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
+        every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
 
         runBlocking {
             val response =
@@ -210,7 +174,8 @@ class SykmeldingRoutingTest : ApiTest() {
 
     @Test
     fun `gir 400 dersom man ber om sykmeldinger for skrekkelig langt inn i fremtiden`() {
-        every { repositories.sykmeldingRepository.hentSykmeldinger(DEFAULT_ORG) } returns emptyList()
+        val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
+        every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
 
         runBlocking {
             val response =

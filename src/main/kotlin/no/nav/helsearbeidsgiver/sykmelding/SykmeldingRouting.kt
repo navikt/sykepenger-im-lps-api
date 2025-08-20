@@ -23,7 +23,6 @@ private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
-        sykmeldinger(sykmeldingService)
         sykmelding(sykmeldingService)
         filtrerSykmeldinger(sykmeldingService)
     }
@@ -63,33 +62,6 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av sykmelding", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmelding")
-        }
-    }
-}
-
-@Deprecated(
-    message =
-        "Fungerer kun dersom systembruker er satt opp på sluttbruker-organisasjonens underenhet. " +
-            "Vi anbefaler å bruke POST /sykmeldinger istedenfor.",
-    level = DeprecationLevel.WARNING,
-)
-private fun Route.sykmeldinger(sykmeldingService: SykmeldingService) {
-    get("/sykmeldinger") {
-        // Hent alle sykmeldinger for et orgnr
-        // Orgnr i systembruker token må samsvare med orgnr i sykmeldingen
-        try {
-            val sluttbrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!tokenValidationContext().harTilgangTilRessurs(SM_RESSURS)) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
-            } else {
-                sikkerLogger().info("LPS: [$lpsOrgnr] henter sykmeldinger for bedrift: [$sluttbrukerOrgnr]")
-                val sykmeldinger = sykmeldingService.hentSykmeldinger(sluttbrukerOrgnr)
-                call.respond(sykmeldinger)
-            }
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av sykmeldinger", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmeldinger")
         }
     }
 }

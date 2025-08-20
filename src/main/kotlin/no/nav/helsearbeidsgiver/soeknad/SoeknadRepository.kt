@@ -42,19 +42,6 @@ class SoeknadRepository(
         }
     }
 
-    @Deprecated(
-        message =
-            "Kan slettes når vi fjerner det utfasede endepunktet GET v1/soeknader ." +
-                "Bruk hentSoeknader(filter: SykepengesoeknadFilter) istedenfor.",
-    )
-    fun hentSoeknader(orgnr: String): List<SykepengesoknadDTO> =
-        transaction(db) {
-            SoeknadEntitet
-                .selectAll()
-                .where { SoeknadEntitet.orgnr eq orgnr }
-                .map { it[sykepengesoeknad] }
-        }
-
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengesoknadDTO> =
         transaction(db) {
             val query =

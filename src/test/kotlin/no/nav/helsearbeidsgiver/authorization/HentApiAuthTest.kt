@@ -60,49 +60,12 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         resultat: DokumentDTO,
     )
 
-    @Deprecated(
-        message =
-            "Kan slettes når vi fjerner de utfasede endepunktene " +
-                "GET v1/sykmeldinger, GET v1/forespoersler, GET v1/sykepengesoeknader og GET v1/inntektsmeldinger ." +
-                "Bruk mockHentingAvDokumenter(orgnr: String, filter: Filter, resultat: List<DokumentDTO>) istedenfor.",
-    )
-    abstract fun mockHentingAvDokumenter(
-        orgnr: String,
-        resultat: List<DokumentDTO>,
-    )
-
     abstract fun mockHentingAvDokumenter(
         filter: Filter,
         resultat: List<DokumentDTO>,
     )
 
     abstract fun hentOrgnrFraDokument(dokument: Dokument): String
-
-    @Test
-    fun `gir 200 OK ved henting av dokumenter fra utfaset endepunkt`() {
-        val mockDokument = mockDokument(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
-
-        mockHentingAvDokumenter(
-            orgnr = underenhetOrgnrMedPdpTilgang,
-            resultat = listOf(mockDokument),
-        )
-
-        runBlocking {
-            val respons =
-                client.get(utfasetEndepunkt) {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(underenhetOrgnrMedPdpTilgang))
-                }
-
-            respons.status shouldBe HttpStatusCode.OK
-
-            val dokumentSvar = respons.bodyAsText().fromJson(ListSerializer(dokumentSerializer))
-            dokumentSvar.size shouldBe 1
-
-            val foersteSvarElement = dokumentSvar[0]
-            assertNotNull(foersteSvarElement)
-            hentOrgnrFraDokument(foersteSvarElement) shouldBe underenhetOrgnrMedPdpTilgang
-        }
-    }
 
     @Test
     fun `gir 200 OK ved henting av en spesifikk dokument`() {
@@ -158,28 +121,25 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
     @Test
     fun `gir 401 Unauthorized når token mangler ved henting av dokumenter`() {
-        val respons1 = runBlocking { client.get(filtreringEndepunkt) }
+        val respons1 = runBlocking { client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") }
         respons1.status shouldBe HttpStatusCode.Unauthorized
 
-        val respons2 = runBlocking { client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
-
         val requestBody = lagFilter(underenhetOrgnrMedPdpTilgang)
-        val respons3 =
+        val respons2 =
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(filterSerializer))
                 }
             }
-        respons3.status shouldBe HttpStatusCode.Unauthorized
+        respons2.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test
     fun `gir 401 Unauthorized når systembruker mangler i token ved henting av dokumenter`() {
         val respons1 =
             runBlocking {
-                client.get(filtreringEndepunkt) {
+                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             }
@@ -187,35 +147,13 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
         val respons2 =
             runBlocking {
-                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") {
-                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
-                }
-            }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
-
-        val respons3 =
-            runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
                     setBody(lagFilter(underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
             }
-        respons3.status shouldBe HttpStatusCode.Unauthorized
-    }
-
-    @Test
-    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren fra utfaset endepunkt`() {
-        val mockDokument = mockDokument(id = UUID.randomUUID(), orgnr = underenhetOrgnrMedPdpTilgang)
-        mockHentingAvDokumenter(underenhetOrgnrMedPdpTilgang, listOf(mockDokument))
-
-        val respons =
-            runBlocking {
-                client.get(utfasetEndepunkt) {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons.status shouldBe HttpStatusCode.Unauthorized
+        respons2.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test

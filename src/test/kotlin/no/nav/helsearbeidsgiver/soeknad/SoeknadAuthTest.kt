@@ -42,13 +42,6 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     override fun lagFilter(orgnr: String): SykepengesoeknadFilter = SykepengesoeknadFilter(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
-        orgnr: String,
-        resultat: List<SykepengesoknadDTO>,
-    ) {
-        every { repositories.soeknadRepository.hentSoeknader(orgnr) } returns resultat
-    }
-
-    override fun mockHentingAvDokumenter(
         filter: SykepengesoeknadFilter,
         resultat: List<SykepengesoknadDTO>,
     ) {

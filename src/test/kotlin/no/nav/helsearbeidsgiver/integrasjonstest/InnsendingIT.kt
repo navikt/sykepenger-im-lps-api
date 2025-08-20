@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -24,6 +23,7 @@ import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilter
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
@@ -90,7 +90,9 @@ class InnsendingIT {
                 buildJournalfoertInntektsmelding(orgnr = Orgnr(orgnr1)),
             )
             val response =
-                client.get("/v1/inntektsmeldinger") {
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(InntektsmeldingFilter(orgnr = orgnr1).toJson(serializer = InntektsmeldingFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
             response.status shouldBe HttpStatusCode.OK

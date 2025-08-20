@@ -57,21 +57,6 @@ abstract class ApiTest {
 
     fun mockPdpTilganger() {
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnr = orgnrUtenPdpTilgang,
-                ressurs = any(),
-            )
-        } returns false
-
-        every {
-            getPdpService().harTilgang(
-                systembruker = any(),
-                orgnr = match { it == hovedenhetOrgnrMedPdpTilgang || it == underenhetOrgnrMedPdpTilgang },
-                ressurs = any(),
-            )
-        } returns true
 
         every {
             getPdpService().harTilgang(
