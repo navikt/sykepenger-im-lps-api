@@ -57,11 +57,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Forespoersel"
         "400":
-          description: "Bad Request <br> TODO: Kan hende at vi må catche denne kun\
-            \ rundt navReferanse-parsing - gjelder andre entiteter /ruter også. <br>\
-            \ Eller vi kan pakke inn feil i egne service-exceptions el.l. <br> I sø\
-            knad-rute boblet en require fra entitet-laget opp hit, og ga en uforstå\
-            elig badrequest-feilmelding (og ingen logger)"
+          description: "Bad Request"
           content:
             '*/*':
               schema:
