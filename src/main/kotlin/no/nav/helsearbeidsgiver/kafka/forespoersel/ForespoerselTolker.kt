@@ -31,7 +31,7 @@ class ForespoerselTolker(
                     return
                 } else {
                     if (melding.contains(NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID.toString())) {
-                        logger.error("Ugyldig forespørselformat! Melding n $NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID")
+                        logger.error("Ugyldig forespørselformat! Melding  ${NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID}")
                         return
                     }
                     sikkerLogger.error("Ugyldig forespørselformat!", e)
