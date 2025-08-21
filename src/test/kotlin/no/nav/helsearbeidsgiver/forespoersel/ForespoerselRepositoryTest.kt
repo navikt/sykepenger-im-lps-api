@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -162,5 +163,17 @@ class ForespoerselRepositoryTest {
             ForespoerselFilter(orgnr = DEFAULT_ORG, fom = LocalDate.of(-1, 12, 12))
         }
         unmockkStatic(LocalDateTime::class)
+    }
+
+    @Test
+    fun `repository skal begrense antall entiteter som returneres - kan max returnere maxLimit + 1`() {
+        for (i in 1..MAX_ANTALL_I_RESPONS + 10) {
+            forespoerselRepository.lagreForespoersel(
+                forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, UUID.randomUUID()),
+                eksponertForespoerselId = UUID.randomUUID(),
+            )
+        }
+        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG)
+        forespoerselRepository.hentForespoersler(filter).size shouldBe (MAX_ANTALL_I_RESPONS + 1)
     }
 }

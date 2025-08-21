@@ -13,6 +13,7 @@ import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
@@ -119,6 +120,41 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
             soeknadSvar.forEach {
                 it.arbeidsgiver.orgnr shouldBe underenhetOrgnrMedPdpTilgang
             }
+        }
+    }
+
+    @Test
+    fun `hvis query gir flere enn max antall entiteter skal response begrenses og en header settes`() {
+        val soeknaderSomSkalVisesTilArbeidsgiver =
+            List(
+                MAX_ANTALL_I_RESPONS + 10,
+            ) {
+                soeknadMock()
+                    .medId(UUID.randomUUID())
+                    .medOrgnr(underenhetOrgnrMedPdpTilgang)
+            }
+
+        val filter =
+            SykepengesoeknadFilter(
+                orgnr = underenhetOrgnrMedPdpTilgang,
+            )
+
+        mockHentingAvDokumenter(
+            filter = filter,
+            resultat = soeknaderSomSkalVisesTilArbeidsgiver,
+        )
+
+        runBlocking {
+            val respons =
+                client.post(filtreringEndepunkt) {
+                    contentType(ContentType.Application.Json)
+                    setBody(filter.toJson(filterSerializer))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                }
+            respons.status shouldBe HttpStatusCode.OK
+            respons.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
+            val soeknadSvar = respons.body<List<Sykepengesoeknad>>()
+            soeknadSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
     }
 }

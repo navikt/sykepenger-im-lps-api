@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -134,6 +135,19 @@ class SykmeldingRepositoryTest {
                     ),
             )
         sykmeldingerFomOgTom.size shouldBe 2
+    }
+
+    @Test
+    fun `repository skal begrense antall entiteter som returneres - kan max returnere maxLimit + 1`() {
+        val orgnr = DEFAULT_ORG
+        val sykmeldinger =
+            List(MAX_ANTALL_I_RESPONS + 10) { UUID.randomUUID() }.map { id ->
+                sykmeldingMock().medOrgnr(orgnr).medId(id.toString())
+            }
+
+        sykmeldinger.forEach { it.lagreSykmelding(sykmeldingRepository) }
+
+        sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr)).size shouldBe MAX_ANTALL_I_RESPONS + 1
     }
 }
 

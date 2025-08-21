@@ -12,6 +12,7 @@ import io.ktor.http.contentType
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -42,7 +43,7 @@ class ForespoerselRoutingTest : ApiTest() {
 
     @Test
     fun `hent alle forespørsler på et orgnr`() {
-        val antallForventedeForespoersler = 3
+        val antallForventedeForespoersler = MAX_ANTALL_I_RESPONS
         every {
             repositories.forespoerselRepository.hentForespoersler(
                 filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
@@ -64,11 +65,42 @@ class ForespoerselRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
+            response.headers["X-Warning-limit-reached"] shouldBe null // Skal ikke settes så lenge vi er innenfor MAX_ANTALL_I_RESPONS
             val forespoerslerSvar = response.body<List<Forespoersel>>()
             forespoerslerSvar.size shouldBe antallForventedeForespoersler
             forespoerslerSvar.forEach {
                 it.orgnr shouldBe DEFAULT_ORG
             }
+        }
+    }
+
+    @Test
+    fun `hvis query gir flere enn max antall entiteter skal response begrenses og en header settes`() {
+        every {
+            repositories.forespoerselRepository.hentForespoersler(
+                filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
+            )
+        } returns
+            List(
+                MAX_ANTALL_I_RESPONS + 10,
+            ) {
+                mockForespoersel().copy(
+                    orgnr = DEFAULT_ORG,
+                    navReferanseId = UUID.randomUUID(),
+                )
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/forespoersler") {
+                    contentType(ContentType.Application.Json)
+                    setBody(ForespoerselFilter(orgnr = DEFAULT_ORG).toJson(serializer = ForespoerselFilter.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            response.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
+            val forespoerslerSvar = response.body<List<Forespoersel>>()
+            forespoerslerSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
     }
 

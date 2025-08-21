@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -84,7 +85,9 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respond(forespoerselService.filtrerForespoersler(filter))
+            val forespoersler = forespoerselService.filtrerForespoersler(filter)
+            call.respondWithMaxLimit(forespoersler)
+            return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {

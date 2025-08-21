@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.soeknad
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
@@ -198,6 +199,20 @@ class SoeknadRepositoryTest {
         )
 
         soeknadRepository.hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId) shouldBe soeknaderMedVedtaksperiodeId
+    }
+
+    @Test
+    fun `repository skal begrense antall entiteter som returneres - kan max returnere maxLimit + 1`() {
+        val orgnr = Orgnr.genererGyldig()
+        val soeknaderMedSammeOrgnr =
+            List(MAX_ANTALL_I_RESPONS + 10) { UUID.randomUUID() }.map { id ->
+                soeknadMock().copy(
+                    id = id,
+                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+                )
+            }
+        soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
+        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr.verdi)).size shouldBe MAX_ANTALL_I_RESPONS + 1
     }
 
     private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =

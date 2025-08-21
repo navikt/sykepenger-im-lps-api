@@ -19,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -90,6 +91,33 @@ class SykmeldingRoutingTest : ApiTest() {
             sykmeldingSvar.forEach {
                 it.arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
             }
+        }
+    }
+
+    @Test
+    fun `hvis query gir flere enn max antall entiteter skal response begrenses og en header settes`() {
+        every {
+            repositories.sykmeldingRepository.hentSykmeldinger(
+                SykmeldingFilter(orgnr = DEFAULT_ORG),
+            )
+        } returns
+            List(
+                MAX_ANTALL_I_RESPONS + 10,
+            ) {
+                sykmeldingMock().medId(UUID.randomUUID()).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(SykmeldingFilter(orgnr = DEFAULT_ORG).toJson(serializer = SykmeldingFilter.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            response.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
+            val sykmeldingSvar = response.body<List<Sykmelding>>()
+            sykmeldingSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
     }
 

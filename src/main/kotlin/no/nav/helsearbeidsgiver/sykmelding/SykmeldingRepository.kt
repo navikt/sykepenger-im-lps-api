@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.mottattAvNav
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.orgnr
@@ -63,6 +64,7 @@ class SykmeldingRepository(
             filter.fnr?.let { query.andWhere { fnr eq it } }
             filter.fom?.let { query.andWhere { mottattAvNav greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { mottattAvNav lessEq it.tilTidspunktEndOfDay() } }
+            query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query
                 .map { it.toSykmelding() }
         }

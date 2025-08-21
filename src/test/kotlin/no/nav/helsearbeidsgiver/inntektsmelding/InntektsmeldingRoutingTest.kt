@@ -19,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -106,6 +107,42 @@ class InntektsmeldingRoutingTest : ApiTest() {
             inntektsmeldingSvar.forEach {
                 it.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
             }
+        }
+    }
+
+    @Test
+    fun `hvis query gir flere enn max antall entiteter skal response begrenses og en header settes`() {
+        every {
+            repositories.inntektsmeldingRepository.hent(
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG),
+            )
+        } returns
+            List(
+                MAX_ANTALL_I_RESPONS + 10,
+            ) {
+                val inntektsmelding =
+                    buildInntektsmelding(
+                        inntektsmeldingId = UUID.randomUUID(),
+                        orgnr = Orgnr(DEFAULT_ORG),
+                    )
+                mockInntektsmeldingResponse(inntektsmelding)
+            }
+
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilter(
+                            orgnr = DEFAULT_ORG,
+                        ).toJson(serializer = InntektsmeldingFilter.serializer()),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            response.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
     }
 
