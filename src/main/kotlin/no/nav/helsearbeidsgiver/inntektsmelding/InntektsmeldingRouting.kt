@@ -140,7 +140,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
                     .hentInntektsMelding(
                         filter = filter,
                     )
-            respondWithMaxLimit(call, inntektsmeldinger)
+            call.respondWithMaxLimit(inntektsmeldinger)
             return@post
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")

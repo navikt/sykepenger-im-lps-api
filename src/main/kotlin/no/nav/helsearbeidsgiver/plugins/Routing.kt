@@ -30,15 +30,12 @@ fun Application.configureRouting(services: Services) {
     }
 }
 
-suspend inline fun <reified T> respondWithMaxLimit(
-    call: ApplicationCall,
-    entities: List<T>,
-) {
+suspend inline fun <reified T> ApplicationCall.respondWithMaxLimit(entities: List<T>) {
     if (entities.size > MAX_ANTALL_I_RESPONS) {
-        call.response.header("X-Warning-limit-reached", MAX_ANTALL_I_RESPONS)
+        response.header("X-Warning-limit-reached", MAX_ANTALL_I_RESPONS)
         val liste = entities.subList(0, MAX_ANTALL_I_RESPONS)
-        call.respond(liste)
+        respond(liste)
     } else {
-        call.respond(entities)
+        respond(entities)
     }
 }

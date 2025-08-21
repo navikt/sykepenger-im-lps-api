@@ -86,7 +86,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val forespoersler = forespoerselService.filtrerForespoersler(filter)
-            respondWithMaxLimit(call, forespoersler)
+            call.respondWithMaxLimit(forespoersler)
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")

@@ -87,7 +87,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            respondWithMaxLimit(call, sykmeldingService.hentSykmeldinger(filter))
+            call.respondWithMaxLimit(sykmeldingService.hentSykmeldinger(filter))
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")

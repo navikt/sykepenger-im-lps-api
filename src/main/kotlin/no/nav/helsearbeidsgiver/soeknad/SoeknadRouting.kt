@@ -85,7 +85,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            respondWithMaxLimit(call, soeknadService.hentSoeknader(filter = filter))
+            call.respondWithMaxLimit(soeknadService.hentSoeknader(filter = filter))
             return@post
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
