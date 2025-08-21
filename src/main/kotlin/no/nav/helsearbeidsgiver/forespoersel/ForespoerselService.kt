@@ -165,7 +165,9 @@ class ForespoerselService(
         val hentet = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
 
         if (hentet == null) {
-            logger().info("Forespørsel med id: ${forespoersel.forespoerselId} og status $status finnes ikke, lagrer forespørsel.")
+            logger().info(
+                "import fsp: Forespørsel med id: ${forespoersel.forespoerselId} og status $status finnes ikke, lagrer forespørsel.",
+            )
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = status ?: Status.AKTIV,
@@ -175,13 +177,13 @@ class ForespoerselService(
         }
 
         if (status != null && hentet.status != status) {
-            logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, oppdaterer status til $status.")
+            logger().info("import fsp: Forespørsel med id: ${forespoersel.forespoerselId} finnes, oppdaterer status til $status.")
             forespoerselRepository.oppdaterStatus(forespoersel.forespoerselId, status)
         }
         val hentEksponertForespoerselId = hentEksponertForespoerselId(forespoersel.forespoerselId)
         if (hentEksponertForespoerselId != eksponertForespoerselId) {
             logger().info(
-                "Forespørsel med id: ${forespoersel.forespoerselId} oppdaterer eksponertForespoerselId til: $eksponertForespoerselId.",
+                "import fsp: Forespørsel med id: ${forespoersel.forespoerselId} oppdaterer eksponertForespoerselId til: $eksponertForespoerselId.",
             )
             forespoerselRepository.oppdaterEksponertForespoerselId(
                 forespoersel.forespoerselId,
@@ -190,6 +192,6 @@ class ForespoerselService(
             return
         }
 
-        logger().info("Forespørsel med id: ${forespoersel.forespoerselId} finnes, ingen oppdatering nødvendig.")
+        logger().info("import fsp: Forespørsel med id: ${forespoersel.forespoerselId} finnes, ingen oppdatering nødvendig.")
     }
 }

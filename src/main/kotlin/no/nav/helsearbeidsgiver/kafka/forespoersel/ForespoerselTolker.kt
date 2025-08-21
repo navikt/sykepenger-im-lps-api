@@ -30,6 +30,11 @@ class ForespoerselTolker(
                     logger.debug("Ignorerer behov-melding")
                     return
                 } else {
+                    if (melding.contains(NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID.toString())) {
+                        logger.error("import fsp: Ugyldig forespørselformat! Melding  ${NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID}")
+                        sikkerLogger.error("import fsp: Ugyldig forespørselformat! Melding", e)
+                        return
+                    }
                     sikkerLogger.error("Ugyldig forespørselformat!", e)
                     throw e
                 }
@@ -99,14 +104,16 @@ class ForespoerselTolker(
             }
 
             NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID -> {
-                logger.info("Forespørsel for vedtaksperiodeId mottat")
+                logger.info("import fsp: Forespørsel for vedtaksperiodeId mottat")
                 obj.forespoersel?.let { forespoersel ->
                     logger.info(
-                        "Lagrer eller oppdaterer forespørsel med id: ${forespoersel.forespoerselId} for vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}",
+                        "import fsp: Lagrer eller oppdaterer forespørsel med id: ${forespoersel.forespoerselId} for vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}",
                     )
 
                     obj.eksponertForespoerselId?.let { forespoerselService.lagreEllerOppdaterForespoersel(forespoersel, obj.status, it) }
-                        ?: logger.error("Eksponert forespørsel ID er null for forespørsel med id: ${forespoersel.forespoerselId}")
+                        ?: logger.error(
+                            "import fsp: Eksponert forespørsel ID er null for forespørsel med id: ${forespoersel.forespoerselId}",
+                        )
                 }
             }
         }
