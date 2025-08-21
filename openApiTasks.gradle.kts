@@ -97,16 +97,9 @@ tags:
 
         val pathPatterns =
             mapOf(
-                // Legg til header X-warning-limit-reached i response på alle POST-requests som returnerer 200 OK
-                Regex("""(\s+post:[\s\S]*?"200":\s*description:\s*"OK")\s*(content:)""") to
-                        """$1
-          headers:
-            X-Warning-limit-reached:
-              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
-              schema:
-                type: integer
-                example: 1000
-          $2""",
+
+
+
                 // GET /v1/forespoersel/{navReferanseId}
                 Regex("""(  /v1/forespoersel/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
                     """$1$2$3:$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: "Hent forespørsel"""",
@@ -145,6 +138,18 @@ tags:
 
                 // Fjern helsesjekk-endepunkter
                 Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
+
+                // Legg til header X-warning-limit-reached i response på alle POST-requests som returnerer 200 OK
+                Regex("""(er:\s+post:[\s\S]*?"200":\s*description:\s*"OK")\s*(content:)""") to
+                        """$1
+          headers:
+            X-Warning-limit-reached:
+              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
+              schema:
+                type: integer
+                example: 1000
+          $2""",
+
             )
 
         var newContent = content

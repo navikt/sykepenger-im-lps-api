@@ -36,8 +36,8 @@ private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
-        sendInntektsmelding(services)
         filtrerInntektsmeldinger(services.inntektsmeldingService)
+        sendInntektsmelding(services)
         hentInntektsmelding(services.inntektsmeldingService)
     }
 }
@@ -135,12 +135,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            val inntektsmeldinger =
-                inntektsmeldingService
-                    .hentInntektsMelding(
-                        filter = filter,
-                    )
-            call.respondWithMaxLimit(inntektsmeldinger)
+            call.respondWithMaxLimit(inntektsmeldingService.hentInntektsMelding(filter = filter))
             return@post
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")

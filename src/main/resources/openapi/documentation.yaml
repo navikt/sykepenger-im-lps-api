@@ -233,12 +233,6 @@ paths:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
-          headers:
-            X-Warning-limit-reached:
-              description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
-              schema:
-                type: integer
-                example: 1000
           content:
             '*/*':
               schema:
