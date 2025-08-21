@@ -99,6 +99,7 @@ tags:
             mapOf(
 
                 // Legg til header X-warning-limit-reached i response på alle POST-requests som returnerer 200 OK
+                // (og slutter på "er:" pga greedy matching) - TODO: bør gjøres litt mer robust..
                 Regex("""(er:\s+post:[\s\S]*?"200":\s*description:\s*"OK")\s*(content:)""") to
                         """$1
           headers:

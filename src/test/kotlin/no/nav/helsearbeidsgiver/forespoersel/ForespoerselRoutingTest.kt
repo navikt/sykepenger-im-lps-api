@@ -43,7 +43,7 @@ class ForespoerselRoutingTest : ApiTest() {
 
     @Test
     fun `hent alle forespørsler på et orgnr`() {
-        val antallForventedeForespoersler = 3
+        val antallForventedeForespoersler = MAX_ANTALL_I_RESPONS
         every {
             repositories.forespoerselRepository.hentForespoersler(
                 filter = ForespoerselFilter(orgnr = DEFAULT_ORG),
@@ -65,6 +65,7 @@ class ForespoerselRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
+            response.headers["X-Warning-limit-reached"] shouldBe null // Skal ikke settes så lenge vi er innenfor MAX_ANTALL_I_RESPONS
             val forespoerslerSvar = response.body<List<Forespoersel>>()
             forespoerslerSvar.size shouldBe antallForventedeForespoersler
             forespoerslerSvar.forEach {
