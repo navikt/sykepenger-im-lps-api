@@ -57,7 +57,7 @@ class SoeknadRepository(
             filter.tom?.let {
                 query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
             }
-            query.limit(MAX_ANTALL_I_RESPONS + 1)
+            query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {
                 it[sykepengesoeknad]
             }
