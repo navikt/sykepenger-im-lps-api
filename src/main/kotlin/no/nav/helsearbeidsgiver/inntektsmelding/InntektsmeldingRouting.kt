@@ -36,8 +36,8 @@ private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
-        filtrerInntektsmeldinger(services.inntektsmeldingService)
         sendInntektsmelding(services)
+        filtrerInntektsmeldinger(services.inntektsmeldingService)
         hentInntektsmelding(services.inntektsmeldingService)
     }
 }
