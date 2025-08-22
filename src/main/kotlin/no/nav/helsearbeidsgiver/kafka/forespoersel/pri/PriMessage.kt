@@ -28,7 +28,7 @@ Kopierte domeneobjekter fra BRO. Skal ikke eksponeres mot LPS, brukes for å tol
  */
 @Serializable
 data class ForespoerselDokument(
-    val type: Type? = null,
+    val type: Type,
     val orgnr: String,
     val fnr: String,
     val vedtaksperiodeId: UUID,
