@@ -33,6 +33,6 @@ data class ForespoerselDokument(
     val vedtaksperiodeId: UUID,
     val egenmeldingsperioder: List<Periode>,
     val sykmeldingsperioder: List<Periode>,
-    val bestemmendeFravaersdager: Map<Orgnr, LocalDate>,
+    val bestemmendeFravaersdager: Map<Orgnr, LocalDate> = emptyMap(),
     val forespurtData: ForespurtData,
 )
