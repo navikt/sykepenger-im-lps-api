@@ -138,7 +138,7 @@ class ForespoerselService(
     }
 
     private fun erDuplikat(forespoersel: ForespoerselDokument): Boolean {
-        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId, forespoersel.orgnr)
+        val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
         if (f != null) {
             logger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
             return true

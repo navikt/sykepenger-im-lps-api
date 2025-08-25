@@ -49,8 +49,8 @@ class ForespoerselRepositoryTest {
         forespoersler.size shouldBe 1
         forespoersler[0].status shouldBe Status.AKTIV
         forespoerselRepository.oppdaterStatus(forespoerselID, Status.BESVART)
-        forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.BESVART
-        forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG.reversed()) shouldBe null
+        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.BESVART
+        forespoerselRepository.hentForespoersel(UUID.randomUUID()) shouldBe null
     }
 
     @Test
@@ -74,7 +74,7 @@ class ForespoerselRepositoryTest {
         )
 
         forespoerselRepository.oppdaterStatus(forespoerselID, Status.FORKASTET)
-        forespoerselRepository.hentForespoersel(forespoerselID, DEFAULT_ORG)?.status shouldBe Status.FORKASTET
+        forespoerselRepository.hentForespoersel(forespoerselID)?.status shouldBe Status.FORKASTET
     }
 
     @Test
