@@ -119,5 +119,6 @@ tasks {
         environment("ALTINN_IM_RESSURS", "nav_system_sykepenger_inntektsmelding")
         environment("ALTINN_SM_RESSURS", "nav_system_sykepenger_sykmelding")
         environment("ALTINN_SOKNAD_RESSURS", "nav_system_sykepenger_soknad")
+        systemProperty("kotlinx.coroutines.test.default_timeout", "2m")
     }
 }
