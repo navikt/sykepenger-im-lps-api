@@ -191,7 +191,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         arbeidsgiver = Arbeidsgiver(im.avsender.orgnr.verdi, im.avsender.tlf),
         avsender = Avsender(im.type.avsenderSystem.navn, im.type.avsenderSystem.versjon),
         status = InnsendingStatus.MOTTATT,
-        statusMelding = null,
+        feil = null,
     )
 
 fun mockForespoersel(): Forespoersel =

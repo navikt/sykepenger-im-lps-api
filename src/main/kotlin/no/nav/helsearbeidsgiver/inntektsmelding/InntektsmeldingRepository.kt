@@ -3,10 +3,12 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
@@ -14,7 +16,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navRefera
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -146,7 +147,7 @@ class InntektsmeldingRepository(
             arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
-            statusMelding = this[statusMelding],
+            feil = this[feilkode]?.let { InnsendingFeil(it, it.feilmelding) },
             id = this[innsendingId],
         )
 }
