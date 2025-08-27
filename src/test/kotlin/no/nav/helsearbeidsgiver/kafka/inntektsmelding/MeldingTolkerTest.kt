@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import no.nav.helsearbeidsgiver.utils.TestData.API_INNSENDING_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
@@ -42,6 +43,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
+import no.nav.helsearbeidsgiver.utils.TestData.UNDERKJENT_INNTEKTSMELDING_MELDING
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
@@ -124,10 +126,10 @@ class MeldingTolkerTest {
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
         every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
         coEvery { service.pdlService.hentFullPerson(any()) } returns
-            FullPerson(
-                navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
-                foedselsdato = LocalDate.now().minusYears(1),
-            )
+                FullPerson(
+                    navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
+                    foedselsdato = LocalDate.now().minusYears(1),
+                )
 
         every { service.dialogportenService.opprettNyDialogMedSykmelding(any()) } just Runs
 
@@ -198,6 +200,32 @@ class MeldingTolkerTest {
             STATUS_I_SPLEIS_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
             tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
+    }
+
+    @Test
+    fun `UnderkjentInntektsmeldingTolker deserialiserer UnderkjentInntektmelding-melding fra Simba`() {
+        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any()) } just Runs
+        val underkjentInntektsmeldingJson =
+            UNDERKJENT_INNTEKTSMELDING_MELDING.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.underkjentInntektsmeldingTolker.lesMelding(underkjentInntektsmeldingJson)
+        }
+        verify(exactly = 1) {
+            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any())
+        }
+    }
+
+    @Test
+    fun `UnderkjentInntektsmeldingTolker ignorerer api-innsending-meldinger`() {
+        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any()) } just Runs
+        val underkjentInntektsmeldingJson =
+            API_INNSENDING_MELDING.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.underkjentInntektsmeldingTolker.lesMelding(underkjentInntektsmeldingJson)
+        }
+        verify(exactly = 0) {
+            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any())
         }
     }
 }
