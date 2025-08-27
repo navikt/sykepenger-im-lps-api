@@ -120,6 +120,18 @@ class InntektsmeldingRepository(
             }
         }
 
+    fun oppdaterFeilstatusOgFeilkode(inntektsmeldingId: UUID): Int =
+        transaction(db) {
+            InntektsmeldingEntitet.update(
+                where = {
+                    innsendingId eq inntektsmeldingId
+                },
+            ) {
+                it[status] = InnsendingStatus.FEILET
+                // TODO: Oppdater feilkode
+            }
+        }
+
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
             navReferanseId = this[navReferanseId],

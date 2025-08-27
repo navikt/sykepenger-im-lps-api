@@ -27,12 +27,14 @@ import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
+import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
 import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
+import no.nav.helsearbeidsgiver.kafka.inntektsmelding.UnderkjentInntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.sis.StatusISpeilTolker
 import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -85,6 +87,7 @@ data class Services(
     val pdlService: IPdlService,
     val soeknadService: SoeknadService,
     val helseSjekkService: HelseSjekkService,
+    val underkjentInntektsmeldingService: UnderkjentInntektsmeldingService,
 )
 
 data class Tolkere(
@@ -93,6 +96,7 @@ data class Tolkere(
     val sykmeldingTolker: SykmeldingTolker,
     val soeknadTolker: SoeknadTolker,
     val statusISpeilTolker: StatusISpeilTolker,
+    val underkjentInntektsmeldingTolker: UnderkjentInntektsmeldingTolker,
 )
 
 fun configureTolkere(
@@ -120,7 +124,19 @@ fun configureTolkere(
 
     val statusISpeilTolker = StatusISpeilTolker(repositories.soeknadRepository, repositories.statusISpeilRepository)
 
-    return Tolkere(inntektsmeldingTolker, forespoerselTolker, sykmeldingTolker, soeknadTolker, statusISpeilTolker)
+    val underkjentInntektsmeldingTolker =
+        UnderkjentInntektsmeldingTolker(
+            underkjentInntektsmeldingService = services.underkjentInntektsmeldingService,
+        )
+
+    return Tolkere(
+        inntektsmeldingTolker,
+        forespoerselTolker,
+        sykmeldingTolker,
+        soeknadTolker,
+        statusISpeilTolker,
+        underkjentInntektsmeldingTolker,
+    )
 }
 
 fun configureRepositories(db: Database): Repositories =
@@ -190,6 +206,8 @@ fun configureServices(
     val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
+    val underkjentInntektsmeldingService = UnderkjentInntektsmeldingService(repositories.inntektsmeldingRepository)
+
     return Services(
         forespoerselService,
         inntektsmeldingService,
@@ -199,6 +217,7 @@ fun configureServices(
         pdlService,
         soeknadService,
         helseSjekkService,
+        underkjentInntektsmeldingService,
     )
 }
 
@@ -255,6 +274,18 @@ fun Application.configureKafkaConsumers(
                 topic = getProperty("kafkaConsumer.sis.topic"),
                 consumer = statusISpeilKafkaConsumer,
                 meldingTolker = tolkere.statusISpeilTolker,
+            )
+        }
+    }
+
+    if (unleashFeatureToggles.skalKonsumereUnderkjenteInntektsmeldinger()) {
+        val underkjentInntektsmeldingKafkaConsumer =
+            KafkaConsumer<String, String>(createKafkaConsumerConfig("im-underkjent"))
+        launch(Dispatchers.Default) {
+            startKafkaConsumer(
+                topic = getProperty("kafkaConsumer.innsending.topic"),
+                consumer = underkjentInntektsmeldingKafkaConsumer,
+                meldingTolker = tolkere.underkjentInntektsmeldingTolker,
             )
         }
     }

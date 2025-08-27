@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
+import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
@@ -88,6 +89,7 @@ class MeldingTolkerTest {
                 pdlService = mockk<PdlService>(),
                 soeknadService = mockk<SoeknadService>(),
                 helseSjekkService = mockk<HelseSjekkService>(relaxed = true),
+                underkjentInntektsmeldingService = mockk<UnderkjentInntektsmeldingService>(),
             )
 
         tolkere = configureTolkere(service, repositories)

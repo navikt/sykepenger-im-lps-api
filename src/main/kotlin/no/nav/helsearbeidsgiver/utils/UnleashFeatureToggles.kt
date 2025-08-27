@@ -71,4 +71,10 @@ class UnleashFeatureToggles(
             "konsumer-status-i-speil",
             false,
         )
+
+    fun skalKonsumereUnderkjenteInntektsmeldinger(): Boolean =
+        unleashClient.isEnabled(
+            "konsumer-underkjente-inntektsmeldinger",
+            false,
+        )
 }
