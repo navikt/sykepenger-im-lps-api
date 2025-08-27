@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.utils
 import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
-import no.nav.helsearbeidsgiver.forespoersel.Type
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -887,13 +886,13 @@ object TestData {
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
-        type = Type.KOMPLETT,
         orgnr = orgnr,
         fnr = fnr,
-        vedtaksperiodeId = UUID.randomUUID(),
         forespoerselId = forespoerselId,
-        sykmeldingsperioder = emptyList(),
+        vedtaksperiodeId = UUID.randomUUID(),
         egenmeldingsperioder = emptyList(),
+        sykmeldingsperioder = emptyList(),
+        bestemmendeFravaersdager = emptyMap(),
         forespurtData =
             ForespurtData(
                 Arbeidsgiverperiode(true),

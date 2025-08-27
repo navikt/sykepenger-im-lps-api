@@ -49,21 +49,6 @@ class ForespoerselRepository(
         logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
     }
 
-    fun hentForespoersel(
-        navReferanseId: UUID,
-        orgnr: String,
-    ): Forespoersel? =
-        transaction(db) {
-            ForespoerselEntitet
-                .selectAll()
-                .where {
-                    (ForespoerselEntitet.navReferanseId eq navReferanseId) and
-                        (ForespoerselEntitet.orgnr eq orgnr)
-                }.map {
-                    it.toExposedforespoersel()
-                }.getOrNull(0)
-        }
-
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? =
         transaction(db) {
             ForespoerselEntitet
