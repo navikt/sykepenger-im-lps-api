@@ -48,11 +48,11 @@ class UnderkjentInntektsmeldingTolker(
             throw e
         }
     }
+
+    private fun JsonElement.toMap(): Map<InnsendingKafka.Key, JsonElement> = fromJsonMapFiltered(InnsendingKafka.Key.serializer())
+
+    private fun <K : InnsendingKafka.Key, T : Any> K.lesOrNull(
+        serializer: KSerializer<T>,
+        melding: Map<K, JsonElement>,
+    ): T? = melding[this]?.fromJson(serializer.nullable)
 }
-
-fun JsonElement.toMap(): Map<InnsendingKafka.Key, JsonElement> = fromJsonMapFiltered(InnsendingKafka.Key.serializer())
-
-fun <K : InnsendingKafka.Key, T : Any> K.lesOrNull(
-    serializer: KSerializer<T>,
-    melding: Map<K, JsonElement>,
-): T? = melding[this]?.fromJson(serializer.nullable)
