@@ -13,7 +13,7 @@ class UnderkjentInntektsmeldingService(
         ) {
             0 ->
                 logger.error(
-                    "Klarte ikke å oppdatere status på inntektsmelding ${underkjentInntektsmelding.inntektsmeldingId} til FEILET " +
+                    "Klarte ikke å oppdatere inntektsmelding ${underkjentInntektsmelding.inntektsmeldingId} til status FEILET " +
                         "med feilkode ${underkjentInntektsmelding.feilkode} fordi den ikke finnes i databasen.",
                 )
 

@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -200,6 +201,43 @@ class InntektsmeldingRepositoryTest {
                 filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.GODKJENT
+        val ikkeOppdatertInntektsmelding =
+            repository.hent(
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
+            )[0]
+        ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
+    }
+
+    @Test
+    fun `oppdater inntektsmelding med feilet status`() {
+        val repository = InntektsmeldingRepository(db)
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
+        val inntektsmelding1 =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        val inntektsmelding2 = buildInntektsmelding()
+        repository.opprettInntektsmelding(
+            im = inntektsmelding1,
+            innsendingStatus = InnsendingStatus.MOTTATT,
+        )
+        repository.opprettInntektsmelding(
+            im = inntektsmelding2,
+            innsendingStatus = InnsendingStatus.MOTTATT,
+        )
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
+        result[0].status shouldBe InnsendingStatus.MOTTATT
+        repository.oppdaterFeilstatusOgFeilkode(
+            UnderkjentInntektsmelding(
+                inntektsmeldingId = inntektsmeldingId,
+                feilkode = InnsendingFeil.Feilkode.INNTEKTSDIFFERANSE_A_ORDNINGEN_MANGLER_AARSAK,
+            ),
+        )
+        val oppdatertInntektsmelding =
+            repository.hent(
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
+            )[0]
+        oppdatertInntektsmelding.status shouldBe InnsendingStatus.FEILET
+
         val ikkeOppdatertInntektsmelding =
             repository.hent(
                 filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
