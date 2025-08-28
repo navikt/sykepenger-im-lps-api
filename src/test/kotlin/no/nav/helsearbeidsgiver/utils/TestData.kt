@@ -875,7 +875,7 @@ object TestData {
             "data": {
                 "underkjent_inntektsmelding": {
                     "inntektsmeldingId": "002cc8ad-982e-4ebe-92d3-ec53ae795d56",
-                    "feilkode": "DIFFERANSE_MOT_AINNTEKT_UTEN_OPPGITT_AARSAK"
+                    "feilkode": "INNTEKTSDIFFERANSE_A_ORDNINGEN_MANGLER_AARSAK"
                 }
             }
         }

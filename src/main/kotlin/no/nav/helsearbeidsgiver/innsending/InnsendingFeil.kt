@@ -10,9 +10,9 @@ data class InnsendingFeil(
     enum class Feilkode(
         val feilmelding: String,
     ) {
-        DIFFERANSE_MOT_AINNTEKT_UTEN_OPPGITT_AARSAK(
-            "Det er en differanse mellom inntekten i inntektsmeldingen og inntekten registrert i A-inntekt " +
-                "uten at det er oppgitt en årsak. Send inntektsmelding på nytt med en gyldig årsak til endring av inntekten.",
+        INNTEKTSDIFFERANSE_A_ORDNINGEN_MANGLER_AARSAK(
+            "Det er en differanse mellom inntekten i inntektsmeldingen og inntekten registrert hos Skatteetaten gjennom A-ordningen " +
+                "uten at det er oppgitt en årsak i inntektsmeldingen. Send inntektsmelding på nytt med en gyldig årsak til endring av inntekten.",
         ),
     }
 }
