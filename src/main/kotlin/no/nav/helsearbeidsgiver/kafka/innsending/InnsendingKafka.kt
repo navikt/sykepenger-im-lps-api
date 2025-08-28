@@ -10,6 +10,7 @@ object InnsendingKafka {
     @Serializable
     enum class EventName {
         API_INNSENDING_STARTET,
+        UNDERKJENT_INNTEKTSMELDING,
     }
 
     @Serializable(KeySerializer::class)
@@ -19,6 +20,7 @@ object InnsendingKafka {
         DATA,
         MOTTATT,
         INNSENDING,
+        UNDERKJENT_INNTEKTSMELDING,
         ;
 
         override fun toString(): String =

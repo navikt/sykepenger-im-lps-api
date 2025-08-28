@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.utils
 import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
-import no.nav.helsearbeidsgiver.forespoersel.Type
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -818,18 +817,82 @@ object TestData {
         }
     """
 
+    const val API_INNSENDING_MELDING = """
+         {
+            "@event_name": "API_INNSENDING_STARTET",
+            "kontekst_id": "d6c7618d-138e-4eb6-bd58-d4983d204f8a",
+            "data": {
+                "innsending": {
+                    "innsendingId": "002cc8ad-982e-4ebe-92d3-ec53ae795d56",
+                    "skjema": {
+                        "forespoerselId": "a35dfec7-d4af-4d4c-b3f0-79aab9bd1a71",
+                        "avsenderTlf": "12345678",
+                        "agp": {
+                            "perioder": [
+                                {
+                                    "fom": "2024-04-16",
+                                    "tom": "2024-05-01"
+                                }
+                            ],
+                            "egenmeldinger": [
+                                {
+                                    "fom": "2024-04-15",
+                                    "tom": "2024-04-15"
+                                }
+                            ],
+                            "redusertLoennIAgp": null
+                        },
+                        "inntekt": {
+                            "beloep": 30047.0,
+                            "inntektsdato": "2024-04-16",
+                            "naturalytelser": [],
+                            "endringAarsaker": []
+                        },
+                        "refusjon": null
+                    },
+                    "aarsakInnsending": "Endring",
+                    "type": {
+                        "type": "ForespurtEkstern",
+                        "id": "a35dfec7-d4af-4d4c-b3f0-79aab9bd1a71",
+                        "avsenderSystem": {
+                            "orgnr": "315339138",
+                            "navn": "Bruno FTW!",
+                            "versjon": "1.1"
+                        }
+                    },
+                    "innsendtTid": "2025-08-26T14:21:36.872757832+02:00",
+                    "versjon": 1
+                },
+                "mottatt": "2025-08-26T14:21:58.915229905"
+            }
+        }
+    """
+
+    const val UNDERKJENT_INNTEKTSMELDING_MELDING = """
+         {
+            "@event_name": "UNDERKJENT_INNTEKTSMELDING",
+            "kontekst_id": "d6c7618d-138e-4eb6-bd58-d4983d204f8a",
+            "data": {
+                "underkjent_inntektsmelding": {
+                    "inntektsmeldingId": "002cc8ad-982e-4ebe-92d3-ec53ae795d56",
+                    "feilkode": "DIFFERANSE_MOT_AINNTEKT_UTEN_OPPGITT_AARSAK"
+                }
+            }
+        }
+    """
+
     fun forespoerselDokument(
         orgnr: String,
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
-        type = Type.KOMPLETT,
         orgnr = orgnr,
         fnr = fnr,
-        vedtaksperiodeId = UUID.randomUUID(),
         forespoerselId = forespoerselId,
-        sykmeldingsperioder = emptyList(),
+        vedtaksperiodeId = UUID.randomUUID(),
         egenmeldingsperioder = emptyList(),
+        sykmeldingsperioder = emptyList(),
+        bestemmendeFravaersdager = emptyMap(),
         forespurtData =
             ForespurtData(
                 Arbeidsgiverperiode(true),
