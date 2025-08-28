@@ -126,10 +126,10 @@ class MeldingTolkerTest {
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
         every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
         coEvery { service.pdlService.hentFullPerson(any()) } returns
-                FullPerson(
-                    navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
-                    foedselsdato = LocalDate.now().minusYears(1),
-                )
+            FullPerson(
+                navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
+                foedselsdato = LocalDate.now().minusYears(1),
+            )
 
         every { service.dialogportenService.opprettNyDialogMedSykmelding(any()) } just Runs
 
