@@ -39,7 +39,7 @@ class UnderkjentInntektsmeldingTolker(
                     "Mottok melding om underkjent inntektsmelding med id ${underkjentInntektsmelding.inntektsmeldingId} med feilkode ${underkjentInntektsmelding.feilkode}.",
                 )
 
-                underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(underkjentInntektsmelding.inntektsmeldingId)
+                underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(underkjentInntektsmelding)
             }
         } catch (e: Exception) {
             val feilmelding = "Feilet under mottak av underkjent inntektsmelding!"

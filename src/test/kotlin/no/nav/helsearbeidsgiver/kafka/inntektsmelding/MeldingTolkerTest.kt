@@ -205,27 +205,27 @@ class MeldingTolkerTest {
 
     @Test
     fun `UnderkjentInntektsmeldingTolker deserialiserer UnderkjentInntektmelding-melding fra Simba`() {
-        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any()) } just Runs
+        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
         val underkjentInntektsmeldingJson =
             UNDERKJENT_INNTEKTSMELDING_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
             tolkere.underkjentInntektsmeldingTolker.lesMelding(underkjentInntektsmeldingJson)
         }
         verify(exactly = 1) {
-            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any())
+            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any())
         }
     }
 
     @Test
     fun `UnderkjentInntektsmeldingTolker ignorerer api-innsending-meldinger`() {
-        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any()) } just Runs
+        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
         val underkjentInntektsmeldingJson =
             API_INNSENDING_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
             tolkere.underkjentInntektsmeldingTolker.lesMelding(underkjentInntektsmeldingJson)
         }
         verify(exactly = 0) {
-            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingStatusTilFeilet(any())
+            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any())
         }
     }
 }

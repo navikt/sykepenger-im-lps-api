@@ -38,8 +38,7 @@ data class InntektsmeldingResponse(
 )
 
 @Serializable
-data class InntektsmeldingRequest(
-    // Innsending slik APIet sender inn
+data class InntektsmeldingRequest( // Innsending slik APIet sender inn
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
@@ -67,7 +66,6 @@ enum class InnsendingType {
                 is Inntektsmelding.Type.UtenArbeidsforhold,
                 is Inntektsmelding.Type.Behandlingsdager,
                 -> ARBEIDSGIVER_INITIERT
-
                 is Inntektsmelding.Type.ForespurtEkstern -> FORESPURT_EKSTERN
             }
     }

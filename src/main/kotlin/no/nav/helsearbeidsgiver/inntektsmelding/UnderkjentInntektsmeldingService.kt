@@ -1,27 +1,31 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.utils.log.logger
-import java.util.UUID
 
 class UnderkjentInntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
 ) {
-    fun oppdaterInnteksmeldingStatusTilFeilet(inntektsmeldingId: UUID) {
-        val antallRaderOppdatert =
-            inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(inntektsmeldingId) // TODO: Legg til feilkode
-        when {
-            antallRaderOppdatert == 0 ->
+    fun oppdaterInnteksmeldingTilFeilet(underkjentInntektsmelding: UnderkjentInntektsmelding) {
+        when (
+            val antallRaderOppdatert = inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(underkjentInntektsmelding)
+        ) {
+            0 ->
                 logger().error(
-                    "Klarte ikke å oppdatere status på inntektsmelding $inntektsmeldingId til FEILET fordi den ikke finnes i databasen.",
+                    "Klarte ikke å oppdatere status på inntektsmelding ${underkjentInntektsmelding.inntektsmeldingId} til FEILET " +
+                        "med feilkode ${underkjentInntektsmelding.feilkode} fordi den ikke finnes i databasen.",
                 )
 
-            antallRaderOppdatert > 1 ->
+            1 ->
+                logger().info(
+                    "Oppdaterte inntektsmelding ${underkjentInntektsmelding.inntektsmeldingId} til status FEILET " +
+                        "med feilkode ${underkjentInntektsmelding.feilkode}.",
+                )
+
+            else ->
                 logger().warn(
-                    "Oppdaterte inntektsmelding $inntektsmeldingId til status FEILET. " +
-                        "Oppdaterte et uventet antall rader: $antallRaderOppdatert.", // TODO: Ta med feilkode i loggen
+                    "Oppdaterte inntektsmelding ${underkjentInntektsmelding.inntektsmeldingId} til status FEILET " +
+                        "med feilkode ${underkjentInntektsmelding.feilkode}. Oppdaterte et uventet antall rader: $antallRaderOppdatert.",
                 )
-
-            else -> logger().info("Oppdaterte inntektsmelding $inntektsmeldingId til status FEILET.") // TODO: Ta med feilkode i loggen
         }
     }
 }

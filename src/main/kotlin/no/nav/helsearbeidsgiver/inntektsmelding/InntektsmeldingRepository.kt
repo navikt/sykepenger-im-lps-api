@@ -119,15 +119,15 @@ class InntektsmeldingRepository(
             }
         }
 
-    fun oppdaterFeilstatusOgFeilkode(inntektsmeldingId: UUID): Int =
+    fun oppdaterFeilstatusOgFeilkode(underkjentInntektsmelding: UnderkjentInntektsmelding): Int =
         transaction(db) {
             InntektsmeldingEntitet.update(
                 where = {
-                    innsendingId eq inntektsmeldingId
+                    innsendingId eq underkjentInntektsmelding.inntektsmeldingId
                 },
             ) {
                 it[status] = InnsendingStatus.FEILET
-                // TODO: Oppdater feilkode
+                it[feilkode] = underkjentInntektsmelding.feilkode
             }
         }
 
