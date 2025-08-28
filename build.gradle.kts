@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val bakgrunnsjobbVersion: String by project
 val coroutineVersion: String by project
@@ -29,7 +28,6 @@ plugins {
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version "3.1.2"
     id("org.jmailen.kotlinter")
-    id("com.gradleup.shadow") version "8.3.6"
 }
 
 group = "no.nav.helsearbeidsgiver"
@@ -100,10 +98,6 @@ dependencies {
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
-    named<ShadowJar>("shadowJar") {
-        mergeServiceFiles()
-        archiveBaseName.set("${project.name}-all")
-    }
     withType<Test> {
         useJUnitPlatform()
     }
