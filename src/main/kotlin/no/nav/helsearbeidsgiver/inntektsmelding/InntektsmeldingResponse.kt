@@ -10,7 +10,6 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
@@ -35,7 +34,7 @@ data class InntektsmeldingResponse(
     val arbeidsgiver: Arbeidsgiver,
     val avsender: Avsender,
     val status: InnsendingStatus,
-    val feil: InnsendingFeil?,
+    val statusMelding: String?,
 )
 
 @Serializable
