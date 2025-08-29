@@ -14,7 +14,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navRefera
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.statusMelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -120,6 +119,18 @@ class InntektsmeldingRepository(
             }
         }
 
+    fun oppdaterFeilstatusOgFeilkode(underkjentInntektsmelding: UnderkjentInntektsmelding): Int =
+        transaction(db) {
+            InntektsmeldingEntitet.update(
+                where = {
+                    innsendingId eq underkjentInntektsmelding.inntektsmeldingId
+                },
+            ) {
+                it[status] = InnsendingStatus.FEILET
+                it[feilkode] = underkjentInntektsmelding.feilkode
+            }
+        }
+
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
             navReferanseId = this[navReferanseId],
@@ -134,7 +145,7 @@ class InntektsmeldingRepository(
             arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
-            statusMelding = this[statusMelding],
+            statusMelding = null,
             id = this[innsendingId],
         )
 }
