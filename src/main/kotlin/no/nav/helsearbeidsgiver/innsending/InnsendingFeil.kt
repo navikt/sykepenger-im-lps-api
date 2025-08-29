@@ -11,8 +11,8 @@ data class InnsendingFeil(
         val feilmelding: String,
     ) {
         INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK(
-            "Det er en differanse mellom inntekten i inntektsmeldingen og inntekten registrert hos Skatteetaten gjennom A-ordningen " +
-                "uten at det er oppgitt en årsak i inntektsmeldingen. Send inntektsmelding på nytt med en gyldig årsak til endring av inntekten.",
+            "Oppgitt inntekt matcher ikke beløp registrert i A-ordningen. " +
+                "Send inntektsmelding på nytt med en gyldig årsak til inntektsendring.",
         ),
     }
 }

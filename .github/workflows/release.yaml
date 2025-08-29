@@ -21,7 +21,7 @@ jobs:
           distribution: temurin
 
       - name: Test and build
-        run: ./gradlew build
+        run: ./gradlew test installDist
 
       - name: Upload test report
         if: failure()
