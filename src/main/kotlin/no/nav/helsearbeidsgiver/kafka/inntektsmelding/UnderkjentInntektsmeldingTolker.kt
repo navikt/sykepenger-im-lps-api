@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
@@ -22,7 +21,7 @@ class UnderkjentInntektsmeldingTolker(
 
     override fun lesMelding(melding: String) {
         try {
-            val jsonMap = melding.parseJson().toMap().filterValues { it !is JsonNull }
+            val jsonMap = melding.parseJson().toMap()
 
             val eventName = InnsendingKafka.Key.EVENT_NAME.lesOrNull(InnsendingKafka.EventName.serializer(), jsonMap)
 
