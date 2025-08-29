@@ -964,6 +964,18 @@ components:
           type: "string"
       required:
         - "orgnr"
+    InnsendingFeil:
+      type: "object"
+      properties:
+        feilkode:
+          type: "string"
+          enum:
+            - "INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK"
+        feilmelding:
+          type: "string"
+      required:
+        - "feilkode"
+        - "feilmelding"
     InntektsmeldingResponse:
       type: "object"
       properties:
@@ -1011,9 +1023,9 @@ components:
             - "MOTTATT"
             - "FEILET"
             - "GODKJENT"
-        statusMelding:
-          type: "string"
+        feilinfo:
           nullable: true
+          $ref: "#/components/schemas/InnsendingFeil"
       required:
         - "id"
         - "navReferanseId"
