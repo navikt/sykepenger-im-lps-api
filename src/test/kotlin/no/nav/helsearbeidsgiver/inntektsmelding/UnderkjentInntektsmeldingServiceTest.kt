@@ -16,7 +16,7 @@ class UnderkjentInntektsmeldingServiceTest {
         val underkjentInntektsmeldingMock =
             UnderkjentInntektsmelding(
                 inntektsmeldingId = UUID.randomUUID(),
-                feilkode = InnsendingFeil.Feilkode.INNTEKTSDIFFERANSE_A_ORDNINGEN_MANGLER_AARSAK,
+                feilkode = InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
             )
 
         every {
