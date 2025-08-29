@@ -970,7 +970,7 @@ components:
         feilkode:
           type: "string"
           enum:
-            - "INNTEKTSDIFFERANSE_A_ORDNINGEN_MANGLER_AARSAK"
+            - "INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK"
         feilmelding:
           type: "string"
       required:
