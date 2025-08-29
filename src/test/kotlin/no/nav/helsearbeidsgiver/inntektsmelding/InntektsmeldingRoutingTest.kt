@@ -20,6 +20,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -28,6 +29,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.mockUnderkjentInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -68,6 +70,31 @@ class InntektsmeldingRoutingTest : ApiTest() {
             response.status shouldBe HttpStatusCode.OK
             val inntektsmeldingSvar = response.body<InntektsmeldingResponse>()
             inntektsmeldingSvar.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent en underkjent inntektsmelding`() {
+        val inntektsmeldingId = UUID.randomUUID()
+        val inntektsmelding =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgnr = Orgnr(DEFAULT_ORG))
+        every {
+            repositories.inntektsmeldingRepository.hentMedInnsendingId(
+                innsendingId = inntektsmeldingId,
+            )
+        } returns
+            mockUnderkjentInntektsmeldingResponse(inntektsmelding)
+
+        runBlocking {
+            val response =
+                client.get("/v1/inntektsmelding/$inntektsmeldingId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            val inntektsmeldingSvar = response.body<InntektsmeldingResponse>()
+            inntektsmeldingSvar.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
+            inntektsmeldingSvar.status shouldBe InnsendingStatus.FEILET
+            inntektsmeldingSvar.feil?.feilkode shouldBe InnsendingFeil.Feilkode.INNTEKTSDIFFERANSE_A_ORDNINGEN_MANGLER_AARSAK
         }
     }
 

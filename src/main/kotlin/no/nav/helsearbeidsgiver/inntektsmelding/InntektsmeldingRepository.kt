@@ -3,10 +3,12 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
@@ -145,7 +147,7 @@ class InntektsmeldingRepository(
             arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
-            statusMelding = null,
+            feil = this[feilkode]?.let { InnsendingFeil(feilkode = it, feilmelding = it.feilmelding) },
             id = this[innsendingId],
         )
 }
