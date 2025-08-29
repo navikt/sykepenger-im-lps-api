@@ -192,13 +192,13 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         arbeidsgiver = Arbeidsgiver(im.avsender.orgnr.verdi, im.avsender.tlf),
         avsender = Avsender(im.type.avsenderSystem.navn, im.type.avsenderSystem.versjon),
         status = InnsendingStatus.MOTTATT,
-        feil = null,
+        feilinfo = null,
     )
 
 fun mockUnderkjentInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
     mockInntektsmeldingResponse(im).copy(
         status = InnsendingStatus.FEILET,
-        feil =
+        feilinfo =
             InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK.let {
                 InnsendingFeil(feilkode = it, feilmelding = it.feilmelding)
             },

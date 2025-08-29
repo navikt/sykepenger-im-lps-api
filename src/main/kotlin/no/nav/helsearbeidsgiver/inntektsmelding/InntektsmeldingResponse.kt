@@ -35,7 +35,7 @@ data class InntektsmeldingResponse(
     val arbeidsgiver: Arbeidsgiver,
     val avsender: Avsender,
     val status: InnsendingStatus,
-    val feil: InnsendingFeil? = null,
+    val feilinfo: InnsendingFeil? = null,
 )
 
 @Serializable
