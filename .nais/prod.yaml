@@ -55,6 +55,9 @@ spec:
       external:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
 #        - host: platform.altinn.no
+      rules:
+        - application: logging
+          namespace: nais-system
   maskinporten:
     enabled: true
     scopes:
