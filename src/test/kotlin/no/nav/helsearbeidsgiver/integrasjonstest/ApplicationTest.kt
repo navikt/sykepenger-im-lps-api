@@ -9,18 +9,26 @@ import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmelding
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
+import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildForespoerselFraBacklog
 import no.nav.helsearbeidsgiver.utils.buildForespoerselMottattJson
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
 import no.nav.helsearbeidsgiver.utils.buildForspoerselBesvartMelding
+import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -115,6 +123,57 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 )
 
             response.status.value shouldBe 200
+        }
+    }
+
+    @Test
+    fun `oppdaterer riktig inntektsmeldingstatus fra mottatt til feilet dersom vi mottar underkjentevent`() {
+        val inntektsmeldingId1 = UUID.randomUUID()
+        val inntektsmeldingId2 = UUID.randomUUID()
+
+        repositories.inntektsmeldingRepository.opprettInntektsmelding(
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId1),
+            innsendingStatus = InnsendingStatus.MOTTATT,
+        )
+        repositories.inntektsmeldingRepository.opprettInntektsmelding(
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId2),
+            innsendingStatus = InnsendingStatus.MOTTATT,
+        )
+        val underkjentInntektsmelding =
+            UnderkjentInntektsmelding(
+                inntektsmeldingId = inntektsmeldingId2,
+                feilkode = InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
+            )
+
+        val melding =
+            mapOf(
+                InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.UNDERKJENT_INNTEKTSMELDING.toJson(),
+                InnsendingKafka.Key.KONTEKST_ID to UUID.randomUUID().toJson(UuidSerializer),
+                InnsendingKafka.Key.DATA to
+                    mapOf(
+                        InnsendingKafka.Key.UNDERKJENT_INNTEKTSMELDING to
+                            underkjentInntektsmelding.toJson(
+                                UnderkjentInntektsmelding.serializer(),
+                            ),
+                    ).toJson(),
+            ).toJson().toString()
+
+        Producer.sendMelding(ProducerRecord("helsearbeidsgiver.api-innsending", "key", melding))
+
+        runBlocking {
+            val response1 =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId1",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
+                )
+            val response2 =
+                fetchWithRetry(
+                    url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId2",
+                    token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
+                )
+
+            response1.body<InntektsmeldingResponse>().status shouldBe InnsendingStatus.MOTTATT
+            response2.body<InntektsmeldingResponse>().status shouldBe InnsendingStatus.FEILET
         }
     }
 
