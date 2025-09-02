@@ -964,7 +964,7 @@ components:
           type: "string"
       required:
         - "orgnr"
-    InnsendingFeil:
+    Valideringsfeil:
       type: "object"
       properties:
         feilkode:
@@ -1023,9 +1023,9 @@ components:
             - "MOTTATT"
             - "FEILET"
             - "GODKJENT"
-        feilinfo:
+        valideringsfeil:
           nullable: true
-          $ref: "#/components/schemas/InnsendingFeil"
+          $ref: "#/components/schemas/Valideringsfeil"
       required:
         - "id"
         - "navReferanseId"

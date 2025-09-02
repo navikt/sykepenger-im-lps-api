@@ -72,7 +72,7 @@ class InntektsmeldingServiceTest {
                 arbeidsgiver = Arbeidsgiver(inntektsmelding.avsender.orgnr.verdi, inntektsmelding.avsender.tlf),
                 avsender = Avsender("", ""),
                 status = InnsendingStatus.MOTTATT,
-                feilinfo = null,
+                valideringsfeil = null,
                 agp = inntektsmelding.agp,
                 id = inntektsmelding.id,
             )
@@ -115,7 +115,7 @@ class InntektsmeldingServiceTest {
                     arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
                     avsender = Avsender("", ""),
                     status = InnsendingStatus.MOTTATT,
-                    feilinfo = null,
+                    valideringsfeil = null,
                     id = innsendingId,
                 ),
             )
@@ -183,7 +183,7 @@ class InntektsmeldingServiceTest {
                     arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
                     avsender = Avsender("", ""),
                     status = InnsendingStatus.MOTTATT,
-                    feilinfo = null,
+                    valideringsfeil = null,
                     id = innsendingId1,
                 ),
                 InntektsmeldingResponse(
@@ -199,7 +199,7 @@ class InntektsmeldingServiceTest {
                     arbeidsgiver = Arbeidsgiver(orgnr, skjema.avsenderTlf),
                     avsender = Avsender("", ""),
                     status = InnsendingStatus.MOTTATT,
-                    feilinfo = null,
+                    valideringsfeil = null,
                     id = innsendingId2,
                 ),
             )

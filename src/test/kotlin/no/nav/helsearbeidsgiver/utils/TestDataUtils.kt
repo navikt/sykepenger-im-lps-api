@@ -14,8 +14,8 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
@@ -192,15 +192,15 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         arbeidsgiver = Arbeidsgiver(im.avsender.orgnr.verdi, im.avsender.tlf),
         avsender = Avsender(im.type.avsenderSystem.navn, im.type.avsenderSystem.versjon),
         status = InnsendingStatus.MOTTATT,
-        feilinfo = null,
+        valideringsfeil = null,
     )
 
 fun mockUnderkjentInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
     mockInntektsmeldingResponse(im).copy(
         status = InnsendingStatus.FEILET,
-        feilinfo =
-            InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK.let {
-                InnsendingFeil(feilkode = it, feilmelding = it.feilmelding)
+        valideringsfeil =
+            Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK.let {
+                Valideringsfeil(feilkode = it, feilmelding = it.feilmelding)
             },
     )
 

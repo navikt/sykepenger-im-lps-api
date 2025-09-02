@@ -20,8 +20,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -94,7 +94,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
             val inntektsmeldingSvar = response.body<InntektsmeldingResponse>()
             inntektsmeldingSvar.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
             inntektsmeldingSvar.status shouldBe InnsendingStatus.FEILET
-            inntektsmeldingSvar.feilinfo?.feilkode shouldBe InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK
+            inntektsmeldingSvar.valideringsfeil?.feilkode shouldBe Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK
         }
     }
 

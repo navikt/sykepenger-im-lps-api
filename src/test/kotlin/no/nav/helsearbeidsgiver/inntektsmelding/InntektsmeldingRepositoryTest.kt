@@ -3,8 +3,8 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -229,7 +229,7 @@ class InntektsmeldingRepositoryTest {
         repository.oppdaterFeilstatusOgFeilkode(
             UnderkjentInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
-                feilkode = InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
+                feilkode = Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
             ),
         )
         val oppdatertInntektsmelding =
