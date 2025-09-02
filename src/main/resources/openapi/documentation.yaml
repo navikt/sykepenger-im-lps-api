@@ -964,6 +964,18 @@ components:
           type: "string"
       required:
         - "orgnr"
+    Valideringsfeil:
+      type: "object"
+      properties:
+        feilkode:
+          type: "string"
+          enum:
+            - "INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK"
+        feilmelding:
+          type: "string"
+      required:
+        - "feilkode"
+        - "feilmelding"
     InntektsmeldingResponse:
       type: "object"
       properties:
@@ -1011,9 +1023,9 @@ components:
             - "MOTTATT"
             - "FEILET"
             - "GODKJENT"
-        statusMelding:
-          type: "string"
+        valideringsfeil:
           nullable: true
+          $ref: "#/components/schemas/Valideringsfeil"
       required:
         - "id"
         - "navReferanseId"
