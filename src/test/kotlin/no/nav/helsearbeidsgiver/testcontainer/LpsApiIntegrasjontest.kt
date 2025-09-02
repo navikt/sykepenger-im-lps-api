@@ -67,7 +67,7 @@ abstract class LpsApiIntegrasjontest {
     fun setup() {
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         every { mockUnleash.skalKonsumereStatusISpeil() } returns true
-        every { mockUnleash.skalKonsumereUnderkjenteInntektsmeldinger() } returns true
+        every { mockUnleash.skalKonsumereAvvisteInntektsmeldinger() } returns true
         db =
             DatabaseConfig(
                 System.getProperty("database.url"),

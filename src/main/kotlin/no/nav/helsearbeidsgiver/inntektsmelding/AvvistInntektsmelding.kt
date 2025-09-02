@@ -9,7 +9,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import java.util.UUID
 
 @Serializable
-data class UnderkjentInntektsmelding(
+data class AvvistInntektsmelding(
     val inntektsmeldingId: UUID,
     val feilkode: InnsendingFeil.Feilkode,
 )

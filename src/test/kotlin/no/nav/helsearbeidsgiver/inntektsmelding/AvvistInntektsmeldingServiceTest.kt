@@ -7,14 +7,14 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class UnderkjentInntektsmeldingServiceTest {
+class AvvistInntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
-    private val underkjentInntektsmeldingService = UnderkjentInntektsmeldingService(inntektsmeldingRepository)
+    private val avvistInntektsmeldingService = AvvistInntektsmeldingService(inntektsmeldingRepository)
 
     @Test
     fun `oppdaterInnteksmeldingTilFeilet skal kalle inntektsmeldingRepository`() {
-        val underkjentInntektsmeldingMock =
-            UnderkjentInntektsmelding(
+        val avvistInntektsmeldingMock =
+            AvvistInntektsmelding(
                 inntektsmeldingId = UUID.randomUUID(),
                 feilkode = InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
             )
@@ -25,11 +25,11 @@ class UnderkjentInntektsmeldingServiceTest {
             )
         } returns 1
 
-        underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(underkjentInntektsmeldingMock)
+        avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(avvistInntektsmeldingMock)
 
         verify(exactly = 1) {
             inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(
-                underkjentInntektsmeldingMock,
+                avvistInntektsmeldingMock,
             )
         }
     }

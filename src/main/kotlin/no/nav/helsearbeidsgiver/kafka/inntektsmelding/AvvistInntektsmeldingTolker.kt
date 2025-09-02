@@ -3,8 +3,8 @@ package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.json.JsonElement
-import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmelding
-import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmeldingService
+import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
+import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -13,8 +13,8 @@ import no.nav.helsearbeidsgiver.utils.json.parseJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-class UnderkjentInntektsmeldingTolker(
-    private val underkjentInntektsmeldingService: UnderkjentInntektsmeldingService,
+class AvvistInntektsmeldingTolker(
+    private val avvistInntektsmeldingService: AvvistInntektsmeldingService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
@@ -25,23 +25,23 @@ class UnderkjentInntektsmeldingTolker(
 
             val eventName = InnsendingKafka.Key.EVENT_NAME.lesOrNull(InnsendingKafka.EventName.serializer(), jsonMap)
 
-            if (eventName == InnsendingKafka.EventName.UNDERKJENT_INNTEKTSMELDING) {
+            if (eventName == InnsendingKafka.EventName.AVVIST_INNTEKTSMELDING) {
                 val data = jsonMap[InnsendingKafka.Key.DATA]?.toMap().orEmpty()
 
-                val underkjentInntektsmelding =
-                    InnsendingKafka.Key.UNDERKJENT_INNTEKTSMELDING.lesOrNull(
-                        UnderkjentInntektsmelding.serializer(),
+                val avvistInntektsmelding =
+                    InnsendingKafka.Key.AVVIST_INNTEKTSMELDING.lesOrNull(
+                        AvvistInntektsmelding.serializer(),
                         data,
-                    ) ?: throw IllegalArgumentException("Mangler underkjent inntektsmelding i melding.")
+                    ) ?: throw IllegalArgumentException("Mangler avvist inntektsmelding i melding.")
 
                 logger.info(
-                    "Mottok melding om underkjent inntektsmelding med id ${underkjentInntektsmelding.inntektsmeldingId} med feilkode ${underkjentInntektsmelding.feilkode}.",
+                    "Mottok melding om avvist inntektsmelding med id ${avvistInntektsmelding.inntektsmeldingId} med feilkode ${avvistInntektsmelding.feilkode}.",
                 )
 
-                underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(underkjentInntektsmelding)
+                avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(avvistInntektsmelding)
             }
         } catch (e: Exception) {
-            val feilmelding = "Feilet under mottak av underkjent inntektsmelding!"
+            val feilmelding = "Feilet under mottak av avvist inntektsmelding!"
             logger.error(feilmelding)
             sikkerLogger.error(feilmelding, e)
             throw e

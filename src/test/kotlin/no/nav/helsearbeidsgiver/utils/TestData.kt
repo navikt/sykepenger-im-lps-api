@@ -868,12 +868,12 @@ object TestData {
         }
     """
 
-    const val UNDERKJENT_INNTEKTSMELDING_MELDING = """
+    const val AVVIST_INNTEKTSMELDING_MELDING = """
          {
-            "@event_name": "UNDERKJENT_INNTEKTSMELDING",
+            "@event_name": "AVVIST_INNTEKTSMELDING",
             "kontekst_id": "d6c7618d-138e-4eb6-bd58-d4983d204f8a",
             "data": {
-                "underkjent_inntektsmelding": {
+                "avvist_inntektsmelding": {
                     "inntektsmeldingId": "002cc8ad-982e-4ebe-92d3-ec53ae795d56",
                     "feilkode": "INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK"
                 }
