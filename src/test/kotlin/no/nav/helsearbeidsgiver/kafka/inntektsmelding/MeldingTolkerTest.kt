@@ -20,9 +20,9 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
@@ -35,6 +35,7 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.API_INNSENDING_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
+import no.nav.helsearbeidsgiver.utils.TestData.AVVIST_INNTEKTSMELDING_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
@@ -43,7 +44,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
-import no.nav.helsearbeidsgiver.utils.TestData.UNDERKJENT_INNTEKTSMELDING_MELDING
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import org.jetbrains.exposed.sql.Database
@@ -91,7 +91,7 @@ class MeldingTolkerTest {
                 pdlService = mockk<PdlService>(),
                 soeknadService = mockk<SoeknadService>(),
                 helseSjekkService = mockk<HelseSjekkService>(relaxed = true),
-                underkjentInntektsmeldingService = mockk<UnderkjentInntektsmeldingService>(),
+                avvistInntektsmeldingService = mockk<AvvistInntektsmeldingService>(),
             )
 
         tolkere = configureTolkere(service, repositories)
@@ -204,28 +204,28 @@ class MeldingTolkerTest {
     }
 
     @Test
-    fun `UnderkjentInntektsmeldingTolker deserialiserer UnderkjentInntektmelding-melding fra Simba`() {
-        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
-        val underkjentInntektsmeldingJson =
-            UNDERKJENT_INNTEKTSMELDING_MELDING.removeJsonWhitespace()
+    fun `AvvistInntektsmeldingTolker deserialiserer AvvistInntektmelding-melding fra Simba`() {
+        every { service.avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
+        val avvistInntektsmeldingJson =
+            AVVIST_INNTEKTSMELDING_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
-            tolkere.underkjentInntektsmeldingTolker.lesMelding(underkjentInntektsmeldingJson)
+            tolkere.avvistInntektsmeldingTolker.lesMelding(avvistInntektsmeldingJson)
         }
         verify(exactly = 1) {
-            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any())
+            service.avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any())
         }
     }
 
     @Test
-    fun `UnderkjentInntektsmeldingTolker ignorerer api-innsending-meldinger`() {
-        every { service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
-        val underkjentInntektsmeldingJson =
+    fun `AvvistInntektsmeldingTolker ignorerer api-innsending-meldinger`() {
+        every { service.avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
+        val avvistInntektsmeldingJson =
             API_INNSENDING_MELDING.removeJsonWhitespace()
         assertDoesNotThrow {
-            tolkere.underkjentInntektsmeldingTolker.lesMelding(underkjentInntektsmeldingJson)
+            tolkere.avvistInntektsmeldingTolker.lesMelding(avvistInntektsmeldingJson)
         }
         verify(exactly = 0) {
-            service.underkjentInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any())
+            service.avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any())
         }
     }
 }

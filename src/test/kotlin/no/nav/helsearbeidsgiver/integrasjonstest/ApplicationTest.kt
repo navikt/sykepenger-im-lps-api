@@ -11,8 +11,8 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
-import no.nav.helsearbeidsgiver.inntektsmelding.UnderkjentInntektsmelding
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
@@ -127,7 +127,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     }
 
     @Test
-    fun `oppdaterer riktig inntektsmeldingstatus fra mottatt til feilet dersom vi mottar underkjentevent`() {
+    fun `oppdaterer riktig inntektsmeldingstatus fra mottatt til feilet dersom vi mottar avvistevent`() {
         val inntektsmeldingId1 = UUID.randomUUID()
         val inntektsmeldingId2 = UUID.randomUUID()
 
@@ -139,21 +139,21 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             buildInntektsmelding(inntektsmeldingId = inntektsmeldingId2),
             innsendingStatus = InnsendingStatus.MOTTATT,
         )
-        val underkjentInntektsmelding =
-            UnderkjentInntektsmelding(
+        val avvistInntektsmelding =
+            AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId2,
                 feilkode = InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
             )
 
         val melding =
             mapOf(
-                InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.UNDERKJENT_INNTEKTSMELDING.toJson(),
+                InnsendingKafka.Key.EVENT_NAME to InnsendingKafka.EventName.AVVIST_INNTEKTSMELDING.toJson(),
                 InnsendingKafka.Key.KONTEKST_ID to UUID.randomUUID().toJson(UuidSerializer),
                 InnsendingKafka.Key.DATA to
                     mapOf(
-                        InnsendingKafka.Key.UNDERKJENT_INNTEKTSMELDING to
-                            underkjentInntektsmelding.toJson(
-                                UnderkjentInntektsmelding.serializer(),
+                        InnsendingKafka.Key.AVVIST_INNTEKTSMELDING to
+                            avvistInntektsmelding.toJson(
+                                AvvistInntektsmelding.serializer(),
                             ),
                     ).toJson(),
             ).toJson().toString()
