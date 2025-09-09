@@ -173,6 +173,21 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
+    fun `gir 400 dersom request mangler body`() {
+        val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
+        every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
+
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
     fun `gir 400 dersom man ber om sykmeldinger for skrekkelig langt inn i fremtiden`() {
         val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
         every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
