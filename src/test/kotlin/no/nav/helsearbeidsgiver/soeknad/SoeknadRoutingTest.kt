@@ -142,6 +142,21 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
+    fun `gir 400 dersom request mangler body`() {
+        val filter = SykepengesoeknadFilter(orgnr = DEFAULT_ORG)
+        every { repositories.soeknadRepository.hentSoeknader(filter) } returns emptyList()
+
+        runBlocking {
+            val respons =
+                client.post("/v1/sykepengesoeknader") {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            respons.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
     fun `gir 400 dersom man ber om søknader for skrekkelig langt inn i fremtiden`() {
         val filter = SykepengesoeknadFilter(orgnr = DEFAULT_ORG)
         every { repositories.soeknadRepository.hentSoeknader(filter) } returns emptyList()
