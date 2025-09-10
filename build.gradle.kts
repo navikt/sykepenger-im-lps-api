@@ -22,6 +22,7 @@ val tokenSupportVersion: String by project
 val unleashVersion: String by project
 val utilsVersion: String by project
 val pdlKlientVersion: String by project
+val openTelemetryVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -79,6 +80,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
+    implementation("io.opentelemetry:opentelemetry-api:$openTelemetryVersion")
+    implementation("io.opentelemetry:opentelemetry-sdk:$openTelemetryVersion")
+    implementation("io.opentelemetry:opentelemetry-exporter-prometheus:$openTelemetryVersion-alpha")
 
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
