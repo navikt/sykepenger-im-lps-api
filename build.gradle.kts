@@ -83,7 +83,8 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-api:$openTelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-sdk:$openTelemetryVersion")
     implementation("io.opentelemetry:opentelemetry-exporter-prometheus:$openTelemetryVersion-alpha")
-
+    implementation("io.micrometer:micrometer-registry-prometheus:1.15.1")
+    api("io.ktor:ktor-server-metrics-micrometer:${ktorVersion}")
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")

@@ -4,6 +4,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
@@ -36,6 +37,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import java.lang.Thread.sleep
 import java.util.UUID
 
 class ApplicationTest : LpsApiIntegrasjontest() {
@@ -159,7 +161,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             ).toJson().toString()
 
         Producer.sendMelding(ProducerRecord("helsearbeidsgiver.api-innsending", "key", melding))
-
         runBlocking {
             val response1 =
                 fetchWithRetry(

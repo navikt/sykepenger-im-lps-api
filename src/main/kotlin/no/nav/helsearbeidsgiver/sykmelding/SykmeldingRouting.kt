@@ -16,9 +16,8 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
-import no.nav.helsearbeidsgiver.utils.incrementCounter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.sykmeldingCounter
+import no.nav.helsearbeidsgiver.utils.tellSykmeldingHentet
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
@@ -59,7 +58,7 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
                 "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
                     " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
             )
-            incrementCounter(sykmeldingCounter, mapOf("lpsOrgnr" to lpsOrgnr))
+            tellSykmeldingHentet(lpsOrgnr)
             call.respond(sykmelding)
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
