@@ -39,12 +39,3 @@ fun incrementCounter(
             }.build(),
     )
 }
-
-val meter = setupOpenTelemetryWithPrometheus()
-
-// Example: Create a counter
-val sykmeldingCounter =
-    meter
-        .counterBuilder("lpsapi_sykmeldinger_hentet_test1")
-        .setDescription("Totalt antall sykmeldinger hentet")
-        .build()

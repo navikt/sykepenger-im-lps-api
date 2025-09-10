@@ -10,6 +10,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import io.opentelemetry.api.metrics.LongCounter
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
@@ -18,20 +19,29 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.incrementCounter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.sykmeldingCounter
+import no.nav.helsearbeidsgiver.utils.setupOpenTelemetryWithPrometheus
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
+    val meter = setupOpenTelemetryWithPrometheus()
+    val sykmeldingCounter =
+        meter
+            .counterBuilder("lpsapi_sykmeldinger_hentet_test1")
+            .setDescription("Totalt antall sykmeldinger hentet")
+            .build()
     route("/v1") {
-        sykmelding(sykmeldingService)
+        sykmelding(sykmeldingService, sykmeldingCounter)
         filtrerSykmeldinger(sykmeldingService)
     }
 }
 
-private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
+private fun Route.sykmelding(
+    sykmeldingService: SykmeldingService,
+    sykmeldingCounter: LongCounter,
+) {
     // Hent sykmelding med sykmeldingId
     get("/sykmelding/{sykmeldingId}") {
         try {
