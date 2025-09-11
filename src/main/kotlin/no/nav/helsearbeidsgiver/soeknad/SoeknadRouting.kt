@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -43,6 +44,7 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
             }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            tellApiRequest()
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SOKNAD_RESSURS,
@@ -82,6 +84,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
             }
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            tellApiRequest()
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",

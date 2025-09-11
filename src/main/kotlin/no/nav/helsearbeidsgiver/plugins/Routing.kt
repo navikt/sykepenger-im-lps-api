@@ -16,7 +16,6 @@ import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 
-
 fun Application.configureRouting(services: Services) {
     routing {
         metrikkRoutes()
