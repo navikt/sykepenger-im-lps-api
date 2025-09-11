@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.utils
+package no.nav.helsearbeidsgiver.metrikk
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.prometheusmetrics.PrometheusConfig
@@ -8,7 +8,7 @@ val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
 private val sykmeldingTeller =
     Counter
-        .builder("lpsapi_sykmeldinger_hentet_test1")
+        .builder("lpsapi_sykmelding_hentet")
         .description("Teller antall sykmeldinger hentet")
         .withRegistry(registry)
 
