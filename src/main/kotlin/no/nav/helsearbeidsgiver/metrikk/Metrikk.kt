@@ -33,11 +33,14 @@ internal fun tellSykmeldingHentet(
     .increment(antall.toDouble())
 
 suspend fun RoutingContext.tellApiRequest() {
+    val metode = call.request.httpMethod.value
+    val path = call.request.path()
+    val ressurs = if (metode == "GET") path.substringBeforeLast("/") else path
     apiRequestsTeller
         .withTags(
             "orgnr" to tokenValidationContext().getConsumerOrgnr(),
-            "ressurs" to call.request.path().substringBeforeLast("/"),
-            "metode" to call.request.httpMethod.value,
+            "ressurs" to ressurs,
+            "metode" to metode,
         ).increment()
 }
 
