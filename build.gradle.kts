@@ -23,6 +23,7 @@ val unleashVersion: String by project
 val utilsVersion: String by project
 val pdlKlientVersion: String by project
 val openTelemetryVersion: String by project
+val microMeterVersion : String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -80,10 +81,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
-    implementation("io.opentelemetry:opentelemetry-api:$openTelemetryVersion")
-    implementation("io.opentelemetry:opentelemetry-sdk:$openTelemetryVersion")
-    implementation("io.opentelemetry:opentelemetry-exporter-prometheus:$openTelemetryVersion-alpha")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.15.1")
+    implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
     api("io.ktor:ktor-server-metrics-micrometer:${ktorVersion}")
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
