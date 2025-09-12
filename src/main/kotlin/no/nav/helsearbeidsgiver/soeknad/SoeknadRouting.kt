@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumentHentetMedMaxAntall
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
@@ -56,7 +57,7 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
                 return@get
             }
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, "sykepengesoeknad")
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
             call.respond(soeknad)
         } catch (e: IllegalArgumentException) {
             sikkerLogger().error(e.message, e)
@@ -91,7 +92,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
                 "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val soeknader = soeknadService.hentSoeknader(filter = filter)
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, "sykepengesoeknad", soeknader.size)
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD, soeknader.size)
             call.respondWithMaxLimit(soeknader)
             return@post
         } catch (_: BadRequestException) {

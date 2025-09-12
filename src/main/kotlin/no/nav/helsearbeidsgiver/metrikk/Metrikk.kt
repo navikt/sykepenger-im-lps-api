@@ -38,12 +38,21 @@ suspend fun RoutingContext.tellApiRequest() {
         ).increment()
 }
 
+enum class MetrikkDokumentType(
+    val value: String,
+) {
+    INNTEKTSMELDING("inntektsmelding"),
+    SYKMELDING("sykmelding"),
+    SYKEPENGESOEKNAD("sykepengesoeknad"),
+    FORESPOERSEL("forespoersel"),
+}
+
 internal fun tellDokumentHentetMedMaxAntall(
     orgnr: String,
-    dokumentType: String,
+    dokumentType: MetrikkDokumentType,
     antall: Int = 1,
 ) = dokumentHentetTeller
-    .withTags("orgnr" to orgnr, "dokumentType" to dokumentType)
+    .withTags("orgnr" to orgnr, "dokumentType" to dokumentType.value)
     .increment(minOf(antall, MAX_ANTALL_I_RESPONS).toDouble())
 
 private fun Meter.MeterProvider<Counter>.withTags(vararg tags: Pair<String, String>): Counter =

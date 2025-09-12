@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumentHentetMedMaxAntall
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
@@ -140,7 +141,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
                 "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val inntektsmeldinger = inntektsmeldingService.hentInntektsMelding(filter = filter)
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, "inntektsmelding", inntektsmeldinger.size)
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
         } catch (_: BadRequestException) {
@@ -178,7 +179,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             tellApiRequest()
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, "inntektsmelding")
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
