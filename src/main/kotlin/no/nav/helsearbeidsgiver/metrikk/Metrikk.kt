@@ -25,6 +25,12 @@ private val apiRequestsTeller =
         .description("Teller antall http requests til LPS API")
         .withRegistry(registry)
 
+private val dokumentHentetTeller =
+    Counter
+        .builder("lpsapi_dokument_hentet")
+        .description("Teller antall dokumenter hentet")
+        .withRegistry(registry)
+
 internal fun tellSykmeldingHentet(
     orgnr: String,
     antall: Int = 1,
@@ -43,6 +49,14 @@ suspend fun RoutingContext.tellApiRequest() {
             "metode" to metode,
         ).increment()
 }
+
+internal fun tellDokumentHentet(
+    orgnr: String,
+    dokumentType: String,
+    antall: Int = 1,
+) = dokumentHentetTeller
+    .withTags("orgnr" to orgnr, "dokumentType" to dokumentType)
+    .increment(antall.toDouble())
 
 private fun Meter.MeterProvider<Counter>.withTags(vararg tags: Pair<String, String>): Counter =
     this.withTags(tags.map { Tag.of(it.first, it.second) })
