@@ -22,7 +22,6 @@ val tokenSupportVersion: String by project
 val unleashVersion: String by project
 val utilsVersion: String by project
 val pdlKlientVersion: String by project
-val openTelemetryVersion: String by project
 val microMeterVersion : String by project
 
 plugins {
