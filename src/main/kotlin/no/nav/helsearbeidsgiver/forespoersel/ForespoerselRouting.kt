@@ -13,7 +13,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
-import no.nav.helsearbeidsgiver.metrikk.tellDokumentHentet
+import no.nav.helsearbeidsgiver.metrikk.tellDokumentHentetMedMaxAntall
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
@@ -58,7 +58,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
                 "LPS: [$lpsOrgnr] henter forespørsel med id $navReferanseId for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
                     " og forespørselOrgnr: [${forespoersel.orgnr}]",
             )
-            tellDokumentHentet(lpsOrgnr, "forespoersel")
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, "forespoersel")
             call.respond(forespoersel)
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
@@ -93,7 +93,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val forespoersler = forespoerselService.filtrerForespoersler(filter)
-            tellDokumentHentet(lpsOrgnr, "forespoersel", forespoersler.size)
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, "forespoersel", forespoersler.size)
             call.respondWithMaxLimit(forespoersler)
             return@post
         } catch (_: IllegalArgumentException) {

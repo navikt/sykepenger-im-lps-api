@@ -10,14 +10,9 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 
 val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-
-private val sykmeldingTeller =
-    Counter
-        .builder("lpsapi_sykmelding_hentet")
-        .description("Teller antall sykmeldinger hentet")
-        .withRegistry(registry)
 
 private val apiRequestsTeller =
     Counter
@@ -28,15 +23,8 @@ private val apiRequestsTeller =
 private val dokumentHentetTeller =
     Counter
         .builder("lpsapi_dokument_hentet")
-        .description("Teller antall dokumenter hentet")
+        .description("Teller antall dokumenter hentet, feks inntektsmelding, sykmelding, sykepengesoeknad, forespoersel")
         .withRegistry(registry)
-
-internal fun tellSykmeldingHentet(
-    orgnr: String,
-    antall: Int = 1,
-) = sykmeldingTeller
-    .withTags("orgnr" to orgnr)
-    .increment(antall.toDouble())
 
 suspend fun RoutingContext.tellApiRequest() {
     val metode = call.request.httpMethod.value
@@ -50,13 +38,13 @@ suspend fun RoutingContext.tellApiRequest() {
         ).increment()
 }
 
-internal fun tellDokumentHentet(
+internal fun tellDokumentHentetMedMaxAntall(
     orgnr: String,
     dokumentType: String,
     antall: Int = 1,
 ) = dokumentHentetTeller
     .withTags("orgnr" to orgnr, "dokumentType" to dokumentType)
-    .increment(antall.toDouble())
+    .increment(minOf(antall, MAX_ANTALL_I_RESPONS).toDouble())
 
 private fun Meter.MeterProvider<Counter>.withTags(vararg tags: Pair<String, String>): Counter =
     this.withTags(tags.map { Tag.of(it.first, it.second) })
