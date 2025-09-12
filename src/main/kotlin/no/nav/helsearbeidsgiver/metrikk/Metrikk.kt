@@ -16,7 +16,7 @@ val registry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
 private val apiRequestsTeller =
     Counter
-        .builder("lpsapi_http_requests_test1")
+        .builder("lpsapi_http_requests")
         .description("Teller antall http requests til LPS API")
         .withRegistry(registry)
 
