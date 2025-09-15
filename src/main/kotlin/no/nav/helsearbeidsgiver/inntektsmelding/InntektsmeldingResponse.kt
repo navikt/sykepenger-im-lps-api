@@ -38,9 +38,9 @@ data class InntektsmeldingResponse(
     val valideringsfeil: Valideringsfeil? = null,
 )
 
+// Innsending slik APIet sender inn
 @Serializable
 data class InntektsmeldingRequest(
-    // Innsending slik APIet sender inn
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
