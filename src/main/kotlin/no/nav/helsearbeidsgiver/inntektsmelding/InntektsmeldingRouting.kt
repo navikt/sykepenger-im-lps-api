@@ -20,7 +20,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
-import no.nav.helsearbeidsgiver.metrikk.tellDokumentHentetMedMaxAntall
+import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -141,7 +141,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
                 "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val inntektsmeldinger = inntektsmeldingService.hentInntektsMelding(filter = filter)
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
+            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
         } catch (_: BadRequestException) {
@@ -189,7 +189,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             }
 
             tellApiRequest()
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
+            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntektsmelding med id $innsendingId for bedrift med " +

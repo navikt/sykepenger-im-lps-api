@@ -47,7 +47,7 @@ enum class MetrikkDokumentType(
     FORESPOERSEL("forespoersel"),
 }
 
-internal fun tellDokumentHentetMedMaxAntall(
+internal fun tellDokumenterHentet(
     orgnr: String,
     dokumentType: MetrikkDokumentType,
     antall: Int = 1,
