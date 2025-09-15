@@ -133,6 +133,7 @@ class InntektsmeldingRepository(
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
+            lopeNr = this[InntektsmeldingEntitet.id],
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,

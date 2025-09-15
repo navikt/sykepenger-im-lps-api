@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.random.Random
 import kotlin.test.assertEquals
 
 class ForespoerselServiceTest {
@@ -51,6 +52,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
     val forespoersler =
         listOf(
             Forespoersel(
+                lopeNr = Random.nextLong(1, 1000).toULong(),
                 navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
@@ -62,6 +64,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 opprettetTid = LocalDateTime.now(),
             ),
             Forespoersel(
+                lopeNr = Random.nextLong(1, 1000).toULong(),
                 navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,

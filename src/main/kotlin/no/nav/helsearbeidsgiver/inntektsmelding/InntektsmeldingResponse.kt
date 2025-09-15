@@ -21,6 +21,7 @@ import java.util.UUID
 
 @Serializable
 data class InntektsmeldingResponse(
+    val lopeNr: ULong,
     val id: UUID,
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,

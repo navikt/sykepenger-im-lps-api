@@ -139,6 +139,7 @@ class ForespoerselRepository(
             arbeidsgiverperiodePaakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
             inntektPaakrevd = dokument.forespurtData.inntekt.paakrevd,
             opprettetTid = this[opprettet],
+            lopeNr = this[ForespoerselEntitet.id],
         )
     }
 
