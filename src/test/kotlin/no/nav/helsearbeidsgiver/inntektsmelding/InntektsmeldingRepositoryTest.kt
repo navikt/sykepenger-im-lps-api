@@ -227,7 +227,7 @@ class InntektsmeldingRepositoryTest {
         val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
         result[0].status shouldBe InnsendingStatus.MOTTATT
         repository.oppdaterFeilstatusOgFeilkode(
-            UnderkjentInntektsmelding(
+            AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
                 feilkode = Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
             ),

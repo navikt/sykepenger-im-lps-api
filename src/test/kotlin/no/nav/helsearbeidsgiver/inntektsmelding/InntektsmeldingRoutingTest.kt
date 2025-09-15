@@ -248,6 +248,18 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
+    fun `gir 400 dersom request mangler body`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
     fun `gir 400 dersom man ber om inntektsmeldinger for skrekkelig langt inn i fremtiden`() {
         runBlocking {
             val response =
