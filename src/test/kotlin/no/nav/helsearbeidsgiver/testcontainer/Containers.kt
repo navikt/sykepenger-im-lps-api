@@ -90,8 +90,8 @@ class KafkaTestExtension :
 }
 
 private fun <T> withRetries(
-    antallForsoek: Int = 5,
-    pauseMillis: Long = 1000,
+    antallForsoek: Int = 10,
+    pauseMillis: Long = 2000,
     feilmelding: String,
     blokk: () -> T,
 ): T {

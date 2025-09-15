@@ -15,6 +15,9 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
+import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
+import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
@@ -53,10 +56,12 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
+            tellApiRequest()
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
                     " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
             )
+            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
             call.respond(sykmelding)
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
@@ -84,11 +89,14 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             }
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
+            tellApiRequest()
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respondWithMaxLimit(sykmeldingService.hentSykmeldinger(filter))
+            val sykemeldinger = sykmeldingService.hentSykmeldinger(filter)
+
+            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING, antall = sykemeldinger.size)
+            call.respondWithMaxLimit(sykemeldinger)
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")

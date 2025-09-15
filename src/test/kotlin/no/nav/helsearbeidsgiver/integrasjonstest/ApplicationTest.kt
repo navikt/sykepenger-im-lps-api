@@ -159,7 +159,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             ).toJson().toString()
 
         Producer.sendMelding(ProducerRecord("helsearbeidsgiver.api-innsending", "key", melding))
-
         runBlocking {
             val response1 =
                 fetchWithRetry(
