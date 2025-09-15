@@ -46,7 +46,6 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
             }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            tellApiRequest()
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SOKNAD_RESSURS,
@@ -56,6 +55,7 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
+            tellApiRequest()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
             tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
             call.respond(soeknad)

@@ -44,7 +44,6 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            tellApiRequest()
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
@@ -54,6 +53,8 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
+
+            tellApiRequest()
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsel med id $navReferanseId for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +

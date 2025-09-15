@@ -47,7 +47,6 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            tellApiRequest()
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SM_RESSURS,
@@ -57,6 +56,7 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
+            tellApiRequest()
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
                     " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",

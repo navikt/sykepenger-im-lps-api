@@ -178,8 +178,6 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            tellApiRequest()
-            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = IM_RESSURS,
@@ -189,6 +187,9 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
+
+            tellApiRequest()
+            tellDokumentHentetMedMaxAntall(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntektsmelding med id $innsendingId for bedrift med " +
