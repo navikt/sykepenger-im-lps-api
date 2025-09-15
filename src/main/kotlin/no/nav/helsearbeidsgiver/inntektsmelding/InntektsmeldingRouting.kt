@@ -18,6 +18,9 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
+import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
+import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -64,7 +67,7 @@ private fun Route.sendInntektsmelding(services: Services) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@post
             }
-
+            tellApiRequest()
             sikkerLogger().info("Mottatt innsending: $request")
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [${forespoersel.orgnr}] med systembrukerOrgnr: [$systembrukerOrgnr]",
@@ -133,10 +136,13 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             }
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            tellApiRequest()
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            call.respondWithMaxLimit(inntektsmeldingService.hentInntektsMelding(filter = filter))
+            val inntektsmeldinger = inntektsmeldingService.hentInntektsMelding(filter = filter)
+            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
+            call.respondWithMaxLimit(inntektsmeldinger)
             return@post
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
@@ -181,6 +187,9 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
                 return@get
             }
+
+            tellApiRequest()
+            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntektsmelding med id $innsendingId for bedrift med " +
