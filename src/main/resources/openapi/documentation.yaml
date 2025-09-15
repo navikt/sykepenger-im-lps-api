@@ -306,6 +306,8 @@ paths:
                 type: "string"
               examples:
                 Example#1:
+                  value: "Request mangler eller har ugyldig body"
+                Example#2:
                   value: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
@@ -421,6 +423,8 @@ paths:
                 type: "string"
               examples:
                 Example#1:
+                  value: "Request mangler eller har ugyldig body"
+                Example#2:
                   value: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
@@ -534,8 +538,10 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ugyldig filterparameter"
+                  value: "Request mangler eller har ugyldig body"
                 Example#2:
+                  value: "Ugyldig filterparameter"
+                Example#3:
                   value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
@@ -970,7 +976,7 @@ components:
         feilkode:
           type: "string"
           enum:
-            - "INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK"
+            - "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
         feilmelding:
           type: "string"
       required:

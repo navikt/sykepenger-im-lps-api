@@ -16,7 +16,7 @@ class AvvistInntektsmeldingServiceTest {
         val avvistInntektsmeldingMock =
             AvvistInntektsmelding(
                 inntektsmeldingId = UUID.randomUUID(),
-                feilkode = Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
+                feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 
         every {

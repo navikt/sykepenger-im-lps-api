@@ -10,9 +10,9 @@ data class Valideringsfeil(
     enum class Feilkode(
         val feilmelding: String,
     ) {
-        INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK(
-            "Oppgitt inntekt matcher ikke beløp registrert i A-ordningen. " +
-                "Send inntektsmelding på nytt med en gyldig årsak til inntektsendring.",
+        INNTEKT_AVVIKER_FRA_A_ORDNINGEN(
+            "Oppgitt inntekt avviker fra inntekt registrert i A-ordningen. " +
+                "Send inntektsmelding på nytt med en gyldig årsak til endring av inntekt.",
         ),
     }
 }

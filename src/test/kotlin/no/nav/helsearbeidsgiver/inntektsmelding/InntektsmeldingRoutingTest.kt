@@ -94,7 +94,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
             val inntektsmeldingSvar = response.body<InntektsmeldingResponse>()
             inntektsmeldingSvar.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
             inntektsmeldingSvar.status shouldBe InnsendingStatus.FEILET
-            inntektsmeldingSvar.valideringsfeil?.feilkode shouldBe Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK
+            inntektsmeldingSvar.valideringsfeil?.feilkode shouldBe Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN
         }
     }
 

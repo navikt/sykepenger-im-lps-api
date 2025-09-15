@@ -199,7 +199,7 @@ fun mockUnderkjentInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmel
     mockInntektsmeldingResponse(im).copy(
         status = InnsendingStatus.FEILET,
         valideringsfeil =
-            Valideringsfeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK.let {
+            Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN.let {
                 Valideringsfeil(feilkode = it, feilmelding = it.feilmelding)
             },
     )
