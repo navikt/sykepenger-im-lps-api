@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
@@ -277,6 +278,28 @@ class InntektsmeldingRepositoryTest {
         assertEquals(DEFAULT_FNR, result[0].sykmeldtFnr)
         assertEquals(inntektsmeldingId, result[0].id)
         assertEquals(forespoerselId, result[0].navReferanseId)
+    }
+
+    @Test
+    fun `hent med sisteLopeNr skal returnere kun lopeNr større enn oppgitt verdi`() {
+        val repository = InntektsmeldingRepository(db)
+        val inntektsmelding1 =
+            buildInntektsmelding(inntektsmeldingId = UUID.randomUUID())
+        val innsendingsId1 = repository.opprettInntektsmelding(inntektsmelding1)
+        val inntektsmelding2 =
+            buildInntektsmelding(inntektsmeldingId = UUID.randomUUID())
+        repository.opprettInntektsmelding(inntektsmelding2)
+        val inntektsmelding3 =
+            buildInntektsmelding(inntektsmeldingId = UUID.randomUUID())
+        repository.opprettInntektsmelding(inntektsmelding3)
+
+        val inntektsmeldingLopeNr1 = repository.hentMedInnsendingId(innsendingsId1)?.lopeNr ?: error("lopeNr kan ikke være null")
+
+        val result = repository.hent(InntektsmeldingFilter(orgnr = DEFAULT_ORG, sisteLopeNr = inntektsmeldingLopeNr1.toInt()))
+        result.size shouldBe 2
+        result.forEach {
+            it.lopeNr shouldBeGreaterThan inntektsmeldingLopeNr1
+        }
     }
 
     private fun generateTestData(

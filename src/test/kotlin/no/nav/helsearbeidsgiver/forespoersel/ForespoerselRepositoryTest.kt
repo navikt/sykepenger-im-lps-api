@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockkStatic
@@ -14,7 +15,10 @@ import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
@@ -36,6 +40,13 @@ class ForespoerselRepositoryTest {
                 System.getProperty("database.password"),
             ).init()
         forespoerselRepository = configureRepositories(db).forespoerselRepository
+    }
+
+    @BeforeEach
+    fun beforeEach() {
+        transaction(db) {
+            ForespoerselEntitet.deleteAll()
+        }
     }
 
     @Test
@@ -175,5 +186,34 @@ class ForespoerselRepositoryTest {
         }
         val filter = ForespoerselFilter(orgnr = DEFAULT_ORG)
         forespoerselRepository.hentForespoersler(filter).size shouldBe (MAX_ANTALL_I_RESPONS + 1)
+    }
+
+    @Test
+    fun `hentForespoersler sisteLopeNr skal returnere kun lopeNr større enn oppgitt verdi`() {
+        val forespoerselID1 = UUID.randomUUID()
+        val forespoerselID2 = UUID.randomUUID()
+        val forespoerselID3 = UUID.randomUUID()
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID1),
+            eksponertForespoerselId = forespoerselID1,
+        )
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID2),
+            eksponertForespoerselId = forespoerselID2,
+        )
+        forespoerselRepository.lagreForespoersel(
+            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID3),
+            eksponertForespoerselId = forespoerselID3,
+        )
+        val forespoersel1LopeNr =
+            forespoerselRepository.hentForespoersel(forespoerselID1)?.lopeNr
+                ?: error("lopeNr kan ikke være null null")
+
+        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG, sisteLopeNr = forespoersel1LopeNr.toInt())
+        val forespoersler = forespoerselRepository.hentForespoersler(filter)
+        forespoersler.size shouldBe 2
+        forespoersler.forEach {
+            it.lopeNr shouldBeGreaterThan forespoersel1LopeNr
+        }
     }
 }
