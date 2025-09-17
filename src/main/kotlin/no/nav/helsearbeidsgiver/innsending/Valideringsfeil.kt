@@ -12,7 +12,7 @@ data class Valideringsfeil(
     ) {
         INNTEKT_AVVIKER_FRA_A_ORDNINGEN(
             "Oppgitt inntekt avviker fra inntekt registrert i a-ordningen. " +
-                "Send inntektsmelding på nytt med en gyldig årsak til endring av inntekt.",
+                "Send inntektsmelding på nytt med en gyldig årsak til at inntektene ikke samsvarer.",
         ),
     }
 }
