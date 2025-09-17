@@ -295,7 +295,7 @@ class InntektsmeldingRepositoryTest {
 
         val inntektsmeldingLopeNr1 = repository.hentMedInnsendingId(innsendingsId1)?.loepenr ?: error("lopeNr kan ikke være null")
 
-        val result = repository.hent(InntektsmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = inntektsmeldingLopeNr1.toInt()))
+        val result = repository.hent(InntektsmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = inntektsmeldingLopeNr1))
         result.size shouldBe 2
         result.forEach {
             it.loepenr shouldBeGreaterThan inntektsmeldingLopeNr1

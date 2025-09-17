@@ -93,7 +93,7 @@ data class InntektsmeldingFilter(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val status: InnsendingStatus? = null,
-    val fraLoepenr: Int? = null,
+    val fraLoepenr: ULong? = null,
 ) {
     init {
         require(erGyldig(orgnr))
