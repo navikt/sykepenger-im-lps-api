@@ -4,8 +4,9 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import java.time.LocalDateTime
 
-fun SykepengesoknadDTO.konverter(): Sykepengesoeknad =
+fun SykepengesoknadDTO.konverter(loepenr: ULong): Sykepengesoeknad =
     Sykepengesoeknad(
+        loepenr = loepenr,
         soeknadId = id,
         type = Sykepengesoeknad.Soeknadstype.valueOf(type.name),
         fnr = fnr,

@@ -33,6 +33,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.random.Random
+import kotlin.random.nextULong
 
 class SoeknadRoutingTest : ApiTest() {
     @AfterEach
@@ -47,18 +49,18 @@ class SoeknadRoutingTest : ApiTest() {
 
     @Test
     fun `hent en spesifikk søknad`() {
-        val soeknad = TestData.soeknadMock().medOrgnr(DEFAULT_ORG)
-        every { repositories.soeknadRepository.hentSoeknad(soeknad.id) } returns soeknad
+        val soeknad = SykepengeSoeknadResponse(Random.nextULong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
+        every { repositories.soeknadRepository.hentSoeknad(soeknad.sykepengesoknadDTO.id) } returns soeknad
 
         runBlocking {
             val respons =
-                client.get("/v1/sykepengesoeknad/${soeknad.id}") {
+                client.get("/v1/sykepengesoeknad/${soeknad.sykepengesoknadDTO.id}") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             respons.status shouldBe HttpStatusCode.OK
             val soeknadRespons = respons.body<Sykepengesoeknad>()
             soeknadRespons.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
-            soeknadRespons.soeknadId shouldBe soeknad.id
+            soeknadRespons.soeknadId shouldBe soeknad.sykepengesoknadDTO.id
         }
     }
 
@@ -71,7 +73,10 @@ class SoeknadRoutingTest : ApiTest() {
             List(
                 antallForventedeSoeknader,
             ) {
-                TestData.soeknadMock().medOrgnr(DEFAULT_ORG).medId(UUID.randomUUID())
+                SykepengeSoeknadResponse(
+                    Random.nextULong(1u, 100u),
+                    TestData.soeknadMock().medOrgnr(DEFAULT_ORG).medId(UUID.randomUUID()),
+                )
             }
 
         runBlocking {

@@ -21,3 +21,8 @@ object SoeknadEntitet : Table("soknad") {
     val opprettet = datetime("opprettet")
     val vedtaksperiodeId = uuid("vedtaksperiode_id").nullable()
 }
+
+data class SykepengeSoeknadResponse(
+    val loepenr: ULong,
+    val sykepengesoknadDTO: SykepengesoknadDTO,
+)

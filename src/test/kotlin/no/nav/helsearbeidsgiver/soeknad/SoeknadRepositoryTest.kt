@@ -122,7 +122,7 @@ class SoeknadRepositoryTest {
 
         val lagretSoeknad = soeknadRepository.hentSoeknad(soeknad.id)
 
-        lagretSoeknad shouldBe soeknad
+        lagretSoeknad?.sykepengesoknadDTO shouldBe soeknad
     }
 
     @Test
@@ -133,14 +133,14 @@ class SoeknadRepositoryTest {
 
         val soeknadValgt = soeknader[2]
 
-        soeknadRepository.hentSoeknad(soeknadValgt.id) shouldBe soeknadValgt
+        soeknadRepository.hentSoeknad(soeknadValgt.id)?.sykepengesoknadDTO shouldBe soeknadValgt
     }
 
     @Test
     fun `hentSoeknad takler at sendt-felter ikke er populert`() {
         val soeknad = soeknadMock().copy(sendtNav = null, sendtArbeidsgiver = null)
         soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
-        soeknadRepository.hentSoeknad(soeknad.id) shouldBe soeknad
+        soeknadRepository.hentSoeknad(soeknad.id)?.sykepengesoknadDTO shouldBe soeknad
     }
 
     @Test
@@ -166,7 +166,10 @@ class SoeknadRepositoryTest {
             }
         soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
-        soeknadRepository.hentSoeknader(filter = SykepengesoeknadFilter(orgnr = orgnr.verdi)) shouldContainOnly soeknaderMedSammeOrgnr
+        val soeknaderFraRepo =
+            soeknadRepository.hentSoeknader(filter = SykepengesoeknadFilter(orgnr = orgnr.verdi)).map { it.sykepengesoknadDTO }
+
+        soeknaderFraRepo shouldContainOnly soeknaderMedSammeOrgnr
     }
 
     @Test

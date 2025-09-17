@@ -42,7 +42,7 @@ class SoeknadRepository(
         }
     }
 
-    fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengesoknadDTO> =
+    fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengeSoeknadResponse> =
         transaction(db) {
             val query =
                 SoeknadEntitet
@@ -59,16 +59,16 @@ class SoeknadRepository(
             }
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {
-                it[sykepengesoeknad]
+                SykepengeSoeknadResponse(it[SoeknadEntitet.id], it[sykepengesoeknad])
             }
         }
 
-    fun hentSoeknad(id: UUID): SykepengesoknadDTO? =
+    fun hentSoeknad(id: UUID): SykepengeSoeknadResponse? =
         transaction(db) {
             SoeknadEntitet
                 .selectAll()
                 .where { soeknadId eq id }
-                .map { it[sykepengesoeknad] }
+                .map { SykepengeSoeknadResponse(it[SoeknadEntitet.id], it[sykepengesoeknad]) }
                 .firstOrNull()
         }
 
