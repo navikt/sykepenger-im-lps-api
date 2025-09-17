@@ -5,7 +5,6 @@ import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.hooks.ResponseSent
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
-import io.ktor.server.routing.RoutingContext
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.Meter
 import io.micrometer.core.instrument.Tag
