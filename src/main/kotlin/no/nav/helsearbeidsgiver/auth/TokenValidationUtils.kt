@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.auth
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
@@ -9,11 +10,13 @@ import no.nav.helsearbeidsgiver.config.getPdpService
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v3.TokenValidationContextPrincipal
 
-suspend fun RoutingContext.tokenValidationContext(): TokenValidationContext {
-    val principal = call.principal<TokenValidationContextPrincipal>()
+suspend fun RoutingContext.tokenValidationContext(): TokenValidationContext = call.tokenValidationContext()
+
+suspend fun ApplicationCall.tokenValidationContext(): TokenValidationContext {
+    val principal = principal<TokenValidationContextPrincipal>()
     val tokenValidationContext = principal?.context
     if (tokenValidationContext == null) {
-        call.respond(HttpStatusCode.Unauthorized, "Uautorisert tilgang")
+        respond(HttpStatusCode.Unauthorized, "Uautorisert tilgang")
         throw IllegalStateException("Teknisk feil - mangler tokenValidationContext")
     }
     return tokenValidationContext

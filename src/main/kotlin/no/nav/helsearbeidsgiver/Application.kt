@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.metrikk.metrikkPlugin
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -66,4 +67,7 @@ fun Application.apiModule(
 
     logger.info("Setter opp routing...")
     configureRouting(services)
+
+    logger.info("Setter opp metrikker...")
+    install(metrikkPlugin)
 }

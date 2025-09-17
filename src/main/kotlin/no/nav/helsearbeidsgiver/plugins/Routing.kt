@@ -2,11 +2,14 @@ package no.nav.helsearbeidsgiver.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.ApplicationCallPipeline.ApplicationPhase.Plugins
+import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
+import io.ktor.util.AttributeKey
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
@@ -16,12 +19,17 @@ import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 
+val skalLoggeMetrikk = AttributeKey<Unit>("skalLoggeMetrikk")
+
 fun Application.configureRouting(services: Services) {
     routing {
         metrikkRoutes()
         naisRoutes(services.helseSjekkService)
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         authenticate("systembruker-config") {
+            intercept(Plugins) {
+                call.attributes.put(skalLoggeMetrikk, Unit)
+            }
             inntektsmeldingV1(
                 services = services,
             )

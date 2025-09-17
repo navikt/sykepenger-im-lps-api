@@ -13,7 +13,6 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
-import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -54,8 +53,6 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
                 return@get
             }
 
-            tellApiRequest()
-
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsel med id $navReferanseId for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
                     " og forespørselOrgnr: [${forespoersel.orgnr}]",
@@ -88,8 +85,6 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             }
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
-            tellApiRequest()
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
