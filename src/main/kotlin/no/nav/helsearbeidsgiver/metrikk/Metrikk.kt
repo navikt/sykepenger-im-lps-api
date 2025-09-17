@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.metrikk
 
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.createApplicationPlugin
-import io.ktor.server.application.hooks.ResponseSent
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.micrometer.core.instrument.Counter
@@ -32,24 +31,32 @@ private val dokumentHentetTeller =
 
 val metrikkPlugin =
     createApplicationPlugin(name = "MetrikkPlugin") {
-        on(ResponseSent) { call ->
+        onCallRespond { call, body ->
             if (call.attributes.getOrNull(skalLoggeMetrikk) != null) {
-                runBlocking { call.tellApiRequest() }
+                runBlocking { call.tellApiRequest(body) }
             }
         }
     }
 
-private suspend fun ApplicationCall.tellApiRequest() {
+fun ApplicationCall.hentFeilmelding(body: Any?): String? {
+    val status = response.status()
+    val erFeil = status != null && status.value >= 400 && body is String
+    return if (erFeil) body else null
+}
+
+private suspend fun ApplicationCall.tellApiRequest(body: Any?) {
     val metode = request.httpMethod.value
     val path = request.path()
     val ressurs = if (metode == "GET") path.substringBeforeLast("/") else path
     val responseKode = response.status()?.value.toString()
+    val feilmelding = hentFeilmelding(body)
     apiRequestsTeller
         .withTags(
             "orgnr" to tokenValidationContext().getConsumerOrgnr(),
             "ressurs" to ressurs,
             "metode" to metode,
             "respons" to responseKode,
+            "feilmelding" to (feilmelding ?: ""),
         ).increment()
 }
 
