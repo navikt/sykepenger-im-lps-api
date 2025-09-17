@@ -28,8 +28,8 @@ import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.mockAvvistInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
-import no.nav.helsearbeidsgiver.utils.mockUnderkjentInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -74,7 +74,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent en underkjent inntektsmelding`() {
+    fun `hent en avvist inntektsmelding`() {
         val inntektsmeldingId = UUID.randomUUID()
         val inntektsmelding =
             buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, orgnr = Orgnr(DEFAULT_ORG))
@@ -83,7 +83,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 innsendingId = inntektsmeldingId,
             )
         } returns
-            mockUnderkjentInntektsmeldingResponse(inntektsmelding)
+            mockAvvistInntektsmeldingResponse(inntektsmelding)
 
         runBlocking {
             val response =

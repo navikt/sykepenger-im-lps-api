@@ -195,7 +195,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         valideringsfeil = null,
     )
 
-fun mockUnderkjentInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
+fun mockAvvistInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
     mockInntektsmeldingResponse(im).copy(
         status = InnsendingStatus.FEILET,
         valideringsfeil =
