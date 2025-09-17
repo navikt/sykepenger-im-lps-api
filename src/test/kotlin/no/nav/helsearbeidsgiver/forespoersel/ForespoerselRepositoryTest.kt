@@ -209,7 +209,7 @@ class ForespoerselRepositoryTest {
             forespoerselRepository.hentForespoersel(forespoerselID1)?.loepenr
                 ?: error("lopeNr kan ikke være null null")
 
-        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG, fraLoepenr = forespoersel1LopeNr.toInt())
+        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG, fraLoepenr = forespoersel1LopeNr)
         val forespoersler = forespoerselRepository.hentForespoersler(filter)
         forespoersler.size shouldBe 2
         forespoersler.forEach {

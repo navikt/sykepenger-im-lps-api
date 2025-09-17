@@ -85,7 +85,7 @@ class ForespoerselRepository(
             filter.status?.let { query.andWhere { status eq it } }
             filter.fom?.let { query.andWhere { opprettet greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() } }
-            filter.fraLoepenr?.let { query.andWhere { ForespoerselEntitet.id greater it.toULong() } }
+            filter.fraLoepenr?.let { query.andWhere { ForespoerselEntitet.id greater it } }
             query.orderBy(ForespoerselEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {

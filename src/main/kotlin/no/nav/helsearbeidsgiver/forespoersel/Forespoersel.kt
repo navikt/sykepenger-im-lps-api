@@ -53,7 +53,7 @@ data class ForespoerselFilter(
     val status: Status? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val fraLoepenr: Int? = null,
+    val fraLoepenr: ULong? = null,
 ) {
     init {
         orgnr?.let { require(erGyldig(orgnr)) }
