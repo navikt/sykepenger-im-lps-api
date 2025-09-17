@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val lopeNr: ULong,
+    val loepenr: ULong,
     val navReferanseId: UUID,
     val orgnr: String,
     val fnr: String,
@@ -53,7 +53,7 @@ data class ForespoerselFilter(
     val status: Status? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val sisteLopeNr: Int? = null,
+    val fraLoepenr: Int? = null,
 ) {
     init {
         orgnr?.let { require(erGyldig(orgnr)) }

@@ -178,7 +178,7 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
 
 fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
     InntektsmeldingResponse(
-        lopeNr = Random.nextLong(1, 1000).toULong(),
+        loepenr = Random.nextLong(1, 1000).toULong(),
         id = im.id,
         navReferanseId = im.id,
         agp = im.agp,
@@ -197,7 +197,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
 
 fun mockForespoersel(): Forespoersel =
     Forespoersel(
-        lopeNr = Random.nextLong(1, 1000).toULong(),
+        loepenr = Random.nextLong(1, 1000).toULong(),
         navReferanseId = UUID.randomUUID(),
         orgnr = DEFAULT_ORG,
         fnr = Fnr.genererGyldig().toString(),

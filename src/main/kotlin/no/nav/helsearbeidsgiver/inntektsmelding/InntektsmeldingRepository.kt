@@ -73,7 +73,7 @@ class InntektsmeldingRepository(
             filter.navReferanseId?.let { query.andWhere { navReferanseId eq it } }
             filter.fom?.let { query.andWhere { innsendt greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { innsendt lessEq it.tilTidspunktEndOfDay() } }
-            filter.sisteLopeNr?.let { query.andWhere { InntektsmeldingEntitet.id greater it.toULong() } }
+            filter.fraLoepenr?.let { query.andWhere { InntektsmeldingEntitet.id greater it.toULong() } }
             query.orderBy(InntektsmeldingEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map { it.toExposedInntektsmelding() }
@@ -136,7 +136,7 @@ class InntektsmeldingRepository(
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
         InntektsmeldingResponse(
-            lopeNr = this[InntektsmeldingEntitet.id],
+            loepenr = this[InntektsmeldingEntitet.id],
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,

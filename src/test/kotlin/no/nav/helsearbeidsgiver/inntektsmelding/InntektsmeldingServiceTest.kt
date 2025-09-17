@@ -62,7 +62,7 @@ class InntektsmeldingServiceTest {
             inntektsmeldingRepository.hentMedInnsendingId(any(), inntektsmelding.id)
         } returns
             InntektsmeldingResponse(
-                lopeNr = Random.nextLong(1, 1000).toULong(),
+                loepenr = Random.nextLong(1, 1000).toULong(),
                 navReferanseId = inntektsmelding.type.id,
                 inntekt = inntektsmelding.inntekt,
                 refusjon = inntektsmelding.refusjon,
@@ -105,7 +105,7 @@ class InntektsmeldingServiceTest {
         every { inntektsmeldingRepository.hent(filter = filter) } returns
             listOf(
                 InntektsmeldingResponse(
-                    lopeNr = Random.nextLong(1, 1000).toULong(),
+                    loepenr = Random.nextLong(1, 1000).toULong(),
                     navReferanseId = navReferanseId,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
@@ -174,7 +174,7 @@ class InntektsmeldingServiceTest {
         every { inntektsmeldingRepository.hent(navReferanseId) } returns
             listOf(
                 InntektsmeldingResponse(
-                    lopeNr = Random.nextLong(1, 1000).toULong(),
+                    loepenr = Random.nextLong(1, 1000).toULong(),
                     navReferanseId = navReferanseId,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
@@ -191,7 +191,7 @@ class InntektsmeldingServiceTest {
                     id = innsendingId1,
                 ),
                 InntektsmeldingResponse(
-                    lopeNr = Random.nextLong(1, 1000).toULong(),
+                    loepenr = Random.nextLong(1, 1000).toULong(),
                     navReferanseId = navReferanseId,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,

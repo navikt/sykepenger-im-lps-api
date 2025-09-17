@@ -52,7 +52,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
     val forespoersler =
         listOf(
             Forespoersel(
-                lopeNr = Random.nextLong(1, 1000).toULong(),
+                loepenr = Random.nextLong(1, 1000).toULong(),
                 navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
@@ -64,7 +64,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 opprettetTid = LocalDateTime.now(),
             ),
             Forespoersel(
-                lopeNr = Random.nextLong(1, 1000).toULong(),
+                loepenr = Random.nextLong(1, 1000).toULong(),
                 navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,

@@ -281,7 +281,7 @@ class InntektsmeldingRepositoryTest {
     }
 
     @Test
-    fun `hent med sisteLopeNr skal returnere kun lopeNr større enn oppgitt verdi`() {
+    fun `hent med fraLoepenr skal returnere kun loepenr større enn oppgitt verdi`() {
         val repository = InntektsmeldingRepository(db)
         val inntektsmelding1 =
             buildInntektsmelding(inntektsmeldingId = UUID.randomUUID())
@@ -293,12 +293,12 @@ class InntektsmeldingRepositoryTest {
             buildInntektsmelding(inntektsmeldingId = UUID.randomUUID())
         repository.opprettInntektsmelding(inntektsmelding3)
 
-        val inntektsmeldingLopeNr1 = repository.hentMedInnsendingId(innsendingsId1)?.lopeNr ?: error("lopeNr kan ikke være null")
+        val inntektsmeldingLopeNr1 = repository.hentMedInnsendingId(innsendingsId1)?.loepenr ?: error("lopeNr kan ikke være null")
 
-        val result = repository.hent(InntektsmeldingFilter(orgnr = DEFAULT_ORG, sisteLopeNr = inntektsmeldingLopeNr1.toInt()))
+        val result = repository.hent(InntektsmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = inntektsmeldingLopeNr1.toInt()))
         result.size shouldBe 2
         result.forEach {
-            it.lopeNr shouldBeGreaterThan inntektsmeldingLopeNr1
+            it.loepenr shouldBeGreaterThan inntektsmeldingLopeNr1
         }
     }
 
