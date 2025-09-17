@@ -43,12 +43,14 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -99,10 +101,12 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
-                Example#3:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Ikke tilgang til ressurs"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -166,12 +170,14 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "409":
           description: "Conflict"
@@ -224,12 +230,14 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -279,10 +287,12 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
-                Example#3:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Ikke tilgang til ressurs"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -350,12 +360,14 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -396,10 +408,12 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
-                Example#3:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Ikke tilgang til ressurs"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"
@@ -462,12 +476,14 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Ikke tilgang til ressurs"
-                Example#2:
                   value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "400":
           description: "Bad Request"
@@ -511,10 +527,12 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
-                Example#3:
                   value: "Uautorisert tilgang"
+                Example#3:
+                  value: "Ikke tilgang til ressurs"
                 Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
                   value: "Uautorisert tilgang"
         "200":
           description: "OK"

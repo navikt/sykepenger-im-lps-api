@@ -149,6 +149,9 @@ tags:
                 // Fjern helsesjekk-endepunkter
                 Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
 
+                // Fjern metrics-endepunkt
+                Regex("""  /metrics:[\s\S]*?(?=  /[^/]|$)""") to "",
+
             )
 
         var newContent = content
