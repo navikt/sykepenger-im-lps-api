@@ -22,7 +22,6 @@ spec:
   observability:
     logging:
       destinations:
-        - id: secure_logs
         - id: loki
     autoInstrumentation:
       enabled: true
@@ -42,8 +41,6 @@ spec:
     path: /health/is-ready
     periodSeconds: 10
     timeout: 1
-  secureLogs:
-    enabled: true
   kafka:
     pool: nav-prod
 #  ingresses:
