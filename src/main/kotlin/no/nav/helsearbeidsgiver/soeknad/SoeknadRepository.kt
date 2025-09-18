@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -57,6 +58,8 @@ class SoeknadRepository(
             filter.tom?.let {
                 query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
             }
+            filter.fraLoepenr?.let { query.andWhere { SoeknadEntitet.id greater it } }
+            query.orderBy(SoeknadEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {
                 SykepengeSoeknadResponse(it[SoeknadEntitet.id], it[sykepengesoeknad])
