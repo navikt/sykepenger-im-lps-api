@@ -11,6 +11,7 @@ import io.ktor.server.netty.Netty
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -26,12 +27,16 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import java.time.Duration
+import java.util.Properties
 
 @WithKafkaContainer
 @WithPostgresContainer
@@ -78,6 +83,30 @@ abstract class LpsApiIntegrasjontest {
         tolkers = configureTolkere(services, repositories)
 
         server.start(wait = false)
+
+        val dummyProps =
+            Properties().apply {
+                put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("KAFKA_BOOTSTRAP_SERVERS"))
+                put(ConsumerConfig.GROUP_ID_CONFIG, "test-wait-group")
+                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            }
+        val dummyConsumer = KafkaConsumer<String, String>(dummyProps)
+        dummyConsumer.subscribe(listOf("helsearbeidsgiver.pri")) // One of your topics
+        runBlocking {
+            // Poll until assigned (use a loop with timeout)
+            var assigned = false
+            repeat(30) {
+                // 30s max
+                val records = dummyConsumer.poll(Duration.ofSeconds(1))
+                if (dummyConsumer.assignment().isNotEmpty()) {
+                    assigned = true
+                    return@repeat
+                }
+                delay(1000)
+            }
+            if (!assigned) throw AssertionError("Kafka consumers not ready")
+        }
+        dummyConsumer.close()
     }
 
     @BeforeEach
