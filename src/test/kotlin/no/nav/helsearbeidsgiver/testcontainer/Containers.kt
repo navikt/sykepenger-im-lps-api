@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.testcontainer
 
-import java.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.admin.AdminClient
@@ -14,6 +13,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.kafka.ConfluentKafkaContainer
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 import java.util.Properties
 
 @Target(AnnotationTarget.CLASS)
