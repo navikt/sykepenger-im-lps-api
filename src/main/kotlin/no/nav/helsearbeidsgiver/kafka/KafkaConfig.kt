@@ -48,7 +48,7 @@ fun createKafkaProducerConfig(producerName: String): Properties {
     return Properties().apply { putAll(producerKafkaProperties + commonKafkaProperties()) }
 }
 
-private fun resolveKafkaBrokers() =
+fun resolveKafkaBrokers() =
     when {
         System.getProperty("KAFKA_BOOTSTRAP_SERVERS") != null -> System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
         Env.getPropertyOrNull("KAFKA_BROKERS") != null -> Env.getPropertyOrNull("KAFKA_BROKERS")

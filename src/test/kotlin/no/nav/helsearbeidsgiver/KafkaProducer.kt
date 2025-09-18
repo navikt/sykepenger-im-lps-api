@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
+import no.nav.helsearbeidsgiver.kafka.resolveKafkaBrokers
 
 fun main() {
     genererKafkaMeldinger()
@@ -48,10 +49,7 @@ object Producer {
         val props =
             Properties().apply {
                 // Use the fixed resolve logic here too, for consistency
-                val brokers =
-                    System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
-                        ?: Env.getPropertyOrNull("KAFKA_BROKERS")
-                        ?: "localhost:9092"
+                val brokers = resolveKafkaBrokers()
                 put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
                 put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
                 put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
