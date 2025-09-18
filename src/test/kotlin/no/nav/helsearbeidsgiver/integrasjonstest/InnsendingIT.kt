@@ -42,8 +42,10 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import no.nav.helsearbeidsgiver.testcontainer.WithKafkaContainer
 
 @WithPostgresContainer
+@@WithKafkaContainer
 class InnsendingIT {
     private lateinit var db: Database
     private lateinit var repositories: Repositories
