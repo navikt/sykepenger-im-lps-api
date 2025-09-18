@@ -50,8 +50,8 @@ fun createKafkaProducerConfig(producerName: String): Properties {
 
 private fun resolveKafkaBrokers() =
     when {
-        Env.getPropertyOrNull("KAFKA_BROKERS") != null -> Env.getPropertyOrNull("KAFKA_BROKERS")
         System.getProperty("KAFKA_BOOTSTRAP_SERVERS") != null -> System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
+        Env.getPropertyOrNull("KAFKA_BROKERS") != null -> Env.getPropertyOrNull("KAFKA_BROKERS")
         else -> "localhost:9092"
     }
 
