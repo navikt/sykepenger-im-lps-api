@@ -3,8 +3,8 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
-import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -26,6 +26,6 @@ object InntektsmeldingEntitet : Table("inntektsmelding") {
     val navReferanseId = uuid("nav_referanse_id")
     val versjon = integer("versjon")
     val status = enumerationByName("status", 15, InnsendingStatus::class)
-    val feilkode = enumerationByName("feilkode", 255, InnsendingFeil.Feilkode::class).nullable()
+    val feilkode = enumerationByName("feilkode", 255, Valideringsfeil.Feilkode::class).nullable()
     override val primaryKey = PrimaryKey(id)
 }
