@@ -45,7 +45,7 @@ import java.time.LocalDateTime
 import no.nav.helsearbeidsgiver.testcontainer.WithKafkaContainer
 
 @WithPostgresContainer
-@WithKafkaContainer
+@@WithKafkaContainer
 class InnsendingIT {
     private lateinit var db: Database
     private lateinit var repositories: Repositories
