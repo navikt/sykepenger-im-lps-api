@@ -29,7 +29,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import kotlinx.coroutines.delay
 
 class ApplicationTest : LpsApiIntegrasjontest() {
     @Test
@@ -283,7 +282,6 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId2, forespoerselId, vedtaksperiodeId))
         sendKafkaMelding(buildForspoerselBesvartMelding(forespoerselId))
         runBlocking {
-            delay(10)
             val forespoersel = hentForespoerselFraApi(forespoerselId)
             forespoersel.status shouldBe Status.FORKASTET
             val oppdatertFsp1 = hentForespoerselFraApi(oppdatertForespoerselId1)
