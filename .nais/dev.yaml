@@ -22,13 +22,10 @@ spec:
   observability:
     logging:
       destinations:
-        - id: secure_logs
         - id: loki
     autoInstrumentation:
       enabled: true
       runtime: java
-  secureLogs:
-    enabled: true
   prometheus:
     enabled: true
     path: /metrics

@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -35,11 +36,12 @@ data class InntektsmeldingResponse(
     val arbeidsgiver: Arbeidsgiver,
     val avsender: Avsender,
     val status: InnsendingStatus,
-    val statusMelding: String?,
+    val valideringsfeil: Valideringsfeil? = null,
 )
 
+// Innsending slik APIet sender inn
 @Serializable
-data class InntektsmeldingRequest( // Innsending slik APIet sender inn
+data class InntektsmeldingRequest(
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
@@ -67,6 +69,7 @@ enum class InnsendingType {
                 is Inntektsmelding.Type.UtenArbeidsforhold,
                 is Inntektsmelding.Type.Behandlingsdager,
                 -> ARBEIDSGIVER_INITIERT
+
                 is Inntektsmelding.Type.ForespurtEkstern -> FORESPURT_EKSTERN
             }
     }

@@ -4,13 +4,14 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.innsending.InnsendingFeil
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
@@ -142,7 +143,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         val avvistInntektsmelding =
             AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId2,
-                feilkode = InnsendingFeil.Feilkode.INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK,
+                feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 
         val melding =
@@ -160,6 +161,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         Producer.sendMelding(ProducerRecord("helsearbeidsgiver.api-innsending", "key", melding))
         runBlocking {
+            // Vent på at alle meldinger er prosessert
+            delay(10)
             val response1 =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId1",
@@ -340,6 +343,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId2, forespoerselId, vedtaksperiodeId))
         sendKafkaMelding(buildForspoerselBesvartMelding(forespoerselId))
         runBlocking {
+            // Vent på at alle meldinger er prosessert
+            delay(10)
             val forespoersel = hentForespoerselFraApi(forespoerselId)
             forespoersel.status shouldBe Status.FORKASTET
             val oppdatertFsp1 = hentForespoerselFraApi(oppdatertForespoerselId1)
