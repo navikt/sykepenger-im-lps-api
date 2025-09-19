@@ -82,6 +82,9 @@ spec:
     sqlInstances:
       - type: POSTGRES_16
         tier: db-f1-micro
+        flags:
+          - name: cloudsql.logical_decoding
+            value: "on"
         databases:
           - name: hag-lps
   envFrom:
