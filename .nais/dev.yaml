@@ -87,6 +87,8 @@ spec:
             value: "on"
         databases:
           - name: hag-lps
+            users:
+              - name: lps_api_datastream_bruker
   envFrom:
     - secret: altinn-subscription
     - secret: sykepenger-im-lps-api-unleash-api-token
