@@ -42,47 +42,21 @@ fun genererOppdatertForespoerselMelding() {
 }
 
 object Producer {
-    lateinit var kafkaProducer: KafkaProducer<String, String>
-
-    private fun createProducer(): KafkaProducer<String, String> {
-        val props =
-            Properties().apply {
-                // Use the fixed resolve logic here too, for consistency
-                val brokers =
-                    System.getProperty("KAFKA_BOOTSTRAP_SERVERS")
-                        ?: Env.getPropertyOrNull("KAFKA_BROKERS")
-                        ?: "localhost:9092"
-                put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
-                put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
-                put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
-                // Add timeouts to prevent hangs (finite retries)
-                put(ProducerConfig.RETRIES_CONFIG, 3.toString())
-                put(ProducerConfig.MAX_BLOCK_MS_CONFIG, "5000") // 5s timeout on send
-                put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, "10000")
-                put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, "120000")
-            }
-        return KafkaProducer<String, String>(props)
-    }
+    val props =
+        Properties().apply {
+            put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("KAFKA_BOOTSTRAP_SERVERS") ?: "localhost:9092")
+            put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
+            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
+        }
+    val kafkaProducer = KafkaProducer<String, String>(props)
 
     fun sendMelding(record: ProducerRecord<String, String>) {
-        if (!::kafkaProducer.isInitialized) {
-            kafkaProducer = createProducer()
-        }
         kafkaProducer.send(record) { metadata, exception ->
             if (exception != null) {
                 println("Error sending message: ${exception.message}")
-                // Optional: Log brokers used for debug
-//                println("Used brokers: ${kafkaProducer.props[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG]}")
             } else {
                 println("Message sent to topic ${metadata.topic()} partition ${metadata.partition()} with offset ${metadata.offset()}")
             }
-        }
-    }
-
-    // Optional: Close for cleanup (call in @AfterAll if needed)
-    fun close() {
-        if (::kafkaProducer.isInitialized) {
-            kafkaProducer.close()
         }
     }
 }
