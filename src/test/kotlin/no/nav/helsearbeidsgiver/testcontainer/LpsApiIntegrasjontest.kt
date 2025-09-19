@@ -100,29 +100,7 @@ abstract class LpsApiIntegrasjontest {
     suspend fun fetchWithRetry(
         url: String,
         token: String,
-        maxAttempts: Int = 5,
-        delayMillis: Long = 100L,
-    ): HttpResponse {
-        var attempts = 0
-        lateinit var response: HttpResponse
-
-        do {
-            attempts++
-            response =
-                client.get(url) {
-                    bearerAuth(token)
-                }
-            if (response.status.value == 200) break
-            delay(delayMillis)
-        } while (attempts < maxAttempts)
-
-        return response
-    }
-
-    suspend fun fetchWithRetry(
-        url: String,
-        token: String,
-        betingelse: suspend (HttpResponse) -> Boolean,
+        betingelse: suspend (HttpResponse) -> Boolean = { true },
         maxAttempts: Int = 5,
         delayMillis: Long = 100L,
     ): HttpResponse {
