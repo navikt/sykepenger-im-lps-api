@@ -343,15 +343,21 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId2, forespoerselId, vedtaksperiodeId))
         sendKafkaMelding(buildForspoerselBesvartMelding(forespoerselId))
         runBlocking {
-            // Vent på at alle meldinger er prosessert
-            delay(10)
-            val forespoersel = hentForespoerselFraApi(forespoerselId)
-            forespoersel.status shouldBe Status.FORKASTET
-            val oppdatertFsp1 = hentForespoerselFraApi(oppdatertForespoerselId1)
-            oppdatertFsp1.status shouldBe Status.FORKASTET
-            val oppdatertFsp2 = hentForespoerselFraApi(oppdatertForespoerselId2)
-            oppdatertFsp2.status shouldBe Status.BESVART
+            sjekkeForespoerselStatus(forespoerselId, Status.FORKASTET)
+            sjekkeForespoerselStatus(oppdatertForespoerselId1, Status.FORKASTET)
+            sjekkeForespoerselStatus(oppdatertForespoerselId1, Status.BESVART)
         }
+    }
+
+    private suspend fun sjekkeForespoerselStatus(
+        forespoerselId: UUID?,
+        status: Status,
+    ) {
+        fetchWithRetry(
+            url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
+            token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+            betingelse = { it.body<Forespoersel>().status == status },
+        )
     }
 
     @Test
