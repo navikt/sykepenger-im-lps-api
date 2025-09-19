@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
@@ -161,17 +160,17 @@ class ApplicationTest : LpsApiIntegrasjontest() {
 
         Producer.sendMelding(ProducerRecord("helsearbeidsgiver.api-innsending", "key", melding))
         runBlocking {
-            // Vent på at alle meldinger er prosessert
-            delay(10)
             val response1 =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId1",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
+                    betingelse = { it.body<InntektsmeldingResponse>().status == InnsendingStatus.MOTTATT },
                 )
             val response2 =
                 fetchWithRetry(
                     url = "http://localhost:8080/v1/inntektsmelding/$inntektsmeldingId2",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
+                    betingelse = { it.body<InntektsmeldingResponse>().status == InnsendingStatus.FEILET },
                 )
 
             response1.body<InntektsmeldingResponse>().status shouldBe InnsendingStatus.MOTTATT
@@ -343,22 +342,21 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId2, forespoerselId, vedtaksperiodeId))
         sendKafkaMelding(buildForspoerselBesvartMelding(forespoerselId))
         runBlocking {
-            sjekkeForespoerselStatus(forespoerselId, Status.FORKASTET)
-            sjekkeForespoerselStatus(oppdatertForespoerselId1, Status.FORKASTET)
-            sjekkeForespoerselStatus(oppdatertForespoerselId1, Status.BESVART)
+            sjekkeForespoerselStatus(forespoerselId, Status.FORKASTET).status shouldBe Status.FORKASTET
+            sjekkeForespoerselStatus(oppdatertForespoerselId1, Status.FORKASTET).status shouldBe Status.FORKASTET
+            sjekkeForespoerselStatus(oppdatertForespoerselId2, Status.BESVART).status shouldBe Status.BESVART
         }
     }
 
     private suspend fun sjekkeForespoerselStatus(
         forespoerselId: UUID?,
         status: Status,
-    ) {
+    ): Forespoersel =
         fetchWithRetry(
             url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
             token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
             betingelse = { it.body<Forespoersel>().status == status },
-        )
-    }
+        ).body<Forespoersel>()
 
     @Test
     fun `Mottar forespørsel fra backlog`() {
