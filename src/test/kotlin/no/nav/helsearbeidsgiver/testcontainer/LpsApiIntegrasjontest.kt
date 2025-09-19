@@ -89,9 +89,12 @@ abstract class LpsApiIntegrasjontest {
                 put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, System.getProperty("KAFKA_BOOTSTRAP_SERVERS"))
                 put(ConsumerConfig.GROUP_ID_CONFIG, "test-wait-group")
                 put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+                put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer")
+                put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer")
             }
         val dummyConsumer = KafkaConsumer<String, String>(dummyProps)
         dummyConsumer.subscribe(listOf("helsearbeidsgiver.pri")) // One of your topics
+
         runBlocking {
             // Poll until assigned (use a loop with timeout)
             var assigned = false
