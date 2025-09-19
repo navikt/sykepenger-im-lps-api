@@ -22,7 +22,6 @@ spec:
   observability:
     logging:
       destinations:
-        - id: secure_logs
         - id: loki
     autoInstrumentation:
       enabled: true
@@ -42,8 +41,6 @@ spec:
     path: /health/is-ready
     periodSeconds: 10
     timeout: 1
-  secureLogs:
-    enabled: true
   kafka:
     pool: nav-prod
 #  ingresses:
@@ -83,8 +80,12 @@ spec:
             value: "true"
           - name: pgaudit.log
             value: 'write'
+          - name: cloudsql.logical_decoding
+            value: "on"
         databases:
           - name: hag-lps
+            users:
+              - name: lps_api_datastream_bruker
   envFrom:
     - secret: sykepenger-im-lps-api-unleash-api-token
 #    - secret: altinn-subscription

@@ -875,7 +875,7 @@ object TestData {
             "data": {
                 "avvist_inntektsmelding": {
                     "inntektsmeldingId": "002cc8ad-982e-4ebe-92d3-ec53ae795d56",
-                    "feilkode": "INNTEKT_A_ORDNINGEN_AVVIK_MANGLER_AARSAK"
+                    "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
                 }
             }
         }
