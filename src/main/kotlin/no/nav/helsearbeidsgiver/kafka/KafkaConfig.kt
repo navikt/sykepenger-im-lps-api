@@ -19,8 +19,8 @@ fun createKafkaConsumerConfig(consumerName: String): Properties {
                 Env.getPropertyOrNull("KAFKA_GROUP_ID")
                     ?: "helsearbeidsgiver-sykepenger-im-lps-api-v1"
             ),
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to "org.apache.kafka.common.serialization.StringDeserializer",
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to "org.apache.kafka.common.serialization.StringDeserializer",
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
             ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
             ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
