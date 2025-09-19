@@ -342,13 +342,13 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId2, forespoerselId, vedtaksperiodeId))
         sendKafkaMelding(buildForspoerselBesvartMelding(forespoerselId))
         runBlocking {
-            sjekkeForespoerselStatus(forespoerselId, Status.FORKASTET).status shouldBe Status.FORKASTET
-            sjekkeForespoerselStatus(oppdatertForespoerselId1, Status.FORKASTET).status shouldBe Status.FORKASTET
-            sjekkeForespoerselStatus(oppdatertForespoerselId2, Status.BESVART).status shouldBe Status.BESVART
+            sjekkForespoerselStatus(forespoerselId, Status.FORKASTET).status shouldBe Status.FORKASTET
+            sjekkForespoerselStatus(oppdatertForespoerselId1, Status.FORKASTET).status shouldBe Status.FORKASTET
+            sjekkForespoerselStatus(oppdatertForespoerselId2, Status.BESVART).status shouldBe Status.BESVART
         }
     }
 
-    private suspend fun sjekkeForespoerselStatus(
+    private suspend fun sjekkForespoerselStatus(
         forespoerselId: UUID?,
         status: Status,
     ): Forespoersel =

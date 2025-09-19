@@ -97,10 +97,17 @@ abstract class LpsApiIntegrasjontest {
         server.stop()
     }
 
+    /**
+     * `betingelse` er en suspenderende lambda som får HTTP-responsen og skal returnere `true`
+     * når ønsket tilstand er oppnådd. Retry-løkken stopper tidlig hvis responsen har status 200
+     * og `betingelse` returnerer `true`. Bruk denne for å vente på en spesifikk tilstand i responsen.
+     */
     suspend fun fetchWithRetry(
         url: String,
         token: String,
-        betingelse: suspend (HttpResponse) -> Boolean = { true },
+        betingelse: suspend (HttpResponse) -> Boolean = {
+            true
+        },
         maxAttempts: Int = 5,
         delayMillis: Long = 100L,
     ): HttpResponse {
