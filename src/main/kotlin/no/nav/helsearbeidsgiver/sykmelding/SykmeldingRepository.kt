@@ -46,7 +46,7 @@ class SykmeldingRepository(
         }
     }
 
-    fun hentSykmelding(id: UUID): SykmeldingResponse? =
+    fun hentSykmelding(id: UUID): SykmeldingDTO? =
         transaction(db) {
             SykmeldingEntitet
                 .selectAll()
@@ -55,7 +55,7 @@ class SykmeldingRepository(
                 .firstOrNull()
         }
 
-    fun hentSykmeldinger(filter: SykmeldingFilter): List<SykmeldingResponse> =
+    fun hentSykmeldinger(filter: SykmeldingFilter): List<SykmeldingDTO> =
         transaction(db) {
             val query =
                 SykmeldingEntitet
@@ -69,16 +69,14 @@ class SykmeldingRepository(
                 .map { it.toSykmelding() }
         }
 
-    private fun ResultRow.toSykmelding(): SykmeldingResponse =
-        SykmeldingResponse(
-            this[SykmeldingEntitet.id],
-            SykmeldingDTO(
-                id = this[sykmeldingId].toString(),
-                orgnr = this[orgnr],
-                fnr = this[fnr],
-                sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
-                sykmeldtNavn = this[sykmeldtNavn],
-                mottattAvNav = this[mottattAvNav],
-            ),
+    private fun ResultRow.toSykmelding(): SykmeldingDTO =
+        SykmeldingDTO(
+            loepenr = this[SykmeldingEntitet.id],
+            id = this[sykmeldingId].toString(),
+            orgnr = this[orgnr],
+            fnr = this[fnr],
+            sendSykmeldingAivenKafkaMessage = this[sendSykmeldingAivenKafkaMessage],
+            sykmeldtNavn = this[sykmeldtNavn],
+            mottattAvNav = this[mottattAvNav],
         )
 }

@@ -20,8 +20,3 @@ object SykmeldingEntitet : Table("sykmelding") {
     val opprettet = datetime("opprettet")
     val mottattAvNav = datetime("mottatt_av_nav")
 }
-
-data class SykmeldingResponse(
-    val loepenr: ULong,
-    val sykmeldingDTO: SykmeldingDTO,
-)

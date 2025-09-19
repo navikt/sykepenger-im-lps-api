@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
@@ -95,7 +96,10 @@ class SykmeldingServiceTest {
 
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
 
-        sykmeldingService.hentSykmelding(id) shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO().tilSykmelding()
+        val hentSykmelding = sykmeldingService.hentSykmelding(id)
+        hentSykmelding shouldNotBe null
+        hentSykmelding!!.loepenr shouldNotBe null
+        hentSykmelding shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO(hentSykmelding.loepenr).tilSykmelding()
     }
 
     @Test
