@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.testcontainer
 
-import java.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.admin.AdminClient
@@ -38,8 +37,6 @@ class PostgresTestExtension :
                 .withUsername("testuser")
                 .withPassword("testpass")
                 .waitingFor(Wait.forListeningPort())
-                .withStartupTimeout(Duration.ofMinutes(1))
-                .withStartupAttempts(3)
                 .withReuse(true)
         }
     }
@@ -60,12 +57,7 @@ class KafkaTestExtension :
     BeforeAllCallback,
     AfterAllCallback {
     companion object {
-        private val kafkaContainer =
-            ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.8.0"))
-                .waitingFor(Wait.forListeningPort())
-                .withStartupTimeout(Duration.ofMinutes(1))
-                .withStartupAttempts(3)
-                .withReuse(true)
+        private val kafkaContainer = ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.8.0"))
     }
 
     override fun beforeAll(context: ExtensionContext) {
