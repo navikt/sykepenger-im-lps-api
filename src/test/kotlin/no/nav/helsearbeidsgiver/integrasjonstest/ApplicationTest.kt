@@ -246,8 +246,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId, forespoerselId))
 
         runBlocking {
-            val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
-            val forespoerselSvar = hentForespoerselFraApi(forespoerselId)
+            val oppdatertFsp = sjekkForespoerselStatus(oppdatertForespoerselId, Status.AKTIV)
+            val forespoerselSvar = sjekkForespoerselStatus(forespoerselId, Status.FORKASTET)
 
             forespoerselSvar.navReferanseId shouldBe forespoerselId
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
@@ -284,13 +284,13 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForespoerselOppdatertJson(oppdatertForespoerselId, forespoerselId, vedtaksperiodeId))
 
         runBlocking {
-            val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
+            val oppdatertFsp = sjekkForespoerselStatus(oppdatertForespoerselId, Status.AKTIV)
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
             oppdatertFsp.status shouldBe Status.AKTIV
 
             sjekkForespoerselEntitetIDb(oppdatertForespoerselId, forespoerselId)
 
-            val forespoerselSvar = hentForespoerselFraApi(forespoerselId)
+            val forespoerselSvar = sjekkForespoerselStatus(forespoerselId, Status.BESVART)
             forespoerselSvar.navReferanseId shouldBe forespoerselId
             forespoerselSvar.status shouldBe Status.BESVART
         }
@@ -320,11 +320,11 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         sendKafkaMelding(buildForspoerselBesvartMelding(oppdatertForespoerselId))
 
         runBlocking {
-            val oppdatertFsp = hentForespoerselFraApi(oppdatertForespoerselId)
+            val oppdatertFsp = sjekkForespoerselStatus(oppdatertForespoerselId, Status.BESVART)
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
             oppdatertFsp.status shouldBe Status.BESVART
 
-            val forespoersel = hentForespoerselFraApi(forespoerselId)
+            val forespoersel = sjekkForespoerselStatus(forespoerselId, Status.FORKASTET)
             forespoersel.navReferanseId shouldBe forespoerselId
             forespoersel.status shouldBe Status.FORKASTET
         }
