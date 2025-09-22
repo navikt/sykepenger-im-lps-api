@@ -7,6 +7,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 suspend fun startKafkaConsumer(
     topic: String,
@@ -23,7 +25,16 @@ suspend fun startKafkaConsumer(
                     logger.warn(
                         "Mottok melding med null som value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}",
                     )
-                else -> meldingTolker.lesMelding(value)
+                else -> {
+                    if (record.timestamp().erInnenforSiste2Aar()) {
+                        meldingTolker.lesMelding(value)
+                    } else {
+                        logger.warn(
+                            "Mottok melding som er eldre enn 2 år, ignorerer melding på topic $topic med offset: ${record.offset()} " +
+                                "og timestamp: ${Instant.ofEpochMilli(record.timestamp())}",
+                        )
+                    }
+                }
             }
             consumer.commitSync()
         } catch (e: Exception) {
@@ -45,6 +56,8 @@ fun <K, V> KafkaConsumer<K, V>.asFlow(timeout: Duration = Duration.ofMillis(10))
             poll(timeout).forEach { emit(it) }
         }
     }
+
+fun Long.erInnenforSiste2Aar(): Boolean = this > Instant.now().minus(365 * 2, ChronoUnit.DAYS).toEpochMilli()
 
 interface MeldingTolker {
     fun lesMelding(melding: String)
