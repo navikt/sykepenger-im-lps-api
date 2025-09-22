@@ -149,6 +149,40 @@ class SykmeldingRepositoryTest {
 
         sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr)).size shouldBe MAX_ANTALL_I_RESPONS + 1
     }
+
+    @Test
+    fun `hentSykmeldinger fraLoepenr skal returnere kun loepenr større enn oppgitt verdi`() {
+        val sykmeldingID1 = UUID.randomUUID()
+        val sykmeldingID2 = UUID.randomUUID()
+        val sykmeldingID3 = UUID.randomUUID()
+        sykmeldingRepository.lagreSykmelding(
+            id = sykmeldingID1,
+            fnr = DEFAULT_FNR,
+            orgnr = DEFAULT_ORG,
+            sykmelding = sykmeldingMock().medId(sykmeldingID1.toString()),
+            sykmeldtNavn = "Syk i hodet",
+        )
+        sykmeldingRepository.lagreSykmelding(
+            id = sykmeldingID2,
+            fnr = DEFAULT_FNR,
+            orgnr = DEFAULT_ORG,
+            sykmelding = sykmeldingMock().medId(sykmeldingID2.toString()),
+            sykmeldtNavn = "Syk i hodet",
+        )
+        sykmeldingRepository.lagreSykmelding(
+            id = sykmeldingID3,
+            fnr = DEFAULT_FNR,
+            orgnr = DEFAULT_ORG,
+            sykmelding = sykmeldingMock().medId(sykmeldingID3.toString()),
+            sykmeldtNavn = "Syk i hodet",
+        )
+        val sykmelding1LopeNr =
+            sykmeldingRepository
+                .hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG))
+                .first { it.id == sykmeldingID1.toString() }
+                .loepenr
+        sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = sykmelding1LopeNr)).size shouldBe 2
+    }
 }
 
 fun SendSykmeldingAivenKafkaMessage.medId(id: String) = copy(sykmelding = sykmelding.copy(id = id))
