@@ -218,6 +218,35 @@ class SoeknadRepositoryTest {
         soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr.verdi)).size shouldBe MAX_ANTALL_I_RESPONS + 1
     }
 
+    @Test
+    fun `hentSoeknader fraLoepenr skal returnere kun loepenr større enn oppgitt verdi`() {
+        val orgnr = Orgnr.genererGyldig()
+        val soeknad1 =
+            soeknadMock().copy(
+                id = UUID.randomUUID(),
+                arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+            )
+        val soeknad2 =
+            soeknadMock().copy(
+                id = UUID.randomUUID(),
+                arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+            )
+        val soeknad3 =
+            soeknadMock().copy(
+                id = UUID.randomUUID(),
+                arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+            )
+        soeknadRepository.lagreSoeknad(soeknad1.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknad2.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknad3.tilLagreSoeknad())
+        val soeknad1LopeNr =
+            soeknadRepository
+                .hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi))
+                .first { it.sykepengesoknadDTO.id == soeknad1.id }
+                .loepenr
+        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi, fraLoepenr = soeknad1LopeNr)).size shouldBe 2
+    }
+
     private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =
         transaction(db) {
             SoeknadEntitet
