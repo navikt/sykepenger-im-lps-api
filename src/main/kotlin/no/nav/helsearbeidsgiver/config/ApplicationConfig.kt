@@ -245,15 +245,14 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    if (unleashFeatureToggles.skalKonsumereSykmeldinger()) {
-        val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.sykmelding.topic"),
-                consumer = sykmeldingKafkaConsumer,
-                meldingTolker = tolkere.sykmeldingTolker,
-            )
-        }
+    val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.sykmelding.topic"),
+            consumer = sykmeldingKafkaConsumer,
+            meldingTolker = tolkere.sykmeldingTolker,
+            unleashFeatureToggles::skalKonsumereSykmeldinger
+        )
     }
 
     if (unleashFeatureToggles.skalKonsumereSykepengesoeknader()) {
