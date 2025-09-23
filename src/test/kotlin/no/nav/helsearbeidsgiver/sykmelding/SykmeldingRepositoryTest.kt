@@ -67,7 +67,7 @@ class SykmeldingRepositoryTest {
     fun `filter for fnr på sykmeldinger skal gi korrekt filtrert resultat`() {
         val id = UUID.randomUUID()
         sykmeldingRepository.lagreSykmelding(
-            id = id,
+            sykmeldingId = id,
             fnr = DEFAULT_FNR,
             orgnr = DEFAULT_ORG,
             sykmelding = sykmeldingMock(),
@@ -156,32 +156,32 @@ class SykmeldingRepositoryTest {
         val sykmeldingID2 = UUID.randomUUID()
         val sykmeldingID3 = UUID.randomUUID()
         sykmeldingRepository.lagreSykmelding(
-            id = sykmeldingID1,
+            sykmeldingId = sykmeldingID1,
             fnr = DEFAULT_FNR,
             orgnr = DEFAULT_ORG,
             sykmelding = sykmeldingMock().medId(sykmeldingID1.toString()),
             sykmeldtNavn = "Syk i hodet",
         )
         sykmeldingRepository.lagreSykmelding(
-            id = sykmeldingID2,
+            sykmeldingId = sykmeldingID2,
             fnr = DEFAULT_FNR,
             orgnr = DEFAULT_ORG,
             sykmelding = sykmeldingMock().medId(sykmeldingID2.toString()),
             sykmeldtNavn = "Syk i hodet",
         )
         sykmeldingRepository.lagreSykmelding(
-            id = sykmeldingID3,
+            sykmeldingId = sykmeldingID3,
             fnr = DEFAULT_FNR,
             orgnr = DEFAULT_ORG,
             sykmelding = sykmeldingMock().medId(sykmeldingID3.toString()),
             sykmeldtNavn = "Syk i hodet",
         )
-        val sykmelding1LopeNr =
+        val sykmelding1Loepenr =
             sykmeldingRepository
                 .hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG))
                 .first { it.id == sykmeldingID1.toString() }
                 .loepenr
-        sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = sykmelding1LopeNr)).size shouldBe 2
+        sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = sykmelding1Loepenr)).size shouldBe 2
     }
 }
 
@@ -194,7 +194,7 @@ private fun SendSykmeldingAivenKafkaMessage.medMottattTidspunkt(mottattTid: Offs
 
 private fun SendSykmeldingAivenKafkaMessage.lagreSykmelding(sykmeldingRepository: SykmeldingRepository) {
     sykmeldingRepository.lagreSykmelding(
-        id = UUID.fromString(sykmelding.id),
+        sykmeldingId = UUID.fromString(sykmelding.id),
         fnr = kafkaMetadata.fnr,
         orgnr = event.arbeidsgiver.orgnummer,
         sykmeldtNavn = "",

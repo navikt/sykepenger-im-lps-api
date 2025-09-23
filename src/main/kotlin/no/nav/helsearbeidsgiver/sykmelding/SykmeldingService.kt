@@ -26,7 +26,7 @@ class SykmeldingService(
             null -> {
                 logger().info("Sykmelding $sykmeldingId er ny og vil derfor lagres.")
                 sykmeldingRepository.lagreSykmelding(
-                    id = sykmeldingId,
+                    sykmeldingId = sykmeldingId,
                     fnr = sykmeldingMessage.kafkaMetadata.fnr,
                     orgnr = sykmeldingMessage.event.arbeidsgiver.orgnummer,
                     sykmelding = sykmeldingMessage,

@@ -189,7 +189,7 @@ class ForespoerselRepositoryTest {
     }
 
     @Test
-    fun `hentForespoersler fraLoepenr skal returnere kun lopeNr større enn oppgitt verdi`() {
+    fun `hentForespoersler fraLoepenr skal returnere kun loepenr større enn oppgitt verdi`() {
         val forespoerselID1 = UUID.randomUUID()
         val forespoerselID2 = UUID.randomUUID()
         val forespoerselID3 = UUID.randomUUID()
@@ -205,15 +205,15 @@ class ForespoerselRepositoryTest {
             forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselID3),
             eksponertForespoerselId = forespoerselID3,
         )
-        val forespoersel1LopeNr =
+        val forespoersel1Loepenr =
             forespoerselRepository.hentForespoersel(forespoerselID1)?.loepenr
-                ?: error("lopeNr kan ikke være null null")
+                ?: error("løpenr kan ikke være null")
 
-        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG, fraLoepenr = forespoersel1LopeNr)
+        val filter = ForespoerselFilter(orgnr = DEFAULT_ORG, fraLoepenr = forespoersel1Loepenr)
         val forespoersler = forespoerselRepository.hentForespoersler(filter)
         forespoersler.size shouldBe 2
         forespoersler.forEach {
-            it.loepenr shouldBeGreaterThan forespoersel1LopeNr
+            it.loepenr shouldBeGreaterThan forespoersel1Loepenr
         }
     }
 }

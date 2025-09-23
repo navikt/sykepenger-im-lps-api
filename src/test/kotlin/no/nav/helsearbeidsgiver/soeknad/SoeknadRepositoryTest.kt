@@ -239,12 +239,12 @@ class SoeknadRepositoryTest {
         soeknadRepository.lagreSoeknad(soeknad1.tilLagreSoeknad())
         soeknadRepository.lagreSoeknad(soeknad2.tilLagreSoeknad())
         soeknadRepository.lagreSoeknad(soeknad3.tilLagreSoeknad())
-        val soeknad1LopeNr =
+        val soeknad1Loepenr =
             soeknadRepository
                 .hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi))
                 .first { it.sykepengesoknadDTO.id == soeknad1.id }
                 .loepenr
-        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi, fraLoepenr = soeknad1LopeNr)).size shouldBe 2
+        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi, fraLoepenr = soeknad1Loepenr)).size shouldBe 2
     }
 
     private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =

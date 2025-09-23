@@ -24,7 +24,7 @@ class SykmeldingRepository(
     private val db: Database,
 ) {
     fun lagreSykmelding(
-        id: UUID,
+        sykmeldingId: UUID,
         fnr: String,
         orgnr: String,
         sykmelding: SendSykmeldingAivenKafkaMessage,
@@ -33,7 +33,7 @@ class SykmeldingRepository(
         try {
             transaction(db) {
                 SykmeldingEntitet.insert {
-                    it[sykmeldingId] = id
+                    it[this.sykmeldingId] = sykmeldingId
                     it[SykmeldingEntitet.fnr] = fnr
                     it[SykmeldingEntitet.orgnr] = orgnr
                     it[SykmeldingEntitet.sykmeldtNavn] = sykmeldtNavn
@@ -42,7 +42,7 @@ class SykmeldingRepository(
                 }
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å lagre sykmelding $id i database: ${e.message}")
+            sikkerLogger().error("Klarte ikke å lagre sykmelding $sykmeldingId i database: ${e.message}")
             throw e
         }
     }
