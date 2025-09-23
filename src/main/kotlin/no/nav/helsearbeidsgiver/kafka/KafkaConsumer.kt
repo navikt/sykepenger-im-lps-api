@@ -22,7 +22,7 @@ suspend fun startKafkaConsumer(
     consumer.asFlow().collect { record ->
         try {
             consumer.toggleConsumer(enabled, topic)
-            if(!enabled()) {
+            if (!enabled()) {
                 return@collect
             }
             // Obs: record.value() kan være null fordi det er implementert i Java
@@ -55,7 +55,11 @@ suspend fun startKafkaConsumer(
         }
     }
 }
-fun <K, V> KafkaConsumer<K, V>.toggleConsumer(enabled: () -> Boolean, topic: String){
+
+fun <K, V> KafkaConsumer<K, V>.toggleConsumer(
+    enabled: () -> Boolean,
+    topic: String,
+) {
     val konsumeringPauset = this.paused().isNotEmpty()
     if (!enabled() && !konsumeringPauset) {
         logger().warn("Pauser konsumering av topic $topic}")

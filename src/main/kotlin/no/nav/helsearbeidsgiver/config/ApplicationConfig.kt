@@ -251,7 +251,7 @@ fun Application.configureKafkaConsumers(
             topic = getProperty("kafkaConsumer.sykmelding.topic"),
             consumer = sykmeldingKafkaConsumer,
             meldingTolker = tolkere.sykmeldingTolker,
-            unleashFeatureToggles::skalKonsumereSykmeldinger
+            unleashFeatureToggles::skalKonsumereSykmeldinger,
         )
     }
 

@@ -42,7 +42,6 @@ class KafkaCommitOffsetTest {
         }
     }
 
-
     @Test
     fun `ikke commit offset når consumer er pauset`() {
         val kafkaConsumer = mockk<KafkaConsumer<String, String>>()
@@ -52,16 +51,16 @@ class KafkaCommitOffsetTest {
             ConsumerRecords(mapOf(topicPartition to listOf(ConsumerRecord("test", 0, 0L, "key", "mocked message"))))
         val slot = slot<Set<TopicPartition>>()
         every { kafkaConsumer.pause(capture(slot)) } just runs
-        every { kafkaConsumer.paused()} returns if (slot.isCaptured) slot.captured else emptySet()
+        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
         every { kafkaConsumer.poll(any<Duration>()) } returns mockRecord
-        runTest(timeout = 5000.milliseconds) {
+        runTest(timeout = 500.milliseconds) {
             try {
                 startKafkaConsumer("test", kafkaConsumer, mockMeldingTolker, enabled = { false })
             } catch (e: Exception) {
             } finally {
                 verify(exactly = 1) { kafkaConsumer.poll(any<Duration>()) }
-                verify (exactly = 0){ mockMeldingTolker.lesMelding(any()) }
+                verify(exactly = 0) { mockMeldingTolker.lesMelding(any()) }
                 verify(exactly = 0) { kafkaConsumer.commitSync() }
             }
         }
@@ -91,6 +90,10 @@ class KafkaCommitOffsetTest {
             )
 
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
+
+        val slot = slot<Set<TopicPartition>>()
+        every { kafkaConsumer.pause(capture(slot)) } just runs
+        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
 
         every { kafkaConsumer.poll(any<Duration>()) } returnsMany listOf(mockRecord) andThenThrows
             Exception(
