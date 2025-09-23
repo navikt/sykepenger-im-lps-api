@@ -33,6 +33,7 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.random.nextULong
 
 private const val INNTEKTSMELDING_ID = "%%%INNTEKTSMELDING_ID%%%"
 private const val FORESPOERSEL_ID = "%%%FORESPOERSEL_ID%%%"
@@ -179,7 +180,7 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
 
 fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): InntektsmeldingResponse =
     InntektsmeldingResponse(
-        loepenr = Random.nextLong(1, 1000).toULong(),
+        loepenr = Random.nextULong(),
         id = im.id,
         navReferanseId = im.id,
         agp = im.agp,
@@ -207,7 +208,7 @@ fun mockAvvistInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding
 
 fun mockForespoersel(): Forespoersel =
     Forespoersel(
-        loepenr = Random.nextLong(1, 1000).toULong(),
+        loepenr = Random.nextULong(),
         navReferanseId = UUID.randomUUID(),
         orgnr = DEFAULT_ORG,
         fnr = Fnr.genererGyldig().toString(),
