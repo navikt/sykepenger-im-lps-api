@@ -19,9 +19,8 @@ suspend fun startKafkaConsumer(
 ) {
     val logger = LoggerFactory.getLogger(KafkaConsumer::class.java)
     consumer.subscribe(listOf(topic))
-    consumer.asFlow().collect { record ->
+    consumer.asFlow({ consumer.toggleConsumer(enabled, topic) }).collect { record ->
         try {
-            consumer.toggleConsumer(enabled, topic)
             if (!enabled()) {
                 return@collect
             }
@@ -70,9 +69,13 @@ fun <K, V> KafkaConsumer<K, V>.toggleConsumer(
     }
 }
 
-fun <K, V> KafkaConsumer<K, V>.asFlow(timeout: Duration = Duration.ofMillis(10)): Flow<ConsumerRecord<K, V>> =
+fun <K, V> KafkaConsumer<K, V>.asFlow(
+    toggleSjekk: () -> Unit,
+    timeout: Duration = Duration.ofMillis(10),
+): Flow<ConsumerRecord<K, V>> =
     flow {
         while (true) {
+            toggleSjekk()
             poll(timeout).forEach { emit(it) }
         }
     }
