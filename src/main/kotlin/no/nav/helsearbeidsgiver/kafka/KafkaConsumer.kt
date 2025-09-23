@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.kafka
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -14,11 +15,16 @@ suspend fun startKafkaConsumer(
     topic: String,
     consumer: KafkaConsumer<String, String>,
     meldingTolker: MeldingTolker,
+    enabled: () -> Boolean = { true },
 ) {
     val logger = LoggerFactory.getLogger(KafkaConsumer::class.java)
     consumer.subscribe(listOf(topic))
     consumer.asFlow().collect { record ->
         try {
+            consumer.toggleConsumer(enabled, topic)
+            if(!enabled()) {
+                return@collect
+            }
             // Obs: record.value() kan være null fordi det er implementert i Java
             when (val value: String? = record.value()) {
                 null ->
@@ -47,6 +53,16 @@ suspend fun startKafkaConsumer(
             // Kan evt restarte med en gang, hvis vi har flere noder (exit går utover API ellers)
             throw e
         }
+    }
+}
+fun <K, V> KafkaConsumer<K, V>.toggleConsumer(enabled: () -> Boolean, topic: String){
+    val konsumeringPauset = this.paused().isNotEmpty()
+    if (!enabled() && !konsumeringPauset) {
+        logger().warn("Pauser konsumering av topic $topic}")
+        this.pause(this.assignment())
+    } else if (enabled() && konsumeringPauset) {
+        logger().warn("Gjenopptar konsumering av topic $topic}")
+        this.resume(this.assignment())
     }
 }
 

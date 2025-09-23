@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
@@ -36,6 +37,31 @@ class KafkaCommitOffsetTest {
             } catch (e: Exception) {
             } finally {
                 verify(exactly = 1) { kafkaConsumer.poll(any<Duration>()) }
+                verify(exactly = 0) { kafkaConsumer.commitSync() }
+            }
+        }
+    }
+
+
+    @Test
+    fun `ikke commit offset når consumer er pauset`() {
+        val kafkaConsumer = mockk<KafkaConsumer<String, String>>()
+        val mockMeldingTolker = mockk<ForespoerselTolker>()
+        val topicPartition = TopicPartition("test", 0)
+        val mockRecord =
+            ConsumerRecords(mapOf(topicPartition to listOf(ConsumerRecord("test", 0, 0L, "key", "mocked message"))))
+        val slot = slot<Set<TopicPartition>>()
+        every { kafkaConsumer.pause(capture(slot)) } just runs
+        every { kafkaConsumer.paused()} returns if (slot.isCaptured) slot.captured else emptySet()
+        every { kafkaConsumer.subscribe(listOf("test")) } just runs
+        every { kafkaConsumer.poll(any<Duration>()) } returns mockRecord
+        runTest(timeout = 5000.milliseconds) {
+            try {
+                startKafkaConsumer("test", kafkaConsumer, mockMeldingTolker, enabled = { false })
+            } catch (e: Exception) {
+            } finally {
+                verify(exactly = 1) { kafkaConsumer.poll(any<Duration>()) }
+                verify (exactly = 0){ mockMeldingTolker.lesMelding(any()) }
                 verify(exactly = 0) { kafkaConsumer.commitSync() }
             }
         }
