@@ -34,6 +34,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.random.Random
+import kotlin.random.nextULong
 
 class SykmeldingRoutingTest : ApiTest() {
     @AfterEach
@@ -237,8 +239,9 @@ class SykmeldingRoutingTest : ApiTest() {
         copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
 }
 
-fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(): SykmeldingDTO =
+fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(loepenr: ULong = Random.nextULong()): SykmeldingDTO =
     SykmeldingDTO(
+        loepenr = loepenr,
         id = event.sykmeldingId,
         fnr = kafkaMetadata.fnr,
         orgnr = event.arbeidsgiver.orgnummer,

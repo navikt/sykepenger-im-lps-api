@@ -13,7 +13,7 @@ class SykmeldingMapperTest {
     @Test
     fun `tilSykmelding mapper fra sykmeldingDTO til Sykmelding model med riktig data`() {
         val sykmeldingKafkaMessage = sykmeldingMock()
-        val sykmeldingDTO = sykmeldingKafkaMessage.tilSykmeldingDTO()
+        val sykmeldingDTO = sykmeldingKafkaMessage.tilSykmeldingDTO(1uL)
 
         val sykmeldingApiRespons = sykmeldingModelMock()
 

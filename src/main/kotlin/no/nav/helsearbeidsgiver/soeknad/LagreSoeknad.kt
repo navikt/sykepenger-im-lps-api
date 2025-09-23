@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.soeknad
 
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import java.util.UUID
 
 data class LagreSoeknad(
@@ -8,5 +8,5 @@ data class LagreSoeknad(
     val sykmeldingId: UUID,
     val fnr: String,
     val orgnr: String,
-    val sykepengesoeknad: SykepengesoknadDTO,
+    val sykepengesoeknad: SykepengeSoeknadKafkaMelding,
 )

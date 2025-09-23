@@ -26,6 +26,7 @@ fun SykmeldingDTO.tilSykmelding(): Sykmelding {
     val sykmelding = sendSykmeldingAivenKafkaMessage.sykmelding
     val event = sendSykmeldingAivenKafkaMessage.event
     return Sykmelding(
+        loepenr = loepenr,
         sykmeldingId = sykmelding.id,
         mottattAvNav = mottattAvNav,
         arbeidsgiver = sendSykmeldingAivenKafkaMessage.tilArbeidsgiver(),
