@@ -62,7 +62,7 @@ class SoeknadRepository(
             query.orderBy(SoeknadEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {
-                SykepengeSoeknadDto(it[SoeknadEntitet.id], it[sykepengesoeknad])
+                SykepengeSoeknadDto(loepenr = it[SoeknadEntitet.id], sykepengeSoeknadKafkaMelding = it[sykepengesoeknad])
             }
         }
 
@@ -71,7 +71,7 @@ class SoeknadRepository(
             SoeknadEntitet
                 .selectAll()
                 .where { soeknadId eq id }
-                .map { SykepengeSoeknadDto(it[SoeknadEntitet.id], it[sykepengesoeknad]) }
+                .map { SykepengeSoeknadDto(loepenr = it[SoeknadEntitet.id], sykepengeSoeknadKafkaMelding = it[sykepengesoeknad]) }
                 .firstOrNull()
         }
 
