@@ -18,6 +18,8 @@ import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.random.Random
+import kotlin.random.nextULong
 import kotlin.test.assertEquals
 
 class InntektsmeldingServiceTest {
@@ -61,6 +63,7 @@ class InntektsmeldingServiceTest {
             inntektsmeldingRepository.hentMedInnsendingId(any(), inntektsmelding.id)
         } returns
             InntektsmeldingResponse(
+                loepenr = Random.nextULong(),
                 navReferanseId = inntektsmelding.type.id,
                 inntekt = inntektsmelding.inntekt,
                 refusjon = inntektsmelding.refusjon,
@@ -103,6 +106,7 @@ class InntektsmeldingServiceTest {
         every { inntektsmeldingRepository.hent(filter = filter) } returns
             listOf(
                 InntektsmeldingResponse(
+                    loepenr = Random.nextULong(),
                     navReferanseId = navReferanseId,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
@@ -171,6 +175,7 @@ class InntektsmeldingServiceTest {
         every { inntektsmeldingRepository.hent(navReferanseId) } returns
             listOf(
                 InntektsmeldingResponse(
+                    loepenr = 1u,
                     navReferanseId = navReferanseId,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
@@ -187,6 +192,7 @@ class InntektsmeldingServiceTest {
                     id = innsendingId1,
                 ),
                 InntektsmeldingResponse(
+                    loepenr = 2u,
                     navReferanseId = navReferanseId,
                     agp = skjema.agp,
                     inntekt = skjema.inntekt,
@@ -208,6 +214,7 @@ class InntektsmeldingServiceTest {
         verify {
             inntektsmeldingRepository.hent(navReferanseId)
         }
+        assertEquals(2u, hentInntektsmelding?.loepenr)
         assertEquals(innsendingId2, hentInntektsmelding?.id)
         assertEquals(orgnr, hentInntektsmelding?.arbeidsgiver?.orgnr)
         assertEquals(fnr, hentInntektsmelding?.sykmeldtFnr)

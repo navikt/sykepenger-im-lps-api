@@ -22,6 +22,7 @@ import java.util.UUID
 
 @Serializable
 data class InntektsmeldingResponse(
+    val loepenr: ULong,
     val id: UUID,
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
@@ -95,6 +96,7 @@ data class InntektsmeldingFilter(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val status: InnsendingStatus? = null,
+    val fraLoepenr: ULong? = null,
 ) {
     init {
         require(erGyldig(orgnr))

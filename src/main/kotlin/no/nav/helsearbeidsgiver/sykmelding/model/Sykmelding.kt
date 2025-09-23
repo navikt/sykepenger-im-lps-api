@@ -19,6 +19,7 @@ import java.time.LocalDateTime
 @Serializable
 @Schema(description = "SykmeldingArbeidsgiver")
 data class Sykmelding(
+    val loepenr: ULong,
     val sykmeldingId: String,
     val mottattAvNav: LocalDateTime,
     val sykmeldt: Sykmeldt,

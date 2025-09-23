@@ -14,6 +14,7 @@ data class SykepengesoeknadFilter( // TODO: Kanskje denne kan de-dupliseres / ge
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
+    val fraLoepenr: ULong? = null,
 ) {
     init {
         require(erGyldig(orgnr))

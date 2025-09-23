@@ -4,7 +4,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -168,6 +168,7 @@ object TestData {
     const val SYKMELDING_API_RESPONSE =
         """
         {
+            "loepenr": 1,
             "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
             "mottattAvNav": "2020-03-14T23:00",
             "sykmeldt": {
@@ -906,14 +907,15 @@ object TestData {
     fun sykmeldingModelMock(sykmeldingModel: String = SYKMELDING_API_RESPONSE): Sykmelding =
         jsonMapper.decodeFromString<Sykmelding>(sykmeldingModel)
 
-    fun soeknadMock(soeknad: String = SYKEPENGESOEKNAD): SykepengesoknadDTO = soeknad.fromJson(SykepengesoknadDTO.serializer())
+    fun soeknadMock(soeknad: String = SYKEPENGESOEKNAD): SykepengeSoeknadKafkaMelding =
+        soeknad.fromJson(SykepengeSoeknadKafkaMelding.serializer())
 
-    fun SykepengesoknadDTO.medId(id: UUID) = this.copy(id = id)
+    fun SykepengeSoeknadKafkaMelding.medId(id: UUID) = this.copy(id = id)
 
-    fun SykepengesoknadDTO.medOrgnr(orgnr: String) =
+    fun SykepengeSoeknadKafkaMelding.medOrgnr(orgnr: String) =
         this.copy(
             arbeidsgiver =
-                SykepengesoknadDTO.ArbeidsgiverDTO(
+                SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO(
                     this.arbeidsgiver?.navn,
                     orgnr,
                 ),

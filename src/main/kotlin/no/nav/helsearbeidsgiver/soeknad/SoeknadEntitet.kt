@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.soeknad
 
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -13,11 +13,16 @@ object SoeknadEntitet : Table("soknad") {
     val fnr = varchar("fnr", length = 11)
     val orgnr = varchar("orgnr", length = 9)
     val sykepengesoeknad =
-        jsonb<SykepengesoknadDTO>(
+        jsonb<SykepengeSoeknadKafkaMelding>(
             name = "soknad",
             jsonConfig = jsonConfig,
-            kSerializer = SykepengesoknadDTO.serializer(),
+            kSerializer = SykepengeSoeknadKafkaMelding.serializer(),
         )
     val opprettet = datetime("opprettet")
     val vedtaksperiodeId = uuid("vedtaksperiode_id").nullable()
 }
+
+data class SykepengeSoeknadDto(
+    val loepenr: ULong,
+    val sykepengeSoeknadKafkaMelding: SykepengeSoeknadKafkaMelding,
+)

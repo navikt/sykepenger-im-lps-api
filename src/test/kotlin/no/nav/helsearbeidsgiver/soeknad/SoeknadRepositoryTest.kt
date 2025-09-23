@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -122,7 +122,7 @@ class SoeknadRepositoryTest {
 
         val lagretSoeknad = soeknadRepository.hentSoeknad(soeknad.id)
 
-        lagretSoeknad shouldBe soeknad
+        lagretSoeknad?.sykepengeSoeknadKafkaMelding shouldBe soeknad
     }
 
     @Test
@@ -133,14 +133,14 @@ class SoeknadRepositoryTest {
 
         val soeknadValgt = soeknader[2]
 
-        soeknadRepository.hentSoeknad(soeknadValgt.id) shouldBe soeknadValgt
+        soeknadRepository.hentSoeknad(soeknadValgt.id)?.sykepengeSoeknadKafkaMelding shouldBe soeknadValgt
     }
 
     @Test
     fun `hentSoeknad takler at sendt-felter ikke er populert`() {
         val soeknad = soeknadMock().copy(sendtNav = null, sendtArbeidsgiver = null)
         soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
-        soeknadRepository.hentSoeknad(soeknad.id) shouldBe soeknad
+        soeknadRepository.hentSoeknad(soeknad.id)?.sykepengeSoeknadKafkaMelding shouldBe soeknad
     }
 
     @Test
@@ -150,7 +150,7 @@ class SoeknadRepositoryTest {
             List(3) { UUID.randomUUID() }.map { id ->
                 soeknadMock().copy(
                     id = id,
-                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+                    arbeidsgiver = SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
                 )
             }
         val soeknader =
@@ -158,7 +158,7 @@ class SoeknadRepositoryTest {
                 soeknadMock().copy(
                     id = id,
                     arbeidsgiver =
-                        SykepengesoknadDTO.ArbeidsgiverDTO(
+                        SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO(
                             "Tilfeldig Tigerorg",
                             Orgnr.genererGyldig().verdi,
                         ),
@@ -166,7 +166,10 @@ class SoeknadRepositoryTest {
             }
         soeknader.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
-        soeknadRepository.hentSoeknader(filter = SykepengesoeknadFilter(orgnr = orgnr.verdi)) shouldContainOnly soeknaderMedSammeOrgnr
+        val soeknaderFraRepo =
+            soeknadRepository.hentSoeknader(filter = SykepengesoeknadFilter(orgnr = orgnr.verdi)).map { it.sykepengeSoeknadKafkaMelding }
+
+        soeknaderFraRepo shouldContainOnly soeknaderMedSammeOrgnr
     }
 
     @Test
@@ -176,7 +179,7 @@ class SoeknadRepositoryTest {
                 soeknadMock().copy(
                     id = id,
                     arbeidsgiver =
-                        SykepengesoknadDTO.ArbeidsgiverDTO(
+                        SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO(
                             "Tilfeldig Tigerorg",
                             Orgnr.genererGyldig().verdi,
                         ),
@@ -208,11 +211,40 @@ class SoeknadRepositoryTest {
             List(MAX_ANTALL_I_RESPONS + 10) { UUID.randomUUID() }.map { id ->
                 soeknadMock().copy(
                     id = id,
-                    arbeidsgiver = SykepengesoknadDTO.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+                    arbeidsgiver = SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
                 )
             }
         soeknaderMedSammeOrgnr.forEach { soeknadRepository.lagreSoeknad(it.tilLagreSoeknad()) }
         soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr.verdi)).size shouldBe MAX_ANTALL_I_RESPONS + 1
+    }
+
+    @Test
+    fun `hentSoeknader fraLoepenr skal returnere kun loepenr større enn oppgitt verdi`() {
+        val orgnr = Orgnr.genererGyldig()
+        val soeknad1 =
+            soeknadMock().copy(
+                id = UUID.randomUUID(),
+                arbeidsgiver = SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+            )
+        val soeknad2 =
+            soeknadMock().copy(
+                id = UUID.randomUUID(),
+                arbeidsgiver = SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+            )
+        val soeknad3 =
+            soeknadMock().copy(
+                id = UUID.randomUUID(),
+                arbeidsgiver = SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO("Testorganisasjon", orgnr.verdi),
+            )
+        soeknadRepository.lagreSoeknad(soeknad1.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknad2.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknad3.tilLagreSoeknad())
+        val soeknad1Loepenr =
+            soeknadRepository
+                .hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi))
+                .first { it.sykepengeSoeknadKafkaMelding.id == soeknad1.id }
+                .loepenr
+        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi, fraLoepenr = soeknad1Loepenr)).size shouldBe 2
     }
 
     private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =
@@ -225,7 +257,7 @@ class SoeknadRepositoryTest {
                 .associate { it[soeknadId] to it[SoeknadEntitet.vedtaksperiodeId] }
         }
 
-    private fun SykepengesoknadDTO.tilLagreSoeknad(): LagreSoeknad =
+    private fun SykepengeSoeknadKafkaMelding.tilLagreSoeknad(): LagreSoeknad =
         LagreSoeknad(
             soeknadId = id,
             sykmeldingId = sykmeldingId!!,
