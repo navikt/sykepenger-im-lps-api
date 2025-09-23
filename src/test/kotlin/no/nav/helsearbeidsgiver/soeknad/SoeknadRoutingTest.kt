@@ -49,18 +49,18 @@ class SoeknadRoutingTest : ApiTest() {
 
     @Test
     fun `hent en spesifikk søknad`() {
-        val soeknad = SykepengeSoeknadResponse(Random.nextULong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
-        every { repositories.soeknadRepository.hentSoeknad(soeknad.sykepengesoknadDTO.id) } returns soeknad
+        val soeknad = SykepengeSoeknadDto(Random.nextULong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
+        every { repositories.soeknadRepository.hentSoeknad(soeknad.sykepengeSoeknadKafkaMelding.id) } returns soeknad
 
         runBlocking {
             val respons =
-                client.get("/v1/sykepengesoeknad/${soeknad.sykepengesoknadDTO.id}") {
+                client.get("/v1/sykepengesoeknad/${soeknad.sykepengeSoeknadKafkaMelding.id}") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             respons.status shouldBe HttpStatusCode.OK
             val soeknadRespons = respons.body<Sykepengesoeknad>()
             soeknadRespons.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
-            soeknadRespons.soeknadId shouldBe soeknad.sykepengesoknadDTO.id
+            soeknadRespons.soeknadId shouldBe soeknad.sykepengeSoeknadKafkaMelding.id
         }
     }
 
@@ -73,7 +73,7 @@ class SoeknadRoutingTest : ApiTest() {
             List(
                 antallForventedeSoeknader,
             ) {
-                SykepengeSoeknadResponse(
+                SykepengeSoeknadDto(
                     Random.nextULong(1u, 100u),
                     TestData.soeknadMock().medOrgnr(DEFAULT_ORG).medId(UUID.randomUUID()),
                 )

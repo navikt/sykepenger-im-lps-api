@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -19,20 +19,20 @@ class SoeknadService(
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<Sykepengesoeknad> =
         soeknadRepository
             .hentSoeknader(filter)
-            .filter { it.sykepengesoknadDTO.skalSendesTilArbeidsgiver() }
-            .map { it.sykepengesoknadDTO.whitelistetForArbeidsgiver().konverter(it.loepenr) }
+            .filter { it.sykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver() }
+            .map { it.sykepengeSoeknadKafkaMelding.whitelistetForArbeidsgiver().konverter(it.loepenr) }
 
     fun hentSoeknad(soeknadId: UUID): Sykepengesoeknad? =
         soeknadRepository
             .hentSoeknad(soeknadId)
-            ?.takeIf { it.sykepengesoknadDTO.skalSendesTilArbeidsgiver() }
+            ?.takeIf { it.sykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver() }
             ?.let { soeknad ->
-                soeknad.sykepengesoknadDTO
+                soeknad.sykepengeSoeknadKafkaMelding
                     .whitelistetForArbeidsgiver()
                     ?.konverter(soeknad.loepenr)
             }
 
-    fun behandleSoeknad(soeknad: SykepengesoknadDTO) {
+    fun behandleSoeknad(soeknad: SykepengeSoeknadKafkaMelding) {
         if (!soeknad.skalLagres()) {
             logger.info("Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
             return
@@ -71,7 +71,7 @@ class SoeknadService(
         }
     }
 
-    private fun SykepengesoknadDTO.skalLagres(): Boolean =
+    private fun SykepengeSoeknadKafkaMelding.skalLagres(): Boolean =
         (
             erArbeidstakerSoeknad() ||
                 erArbeidstakerMedGradertReiseTilskudd() ||
@@ -79,11 +79,11 @@ class SoeknadService(
 
         ) &&
             !erEttersendtTilNAV() &&
-            this.status == SykepengesoknadDTO.SoknadsstatusDTO.SENDT
+            this.status == SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.SENDT
 
-    private fun SykepengesoknadDTO.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
+    private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
 
-    private fun SykepengesoknadDTO.validerPaakrevdeFelter(): LagreSoeknad =
+    private fun SykepengeSoeknadKafkaMelding.validerPaakrevdeFelter(): LagreSoeknad =
         LagreSoeknad(
             soeknadId = id,
             sykmeldingId = requireNotNull(sykmeldingId) { "SykmeldingId kan ikke være null" },
@@ -92,17 +92,18 @@ class SoeknadService(
             sykepengesoeknad = this,
         )
 
-    private fun SykepengesoknadDTO.erArbeidstakerSoeknad(): Boolean = this.type == SykepengesoknadDTO.SoknadstypeDTO.ARBEIDSTAKERE
+    private fun SykepengeSoeknadKafkaMelding.erArbeidstakerSoeknad(): Boolean =
+        this.type == SykepengeSoeknadKafkaMelding.SoknadstypeDTO.ARBEIDSTAKERE
 
-    private fun SykepengesoknadDTO.erArbeidstakerMedGradertReiseTilskudd(): Boolean =
-        this.arbeidssituasjon == SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER &&
-            this.type == SykepengesoknadDTO.SoknadstypeDTO.GRADERT_REISETILSKUDD
+    private fun SykepengeSoeknadKafkaMelding.erArbeidstakerMedGradertReiseTilskudd(): Boolean =
+        this.arbeidssituasjon == SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.ARBEIDSTAKER &&
+            this.type == SykepengeSoeknadKafkaMelding.SoknadstypeDTO.GRADERT_REISETILSKUDD
 
-    private fun SykepengesoknadDTO.erArbeidstakerMedBehandlingsdager(): Boolean =
-        this.arbeidssituasjon == SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER &&
-            this.type == SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER
+    private fun SykepengeSoeknadKafkaMelding.erArbeidstakerMedBehandlingsdager(): Boolean =
+        this.arbeidssituasjon == SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.ARBEIDSTAKER &&
+            this.type == SykepengeSoeknadKafkaMelding.SoknadstypeDTO.BEHANDLINGSDAGER
 
-    private fun SykepengesoknadDTO.erAlleredeLagret(): Boolean = soeknadRepository.hentSoeknad(id) != null
+    private fun SykepengeSoeknadKafkaMelding.erAlleredeLagret(): Boolean = soeknadRepository.hentSoeknad(id) != null
 
-    private fun SykepengesoknadDTO.erEttersendtTilNAV() = sendtNav != null && sendtArbeidsgiver?.isBefore(sendtNav) ?: false
+    private fun SykepengeSoeknadKafkaMelding.erEttersendtTilNAV() = sendtNav != null && sendtArbeidsgiver?.isBefore(sendtNav) ?: false
 }

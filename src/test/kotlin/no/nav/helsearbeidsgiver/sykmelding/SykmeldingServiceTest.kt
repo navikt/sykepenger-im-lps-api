@@ -97,8 +97,9 @@ class SykmeldingServiceTest {
         val id = UUID.fromString(sykmeldingKafkaMessage.sykmelding.id)
 
         val hentSykmelding = sykmeldingService.hentSykmelding(id)
+        requireNotNull(hentSykmelding)
         hentSykmelding shouldNotBe null
-        hentSykmelding!!.loepenr shouldNotBe null
+        hentSykmelding.loepenr shouldNotBe null
         hentSykmelding shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO(hentSykmelding.loepenr).tilSykmelding()
     }
 

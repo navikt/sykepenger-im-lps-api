@@ -11,7 +11,7 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.medId
@@ -128,12 +128,12 @@ class SoeknadServiceTest {
         val soeknad = soeknadMock()
 
         val soeknadstyperSomIkkeSkalLagres =
-            SykepengesoknadDTO.SoknadstypeDTO.entries
+            SykepengeSoeknadKafkaMelding.SoknadstypeDTO.entries
                 .minus(
                     listOf(
-                        SykepengesoknadDTO.SoknadstypeDTO.ARBEIDSTAKERE,
-                        SykepengesoknadDTO.SoknadstypeDTO.GRADERT_REISETILSKUDD,
-                        SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER,
+                        SykepengeSoeknadKafkaMelding.SoknadstypeDTO.ARBEIDSTAKERE,
+                        SykepengeSoeknadKafkaMelding.SoknadstypeDTO.GRADERT_REISETILSKUDD,
+                        SykepengeSoeknadKafkaMelding.SoknadstypeDTO.BEHANDLINGSDAGER,
                     ),
                 )
 
@@ -159,32 +159,32 @@ class SoeknadServiceTest {
             listOf(
                 soeknad.copy(
                     id = idSomSkalLagres1,
-                    type = SykepengesoknadDTO.SoknadstypeDTO.GRADERT_REISETILSKUDD,
-                    arbeidssituasjon = SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER,
+                    type = SykepengeSoeknadKafkaMelding.SoknadstypeDTO.GRADERT_REISETILSKUDD,
+                    arbeidssituasjon = SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.ARBEIDSTAKER,
                 ),
                 soeknad.copy(
                     id = idSomSkalLagres2,
-                    type = SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER,
-                    arbeidssituasjon = SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER,
+                    type = SykepengeSoeknadKafkaMelding.SoknadstypeDTO.BEHANDLINGSDAGER,
+                    arbeidssituasjon = SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.ARBEIDSTAKER,
                 ),
             )
 
         val arbeidssituasjonerSomIkkeSkalLagres =
-            SykepengesoknadDTO.ArbeidssituasjonDTO.entries
-                .minus(SykepengesoknadDTO.ArbeidssituasjonDTO.ARBEIDSTAKER)
+            SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.entries
+                .minus(SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.ARBEIDSTAKER)
 
         val soeknaderSomIkkeSkalLagres =
             arbeidssituasjonerSomIkkeSkalLagres.map {
                 soeknad.copy(
                     id = UUID.randomUUID(),
-                    type = SykepengesoknadDTO.SoknadstypeDTO.GRADERT_REISETILSKUDD,
+                    type = SykepengeSoeknadKafkaMelding.SoknadstypeDTO.GRADERT_REISETILSKUDD,
                     arbeidssituasjon = it,
                 )
             } +
                 arbeidssituasjonerSomIkkeSkalLagres.map {
                     soeknad.copy(
                         id = UUID.randomUUID(),
-                        type = SykepengesoknadDTO.SoknadstypeDTO.BEHANDLINGSDAGER,
+                        type = SykepengeSoeknadKafkaMelding.SoknadstypeDTO.BEHANDLINGSDAGER,
                         arbeidssituasjon = it,
                     )
                 }
@@ -225,7 +225,7 @@ class SoeknadServiceTest {
         val soeknad = soeknadMock()
 
         val statuserSomIkkeSkalLagres =
-            SykepengesoknadDTO.SoknadsstatusDTO.entries.minus(SykepengesoknadDTO.SoknadsstatusDTO.SENDT)
+            SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.entries.minus(SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.SENDT)
 
         val soeknaderSomIkkeSkalLagres =
             statuserSomIkkeSkalLagres.map { soeknad.copy(id = UUID.randomUUID(), status = it) }

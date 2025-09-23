@@ -14,7 +14,7 @@ class SoeknadTolker(
 
     override fun lesMelding(melding: String) {
         try {
-            val soeknadMessage = melding.fromJson(SykepengesoknadDTO.serializer())
+            val soeknadMessage = melding.fromJson(SykepengeSoeknadKafkaMelding.serializer())
             sikkerLogger.info(
                 "Mottok søknad med id ${soeknadMessage.id}, sykmeldingId ${soeknadMessage.sykmeldingId} og sendtNav ${soeknadMessage.sendtNav}.",
             )

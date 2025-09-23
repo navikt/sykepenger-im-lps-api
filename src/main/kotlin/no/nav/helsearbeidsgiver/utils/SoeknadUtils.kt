@@ -1,10 +1,10 @@
 package no.nav.helsearbeidsgiver.utils
 
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import java.time.LocalDateTime
 
-fun SykepengesoknadDTO.konverter(loepenr: ULong): Sykepengesoeknad =
+fun SykepengeSoeknadKafkaMelding.konverter(loepenr: ULong): Sykepengesoeknad =
     Sykepengesoeknad(
         loepenr = loepenr,
         soeknadId = id,
@@ -23,7 +23,7 @@ fun SykepengesoknadDTO.konverter(loepenr: ULong): Sykepengesoeknad =
         soeknadsperioder = soknadsperioder?.map { it.konverter() }.orEmpty(),
     )
 
-fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsperiode {
+fun SykepengeSoeknadKafkaMelding.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsperiode {
     requireNotNull(fom)
     requireNotNull(tom)
     requireNotNull(sykmeldingsgrad)
@@ -39,12 +39,12 @@ fun SykepengesoknadDTO.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsp
     )
 }
 
-private fun SykepengesoknadDTO.utledSendtTid(): LocalDateTime {
+private fun SykepengeSoeknadKafkaMelding.utledSendtTid(): LocalDateTime {
     requireNotNull(sendtArbeidsgiver)
     return sendtArbeidsgiver
 }
 
-private fun SykepengesoknadDTO.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.Arbeidsgiver {
+private fun SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.Arbeidsgiver {
     requireNotNull(this)
     requireNotNull(navn)
     requireNotNull(orgnummer)
@@ -54,7 +54,7 @@ private fun SykepengesoknadDTO.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.Ar
     )
 }
 
-private fun SykepengesoknadDTO.FravarDTO.konverter(): Sykepengesoeknad.Fravaer {
+private fun SykepengeSoeknadKafkaMelding.FravarDTO.konverter(): Sykepengesoeknad.Fravaer {
     requireNotNull(fom)
     requireNotNull(type)
     return Sykepengesoeknad.Fravaer(
@@ -102,12 +102,12 @@ private fun String.fjernTagIndex(): String {
     return regex.replace(this, "")
 }
 
-fun SykepengesoknadDTO.SporsmalDTO.erWhitelistetForArbeidsgiver(): Boolean {
+fun SykepengeSoeknadKafkaMelding.SporsmalDTO.erWhitelistetForArbeidsgiver(): Boolean {
     if (tag == null) {
         return false
     }
     return tag.fjernTagIndex() in whitelistetHovedsporsmal
 }
 
-fun SykepengesoknadDTO.whitelistetForArbeidsgiver(): SykepengesoknadDTO =
+fun SykepengeSoeknadKafkaMelding.whitelistetForArbeidsgiver(): SykepengeSoeknadKafkaMelding =
     this.copy(sporsmal = sporsmal?.filter { it.erWhitelistetForArbeidsgiver() })
