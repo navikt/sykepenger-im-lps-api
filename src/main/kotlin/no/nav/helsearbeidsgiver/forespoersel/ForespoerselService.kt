@@ -78,7 +78,7 @@ class ForespoerselService(
         val forespoersel =
             forespoerselRepository.hentForespoersel(navReferanseId)
                 ?: run {
-                    sikkerLogger().error("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til BESVART")
+                    sikkerLogger().warn("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til BESVART")
                     return
                 }
 
@@ -117,7 +117,7 @@ class ForespoerselService(
     fun settForkastet(navReferanseId: UUID) {
         forespoerselRepository.hentForespoersel(navReferanseId)
             ?: run {
-                sikkerLogger().error("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til FORKASTET")
+                sikkerLogger().warn("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til FORKASTET")
                 return
             }
         forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
