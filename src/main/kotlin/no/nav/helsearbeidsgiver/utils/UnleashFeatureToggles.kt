@@ -23,6 +23,7 @@ class UnleashFeatureToggles(
                     .unleashAPI(Env.getProperty("UNLEASH_SERVER_API_URL") + "/api")
                     .apiKey(Env.getProperty("UNLEASH_SERVER_API_TOKEN"))
                     .environment(Env.getProperty("UNLEASH_SERVER_API_ENV"))
+                    .fetchTogglesInterval(2)
                     .build(),
             )
         }
