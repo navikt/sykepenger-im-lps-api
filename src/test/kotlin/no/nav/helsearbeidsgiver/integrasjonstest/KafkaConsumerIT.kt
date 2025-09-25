@@ -53,7 +53,7 @@ class KafkaConsumerIT {
             runBlocking {
                 toggle.set(false)
                 Producer.sendMelding(ProducerRecord(topic, "key", "{\"hello\":\"world 2\"}"))
-                kotlinx.coroutines.delay(1000)
+                kotlinx.coroutines.delay(2000)
                 verify(exactly = 1) { sykmeldingTolker.lesMelding(any()) }
             }
 
