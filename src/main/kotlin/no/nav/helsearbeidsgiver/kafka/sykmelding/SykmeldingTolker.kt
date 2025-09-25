@@ -31,8 +31,6 @@ class SykmeldingTolker(
 
             val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
 
-            logger.info("Lagret sykmelding til database med id: $sykmeldingId")
-
             if (harLagretSykmelding) {
                 val dialogSykmelding =
                     DialogSykmelding(
@@ -43,7 +41,6 @@ class SykmeldingTolker(
                         sykmeldingsperioder = sykmeldingMessage.sykmelding.sykmeldingsperioder.map { Periode(it.fom, it.tom) },
                     )
                 dialogportenService.opprettNyDialogMedSykmelding(dialogSykmelding)
-                logger.info("Opprettet dialog for sykmelding $sykmeldingId")
             } else {
                 logger
                     .info(
