@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
@@ -13,8 +14,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.common.record.TimestampType
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 
 class KafkaCommitOffsetTest {
@@ -25,10 +28,31 @@ class KafkaCommitOffsetTest {
         val mockMeldingTolker = mockk<ForespoerselTolker>()
         val topicPartition = TopicPartition("test", 0)
         val mockRecord =
-            ConsumerRecords(mapOf(topicPartition to listOf(ConsumerRecord("test", 0, 0L, "key", "mocked message"))))
+            ConsumerRecords(
+                mapOf(
+                    topicPartition to
+                        listOf(
+                            ConsumerRecord(
+                                "test",
+                                0,
+                                0L,
+                                Instant.now().toEpochMilli(),
+                                TimestampType.CREATE_TIME,
+                                8L,
+                                3,
+                                15,
+                                "key",
+                                "mocked message",
+                            ),
+                        ),
+                ),
+            )
 
         every { mockMeldingTolker.lesMelding(any()) } throws Exception("au")
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
+        val slot = slot<Set<TopicPartition>>()
+        every { kafkaConsumer.pause(capture(slot)) } just runs
+        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
         every { kafkaConsumer.poll(any<Duration>()) } returns mockRecord
         runTest(timeout = 500.milliseconds) {
             try {
@@ -36,6 +60,30 @@ class KafkaCommitOffsetTest {
             } catch (e: Exception) {
             } finally {
                 verify(exactly = 1) { kafkaConsumer.poll(any<Duration>()) }
+                verify(exactly = 0) { kafkaConsumer.commitSync() }
+            }
+        }
+    }
+
+    @Test
+    fun `ikke commit offset når consumer er pauset`() {
+        val kafkaConsumer = mockk<KafkaConsumer<String, String>>()
+        val mockMeldingTolker = mockk<ForespoerselTolker>()
+        val topicPartition = TopicPartition("test", 0)
+        val mockRecord =
+            ConsumerRecords(mapOf(topicPartition to listOf(ConsumerRecord("test", 0, 0L, "key", "mocked message"))))
+        val slot = slot<Set<TopicPartition>>()
+        every { kafkaConsumer.pause(capture(slot)) } just runs
+        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
+        every { kafkaConsumer.subscribe(listOf("test")) } just runs
+        every { kafkaConsumer.poll(any<Duration>()) } returns mockRecord
+        runTest(timeout = 500.milliseconds) {
+            try {
+                startKafkaConsumer("test", kafkaConsumer, mockMeldingTolker, enabled = { false })
+            } catch (e: Exception) {
+            } finally {
+                verify(exactly = 0) { kafkaConsumer.poll(any<Duration>()) }
+                verify(exactly = 0) { mockMeldingTolker.lesMelding(any()) }
                 verify(exactly = 0) { kafkaConsumer.commitSync() }
             }
         }
@@ -65,6 +113,10 @@ class KafkaCommitOffsetTest {
             )
 
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
+
+        val slot = slot<Set<TopicPartition>>()
+        every { kafkaConsumer.pause(capture(slot)) } just runs
+        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
 
         every { kafkaConsumer.poll(any<Duration>()) } returnsMany listOf(mockRecord) andThenThrows
             Exception(
