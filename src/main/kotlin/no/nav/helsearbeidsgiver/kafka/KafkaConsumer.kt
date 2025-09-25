@@ -76,7 +76,7 @@ fun <K, V> KafkaConsumer<K, V>.asFlow(
     timeout: Duration = Duration.ofMillis(10),
 ): Flow<ConsumerRecord<K, V>> =
     flow {
-        while (currentCoroutineContext().isActive) {
+        while (true) {
             toggleSjekk()
             poll(timeout).forEach { emit(it) }
         }
