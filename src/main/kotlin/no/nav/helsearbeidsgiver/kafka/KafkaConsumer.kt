@@ -1,9 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka
 
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -61,13 +59,18 @@ fun <K, V> KafkaConsumer<K, V>.toggleConsumer(
     enabled: () -> Boolean,
     topic: String,
 ) {
+    val assignment = this.assignment()
+    if (assignment.isEmpty()) {
+        // ingen partisjoner er tildelt enda - gjør ingenting
+        return
+    }
     val konsumeringPauset = this.paused().isNotEmpty()
     if (!enabled() && !konsumeringPauset) {
         logger().warn("Pauser konsumering av topic $topic}")
-        this.pause(this.assignment())
+        this.pause(assignment)
     } else if (enabled() && konsumeringPauset) {
         logger().warn("Gjenopptar konsumering av topic $topic}")
-        this.resume(this.assignment())
+        this.resume(assignment)
     }
 }
 
