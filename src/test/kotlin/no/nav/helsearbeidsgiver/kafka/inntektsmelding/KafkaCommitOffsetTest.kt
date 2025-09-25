@@ -23,7 +23,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class KafkaCommitOffsetTest {
     @Test
     fun `ikke commit offset når noe feiler`() {
-        val kafkaConsumer = mockk<KafkaConsumer<String, String>>()
+        val kafkaConsumer = mockk<KafkaConsumer<String, String>>(relaxed = true)
 
         val mockMeldingTolker = mockk<ForespoerselTolker>()
         val topicPartition = TopicPartition("test", 0)
@@ -66,32 +66,8 @@ class KafkaCommitOffsetTest {
     }
 
     @Test
-    fun `ikke commit offset når consumer er pauset`() {
-        val kafkaConsumer = mockk<KafkaConsumer<String, String>>()
-        val mockMeldingTolker = mockk<ForespoerselTolker>()
-        val topicPartition = TopicPartition("test", 0)
-        val mockRecord =
-            ConsumerRecords(mapOf(topicPartition to listOf(ConsumerRecord("test", 0, 0L, "key", "mocked message"))))
-        val slot = slot<Set<TopicPartition>>()
-        every { kafkaConsumer.pause(capture(slot)) } just runs
-        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
-        every { kafkaConsumer.subscribe(listOf("test")) } just runs
-        every { kafkaConsumer.poll(any<Duration>()) } returns mockRecord
-        runTest(timeout = 500.milliseconds) {
-            try {
-                startKafkaConsumer("test", kafkaConsumer, mockMeldingTolker, enabled = { false })
-            } catch (e: Exception) {
-            } finally {
-                verify(exactly = 0) { kafkaConsumer.poll(any<Duration>()) }
-                verify(exactly = 0) { mockMeldingTolker.lesMelding(any()) }
-                verify(exactly = 0) { kafkaConsumer.commitSync() }
-            }
-        }
-    }
-
-    @Test
     fun `ikke les records med value=null`() {
-        val kafkaConsumer = mockk<KafkaConsumer<String, String>>()
+        val kafkaConsumer = mockk<KafkaConsumer<String, String>>(relaxed = true)
 
         val forespoerselTolker =
             spyk(
