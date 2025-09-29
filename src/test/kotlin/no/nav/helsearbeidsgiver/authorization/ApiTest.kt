@@ -30,7 +30,7 @@ abstract class ApiTest {
             unleashFeatureToggles = mockk(),
             database = mockk(),
             pdlService = mockk(),
-        ).copy(pdlService = mockk(relaxed = true))
+        )
 
     private val port = 33445
     val mockOAuth2Server: MockOAuth2Server =
