@@ -29,6 +29,7 @@ abstract class ApiTest {
             authClient = mockk(),
             unleashFeatureToggles = mockk(),
             database = mockk(),
+            pdlService = mockk(),
         )
 
     private val port = 33445

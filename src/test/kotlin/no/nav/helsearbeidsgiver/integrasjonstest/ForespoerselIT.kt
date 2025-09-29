@@ -77,7 +77,7 @@ class ForespoerselIT {
         val unleashMock = mockk<UnleashFeatureToggles>()
         every { unleashMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
 
-        services = configureServices(repositories, authClient, unleashMock, db)
+        services = configureServices(repositories, authClient, unleashMock, db, mockk())
 
         forespoerselTolker =
             ForespoerselTolker(

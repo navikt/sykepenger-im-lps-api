@@ -40,8 +40,6 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
-import no.nav.helsearbeidsgiver.pdl.IPdlService
-import no.nav.helsearbeidsgiver.pdl.IngenPdlService
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
@@ -84,7 +82,7 @@ data class Services(
     val innsendingService: InnsendingService,
     val dialogportenService: DialogportenService,
     val sykmeldingService: SykmeldingService,
-    val pdlService: IPdlService,
+    val pdlService: PdlService,
     val soeknadService: SoeknadService,
     val helseSjekkService: HelseSjekkService,
     val avvistInntektsmeldingService: AvvistInntektsmeldingService,
@@ -155,6 +153,7 @@ fun configureServices(
     authClient: AuthClient,
     unleashFeatureToggles: UnleashFeatureToggles,
     database: Database,
+    pdlService: PdlService,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
@@ -203,7 +202,6 @@ fun configureServices(
             unleashFeatureToggles = unleashFeatureToggles,
         )
 
-    val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository)
