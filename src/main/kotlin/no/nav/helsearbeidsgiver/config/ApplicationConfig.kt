@@ -153,6 +153,7 @@ fun configureServices(
     authClient: AuthClient,
     unleashFeatureToggles: UnleashFeatureToggles,
     database: Database,
+    pdlService: PdlService,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
@@ -201,7 +202,6 @@ fun configureServices(
             unleashFeatureToggles = unleashFeatureToggles,
         )
 
-    val pdlService = PdlService(authClient)
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository)
