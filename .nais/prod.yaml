@@ -51,6 +51,7 @@ spec:
     outbound:
       external:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
+        - host: pdl-api.prod-fss-pub.nais.io
 #        - host: platform.altinn.no
       rules:
         - application: logging
