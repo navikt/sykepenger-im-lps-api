@@ -41,7 +41,6 @@ import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.IPdlService
-import no.nav.helsearbeidsgiver.pdl.IngenPdlService
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
@@ -203,7 +202,7 @@ fun configureServices(
             unleashFeatureToggles = unleashFeatureToggles,
         )
 
-    val pdlService = if (isDev()) PdlService(authClient) else IngenPdlService()
+    val pdlService = PdlService(authClient)
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository)
