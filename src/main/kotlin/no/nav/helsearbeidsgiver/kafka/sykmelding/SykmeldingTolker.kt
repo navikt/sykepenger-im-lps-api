@@ -4,7 +4,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogSykmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
-import no.nav.helsearbeidsgiver.pdl.IPdlService
+import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.jsonMapper
@@ -16,7 +16,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
     private val dialogportenService: DialogportenService,
-    private val pdlService: IPdlService,
+    private val pdlService: PdlService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
