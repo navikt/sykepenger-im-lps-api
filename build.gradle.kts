@@ -115,7 +115,5 @@ tasks {
         environment("ALTINN_IM_RESSURS", "nav_system_sykepenger_inntektsmelding")
         environment("ALTINN_SM_RESSURS", "nav_system_sykepenger_sykmelding")
         environment("ALTINN_SOKNAD_RESSURS", "nav_system_sykepenger_soknad")
-        environment("PDL_URL", "http://dummy_url/pdl")
-        environment("PDL_SCOPE", "dummy_scope")
     }
 }
