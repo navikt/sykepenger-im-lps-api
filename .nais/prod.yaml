@@ -100,6 +100,10 @@ spec:
       value: "nav_system_sykepenger_sykmelding"
     - name: ALTINN_SOKNAD_RESSURS
       value: "nav_system_sykepenger_soknad"
+    - name: PDL_URL
+      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+    - name: PDL_SCOPE
+      value: "api://prod-fss.pdl.pdl-api/.default"
 #    - name: ALTINN_PDP_SCOPE
 #      value: "altinn_authorization/authorize"
 
