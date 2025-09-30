@@ -17,7 +17,7 @@ class PdlService(
         PdlClient(
             url = pdlUrl,
             behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
-            cacheConfig = LocalCache.Config(entryDuration = 30.minutes, maxEntries = 1000000),
+            cacheConfig = LocalCache.Config(entryDuration = 30.minutes, maxEntries = 1_000_000),
             getAccessToken = tokenGetter,
         )
 
