@@ -5,6 +5,8 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
+import no.nav.helsearbeidsgiver.utils.cache.LocalCache
+import kotlin.time.Duration.Companion.minutes
 
 class PdlService(
     authClient: AuthClient,
@@ -14,8 +16,9 @@ class PdlService(
     private val sykmeldingPdlClient =
         PdlClient(
             url = pdlUrl,
-            getAccessToken = tokenGetter,
             behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
+            cacheConfig = LocalCache.Config(entryDuration = 30.minutes, maxEntries = 1000000),
+            getAccessToken = tokenGetter,
         )
 
     fun hentFullPerson(fnr: String): FullPerson =
