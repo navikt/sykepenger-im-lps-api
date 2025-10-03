@@ -152,7 +152,9 @@ class MeldingTolkerTest {
                 fnr = Fnr.genererGyldig().verdi,
                 sykmeldingId = UUID.randomUUID(),
             )
-        tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
+        assertDoesNotThrow {
+            tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
+        }
         verify(exactly = 0) {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
             service.dialogportenService.opprettNyDialogMedSykmelding(any())

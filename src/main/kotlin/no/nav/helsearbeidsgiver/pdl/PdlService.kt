@@ -6,9 +6,8 @@ import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
-import kotlin.time.Duration.Companion.minutes
 import java.util.UUID
-
+import kotlin.time.Duration.Companion.minutes
 
 class PdlService(
     authClient: AuthClient,
