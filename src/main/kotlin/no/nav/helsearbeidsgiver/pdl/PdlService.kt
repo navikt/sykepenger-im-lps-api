@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
+import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 
 class PdlService(
@@ -21,10 +22,18 @@ class PdlService(
             getAccessToken = tokenGetter,
         )
 
-    fun hentFullPerson(fnr: String): FullPerson =
+    fun hentFullPerson(
+        fnr: String,
+        sykmeldingId: UUID,
+    ): FullPerson =
         runBlocking {
             sykmeldingPdlClient
                 .personBolk(listOf(fnr))
-                ?.firstOrNull() ?: throw RuntimeException("Fant ikke person i pdl")
+                .firstOrNull() ?: throw FantIkkePersonException(fnr, sykmeldingId)
         }
 }
+
+class FantIkkePersonException(
+    val fnr: String,
+    val sykmeldingId: UUID,
+) : RuntimeException("Fant ikke person i PDL")

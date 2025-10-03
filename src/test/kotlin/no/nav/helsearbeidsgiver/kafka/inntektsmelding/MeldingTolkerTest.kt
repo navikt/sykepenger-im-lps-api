@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
+import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
@@ -46,6 +47,8 @@ import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -53,6 +56,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
+import java.util.UUID
 
 @WithPostgresContainer
 class MeldingTolkerTest {
@@ -125,7 +129,7 @@ class MeldingTolkerTest {
     @Test
     fun `sykmeldingTolker deserialiserer, lagrer og oppretter dialog for gyldig sykmelding`() {
         every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
-        coEvery { service.pdlService.hentFullPerson(any()) } returns
+        coEvery { service.pdlService.hentFullPerson(any(), any()) } returns
             FullPerson(
                 navn = PersonNavn(fornavn = "Testfrans", mellomnavn = null, etternavn = "Testesen"),
                 foedselsdato = LocalDate.now().minusYears(1),
@@ -135,6 +139,23 @@ class MeldingTolkerTest {
 
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verifySequence {
+            service.sykmeldingService.lagreSykmelding(any(), any(), any())
+            service.dialogportenService.opprettNyDialogMedSykmelding(any())
+        }
+    }
+
+    @Test
+    fun `sykmeldingTolker tåler at pdl mangler navn`() {
+        every { service.sykmeldingService.lagreSykmelding(any(), any(), any()) } returns true
+        coEvery { service.pdlService.hentFullPerson(any(), any()) } throws
+            FantIkkePersonException(
+                fnr = Fnr.genererGyldig().verdi,
+                sykmeldingId = UUID.randomUUID(),
+            )
+        assertDoesNotThrow {
+            tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
+        }
+        verify(exactly = 0) {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
             service.dialogportenService.opprettNyDialogMedSykmelding(any())
         }

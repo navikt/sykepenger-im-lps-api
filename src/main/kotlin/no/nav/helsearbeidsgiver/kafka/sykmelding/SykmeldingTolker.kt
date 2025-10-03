@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogSykmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
@@ -24,11 +25,11 @@ class SykmeldingTolker(
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr)
             val sykmeldingId =
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
+            val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr, sykmeldingId)
             val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
 
             if (harLagretSykmelding) {
@@ -47,6 +48,9 @@ class SykmeldingTolker(
                         "Oppretter ikke dialog for sykmelding $sykmeldingId, fordi sykmeldingen ikke ble lagret.",
                     )
             }
+        } catch (e: FantIkkePersonException) {
+            logger.error("Fant ikke person i PDL, ignorerer sykmelding!")
+            sikkerLogger.error("Fant ikke person i PDL med fnr(${e.fnr}), ignorerer sykmelding med id: ${e.sykmeldingId}!", e)
         } catch (e: Exception) {
             "Klarte ikke å lagre sykmelding og opprette Dialogporten-dialog!".also {
                 logger.error(it)
