@@ -25,11 +25,11 @@ class SykmeldingTolker(
     override fun lesMelding(melding: String) {
         try {
             val sykmeldingMessage = jsonMapper.decodeFromString<SendSykmeldingAivenKafkaMessage>(melding)
-            val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr)
             val sykmeldingId =
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
+            val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr, sykmeldingId)
             val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
 
             if (harLagretSykmelding) {
@@ -50,7 +50,7 @@ class SykmeldingTolker(
             }
         } catch (e: FantIkkePersonException) {
             logger.error("Fant ikke person i PDL, ignorerer sykmelding!")
-            sikkerLogger.error("Fant ikke person med fnr(${e.fnr}) i PDL, ignorerer sykmelding!", e)
+            sikkerLogger.error("Fant ikke person i PDL med fnr(${e.fnr}), ignorerer sykmelding med id: ${e.sykmeldingId}!", e)
         } catch (e: Exception) {
             "Klarte ikke å lagre sykmelding og opprette Dialogporten-dialog!".also {
                 logger.error(it)
