@@ -29,7 +29,7 @@ class PdlService(
         runBlocking {
             sykmeldingPdlClient
                 .personBolk(listOf(fnr))
-                ?.firstOrNull() ?: throw FantIkkePersonException(fnr, sykmeldingId)
+                .firstOrNull() ?: throw FantIkkePersonException(fnr, sykmeldingId)
         }
 }
 
