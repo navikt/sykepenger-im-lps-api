@@ -48,7 +48,7 @@ services:
       - "9092:9092"
 
   lpsapi-database:
-    image: postgres:16
+    image: postgres:18
     ports:
       - "5432:5432"
     environment:

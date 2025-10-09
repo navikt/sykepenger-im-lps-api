@@ -73,7 +73,7 @@ spec:
       enabled: true
   gcp:
     sqlInstances:
-      - type: POSTGRES_17
+      - type: POSTGRES_18
         tier: db-custom-1-3840
         diskAutoresize: true
         flags:
