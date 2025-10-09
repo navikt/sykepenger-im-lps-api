@@ -55,3 +55,6 @@ services:
       - POSTGRES_USER=lpsapi
       - POSTGRES_PASSWORD=lpsapi
       - POSTGRES_DB=lpsapi
+    command: >
+      postgres
+      -c wal_level=logical
