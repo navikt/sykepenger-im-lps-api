@@ -32,7 +32,7 @@ class PostgresTestExtension :
         withRetries(
             feilmelding = "Klarte ikke sette opp inntektsmeldingDatabase.",
         ) {
-            PostgreSQLContainer("postgres:16")
+            PostgreSQLContainer("postgres:18")
                 .withDatabaseName("testdb")
                 .withUsername("testuser")
                 .withPassword("testpass")

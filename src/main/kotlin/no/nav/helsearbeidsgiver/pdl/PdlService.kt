@@ -5,33 +5,35 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
-
-interface IPdlService {
-    fun hentFullPerson(fnr: String): FullPerson
-}
-
-class IngenPdlService : IPdlService {
-    override fun hentFullPerson(fnr: String): FullPerson {
-        TODO("Not yet implemented")
-    }
-}
+import no.nav.helsearbeidsgiver.utils.cache.LocalCache
+import java.util.UUID
+import kotlin.time.Duration.Companion.minutes
 
 class PdlService(
     authClient: AuthClient,
-) : IPdlService {
+) {
     private val pdlUrl = Env.getProperty("PDL_URL")
     private val tokenGetter = authClient.tokenGetter(AZURE_AD, Env.getProperty("PDL_SCOPE"))
     private val sykmeldingPdlClient =
         PdlClient(
             url = pdlUrl,
-            getAccessToken = tokenGetter,
             behandlingsgrunnlag = Behandlingsgrunnlag.SYKMELDING,
+            cacheConfig = LocalCache.Config(entryDuration = 30.minutes, maxEntries = 1_000_000),
+            getAccessToken = tokenGetter,
         )
 
-    override fun hentFullPerson(fnr: String): FullPerson =
+    fun hentFullPerson(
+        fnr: String,
+        sykmeldingId: UUID,
+    ): FullPerson =
         runBlocking {
             sykmeldingPdlClient
                 .personBolk(listOf(fnr))
-                ?.firstOrNull() ?: throw RuntimeException("Fant ikke person i pdl")
+                .firstOrNull() ?: throw FantIkkePersonException(fnr, sykmeldingId)
         }
 }
+
+class FantIkkePersonException(
+    val fnr: String,
+    val sykmeldingId: UUID,
+) : RuntimeException("Fant ikke person i PDL")

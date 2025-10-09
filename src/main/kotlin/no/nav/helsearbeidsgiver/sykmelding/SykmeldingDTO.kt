@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 
 @Serializable
 data class SykmeldingDTO(
+    val loepenr: ULong,
     val id: String,
     val fnr: String,
     val orgnr: String,

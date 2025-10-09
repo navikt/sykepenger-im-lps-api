@@ -16,9 +16,9 @@ spec:
   resources:
     requests:
       cpu: "250m"
-      memory: "768Mi"
+      memory: "1536Mi"
     limits:
-      memory: "1024Mi"
+      memory: "2048Mi"
   observability:
     logging:
       destinations:
@@ -51,6 +51,7 @@ spec:
     outbound:
       external:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
+        - host: pdl-api.prod-fss-pub.nais.io
 #        - host: platform.altinn.no
       rules:
         - application: logging
@@ -72,7 +73,7 @@ spec:
       enabled: true
   gcp:
     sqlInstances:
-      - type: POSTGRES_16
+      - type: POSTGRES_18
         tier: db-custom-1-3840
         diskAutoresize: true
         flags:
@@ -100,6 +101,10 @@ spec:
       value: "nav_system_sykepenger_sykmelding"
     - name: ALTINN_SOKNAD_RESSURS
       value: "nav_system_sykepenger_soknad"
+    - name: PDL_URL
+      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+    - name: PDL_SCOPE
+      value: "api://prod-fss.pdl.pdl-api/.default"
 #    - name: ALTINN_PDP_SCOPE
 #      value: "altinn_authorization/authorize"
 

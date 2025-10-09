@@ -20,6 +20,7 @@ import java.util.UUID
 
 @Serializable
 data class Sykepengesoeknad(
+    val loepenr: ULong,
     val soeknadId: UUID,
     val fnr: String,
     val sykmeldingId: UUID?,

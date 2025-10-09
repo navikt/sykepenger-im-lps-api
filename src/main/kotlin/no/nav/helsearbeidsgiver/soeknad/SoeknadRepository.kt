@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sis.StatusISpeilEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.fnr
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.opprettet
@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -42,7 +43,7 @@ class SoeknadRepository(
         }
     }
 
-    fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengesoknadDTO> =
+    fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengeSoeknadDto> =
         transaction(db) {
             val query =
                 SoeknadEntitet
@@ -57,22 +58,24 @@ class SoeknadRepository(
             filter.tom?.let {
                 query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
             }
+            filter.fraLoepenr?.let { query.andWhere { SoeknadEntitet.id greater it } }
+            query.orderBy(SoeknadEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {
-                it[sykepengesoeknad]
+                SykepengeSoeknadDto(loepenr = it[SoeknadEntitet.id], sykepengeSoeknadKafkaMelding = it[sykepengesoeknad])
             }
         }
 
-    fun hentSoeknad(id: UUID): SykepengesoknadDTO? =
+    fun hentSoeknad(id: UUID): SykepengeSoeknadDto? =
         transaction(db) {
             SoeknadEntitet
                 .selectAll()
                 .where { soeknadId eq id }
-                .map { it[sykepengesoeknad] }
+                .map { SykepengeSoeknadDto(loepenr = it[SoeknadEntitet.id], sykepengeSoeknadKafkaMelding = it[sykepengesoeknad]) }
                 .firstOrNull()
         }
 
-    fun hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId: UUID): List<SykepengesoknadDTO> =
+    fun hentSoeknaderMedVedtaksperiodeId(vedtaksperiodeId: UUID): List<SykepengeSoeknadKafkaMelding> =
         transaction(db) {
             SoeknadEntitet
                 .join(

@@ -75,7 +75,7 @@ abstract class LpsApiIntegrasjontest {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, mockk(relaxed = true), mockk(relaxed = true), db)
+        services = configureServices(repositories, mockk(relaxed = true), mockk(relaxed = true), db, mockk())
         tolkers = configureTolkere(services, repositories)
 
         server.start(wait = false)
@@ -97,9 +97,17 @@ abstract class LpsApiIntegrasjontest {
         server.stop()
     }
 
+    /**
+     * `betingelse` er en suspenderende lambda som får HTTP-responsen og skal returnere `true`
+     * når ønsket tilstand er oppnådd. Retry-løkken stopper tidlig hvis responsen har status 200
+     * og `betingelse` returnerer `true`. Bruk denne for å vente på en spesifikk tilstand i responsen.
+     */
     suspend fun fetchWithRetry(
         url: String,
         token: String,
+        betingelse: suspend (HttpResponse) -> Boolean = {
+            true
+        },
         maxAttempts: Int = 5,
         delayMillis: Long = 100L,
     ): HttpResponse {
@@ -112,7 +120,7 @@ abstract class LpsApiIntegrasjontest {
                 client.get(url) {
                     bearerAuth(token)
                 }
-            if (response.status.value == 200) break
+            if (response.status.value == 200 && betingelse(response)) break
             delay(delayMillis)
         } while (attempts < maxAttempts)
 

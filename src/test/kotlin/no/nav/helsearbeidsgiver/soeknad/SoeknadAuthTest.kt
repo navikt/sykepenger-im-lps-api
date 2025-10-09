@@ -14,7 +14,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengesoknadDTO
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
@@ -22,8 +21,10 @@ import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.random.Random
+import kotlin.random.nextULong
 
-class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengesoknadDTO>() {
+class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengeSoeknadDto>() {
     override val filtreringEndepunkt = "/v1/sykepengesoeknader"
     override val enkeltDokumentEndepunkt = "/v1/sykepengesoeknad"
     override val utfasetEndepunkt = "/v1/sykepengesoeknader"
@@ -34,23 +35,26 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     override fun mockDokument(
         id: UUID,
         orgnr: String,
-    ): SykepengesoknadDTO =
-        soeknadMock()
-            .medId(id)
-            .medOrgnr(orgnr)
+    ): SykepengeSoeknadDto =
+        SykepengeSoeknadDto(
+            Random.nextULong(1u, 100u),
+            soeknadMock()
+                .medId(id)
+                .medOrgnr(orgnr),
+        )
 
     override fun lagFilter(orgnr: String): SykepengesoeknadFilter = SykepengesoeknadFilter(orgnr = orgnr)
 
     override fun mockHentingAvDokumenter(
         filter: SykepengesoeknadFilter,
-        resultat: List<SykepengesoknadDTO>,
+        resultat: List<SykepengeSoeknadDto>,
     ) {
         every { repositories.soeknadRepository.hentSoeknader(filter) } returns resultat
     }
 
     override fun mockHentingAvEnkeltDokument(
         id: UUID,
-        resultat: SykepengesoknadDTO,
+        resultat: SykepengeSoeknadDto,
     ) {
         every { repositories.soeknadRepository.hentSoeknad(id) } returns resultat
     }
@@ -62,10 +66,13 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     fun `gir 404 Not Found ved henting av en spesifikk søknad som ikke skal vises til arbeidsgiver`() {
         val soeknadId = UUID.randomUUID()
         val mockSoeknad =
-            soeknadMock()
-                .copy(sendtArbeidsgiver = null)
-                .medId(soeknadId)
-                .medOrgnr(underenhetOrgnrMedPdpTilgang)
+            SykepengeSoeknadDto(
+                Random.nextULong(1u, 100u),
+                soeknadMock()
+                    .copy(sendtArbeidsgiver = null)
+                    .medId(soeknadId)
+                    .medOrgnr(underenhetOrgnrMedPdpTilgang),
+            )
 
         mockHentingAvEnkeltDokument(soeknadId, mockSoeknad)
 
@@ -86,16 +93,22 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
             List(
                 antallForventedeSoeknader,
             ) {
-                soeknadMock()
-                    .medId(UUID.randomUUID())
-                    .medOrgnr(underenhetOrgnrMedPdpTilgang)
+                SykepengeSoeknadDto(
+                    Random.nextULong(1u, 100u),
+                    soeknadMock()
+                        .medId(UUID.randomUUID())
+                        .medOrgnr(underenhetOrgnrMedPdpTilgang),
+                )
             }
 
         val soeknadSomIkkeSkalVisesTilArbeidsgiver =
-            soeknadMock()
-                .copy(sendtArbeidsgiver = null)
-                .medId(UUID.randomUUID())
-                .medOrgnr(underenhetOrgnrMedPdpTilgang)
+            SykepengeSoeknadDto(
+                Random.nextULong(1u, 100u),
+                soeknadMock()
+                    .copy(sendtArbeidsgiver = null)
+                    .medId(UUID.randomUUID())
+                    .medOrgnr(underenhetOrgnrMedPdpTilgang),
+            )
 
         val filter =
             SykepengesoeknadFilter(
@@ -129,9 +142,12 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
             List(
                 MAX_ANTALL_I_RESPONS + 10,
             ) {
-                soeknadMock()
-                    .medId(UUID.randomUUID())
-                    .medOrgnr(underenhetOrgnrMedPdpTilgang)
+                SykepengeSoeknadDto(
+                    Random.nextULong(1u, 100u),
+                    soeknadMock()
+                        .medId(UUID.randomUUID())
+                        .medOrgnr(underenhetOrgnrMedPdpTilgang),
+                )
             }
 
         val filter =

@@ -595,6 +595,9 @@ components:
     Forespoersel:
       type: "object"
       properties:
+        loepenr:
+          type: "integer"
+          format: "int64"
         navReferanseId:
           type: "string"
           format: "uuid"
@@ -624,6 +627,7 @@ components:
           type: "string"
           format: "date-time"
       required:
+        - "loepenr"
         - "navReferanseId"
         - "orgnr"
         - "fnr"
@@ -633,6 +637,9 @@ components:
         - "arbeidsgiverperiodePaakrevd"
         - "inntektPaakrevd"
         - "opprettetTid"
+    ULong:
+      type: "object"
+      properties: { }
     ForespoerselFilter:
       type: "object"
       properties:
@@ -660,6 +667,9 @@ components:
           type: "string"
           format: "date"
           nullable: true
+        fraLoepenr:
+          nullable: true
+          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
     RedusertLoennIAgp:
@@ -1003,6 +1013,9 @@ components:
     InntektsmeldingResponse:
       type: "object"
       properties:
+        loepenr:
+          type: "integer"
+          format: "int64"
         id:
           type: "string"
           format: "uuid"
@@ -1051,6 +1064,7 @@ components:
           nullable: true
           $ref: "#/components/schemas/Valideringsfeil"
       required:
+        - "loepenr"
         - "id"
         - "navReferanseId"
         - "sykmeldtFnr"
@@ -1092,6 +1106,9 @@ components:
             - "MOTTATT"
             - "FEILET"
             - "GODKJENT"
+        fraLoepenr:
+          nullable: true
+          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
     Soeknadsperiode:
@@ -1153,6 +1170,9 @@ components:
     Sykepengesoeknad:
       type: "object"
       properties:
+        loepenr:
+          type: "integer"
+          format: "int64"
         soeknadId:
           type: "string"
           format: "uuid"
@@ -1201,6 +1221,7 @@ components:
           items:
             $ref: "#/components/schemas/Fravaer"
       required:
+        - "loepenr"
         - "soeknadId"
         - "fnr"
         - "type"
@@ -1224,6 +1245,9 @@ components:
           type: "string"
           format: "date"
           nullable: true
+        fraLoepenr:
+          nullable: true
+          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
     Sykmeldt:
@@ -1327,6 +1351,9 @@ components:
     Sykmelding:
       type: "object"
       properties:
+        loepenr:
+          type: "integer"
+          format: "int64"
         sykmeldingId:
           type: "string"
         mottattAvNav:
@@ -1357,6 +1384,7 @@ components:
         arbeidsgiver:
           $ref: "#/components/schemas/Arbeidsgiver"
       required:
+        - "loepenr"
         - "sykmeldingId"
         - "mottattAvNav"
         - "sykmeldt"
@@ -1381,5 +1409,8 @@ components:
           type: "string"
           format: "date"
           nullable: true
+        fraLoepenr:
+          nullable: true
+          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
