@@ -37,6 +37,7 @@ class PostgresTestExtension :
                 .withUsername("testuser")
                 .withPassword("testpass")
                 .waitingFor(Wait.forListeningPort())
+                .withCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all", "-c", "wal_level=logical")
                 .withReuse(true)
         }
     }
