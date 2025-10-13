@@ -1,4 +1,3 @@
-
 val bakgrunnsjobbVersion: String by project
 val coroutineVersion: String by project
 val exposedVersion: String by project
@@ -22,7 +21,7 @@ val tokenSupportVersion: String by project
 val unleashVersion: String by project
 val utilsVersion: String by project
 val pdlKlientVersion: String by project
-val microMeterVersion : String by project
+val microMeterVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -81,7 +80,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
-    api("io.ktor:ktor-server-metrics-micrometer:${ktorVersion}")
+    api("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
@@ -109,11 +108,17 @@ tasks {
         }
         environment("database.embedded", "true")
         environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read nav:helseytelser/sykepenger")
-        environment("MASKINPORTEN_WELL_KNOWN_URL", "http://localhost:33445/maskinporten/.well-known/openid-configuration")
+        environment(
+            "MASKINPORTEN_WELL_KNOWN_URL",
+            "http://localhost:33445/maskinporten/.well-known/openid-configuration",
+        )
         environment("NAV_ARBEIDSGIVER_PORTAL_BASEURL", "https://arbeidsgiver.intern.dev.nav.no")
         environment("NAV_ARBEIDSGIVER_API_BASEURL", "https://sykepenger-im-lps-api.ekstern.dev.nav.no")
-        environment("ALTINN_IM_RESSURS", "nav_system_sykepenger_inntektsmelding")
-        environment("ALTINN_SM_RESSURS", "nav_system_sykepenger_sykmelding")
-        environment("ALTINN_SOKNAD_RESSURS", "nav_system_sykepenger_soknad")
+        environment("ALTINN_IM_RESSURS_GAMMEL", "nav_system_sykepenger_inntektsmelding")
+        environment("ALTINN_SM_RESSURS_GAMMEL", "nav_system_sykepenger_sykmelding")
+        environment("ALTINN_SOKNAD_RESSURS_GAMMEL", "nav_system_sykepenger_soknad")
+        environment("ALTINN_IM_RESSURS", "nav_sykepenger_inntektsmelding")
+        environment("ALTINN_SM_RESSURS", "nav_sykepenger_sykmelding")
+        environment("ALTINN_SOEKNAD_RESSURS", "nav_sykepenger_soeknad")
     }
 }

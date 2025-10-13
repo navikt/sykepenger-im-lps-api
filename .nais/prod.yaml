@@ -96,11 +96,11 @@ spec:
 #    - name: ALTINN_3_BASE_URL
 #      value: "https://platform.altinn.no"
     - name: ALTINN_IM_RESSURS
-      value: "nav_system_sykepenger_inntektsmelding"
+      value: "nav_sykepenger_inntektsmelding"
     - name: ALTINN_SM_RESSURS
-      value: "nav_system_sykepenger_sykmelding"
+      value: "nav_sykepenger_sykmelding"
     - name: ALTINN_SOKNAD_RESSURS
-      value: "nav_system_sykepenger_soknad"
+      value: "nav_sykepenger_soeknad"
     - name: PDL_URL
       value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
     - name: PDL_SCOPE

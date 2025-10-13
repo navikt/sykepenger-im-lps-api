@@ -10,7 +10,7 @@ import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
+import no.nav.helsearbeidsgiver.auth.harTilgangTilMinstEnAvRessursene
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -28,6 +28,7 @@ fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
+private val IM_RESSURS_GAMMEL = Env.getProperty("ALTINN_IM_RESSURS_GAMMEL")
 
 private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     // Hent forespørsel med navReferanseId.
@@ -45,8 +46,8 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -78,8 +79,8 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             val filter = call.receive<ForespoerselFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {

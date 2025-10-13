@@ -12,7 +12,7 @@ import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
+import no.nav.helsearbeidsgiver.auth.harTilgangTilMinstEnAvRessursene
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -22,7 +22,8 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-private val SOKNAD_RESSURS = Env.getProperty("ALTINN_SOKNAD_RESSURS")
+private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
+private val SOKNAD_RESSURS_GAMMEL = Env.getProperty("ALTINN_SOKNAD_RESSURS_GAMMEL")
 
 fun Route.soeknadV1(soeknadService: SoeknadService) {
     route("/v1") {
@@ -47,8 +48,8 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = SOKNAD_RESSURS,
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
                     orgnumre = setOf(soeknad.arbeidsgiver.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -76,8 +77,8 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
             val filter = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = SOKNAD_RESSURS,
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
