@@ -109,4 +109,6 @@ spec:
       value: "api://prod-fss.pdl.pdl-api/.default"
 #    - name: ALTINN_PDP_SCOPE
 #      value: "altinn_authorization/authorize"
+    - name: JDK_JAVA_OPTIONS
+      value: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
 
