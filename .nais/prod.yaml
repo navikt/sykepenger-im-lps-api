@@ -16,9 +16,9 @@ spec:
   resources:
     requests:
       cpu: "250m"
-      memory: "1536Mi"
+      memory: "768Mi"
     limits:
-      memory: "2048Mi"
+      memory: "1024Mi"
   observability:
     logging:
       destinations:
@@ -80,7 +80,9 @@ spec:
           - name: cloudsql.enable_pgaudit
             value: "true"
           - name: pgaudit.log
-            value: 'write'
+            value: "write,ddl,role"
+          - name: pgaudit.log_parameter
+            value: "on"
           - name: cloudsql.logical_decoding
             value: "on"
         databases:
@@ -107,4 +109,6 @@ spec:
       value: "api://prod-fss.pdl.pdl-api/.default"
 #    - name: ALTINN_PDP_SCOPE
 #      value: "altinn_authorization/authorize"
+    - name: JDK_JAVA_OPTIONS
+      value: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
 
