@@ -156,84 +156,86 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         respons2.status shouldBe HttpStatusCode.Unauthorized
     }
 
-    @Test
-    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av en spesifikk dokument`() {
-        val dokumentIdTilgang = UUID.randomUUID()
-        val dokumentIdIkkeTilgang = UUID.randomUUID()
+// Deaktiverer for å teste å kun sjekke orgnr fra request mot pdp
+//    @Test
+//    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av en spesifikk dokument`() {
+//        val dokumentIdTilgang = UUID.randomUUID()
+//        val dokumentIdIkkeTilgang = UUID.randomUUID()
+//
+//        mockHentingAvEnkeltDokument(
+//            id = dokumentIdTilgang,
+//            resultat = mockDokument(dokumentIdTilgang, underenhetOrgnrMedPdpTilgang),
+//        )
+//        mockHentingAvEnkeltDokument(
+//            id = dokumentIdIkkeTilgang,
+//            resultat = mockDokument(dokumentIdTilgang, orgnrUtenPdpTilgang),
+//        )
+//
+//        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
+//        // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
+//        val respons1 =
+//            runBlocking {
+//                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+//                }
+//            }
+//        respons1.status shouldBe HttpStatusCode.Unauthorized
+//
+//        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra dokument).
+//        val respons2 =
+//            runBlocking {
+//                client.get("$enkeltDokumentEndepunkt/$dokumentIdTilgang") {
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+//                }
+//            }
+//        respons2.status shouldBe HttpStatusCode.Unauthorized
+//
+//        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
+//        val respons3 =
+//            runBlocking {
+//                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+//                }
+//            }
+//        respons3.status shouldBe HttpStatusCode.Unauthorized
+//    }
 
-        mockHentingAvEnkeltDokument(
-            id = dokumentIdTilgang,
-            resultat = mockDokument(dokumentIdTilgang, underenhetOrgnrMedPdpTilgang),
-        )
-        mockHentingAvEnkeltDokument(
-            id = dokumentIdIkkeTilgang,
-            resultat = mockDokument(dokumentIdTilgang, orgnrUtenPdpTilgang),
-        )
-
-        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
-        // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
-        val respons1 =
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
-                }
-            }
-        respons1.status shouldBe HttpStatusCode.Unauthorized
-
-        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra dokument).
-        val respons2 =
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/$dokumentIdTilgang") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
-
-        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
-        val respons3 =
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons3.status shouldBe HttpStatusCode.Unauthorized
-    }
-
-    @Test
-    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av flere dokumenter`() {
-        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra requesten).
-        // Det vil si at man forsøker å hente dokumenter for en organisasjon som systembrukeren ikke skal ha tilgang til.
-        val respons1 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(lagFilter(orgnr = orgnrUtenPdpTilgang).toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
-                }
-            }
-        respons1.status shouldBe HttpStatusCode.Unauthorized
-
-        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i requesten.
-        // Det vil si at man forsøker å hente dokumenter for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
-        val respons2 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(lagFilter(orgnr = underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
-
-        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
-        val respons4 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(lagFilter(orgnr = orgnrUtenPdpTilgang).toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons4.status shouldBe HttpStatusCode.Unauthorized
-    }
+// Deaktiverer for å teste å kun sjekke orgnr fra request mot pdp
+//    @Test
+//    fun `gir 401 Unauthorized når pdp nekter tilgang for systembrukeren for henting av flere dokumenter`() {
+//        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra requesten).
+//        // Det vil si at man forsøker å hente dokumenter for en organisasjon som systembrukeren ikke skal ha tilgang til.
+//        val respons1 =
+//            runBlocking {
+//                client.post(filtreringEndepunkt) {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(lagFilter(orgnr = orgnrUtenPdpTilgang).toJson(filterSerializer))
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+//                }
+//            }
+//        respons1.status shouldBe HttpStatusCode.Unauthorized
+//
+//        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i requesten.
+//        // Det vil si at man forsøker å hente dokumenter for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
+//        val respons2 =
+//            runBlocking {
+//                client.post(filtreringEndepunkt) {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(lagFilter(orgnr = underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+//                }
+//            }
+//        respons2.status shouldBe HttpStatusCode.Unauthorized
+//
+//        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
+//        val respons4 =
+//            runBlocking {
+//                client.post(filtreringEndepunkt) {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(lagFilter(orgnr = orgnrUtenPdpTilgang).toJson(filterSerializer))
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+//                }
+//            }
+//        respons4.status shouldBe HttpStatusCode.Unauthorized
+//    }
 }

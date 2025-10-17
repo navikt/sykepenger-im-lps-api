@@ -50,7 +50,7 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOf(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
-                    orgnumre = setOf(soeknad.arbeidsgiver.orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(soeknad.arbeidsgiver.orgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -79,7 +79,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOf(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
-                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(filter.orgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")

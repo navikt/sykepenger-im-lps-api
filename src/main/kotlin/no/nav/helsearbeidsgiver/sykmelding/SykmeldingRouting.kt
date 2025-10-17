@@ -51,7 +51,7 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOf(SM_RESSURS, SM_RESSURS_GAMMEL),
-                    orgnumre = setOf(sykmelding.arbeidsgiver.orgnr.toString(), systembrukerOrgnr),
+                    orgnumre = setOf(sykmelding.arbeidsgiver.orgnr.toString()),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -82,7 +82,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOf(SM_RESSURS, SM_RESSURS_GAMMEL),
-                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
+                    orgnumre = setOf(filter.orgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
