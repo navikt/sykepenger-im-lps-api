@@ -15,7 +15,7 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
+import no.nav.helsearbeidsgiver.auth.harTilgangTilMinstEnAvRessursene
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
@@ -37,6 +37,7 @@ import java.util.UUID
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
+private val IM_RESSURS_GAMMEL = Env.getProperty("ALTINN_IM_RESSURS_GAMMEL")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
@@ -59,9 +60,9 @@ private fun Route.sendInntektsmelding(services: Services) {
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
-                    orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    orgnumre = setOf(forespoersel.orgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -126,9 +127,9 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
-                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    orgnumre = setOf(filter.orgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -179,9 +180,9 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
-                    orgnumre = setOf(inntektsmelding.arbeidsgiver.orgnr, systembrukerOrgnr),
+            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
+                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    orgnumre = setOf(inntektsmelding.arbeidsgiver.orgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
