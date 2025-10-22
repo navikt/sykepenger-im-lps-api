@@ -68,7 +68,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     abstract fun hentOrgnrFraDokument(dokument: Dokument): String
 
     @Test
-    fun `gir 200 OK ved henting av en spesifikk dokument`() {
+    fun `gir 200 OK ved henting av et spesifikt dokument`() {
         val dokumentId = UUID.randomUUID()
         val mockDokument = mockDokument(id = dokumentId, orgnr = underenhetOrgnrMedPdpTilgang)
 
