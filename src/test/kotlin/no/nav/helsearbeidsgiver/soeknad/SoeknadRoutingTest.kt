@@ -40,6 +40,7 @@ class SoeknadRoutingTest : ApiTest() {
     @AfterEach
     fun setup() {
         clearMocks(repositories.soeknadRepository)
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
     }
 
     @AfterAll

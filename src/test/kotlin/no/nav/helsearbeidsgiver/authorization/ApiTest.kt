@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.getPdpService
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -23,11 +24,12 @@ abstract class ApiTest {
     val underenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().verdi
 
     val repositories: Repositories = mockk<Repositories>(relaxed = true)
+    val unleashFeatureToggles: UnleashFeatureToggles = mockk()
     val services: Services =
         configureServices(
             repositories = repositories,
             authClient = mockk(),
-            unleashFeatureToggles = mockk(),
+            unleashFeatureToggles = unleashFeatureToggles,
             database = mockk(),
             pdlService = mockk(),
         )
@@ -40,7 +42,7 @@ abstract class ApiTest {
     private val testApplication: TestApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = mockk())
+                apiModule(services = services, authClient = mockk(), unleashFeatureToggles = unleashFeatureToggles)
             }
         }
     val client: HttpClient =
