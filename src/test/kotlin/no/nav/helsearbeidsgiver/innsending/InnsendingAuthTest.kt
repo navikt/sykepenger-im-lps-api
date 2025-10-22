@@ -135,19 +135,18 @@ class InnsendingAuthTest : ApiTest() {
         response1.status shouldBe HttpStatusCode.Unauthorized
         verify(exactly = 0) { services.opprettImTransaction(any(), any()) }
 
-// Deaktiverer for å teste å kun sjekke orgnr fra request mot pdp
-//        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i forespørselen.
-//        // Det vil si at man forsøker å sende inn en inntektsmelding for et orgnummer (fra forespørselen), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
-//        val response2 =
-//            runBlocking {
-//                client.post("/v1/inntektsmelding") {
-//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-//                    contentType(ContentType.Application.Json)
-//                    setBody(requestBodyTilgang.toJson(serializer = InntektsmeldingRequest.serializer()))
-//                }
-//            }
-//        response2.status shouldBe HttpStatusCode.Unauthorized
-//        verify(exactly = 0) { services.opprettImTransaction(any(), any()) }
+        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i forespørselen.
+        // Det vil si at man forsøker å sende inn en inntektsmelding for et orgnummer (fra forespørselen), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
+        val response2 =
+            runBlocking {
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBodyTilgang.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            }
+        response2.status shouldBe HttpStatusCode.Unauthorized
+        verify(exactly = 0) { services.opprettImTransaction(any(), any()) }
 
         // Systembruker har hverken tilgang til orgnr i token eller orgnr i forespørselen.
         val response3 =
