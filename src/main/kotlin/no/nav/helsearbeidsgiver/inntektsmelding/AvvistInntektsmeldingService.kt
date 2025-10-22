@@ -1,9 +1,11 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.utils.log.logger
 
 class AvvistInntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
+    private val dialogportenService: DialogportenService,
 ) {
     private val logger = logger()
 
@@ -17,12 +19,13 @@ class AvvistInntektsmeldingService(
                         "med feilkode ${avvistInntektsmelding.feilkode} fordi den ikke finnes i databasen.",
                 )
 
-            1 ->
+            1 -> {
                 logger.info(
                     "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
                         "med feilkode ${avvistInntektsmelding.feilkode}.",
                 )
-
+                dialogportenService.oppdaterDialogMedInntektsmelding(avvistInntektsmelding.inntektsmeldingId)
+            }
             else ->
                 logger.warn(
                     "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +

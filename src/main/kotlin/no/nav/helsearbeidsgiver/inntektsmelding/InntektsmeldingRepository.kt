@@ -1,8 +1,10 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
@@ -18,10 +20,12 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -134,6 +138,25 @@ class InntektsmeldingRepository(
                 it[status] = InnsendingStatus.FEILET
                 it[feilkode] = avvistInntektsmelding.feilkode
             }
+        }
+
+    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): DialogInntektsmelding =
+        transaction(db) {
+            InntektsmeldingEntitet
+                .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
+                .join(SoeknadEntitet, JoinType.INNER, ForespoerselEntitet.vedtaksperiodeId, SoeknadEntitet.vedtaksperiodeId)
+                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status)
+                .where({ innsendingId eq inntektsmeldingId })
+                .limit(1)
+                .map { row ->
+                    DialogInntektsmelding(
+                        orgnr = row[orgnr],
+                        innsendingsId = row[innsendingId],
+                        sykmeldingId = row[SoeknadEntitet.sykmeldingId],
+                        forespoerselId = row[navReferanseId],
+                        status = row[status],
+                    )
+                }.firstOrNull() ?: error("Fant ingen inntektsmelding med id=$inntektsmeldingId")
         }
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =

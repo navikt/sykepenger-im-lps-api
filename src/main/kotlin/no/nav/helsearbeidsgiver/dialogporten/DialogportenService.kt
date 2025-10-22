@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -10,6 +11,7 @@ import java.util.UUID
 class DialogportenService(
     val dialogProducer: DialogProducer,
     val soeknadRepository: SoeknadRepository,
+    val inntektsmeldingRepository: InntektsmeldingRepository,
     val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
@@ -66,6 +68,20 @@ class DialogportenService(
         } else {
             logger.info(
                 "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, fordi feature toggle er av.",
+            )
+        }
+    }
+
+    fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
+        val inntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmelding.orgnr)) {
+            dialogProducer.send(inntektsmelding)
+            logger.info(
+                "Sendte melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingsId}, sykmeldingId: ${inntektsmelding.sykmeldingId}.",
+            )
+        } else {
+            logger.info(
+                "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingsId}, sykmeldingId: ${inntektsmelding.sykmeldingId}, fordi feature toggle er av.",
             )
         }
     }

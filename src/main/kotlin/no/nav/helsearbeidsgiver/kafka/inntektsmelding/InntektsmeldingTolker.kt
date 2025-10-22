@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory
 class InntektsmeldingTolker(
     private val inntektsmeldingService: InntektsmeldingService,
     private val mottakRepository: MottakRepository,
+    private val dialogportenService: DialogportenService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
@@ -31,9 +33,11 @@ class InntektsmeldingTolker(
                 if (innsendtFraNavPortal(obj.inntektsmelding.type)) { // TODO: flytt denne sjekken inn i Service
                     sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
                     inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
+                    dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
                 } else {
                     sikkerLogger.info("Mottok im sendt fra LPS - oppdaterer status")
                     inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
+                    dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
             } catch (e: Exception) {
@@ -52,6 +56,7 @@ class InntektsmeldingTolker(
             is Inntektsmelding.Type.UtenArbeidsforhold,
             is Inntektsmelding.Type.Behandlingsdager,
             -> true
+
             is Inntektsmelding.Type.ForespurtEkstern -> false
         }
 

@@ -4,11 +4,17 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
+import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
+import no.nav.helsearbeidsgiver.soeknad.LagreSoeknad
+import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
+import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.tilSkjema
@@ -302,6 +308,38 @@ class InntektsmeldingRepositoryTest {
         }
     }
 
+    @Test
+    fun `hentInntektsmeldingDialogMelding skal returnere inntektsmelding for dialogmelding`() {
+        val inntektsmeldingRepository = InntektsmeldingRepository(db)
+        val soeknadRepository = SoeknadRepository(db)
+        val forespoerselRepository = ForespoerselRepository(db)
+
+        val sykmeldingId = UUID.randomUUID()
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+
+        val soeknad = soeknadMock().copy(sykmeldingId = sykmeldingId)
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
+        soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
+
+        forespoerselRepository.lagreForespoersel(
+            forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId, vedtaksperiodeId),
+            eksponertForespoerselId = forespoerselId,
+        )
+
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        inntektsmeldingRepository.opprettInntektsmelding(inntektsmeldingJson)
+
+        val inntektsmeldingDialogMelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        assertEquals(DEFAULT_ORG, inntektsmeldingDialogMelding.orgnr)
+        assertEquals(inntektsmeldingId, inntektsmeldingDialogMelding.innsendingsId)
+        assertEquals(sykmeldingId, inntektsmeldingDialogMelding.sykmeldingId)
+        assertEquals(forespoerselId, inntektsmeldingDialogMelding.forespoerselId)
+        assertEquals(InnsendingStatus.GODKJENT, inntektsmeldingDialogMelding.status)
+    }
+
     private fun generateTestData(
         org: Orgnr,
         sykmeldtFnr: Fnr,
@@ -315,3 +353,12 @@ class InntektsmeldingRepositoryTest {
         )
     }
 }
+
+fun SykepengeSoeknadKafkaMelding.tilLagreSoeknad(): LagreSoeknad =
+    LagreSoeknad(
+        soeknadId = id,
+        sykmeldingId = sykmeldingId!!,
+        fnr = fnr,
+        orgnr = arbeidsgiver?.orgnummer!!,
+        sykepengesoeknad = this,
+    )

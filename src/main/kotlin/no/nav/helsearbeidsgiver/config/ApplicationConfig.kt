@@ -105,6 +105,7 @@ fun configureTolkere(
         InntektsmeldingTolker(
             inntektsmeldingService = services.inntektsmeldingService,
             mottakRepository = repositories.mottakRepository,
+            dialogportenService = services.dialogportenService,
         )
     val forespoerselTolker =
         ForespoerselTolker(
@@ -200,11 +201,12 @@ fun configureServices(
             dialogProducer = dialogProducer,
             soeknadRepository = repositories.soeknadRepository,
             unleashFeatureToggles = unleashFeatureToggles,
+            inntektsmeldingRepository = repositories.inntektsmeldingRepository,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
-    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository)
+    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
 
     return Services(
         forespoerselService,

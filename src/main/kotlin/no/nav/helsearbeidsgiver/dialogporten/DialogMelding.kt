@@ -6,6 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -39,4 +40,14 @@ data class DialogInntektsmeldingsforespoersel(
     val forespoerselId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
+) : DialogMelding()
+
+@Serializable
+@SerialName("Inntektsmeldings")
+data class DialogInntektsmelding(
+    val forespoerselId: UUID,
+    val innsendingsId: UUID,
+    val sykmeldingId: UUID,
+    val orgnr: String,
+    val status: InnsendingStatus,
 ) : DialogMelding()

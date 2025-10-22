@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -97,6 +98,8 @@ fun buildInntektsmeldingJson(
         .replace(SYKMELDT_FNR, sykemeldtFnr.verdi)
         .replace(ORGNUMMER, orgnr.verdi)
 }
+
+fun buildForespoerselPrimessage(json: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(json)
 
 fun buildForespoerselMottattJson(
     forespoerselId: UUID = UUID.randomUUID(),

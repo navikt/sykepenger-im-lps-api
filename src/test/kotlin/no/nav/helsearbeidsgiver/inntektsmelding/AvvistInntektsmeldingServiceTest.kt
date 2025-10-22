@@ -3,13 +3,16 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class AvvistInntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
-    private val avvistInntektsmeldingService = AvvistInntektsmeldingService(inntektsmeldingRepository)
+    private val dialogportenService = mockk<DialogportenService>()
+    private val avvistInntektsmeldingService =
+        AvvistInntektsmeldingService(inntektsmeldingRepository = inntektsmeldingRepository, dialogportenService = dialogportenService)
 
     @Test
     fun `oppdaterInnteksmeldingTilFeilet skal kalle inntektsmeldingRepository`() {

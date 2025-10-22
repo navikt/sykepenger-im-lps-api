@@ -886,11 +886,12 @@ object TestData {
         orgnr: String,
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
+        vedtaksperiodeId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
         orgnr = orgnr,
         fnr = fnr,
         forespoerselId = forespoerselId,
-        vedtaksperiodeId = UUID.randomUUID(),
+        vedtaksperiodeId = vedtaksperiodeId,
         egenmeldingsperioder = emptyList(),
         sykmeldingsperioder = emptyList(),
         bestemmendeFravaersdager = emptyMap(),
