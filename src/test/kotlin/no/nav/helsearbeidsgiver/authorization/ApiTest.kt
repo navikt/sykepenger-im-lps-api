@@ -24,7 +24,8 @@ abstract class ApiTest {
     val underenhetOrgnrMedPdpTilgang = Orgnr.genererGyldig().verdi
 
     val repositories: Repositories = mockk<Repositories>(relaxed = true)
-    val unleashFeatureToggles: UnleashFeatureToggles = mockk()
+    val unleashFeatureToggles: UnleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
+
     val services: Services =
         configureServices(
             repositories = repositories,

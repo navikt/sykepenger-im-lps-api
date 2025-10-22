@@ -28,6 +28,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -37,10 +38,14 @@ import kotlin.random.Random
 import kotlin.random.nextULong
 
 class SoeknadRoutingTest : ApiTest() {
+    @BeforeEach
+    fun beforeEach() {
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
+    }
+
     @AfterEach
     fun setup() {
         clearMocks(repositories.soeknadRepository)
-        every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
     }
 
     @AfterAll

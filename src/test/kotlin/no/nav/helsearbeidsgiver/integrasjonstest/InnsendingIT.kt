@@ -31,6 +31,7 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -50,7 +51,7 @@ class InnsendingIT {
     private lateinit var services: Services
     private lateinit var inntektsmeldingTolker: InntektsmeldingTolker
     private val authClient = mockk<AuthClient>(relaxed = true)
-
+    private val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
     private val port = 33445
     private val mockOAuth2Server =
         MockOAuth2Server().apply {
@@ -59,7 +60,7 @@ class InnsendingIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, unleashFeatureToggles = mockk())
+                apiModule(services = services, authClient = authClient, unleashFeatureToggles)
             }
         }
     private val client =
@@ -78,7 +79,7 @@ class InnsendingIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, authClient, mockk(), db, mockk())
+        services = configureServices(repositories, authClient, unleashFeatureToggles, db, mockk())
         inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
     }
 

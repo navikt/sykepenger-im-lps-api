@@ -31,9 +31,7 @@ fun Application.configureRouting(
             )
             forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
-            if (unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
-                soeknadV1(soeknadService = services.soeknadService)
-            }
+            soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
     }
 }
