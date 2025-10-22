@@ -178,7 +178,6 @@ data class SykepengeSoeknadKafkaMelding(
         BEHANDLINGSDAGER,
         AVVENTENDE,
         REISETILSKUDD,
-        AAR_MAANED,
     }
 
     @Serializable
@@ -224,6 +223,7 @@ data class SykepengeSoeknadKafkaMelding(
         DATOER,
         BELOP,
         KILOMETER,
+        AAR_MAANED,
     }
 
     @Serializable
