@@ -48,7 +48,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
-                    orgnumre = setOf(forespoersel.orgnr),
+                    orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -81,7 +81,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
-                    orgnumre = setOf(filter.orgnr),
+                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
