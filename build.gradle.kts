@@ -24,7 +24,7 @@ val pdlKlientVersion: String by project
 val microMeterVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.2.0"
     kotlin("plugin.serialization")
     id("io.ktor.plugin") version "3.1.2"
     id("org.jmailen.kotlinter")
