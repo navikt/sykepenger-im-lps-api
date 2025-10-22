@@ -178,6 +178,7 @@ data class SykepengeSoeknadKafkaMelding(
         BEHANDLINGSDAGER,
         AVVENTENDE,
         REISETILSKUDD,
+        AAR_MAANED,
     }
 
     @Serializable
