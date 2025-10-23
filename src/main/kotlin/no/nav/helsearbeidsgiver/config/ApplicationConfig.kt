@@ -251,19 +251,18 @@ fun Application.configureKafkaConsumers(
             topic = getProperty("kafkaConsumer.sykmelding.topic"),
             consumer = sykmeldingKafkaConsumer,
             meldingTolker = tolkere.sykmeldingTolker,
-            unleashFeatureToggles::skalKonsumereSykmeldinger,
+            enabled = unleashFeatureToggles::skalKonsumereSykmeldinger,
         )
     }
 
-    if (unleashFeatureToggles.skalKonsumereSykepengesoeknader()) {
-        val soeknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.soeknad.topic"),
-                consumer = soeknadKafkaConsumer,
-                meldingTolker = tolkere.soeknadTolker,
-            )
-        }
+    val soeknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.soeknad.topic"),
+            consumer = soeknadKafkaConsumer,
+            meldingTolker = tolkere.soeknadTolker,
+            enabled = unleashFeatureToggles::skalKonsumereSykepengesoeknader,
+        )
     }
 
     if (unleashFeatureToggles.skalKonsumereStatusISpeil()) {
