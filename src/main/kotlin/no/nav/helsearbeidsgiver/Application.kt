@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.plugins.configureRouting
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -47,7 +48,7 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            apiModule(services = services, authClient = authClient)
+            apiModule(services = services, authClient = authClient, unleashFeatureToggles = unleashFeatureToggles)
             configureKafkaConsumers(tolkere = tolkere, unleashFeatureToggles = unleashFeatureToggles)
         },
     ).start(wait = true)
@@ -56,6 +57,7 @@ fun startServer() {
 fun Application.apiModule(
     services: Services,
     authClient: AuthClient,
+    unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     val logger = logger()
     logger.info("Starter applikasjon!")
@@ -66,5 +68,5 @@ fun Application.apiModule(
     configureAuth(authClient)
 
     logger.info("Setter opp routing...")
-    configureRouting(services)
+    configureRouting(services, unleashFeatureToggles)
 }

@@ -9,6 +9,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.mockk.every
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
@@ -34,6 +35,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     @BeforeEach
     fun setup() {
         mockPdpTilganger()
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
     }
 
     @AfterAll

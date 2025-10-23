@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
@@ -25,16 +26,26 @@ import java.util.UUID
 private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
 private val SOKNAD_RESSURS_GAMMEL = Env.getProperty("ALTINN_SOKNAD_RESSURS_GAMMEL")
 
-fun Route.soeknadV1(soeknadService: SoeknadService) {
+fun Route.soeknadV1(
+    soeknadService: SoeknadService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     route("/v1") {
-        soeknad(soeknadService)
-        filtrerSoeknader(soeknadService)
+        soeknad(soeknadService, unleashFeatureToggles)
+        filtrerSoeknader(soeknadService, unleashFeatureToggles)
     }
 }
 
-private fun Route.soeknad(soeknadService: SoeknadService) {
+private fun Route.soeknad(
+    soeknadService: SoeknadService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Hent én sykepengesøknad basert på søknadId
     get("/sykepengesoeknad/{soeknadId}") {
+        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
         try {
             val soeknadId = call.parameters["soeknadId"]?.let { UUID.fromString(it) }
             requireNotNull(soeknadId) { "soeknadId: $soeknadId ikke gyldig UUID" }
@@ -70,9 +81,17 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
     }
 }
 
-private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
+private fun Route.filtrerSoeknader(
+    soeknadService: SoeknadService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Filtrer søknader på orgnr (underenhet), fnr og/eller dato søknaden ble mottatt av NAV.
+
     post("/sykepengesoeknader") {
+        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@post
+        }
         try {
             val filter = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
