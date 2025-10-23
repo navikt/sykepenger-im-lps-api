@@ -74,6 +74,12 @@ class DialogportenService(
 
     fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
         val inntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        if (inntektsmelding == null) {
+            logger.warn(
+                "Klarte ikke å finne alle data til dialogmelding for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten.",
+            )
+            return
+        }
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmelding.orgnr)) {
             dialogProducer.send(inntektsmelding)
             logger.info(

@@ -80,7 +80,8 @@ class InnsendingIT {
             ).init()
         repositories = configureRepositories(db)
         services = configureServices(repositories, authClient, unleashFeatureToggles, db, mockk())
-        inntektsmeldingTolker = InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository)
+        inntektsmeldingTolker =
+            InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository, services.dialogportenService)
     }
 
     @Test

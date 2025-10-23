@@ -140,7 +140,7 @@ class InntektsmeldingRepository(
             }
         }
 
-    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): DialogInntektsmelding =
+    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): DialogInntektsmelding? =
         transaction(db) {
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
@@ -156,7 +156,7 @@ class InntektsmeldingRepository(
                         forespoerselId = row[navReferanseId],
                         status = row[status],
                     )
-                }.firstOrNull() ?: error("Fant ingen inntektsmelding med id=$inntektsmeldingId")
+                }.firstOrNull()
         }
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
