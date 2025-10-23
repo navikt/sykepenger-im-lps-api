@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
@@ -16,9 +18,10 @@ class AvvistInntektsmeldingServiceTest {
 
     @Test
     fun `oppdaterInnteksmeldingTilFeilet skal kalle inntektsmeldingRepository`() {
+        val inntektsmeldingId = UUID.randomUUID()
         val avvistInntektsmeldingMock =
             AvvistInntektsmelding(
-                inntektsmeldingId = UUID.randomUUID(),
+                inntektsmeldingId = inntektsmeldingId,
                 feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 
@@ -28,6 +31,11 @@ class AvvistInntektsmeldingServiceTest {
             )
         } returns 1
 
+        every {
+            dialogportenService.oppdaterDialogMedInntektsmelding(
+                inntektsmeldingId,
+            )
+        } just Runs
         avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(avvistInntektsmeldingMock)
 
         verify(exactly = 1) {
