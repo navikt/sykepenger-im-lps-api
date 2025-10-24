@@ -24,7 +24,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
-private val SOKNAD_RESSURS_GAMMEL = Env.getProperty("ALTINN_SOKNAD_RESSURS_GAMMEL")
+private val SOKNAD_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_SOKNAD_RESSURS_GAMMEL")
 
 fun Route.soeknadV1(
     soeknadService: SoeknadService,
@@ -60,7 +60,7 @@ private fun Route.soeknad(
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
                     orgnumre = setOf(soeknad.arbeidsgiver.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -97,7 +97,7 @@ private fun Route.filtrerSoeknader(
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
