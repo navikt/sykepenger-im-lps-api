@@ -101,7 +101,7 @@ spec:
       value: "nav_sykepenger_inntektsmelding"
     - name: ALTINN_SM_RESSURS
       value: "nav_sykepenger_sykmelding"
-    - name: ALTINN_SOKNAD_RESSURS
+    - name: ALTINN_SOEKNAD_RESSURS
       value: "nav_sykepenger_soeknad"
     - name: PDL_URL
       value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
