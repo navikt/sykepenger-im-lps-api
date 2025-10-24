@@ -37,7 +37,7 @@ import java.util.UUID
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-private val IM_RESSURS_GAMMEL = Env.getProperty("ALTINN_IM_RESSURS_GAMMEL")
+private val IM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_IM_RESSURS_GAMMEL")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
@@ -61,7 +61,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -128,7 +128,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -181,7 +181,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(inntektsmelding.arbeidsgiver.orgnr, systembrukerOrgnr),
                 )
             ) {
