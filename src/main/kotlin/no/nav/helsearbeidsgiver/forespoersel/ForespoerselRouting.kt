@@ -28,7 +28,7 @@ fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-private val IM_RESSURS_GAMMEL = Env.getProperty("ALTINN_IM_RESSURS_GAMMEL")
+private val IM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_IM_RESSURS_GAMMEL")
 
 private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     // Hent forespørsel med navReferanseId.
@@ -47,7 +47,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -80,7 +80,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
