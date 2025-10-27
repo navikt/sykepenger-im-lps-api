@@ -83,11 +83,11 @@ class DialogportenService(
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmelding.orgnr)) {
             dialogProducer.send(inntektsmelding)
             logger.info(
-                "Sendte melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingsId}, sykmeldingId: ${inntektsmelding.sykmeldingId}.",
+                "Sendte melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingId}, sykmeldingId: ${inntektsmelding.sykmeldingId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingsId}, sykmeldingId: ${inntektsmelding.sykmeldingId}, fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingId}, sykmeldingId: ${inntektsmelding.sykmeldingId}, fordi feature toggle er av.",
             )
         }
     }

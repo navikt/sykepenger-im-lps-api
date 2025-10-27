@@ -43,10 +43,10 @@ data class DialogInntektsmeldingsforespoersel(
 ) : DialogMelding()
 
 @Serializable
-@SerialName("Inntektsmeldings")
+@SerialName("Inntektsmelding")
 data class DialogInntektsmelding(
     val forespoerselId: UUID,
-    val innsendingsId: UUID,
+    val innsendingId: UUID,
     val sykmeldingId: UUID,
     val orgnr: String,
     val status: InnsendingStatus,

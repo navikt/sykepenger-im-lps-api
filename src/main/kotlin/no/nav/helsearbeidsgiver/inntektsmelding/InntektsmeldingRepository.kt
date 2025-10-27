@@ -151,7 +151,7 @@ class InntektsmeldingRepository(
                 .map { row ->
                     DialogInntektsmelding(
                         orgnr = row[orgnr],
-                        innsendingsId = row[innsendingId],
+                        innsendingId = row[innsendingId],
                         sykmeldingId = row[SoeknadEntitet.sykmeldingId],
                         forespoerselId = row[navReferanseId],
                         status = row[status],

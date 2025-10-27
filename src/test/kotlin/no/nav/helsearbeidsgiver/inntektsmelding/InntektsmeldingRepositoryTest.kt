@@ -336,7 +336,7 @@ class InntektsmeldingRepositoryTest {
         val inntektsmeldingDialogMelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
         assertNotNull(inntektsmeldingDialogMelding)
         assertEquals(DEFAULT_ORG, inntektsmeldingDialogMelding.orgnr)
-        assertEquals(inntektsmeldingId, inntektsmeldingDialogMelding.innsendingsId)
+        assertEquals(inntektsmeldingId, inntektsmeldingDialogMelding.innsendingId)
         assertEquals(sykmeldingId, inntektsmeldingDialogMelding.sykmeldingId)
         assertEquals(forespoerselId, inntektsmeldingDialogMelding.forespoerselId)
         assertEquals(InnsendingStatus.GODKJENT, inntektsmeldingDialogMelding.status)
