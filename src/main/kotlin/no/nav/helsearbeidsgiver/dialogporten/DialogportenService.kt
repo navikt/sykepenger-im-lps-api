@@ -73,21 +73,21 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
-        val inntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
-        if (inntektsmelding == null) {
+        val dialogInntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        if (dialogInntektsmelding == null) {
             logger.warn(
                 "Klarte ikke å finne alle data til dialogmelding for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten.",
             )
             return
         }
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmelding.orgnr)) {
-            dialogProducer.send(inntektsmelding)
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
+            dialogProducer.send(dialogInntektsmelding)
             logger.info(
-                "Sendte melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingId}, sykmeldingId: ${inntektsmelding.sykmeldingId}.",
+                "Sendte melding til hag-dialog for inntektsmelding med innsendingsId: ${dialogInntektsmelding.innsendingId}, sykmeldingId: ${dialogInntektsmelding.sykmeldingId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${inntektsmelding.innsendingId}, sykmeldingId: ${inntektsmelding.sykmeldingId}, fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${dialogInntektsmelding.innsendingId}, sykmeldingId: ${dialogInntektsmelding.sykmeldingId}, fordi feature toggle er av.",
             )
         }
     }
