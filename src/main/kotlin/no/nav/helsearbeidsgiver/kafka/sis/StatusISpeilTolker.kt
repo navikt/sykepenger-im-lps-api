@@ -24,14 +24,21 @@ class StatusISpeilTolker(
                     "${behandlingstatusmelding.eksterneSøknadIder}.",
             )
             if (behandlingstatusmelding.status == Behandlingstatusmelding.Behandlingstatustype.OPPRETTET) {
-                logger.info(
-                    "Oppdater søknader ${behandlingstatusmelding.eksterneSøknadIder} med vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId}",
-                )
-                soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(
-                    behandlingstatusmelding.eksterneSøknadIder,
-                    behandlingstatusmelding.vedtaksperiodeId,
-                )
-                statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
+                if (behandlingstatusmelding.eksterneSøknadIder == null) {
+                    logger.warn(
+                        "VedtaksperiodeId: ${behandlingstatusmelding.vedtaksperiodeId} har status ${behandlingstatusmelding.status} - kan ikke kombineres med eksterneSøknadIder=null, ignorerer meldingen",
+                    )
+                    return
+                } else {
+                    logger.info(
+                        "Oppdater søknader ${behandlingstatusmelding.eksterneSøknadIder} med vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId}",
+                    )
+                    soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(
+                        behandlingstatusmelding.eksterneSøknadIder,
+                        behandlingstatusmelding.vedtaksperiodeId,
+                    )
+                    statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
+                }
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på Behandlingstatusmelding, melding=$melding", serializationException)
