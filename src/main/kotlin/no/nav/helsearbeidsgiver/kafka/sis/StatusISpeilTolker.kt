@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.sis
 
+import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -32,6 +33,9 @@ class StatusISpeilTolker(
                 )
                 statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
             }
+        } catch (serializationException: SerializationException) {
+            sikkerLogger.error("Feil format på Behandlingstatusmelding, melding=$melding", serializationException)
+            throw serializationException
         } catch (e: Exception) {
             val errorMsg = "Klarte ikke å lagre status-i-speil-melding!"
             logger.error(errorMsg)
