@@ -82,9 +82,9 @@ private fun Route.sendInntektsmelding(services: Services) {
 
             request.validerMotForespoersel(forespoersel)?.let {
                 MdcUtils.withLogFields(
-                    "avsender_system_navn" to request.avsender.systemNavn,
-                    "avsender_system_versjon" to request.avsender.systemVersjon,
-                    "feil_melding" to it,
+                    "hag_avsender_system_navn" to request.avsender.systemNavn,
+                    "hag_avsender_system_versjon" to request.avsender.systemVersjon,
+                    "hag_feilmelding" to it,
                 ) {
                     sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
                     logger().warn("Mottatt ugyldig innsending: $it")
