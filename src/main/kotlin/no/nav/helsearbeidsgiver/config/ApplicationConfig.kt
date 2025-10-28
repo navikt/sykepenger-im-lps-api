@@ -263,15 +263,14 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    if (unleashFeatureToggles.skalKonsumereStatusISpeil()) {
-        val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sis"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.sis.topic"),
-                consumer = statusISpeilKafkaConsumer,
-                meldingTolker = tolkere.statusISpeilTolker,
-            )
-        }
+    val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sis"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.sis.topic"),
+            consumer = statusISpeilKafkaConsumer,
+            meldingTolker = tolkere.statusISpeilTolker,
+            enabled = unleashFeatureToggles::skalKonsumereStatusISpeil,
+        )
     }
 
     if (unleashFeatureToggles.skalKonsumereAvvisteInntektsmeldinger()) {
