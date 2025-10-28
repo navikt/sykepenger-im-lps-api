@@ -11,7 +11,7 @@ class AvvistInntektsmeldingService(
 
     fun oppdaterInnteksmeldingTilFeilet(avvistInntektsmelding: AvvistInntektsmelding) {
         when (
-            val antallRaderOppdatert = inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(avvistInntektsmelding)
+            inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(avvistInntektsmelding)
         ) {
             0 ->
                 logger.error(
@@ -19,18 +19,13 @@ class AvvistInntektsmeldingService(
                         "med feilkode ${avvistInntektsmelding.feilkode} fordi den ikke finnes i databasen.",
                 )
 
-            1 -> {
+            else -> {
                 logger.info(
                     "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
                         "med feilkode ${avvistInntektsmelding.feilkode}.",
                 )
                 dialogportenService.oppdaterDialogMedInntektsmelding(avvistInntektsmelding.inntektsmeldingId)
             }
-            else ->
-                logger.warn(
-                    "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
-                        "med feilkode ${avvistInntektsmelding.feilkode}. Oppdaterte et uventet antall rader: $antallRaderOppdatert.",
-                )
         }
     }
 }
