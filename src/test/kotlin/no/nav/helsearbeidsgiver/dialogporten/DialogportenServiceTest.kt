@@ -250,6 +250,32 @@ class DialogportenServiceTest {
         }
     }
 
+    @Test
+    fun `dialogportenservice kaller dialogProducer ved mottatt inntektsmelding`() {
+        val orgnr = Orgnr.genererGyldig()
+        val inntektsmeldingId = UUID.randomUUID()
+        val sykmeldingId = UUID.randomUUID()
+        val innsendingId = UUID.randomUUID()
+        val dialogInntektsmelding =
+            DialogInntektsmelding(
+                forespoerselId = UUID.randomUUID(),
+                innsendingId = innsendingId,
+                sykmeldingId = sykmeldingId,
+                orgnr = orgnr.toString(),
+                status = mockk(),
+            )
+
+        coEvery { mockDialogProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        every { mockInntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId) } returns dialogInntektsmelding
+
+        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmeldingId)
+
+        verifySequence {
+            mockDialogProducer.send(dialogInntektsmelding)
+        }
+    }
+
     private fun genererDialogSykmelding(): DialogSykmelding =
         DialogSykmelding(
             sykmeldingId = UUID.randomUUID(),
