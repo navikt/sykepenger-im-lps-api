@@ -111,6 +111,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
+            services.dialogportenService.oppdaterDialogMedInntektsmelding(innsending.innsendingId)
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
