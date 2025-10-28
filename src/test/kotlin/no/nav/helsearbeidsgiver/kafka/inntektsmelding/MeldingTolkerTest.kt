@@ -42,6 +42,8 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_STATUS_VENTER
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
@@ -222,6 +224,28 @@ class MeldingTolkerTest {
         assertDoesNotThrow {
             tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
         }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding ignorerer Behandlingstatusmelding uten eksternSoknadIder`() {
+        val sisMeldingJson =
+            STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
+        verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
+        verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding ignorerer Behandlingstatusmelding med status venter`() {
+        val sisMeldingJson =
+            STATUS_I_SPLEIS_MELDING_STATUS_VENTER.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
+        verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
+        verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
     }
 
     @Test
