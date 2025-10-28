@@ -15,7 +15,7 @@ data class Behandlingstatusmelding(
     val behandlingId: UUID,
     val tidspunkt: OffsetDateTime,
     val status: Behandlingstatustype,
-    val eksterneSøknadIder: Set<UUID>,
+    val eksterneSøknadIder: Set<UUID>? = null,
 ) {
     val versjon = "2.0.2" // TODO: Trengs denne?
 
