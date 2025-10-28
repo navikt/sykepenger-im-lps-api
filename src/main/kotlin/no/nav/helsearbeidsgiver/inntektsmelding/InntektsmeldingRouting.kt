@@ -24,6 +24,8 @@ import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.log.MdcUtils
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.tilInnsending
@@ -79,7 +81,14 @@ private fun Route.sendInntektsmelding(services: Services) {
             }
 
             request.validerMotForespoersel(forespoersel)?.let {
-                sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
+                MdcUtils.withLogFields(
+                    "hag_avsender_system_navn" to request.avsender.systemNavn,
+                    "hag_avsender_system_versjon" to request.avsender.systemVersjon,
+                    "hag_feilmelding" to it,
+                ) {
+                    sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
+                    logger().warn("Mottatt ugyldig innsending: $it")
+                }
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
             val sisteInntektsmelding =
