@@ -33,13 +33,12 @@ class InntektsmeldingTolker(
                 if (innsendtFraNavPortal(obj.inntektsmelding.type)) { // TODO: flytt denne sjekken inn i Service
                     sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
                     inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
-                    dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
                 } else {
                     sikkerLogger.info("Mottok im sendt fra LPS - oppdaterer status")
                     inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
-                    dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
+                dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
             } catch (e: Exception) {
                 rollback()
                 sikkerLogger.error("Klarte ikke å lagre i database!", e)
