@@ -28,8 +28,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
@@ -67,7 +65,6 @@ class InntektsmeldingRepository(
 
     fun hent(filter: InntektsmeldingFilter): List<InntektsmeldingResponse> =
         transaction(db) {
-            addLogger(StdOutSqlLogger)
             val query =
                 InntektsmeldingEntitet
                     .selectAll()
