@@ -39,9 +39,14 @@ private fun createKafkaConsumerConfig(
     singlePoll: Boolean,
 ): Properties {
     val singlePollerProperties =
-        mapOf(
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
-        )
+        if (singlePoll) {
+            mapOf(
+                ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+            )
+        } else {
+            emptyMap()
+        }
+
     val consumerKafkaProperties =
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
@@ -58,7 +63,7 @@ private fun createKafkaConsumerConfig(
             ConsumerConfig.CLIENT_ID_CONFIG to "sykepenger-im-lps-api-$consumerName",
         )
     return Properties().apply {
-        putAll(consumerKafkaProperties + commonKafkaProperties() + if (singlePoll) singlePollerProperties else emptyMap())
+        putAll(consumerKafkaProperties + commonKafkaProperties() + singlePollerProperties)
     }
 }
 
