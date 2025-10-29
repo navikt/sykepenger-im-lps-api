@@ -6,6 +6,8 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.OffsetAndMetadata
+import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
@@ -24,12 +26,16 @@ suspend fun startKafkaConsumer(
             if (!enabled()) {
                 return@collect
             }
+            val partition = record.partition()
+            val topicPartition = TopicPartition(record.topic(), partition)
+            val nyttOffset = OffsetAndMetadata(record.offset() + 1)
             // Obs: record.value() kan være null fordi det er implementert i Java
             when (val value: String? = record.value()) {
-                null ->
+                null -> {
                     logger.warn(
                         "Mottok melding med null som value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}",
                     )
+                }
                 else -> {
                     if (record.timestamp().erInnenforSiste2Aar()) {
                         meldingTolker.lesMelding(value)
@@ -41,7 +47,7 @@ suspend fun startKafkaConsumer(
                     }
                 }
             }
-            consumer.commitSync()
+            consumer.commitSync(mapOf(topicPartition to nyttOffset))
         } catch (e: Exception) {
             "Feil ved polling / lagring, avslutter! Pod må restartes! Topic = $topic, KafkaPartition = ${record.partition()} og Offset = ${record.offset()}"
                 .let {
