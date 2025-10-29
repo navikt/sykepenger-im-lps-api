@@ -121,14 +121,6 @@ class KafkaCommitOffsetTest {
         val meldingTolker = mockk<MeldingTolker>()
         every { meldingTolker.lesMelding("ok") } just runs
         every { meldingTolker.lesMelding("feil") } throws Exception("feil")
-//        val forespoerselTolker =
-//            spyk(
-//                ForespoerselTolker(
-//                    mockk(relaxed = true),
-//                    mockk(relaxed = true),
-//                    mockk(relaxed = true),
-//                ),
-//            )
         val topicPartition = TopicPartition("test", 0)
         val mockRecord =
             ConsumerRecords(
