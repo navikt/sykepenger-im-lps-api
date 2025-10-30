@@ -32,7 +32,7 @@ data class Sykmelding(
     @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
     val kontaktMedPasient: LocalDateTime,
     val behandler: Behandler?,
-    val arbeidsgiver: Arbeidsgiver,
+    val arbeidsgiver: SykmeldingArbeidsgiver,
 )
 
 @Serializable
@@ -94,7 +94,7 @@ data class Behandler(
 )
 
 @Serializable
-data class Arbeidsgiver(
+data class SykmeldingArbeidsgiver(
     @field:Schema(description = "Navn på arbeidsgiver slik det fremkommer av sykmeldingen. Dette navnet fylles ut av lege.")
     val navn: String? = null,
     @field:Schema(description = "Orgnr for underenheten i bedriften den sykmeldte er knyttet til")

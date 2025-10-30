@@ -44,11 +44,11 @@ private fun SykepengeSoeknadKafkaMelding.utledSendtTid(): LocalDateTime {
     return sendtArbeidsgiver
 }
 
-private fun SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.Arbeidsgiver {
+private fun SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.SykepengesoeknadArbeidsgiver {
     requireNotNull(this)
     requireNotNull(navn)
     requireNotNull(orgnummer)
-    return Sykepengesoeknad.Arbeidsgiver(
+    return Sykepengesoeknad.SykepengesoeknadArbeidsgiver(
         navn = navn,
         orgnr = orgnummer,
     )

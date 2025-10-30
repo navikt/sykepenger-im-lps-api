@@ -168,7 +168,7 @@ class InntektsmeldingRepository(
             typeInnsending = this[typeInnsending],
             innsendtTid = this[innsendt],
             versjon = this[versjon],
-            arbeidsgiver = Arbeidsgiver(this[orgnr], this[skjema].avsenderTlf),
+            arbeidsgiver = InntektsmeldingArbeidsgiver(orgnr = this[orgnr], tlf = this[skjema].avsenderTlf),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
             valideringsfeil = this[feilkode]?.let { Valideringsfeil(feilkode = it, feilmelding = it.feilmelding) },
