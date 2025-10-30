@@ -8,11 +8,13 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
+import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.record.TimestampType
 import org.junit.jupiter.api.Test
@@ -60,7 +62,7 @@ class KafkaCommitOffsetTest {
             } catch (e: Exception) {
             } finally {
                 verify(exactly = 1) { kafkaConsumer.poll(any<Duration>()) }
-                verify(exactly = 0) { kafkaConsumer.commitSync() }
+                verify(exactly = 0) { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) }
             }
         }
     }
@@ -99,7 +101,7 @@ class KafkaCommitOffsetTest {
                 "au",
             )
 
-        every { kafkaConsumer.commitSync() } just runs
+        every { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) } just runs
 
         runTest(timeout = 500.milliseconds) {
             try {
@@ -108,7 +110,67 @@ class KafkaCommitOffsetTest {
                 // Ignorerer exception
             }
             verify(exactly = 0) { forespoerselTolker.lesMelding(any()) }
-            verify(exactly = 1) { kafkaConsumer.commitSync() }
+            verify(exactly = 1) { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) }
+        }
+    }
+
+    @Test
+    fun `ikke commit offsets for feilende meldinger i batch`() {
+        val kafkaConsumer = mockk<KafkaConsumer<String, String>>(relaxed = true)
+
+        val meldingTolker = mockk<MeldingTolker>()
+        every { meldingTolker.lesMelding("ok") } just runs
+        every { meldingTolker.lesMelding("feil") } throws Exception("feil")
+        val topicPartition = TopicPartition("test", 0)
+        val mockRecord =
+            ConsumerRecords(
+                mapOf(
+                    topicPartition to
+                        listOf(
+                            ConsumerRecord<String, String>(
+                                "test",
+                                0,
+                                0L,
+                                System.currentTimeMillis(),
+                                TimestampType.CREATE_TIME,
+                                1,
+                                2,
+                                3,
+                                "key",
+                                "ok",
+                            ),
+                            ConsumerRecord<String, String>(
+                                "test",
+                                0,
+                                1L,
+                                System.currentTimeMillis(),
+                                TimestampType.CREATE_TIME,
+                                1,
+                                2,
+                                3,
+                                "key",
+                                "feil",
+                            ),
+                        ),
+                ),
+            )
+
+        every { kafkaConsumer.subscribe(listOf("test")) } just runs
+        val slot = slot<Set<TopicPartition>>()
+        every { kafkaConsumer.pause(capture(slot)) } just runs
+        every { kafkaConsumer.paused() } returns if (slot.isCaptured) slot.captured else emptySet()
+
+        every { kafkaConsumer.poll(any<Duration>()) } returnsMany listOf(mockRecord)
+        every { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) } just runs
+
+        runTest(timeout = 500.milliseconds) {
+            try {
+                startKafkaConsumer("test", kafkaConsumer, meldingTolker)
+            } catch (e: Exception) {
+                // Ignorerer exception
+            }
+            verify(exactly = 2) { meldingTolker.lesMelding(any()) }
+            verify(exactly = 1) { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) }
         }
     }
 }

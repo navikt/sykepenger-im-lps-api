@@ -10,25 +10,11 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
 
-fun createKafkaConsumerConfig(consumerName: String): Properties {
-    val consumerKafkaProperties =
-        mapOf(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
-                resolveKafkaBrokers(),
-            ConsumerConfig.GROUP_ID_CONFIG to (
-                Env.getPropertyOrNull("KAFKA_GROUP_ID")
-                    ?: "helsearbeidsgiver-sykepenger-im-lps-api-v1"
-            ),
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
-            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
-            ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
-            ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "30000",
-            ConsumerConfig.CLIENT_ID_CONFIG to "sykepenger-im-lps-api-$consumerName",
-        )
-    return Properties().apply { putAll(consumerKafkaProperties + commonKafkaProperties()) }
-}
+fun createKafkaConsumerSinglePollerConfig(consumerName: String): Properties =
+    createKafkaConsumerConfig(consumerName = consumerName, singlePoll = true)
+
+fun createKafkaConsumerMultiPollerConfig(consumerName: String): Properties =
+    createKafkaConsumerConfig(consumerName = consumerName, singlePoll = false)
 
 fun createKafkaProducerConfig(producerName: String): Properties {
     val producerKafkaProperties =
@@ -46,6 +32,39 @@ fun createKafkaProducerConfig(producerName: String): Properties {
         )
 
     return Properties().apply { putAll(producerKafkaProperties + commonKafkaProperties()) }
+}
+
+private fun createKafkaConsumerConfig(
+    consumerName: String,
+    singlePoll: Boolean,
+): Properties {
+    val singlePollerProperties =
+        if (singlePoll) {
+            mapOf(
+                ConsumerConfig.MAX_POLL_RECORDS_CONFIG to "1",
+            )
+        } else {
+            emptyMap()
+        }
+
+    val consumerKafkaProperties =
+        mapOf(
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
+                resolveKafkaBrokers(),
+            ConsumerConfig.GROUP_ID_CONFIG to (
+                Env.getPropertyOrNull("KAFKA_GROUP_ID")
+                    ?: "helsearbeidsgiver-sykepenger-im-lps-api-v1"
+            ),
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
+            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
+            ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG to "30000",
+            ConsumerConfig.CLIENT_ID_CONFIG to "sykepenger-im-lps-api-$consumerName",
+        )
+    return Properties().apply {
+        putAll(consumerKafkaProperties + commonKafkaProperties() + singlePollerProperties)
+    }
 }
 
 private fun resolveKafkaBrokers() =
