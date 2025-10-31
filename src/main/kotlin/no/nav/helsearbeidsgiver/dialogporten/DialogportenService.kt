@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -10,6 +11,7 @@ import java.util.UUID
 class DialogportenService(
     val dialogProducer: DialogProducer,
     val soeknadRepository: SoeknadRepository,
+    val inntektsmeldingRepository: InntektsmeldingRepository,
     val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
@@ -66,6 +68,26 @@ class DialogportenService(
         } else {
             logger.info(
                 "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, fordi feature toggle er av.",
+            )
+        }
+    }
+
+    fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
+        val dialogInntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        if (dialogInntektsmelding == null) {
+            logger.warn(
+                "Klarte ikke å finne alle data til dialogmelding for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten.",
+            )
+            return
+        }
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
+            dialogProducer.send(dialogInntektsmelding)
+            logger.info(
+                "Sendte melding til hag-dialog for inntektsmelding med innsendingsId: ${dialogInntektsmelding.innsendingId}, sykmeldingId: ${dialogInntektsmelding.sykmeldingId}.",
+            )
+        } else {
+            logger.info(
+                "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${dialogInntektsmelding.innsendingId}, sykmeldingId: ${dialogInntektsmelding.sykmeldingId}, fordi feature toggle er av.",
             )
         }
     }

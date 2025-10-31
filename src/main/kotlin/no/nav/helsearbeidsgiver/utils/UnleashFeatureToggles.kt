@@ -49,6 +49,13 @@ class UnleashFeatureToggles(
             false,
         )
 
+    fun skalOppdatereDialogVedMottattInntektsmelding(orgnr: String): Boolean =
+        unleashClient.isEnabled(
+            "oppdater-dialog-ved-mottatt-inntektsmelding",
+            UnleashContext.builder().addProperty("orgnr", orgnr).build(),
+            false,
+        )
+
     fun skalSendeApiInnsendteImerTilSimba(): Boolean =
         unleashClient.isEnabled(
             "send-api-innsendte-imer-til-simba",
@@ -64,6 +71,13 @@ class UnleashFeatureToggles(
     fun skalKonsumereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykepengesoknader",
+            false,
+        )
+
+    // TODO: Skal fjernes så fort vi får juridisk avklaring på at det er OK å eksponere
+    fun skalEksponereSykepengesoeknader(): Boolean =
+        unleashClient.isEnabled(
+            "eksponer-soeknad-i-api",
             false,
         )
 

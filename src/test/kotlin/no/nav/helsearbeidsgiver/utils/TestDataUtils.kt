@@ -16,9 +16,9 @@ import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
-import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
@@ -191,7 +191,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         typeInnsending = InnsendingType.from(im.type),
         innsendtTid = im.mottatt.toLocalDateTime(),
         versjon = 1,
-        arbeidsgiver = Arbeidsgiver(im.avsender.orgnr.verdi, im.avsender.tlf),
+        arbeidsgiver = InntektsmeldingArbeidsgiver(im.avsender.orgnr.verdi, im.avsender.tlf),
         avsender = Avsender(im.type.avsenderSystem.navn, im.type.avsenderSystem.versjon),
         status = InnsendingStatus.MOTTATT,
         valideringsfeil = null,

@@ -28,7 +28,8 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
-import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerConfig
+import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerMultiPollerConfig
+import no.nav.helsearbeidsgiver.kafka.createKafkaConsumerSinglePollerConfig
 import no.nav.helsearbeidsgiver.kafka.createKafkaProducerConfig
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
@@ -105,6 +106,7 @@ fun configureTolkere(
         InntektsmeldingTolker(
             inntektsmeldingService = services.inntektsmeldingService,
             mottakRepository = repositories.mottakRepository,
+            dialogportenService = services.dialogportenService,
         )
     val forespoerselTolker =
         ForespoerselTolker(
@@ -200,11 +202,12 @@ fun configureServices(
             dialogProducer = dialogProducer,
             soeknadRepository = repositories.soeknadRepository,
             unleashFeatureToggles = unleashFeatureToggles,
+            inntektsmeldingRepository = repositories.inntektsmeldingRepository,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
-    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository)
+    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
 
     return Services(
         forespoerselService,
@@ -225,7 +228,7 @@ fun Application.configureKafkaConsumers(
     tolkere: Tolkere,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("im"))
+    val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(
             getProperty("kafkaConsumer.inntektsmelding.topic"),
@@ -234,7 +237,7 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("fsp"))
+    val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("fsp"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(
             getProperty("kafkaConsumer.forespoersel.topic"),
@@ -243,41 +246,39 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sm"))
+    val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("sm"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(
             topic = getProperty("kafkaConsumer.sykmelding.topic"),
             consumer = sykmeldingKafkaConsumer,
             meldingTolker = tolkere.sykmeldingTolker,
-            unleashFeatureToggles::skalKonsumereSykmeldinger,
+            enabled = unleashFeatureToggles::skalKonsumereSykmeldinger,
         )
     }
 
-    if (unleashFeatureToggles.skalKonsumereSykepengesoeknader()) {
-        val soeknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("so"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.soeknad.topic"),
-                consumer = soeknadKafkaConsumer,
-                meldingTolker = tolkere.soeknadTolker,
-            )
-        }
+    val soeknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("so"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.soeknad.topic"),
+            consumer = soeknadKafkaConsumer,
+            meldingTolker = tolkere.soeknadTolker,
+            enabled = unleashFeatureToggles::skalKonsumereSykepengesoeknader,
+        )
     }
 
-    if (unleashFeatureToggles.skalKonsumereStatusISpeil()) {
-        val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerConfig("sis"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.sis.topic"),
-                consumer = statusISpeilKafkaConsumer,
-                meldingTolker = tolkere.statusISpeilTolker,
-            )
-        }
+    val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerMultiPollerConfig("sis"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.sis.topic"),
+            consumer = statusISpeilKafkaConsumer,
+            meldingTolker = tolkere.statusISpeilTolker,
+            enabled = unleashFeatureToggles::skalKonsumereStatusISpeil,
+        )
     }
 
     if (unleashFeatureToggles.skalKonsumereAvvisteInntektsmeldinger()) {
         val avvistInntektsmeldingKafkaConsumer =
-            KafkaConsumer<String, String>(createKafkaConsumerConfig("im-avvist"))
+            KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im-avvist"))
         launch(Dispatchers.Default) {
             startKafkaConsumer(
                 topic = getProperty("kafkaConsumer.innsending.topic"),

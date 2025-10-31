@@ -24,6 +24,8 @@ import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.utils.log.MdcUtils
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.tilInnsending
@@ -37,7 +39,7 @@ import java.util.UUID
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-private val IM_RESSURS_GAMMEL = Env.getProperty("ALTINN_IM_RESSURS_GAMMEL")
+private val IM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_IM_RESSURS_GAMMEL")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
@@ -61,7 +63,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -79,7 +81,14 @@ private fun Route.sendInntektsmelding(services: Services) {
             }
 
             request.validerMotForespoersel(forespoersel)?.let {
-                sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
+                MdcUtils.withLogFields(
+                    "hag_avsender_system_navn" to request.avsender.systemNavn,
+                    "hag_avsender_system_versjon" to request.avsender.systemVersjon,
+                    "hag_feilmelding" to it,
+                ) {
+                    sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
+                    logger().warn("Mottatt ugyldig innsending: $it")
+                }
                 return@post call.respond(HttpStatusCode.BadRequest, it)
             }
             val sisteInntektsmelding =
@@ -111,6 +120,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
+            services.dialogportenService.oppdaterDialogMedInntektsmelding(innsending.innsendingId)
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
@@ -128,7 +138,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {
@@ -181,7 +191,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(IM_RESSURS, IM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
                     orgnumre = setOf(inntektsmelding.arbeidsgiver.orgnr, systembrukerOrgnr),
                 )
             ) {

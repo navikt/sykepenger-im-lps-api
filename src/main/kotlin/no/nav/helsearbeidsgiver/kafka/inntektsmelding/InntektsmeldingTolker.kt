@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory
 class InntektsmeldingTolker(
     private val inntektsmeldingService: InntektsmeldingService,
     private val mottakRepository: MottakRepository,
+    private val dialogportenService: DialogportenService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
@@ -36,6 +38,7 @@ class InntektsmeldingTolker(
                     inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
+                dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
             } catch (e: Exception) {
                 rollback()
                 sikkerLogger.error("Klarte ikke å lagre i database!", e)
@@ -52,6 +55,7 @@ class InntektsmeldingTolker(
             is Inntektsmelding.Type.UtenArbeidsforhold,
             is Inntektsmelding.Type.Behandlingsdager,
             -> true
+
             is Inntektsmelding.Type.ForespurtEkstern -> false
         }
 

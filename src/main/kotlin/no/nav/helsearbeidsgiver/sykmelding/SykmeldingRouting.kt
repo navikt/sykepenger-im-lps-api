@@ -24,7 +24,7 @@ import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
-private val SM_RESSURS_GAMMEL = Env.getProperty("ALTINN_SM_RESSURS_GAMMEL")
+private val SM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_SM_RESSURS_GAMMEL")
 
 fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
@@ -50,7 +50,7 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(SM_RESSURS, SM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(SM_RESSURS, SM_RESSURS_GAMMEL),
                     orgnumre = setOf(sykmelding.arbeidsgiver.orgnr.toString(), systembrukerOrgnr),
                 )
             ) {
@@ -81,7 +81,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOf(SM_RESSURS, SM_RESSURS_GAMMEL),
+                    ressurser = setOfNotNull(SM_RESSURS, SM_RESSURS_GAMMEL),
                     orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
                 )
             ) {

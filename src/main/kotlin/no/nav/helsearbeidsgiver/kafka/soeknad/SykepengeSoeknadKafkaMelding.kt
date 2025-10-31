@@ -223,6 +223,7 @@ data class SykepengeSoeknadKafkaMelding(
         DATOER,
         BELOP,
         KILOMETER,
+        AAR_MAANED,
     }
 
     @Serializable

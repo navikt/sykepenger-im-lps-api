@@ -19,8 +19,8 @@ class StatusISpeilRepository(
                     .where { StatusISpeilEntitet.vedtaksperiodeId eq behandlingstatusmelding.vedtaksperiodeId }
                     .map { it[StatusISpeilEntitet.soeknadId] }
                     .toSet()
-            val nyeSoeknadIder = behandlingstatusmelding.eksterneSøknadIder.minus(eksisterendeSoeknadIder)
-            nyeSoeknadIder.forEach { soeknadId ->
+            val nyeSoeknadIder = behandlingstatusmelding.eksterneSøknadIder?.minus(eksisterendeSoeknadIder)
+            nyeSoeknadIder?.forEach { soeknadId ->
                 logger().info("Lagrer soeknad $soeknadId på vedtaksperiode ${behandlingstatusmelding.vedtaksperiodeId}")
                 StatusISpeilEntitet.insert {
                     it[StatusISpeilEntitet.soeknadId] = soeknadId

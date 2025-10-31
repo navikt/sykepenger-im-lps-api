@@ -15,8 +15,12 @@ import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 
-fun Application.configureRouting(services: Services) {
+fun Application.configureRouting(
+    services: Services,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     routing {
         metrikkRoutes()
         naisRoutes(services.helseSjekkService)
@@ -27,7 +31,7 @@ fun Application.configureRouting(services: Services) {
             )
             forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
-            soeknadV1(soeknadService = services.soeknadService)
+            soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
     }
 }

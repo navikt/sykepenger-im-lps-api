@@ -19,7 +19,7 @@ import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Status
-import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiver
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -174,7 +174,7 @@ class InnsendingRouteTest : ApiTest() {
             mockInntektsmeldingResponse().copy(
                 id = UUID.randomUUID(),
                 navReferanseId = requestBody.navReferanseId,
-                arbeidsgiver = Arbeidsgiver(DEFAULT_ORG, requestBody.arbeidsgiverTlf),
+                arbeidsgiver = InntektsmeldingArbeidsgiver(DEFAULT_ORG, requestBody.arbeidsgiverTlf),
                 inntekt = requestBody.inntekt,
                 refusjon = requestBody.refusjon,
                 agp = requestBody.agp,

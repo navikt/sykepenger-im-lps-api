@@ -818,6 +818,26 @@ object TestData {
         }
     """
 
+    const val STATUS_I_SPLEIS_MELDING_STATUS_VENTER = """
+        {
+            "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
+            "behandlingId": "5ea3b4ce-988e-4c01-9a35-3a449f11be62",
+            "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
+            "status": "VENTER_PÅ_SAKSBEHANDLER",
+            "versjon": "2.0.2"
+        }
+    """
+
+    const val STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID = """
+        {
+            "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
+            "behandlingId": "5ea3b4ce-988e-4c01-9a35-3a449f11be62",
+            "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
+            "status": "OPPRETTET",
+            "versjon": "2.0.2"
+        }
+    """
+
     const val API_INNSENDING_MELDING = """
          {
             "@event_name": "API_INNSENDING_STARTET",
@@ -886,11 +906,12 @@ object TestData {
         orgnr: String,
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
+        vedtaksperiodeId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
         orgnr = orgnr,
         fnr = fnr,
         forespoerselId = forespoerselId,
-        vedtaksperiodeId = UUID.randomUUID(),
+        vedtaksperiodeId = vedtaksperiodeId,
         egenmeldingsperioder = emptyList(),
         sykmeldingsperioder = emptyList(),
         bestemmendeFravaersdager = emptyMap(),

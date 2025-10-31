@@ -33,7 +33,7 @@ data class InntektsmeldingResponse(
     val typeInnsending: InnsendingType,
     val innsendtTid: LocalDateTime,
     val versjon: Int,
-    val arbeidsgiver: Arbeidsgiver,
+    val arbeidsgiver: InntektsmeldingArbeidsgiver,
     val avsender: Avsender,
     val status: InnsendingStatus,
     val valideringsfeil: Valideringsfeil? = null,
@@ -76,7 +76,7 @@ enum class InnsendingType {
 }
 
 @Serializable
-data class Arbeidsgiver(
+data class InntektsmeldingArbeidsgiver(
     val orgnr: String, // Arbeidsgivers orgnr
     val tlf: String, // Arbeidsgiver
 )
