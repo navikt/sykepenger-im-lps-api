@@ -29,7 +29,7 @@ data class Sykepengesoeknad(
     val tom: LocalDate?,
     val arbeidGjenopptattDato: LocalDate?,
     val mottatTid: LocalDateTime,
-    val arbeidsgiver: Arbeidsgiver,
+    val arbeidsgiver: SykepengesoeknadArbeidsgiver,
     val soektUtenlandsopphold: Boolean?,
     val korrigerer: UUID?,
     val soeknadsperioder: List<Soeknadsperiode>,
@@ -47,7 +47,7 @@ data class Sykepengesoeknad(
     }
 
     @Serializable
-    data class Arbeidsgiver(
+    data class SykepengesoeknadArbeidsgiver(
         val navn: String,
         val orgnr: String,
     )

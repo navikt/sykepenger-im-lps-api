@@ -341,6 +341,12 @@ paths:
           schema:
             type: "string"
       responses:
+        "403":
+          description: "Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: "object"
         "404":
           description: "Not Found"
           content:
@@ -398,6 +404,12 @@ paths:
               $ref: "#/components/schemas/SykepengesoeknadFilter"
         required: true
       responses:
+        "403":
+          description: "Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: "object"
         "401":
           description: "Unauthorized"
           content:
@@ -988,16 +1000,16 @@ components:
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
         - "avsender"
-    Arbeidsgiver:
+    InntektsmeldingArbeidsgiver:
       type: "object"
       properties:
-        navn:
-          type: "string"
-          nullable: true
         orgnr:
+          type: "string"
+        tlf:
           type: "string"
       required:
         - "orgnr"
+        - "tlf"
     Valideringsfeil:
       type: "object"
       properties:
@@ -1051,7 +1063,7 @@ components:
           type: "integer"
           format: "int32"
         arbeidsgiver:
-          $ref: "#/components/schemas/Arbeidsgiver"
+          $ref: "#/components/schemas/InntektsmeldingArbeidsgiver"
         avsender:
           $ref: "#/components/schemas/Avsender"
         status:
@@ -1110,6 +1122,16 @@ components:
           nullable: true
           $ref: "#/components/schemas/ULong"
       required:
+        - "orgnr"
+    SykepengesoeknadArbeidsgiver:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+        orgnr:
+          type: "string"
+      required:
+        - "navn"
         - "orgnr"
     Soeknadsperiode:
       type: "object"
@@ -1204,7 +1226,7 @@ components:
           type: "string"
           format: "date-time"
         arbeidsgiver:
-          $ref: "#/components/schemas/Arbeidsgiver"
+          $ref: "#/components/schemas/SykepengesoeknadArbeidsgiver"
         soektUtenlandsopphold:
           type: "boolean"
           nullable: true
@@ -1348,6 +1370,16 @@ components:
       required:
         - "navn"
         - "tlf"
+    SykmeldingArbeidsgiver:
+      type: "object"
+      properties:
+        navn:
+          type: "string"
+          nullable: true
+        orgnr:
+          type: "string"
+      required:
+        - "orgnr"
     Sykmelding:
       type: "object"
       properties:
@@ -1382,7 +1414,7 @@ components:
           nullable: true
           $ref: "#/components/schemas/Behandler"
         arbeidsgiver:
-          $ref: "#/components/schemas/Arbeidsgiver"
+          $ref: "#/components/schemas/SykmeldingArbeidsgiver"
       required:
         - "loepenr"
         - "sykmeldingId"
