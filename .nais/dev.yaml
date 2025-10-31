@@ -6,8 +6,6 @@ metadata:
     team: helsearbeidsgiver
   name: sykepenger-im-lps-api
   namespace: helsearbeidsgiver
-  annotations:
-    texas.nais.io/enabled: "true"
 spec:
   leaderElection: true
   replicas:
