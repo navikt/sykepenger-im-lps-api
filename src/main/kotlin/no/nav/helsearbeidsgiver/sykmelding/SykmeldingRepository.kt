@@ -65,7 +65,7 @@ class SykmeldingRepository(
             filter.fnr?.let { query.andWhere { fnr eq it } }
             filter.fom?.let { query.andWhere { mottattAvNav greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { mottattAvNav lessEq it.tilTidspunktEndOfDay() } }
-            filter.fraLoepenr?.let { query.andWhere { SykmeldingEntitet.id greater it } }
+            filter.fraLoepenr?.let { query.andWhere { SykmeldingEntitet.id greater it.toULong() } }
             query.orderBy(SykmeldingEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query

@@ -244,7 +244,7 @@ class SoeknadRepositoryTest {
                 .hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi))
                 .first { it.sykepengeSoeknadKafkaMelding.id == soeknad1.id }
                 .loepenr
-        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi, fraLoepenr = soeknad1Loepenr)).size shouldBe 2
+        soeknadRepository.hentSoeknader(SykepengesoeknadFilter(orgnr = orgnr.verdi, fraLoepenr = soeknad1Loepenr.toLong())).size shouldBe 2
     }
 
     private fun hentSoeknader(soeknadIder: Set<UUID>): Map<UUID, UUID?> =

@@ -14,12 +14,13 @@ data class SykmeldingFilter(
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val fraLoepenr: ULong? = null,
+    val fraLoepenr: Long? = null,
 ) {
     init {
         require(erGyldig(orgnr))
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
+        fraLoepenr?.let { require(it >= 0) }
     }
 }
