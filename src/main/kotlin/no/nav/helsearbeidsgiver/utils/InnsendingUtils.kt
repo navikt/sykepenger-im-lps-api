@@ -33,6 +33,7 @@ fun InntektsmeldingRequest.tilInntektsmelding(
         type =
             Inntektsmelding.Type.ForespurtEkstern(
                 navReferanseId,
+                forespoersel.arbeidsgiverperiodePaakrevd,
                 AvsenderSystem(
                     lpsOrgnr,
                     avsender.systemNavn,
