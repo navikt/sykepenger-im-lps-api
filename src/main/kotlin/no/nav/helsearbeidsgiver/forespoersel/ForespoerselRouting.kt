@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -101,6 +103,10 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
+        } catch (_: ContentTransformationException) {
+            call.respond(HttpStatusCode.BadRequest, "Request mangler eller har ugyldig body")
+        } catch (_: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
             call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")

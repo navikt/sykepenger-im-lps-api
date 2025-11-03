@@ -5,6 +5,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -77,7 +78,7 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     @Test
-    fun `innsending av duplikat inntektsmelding gyldig forespørsel gir conflict`() =
+    fun `innsending av duplikat inntektsmelding gyldig forespørsel gir conflict med id til tidligere innsendt im`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
@@ -89,6 +90,7 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
+            response.bodyAsText() shouldBe InnsendingMockData.imResponse.id.toString()
             verify(exactly = 0) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
