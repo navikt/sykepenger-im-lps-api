@@ -35,7 +35,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.random.nextULong
 
 class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
@@ -55,7 +54,7 @@ class SoeknadRoutingTest : ApiTest() {
 
     @Test
     fun `hent en spesifikk søknad`() {
-        val soeknad = SykepengeSoeknadDto(Random.nextULong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
+        val soeknad = SykepengeSoeknadDto(Random.nextLong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
         every { repositories.soeknadRepository.hentSoeknad(soeknad.sykepengeSoeknadKafkaMelding.id) } returns soeknad
 
         runBlocking {
@@ -80,7 +79,7 @@ class SoeknadRoutingTest : ApiTest() {
                 antallForventedeSoeknader,
             ) {
                 SykepengeSoeknadDto(
-                    Random.nextULong(1u, 100u),
+                    Random.nextLong(1, 100),
                     TestData.soeknadMock().medOrgnr(DEFAULT_ORG).medId(UUID.randomUUID()),
                 )
             }
@@ -102,7 +101,7 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 dersom søknad ikke finnes`() {
+    fun `gir 404 Not Found dersom søknad ikke finnes`() {
         val soeknadId = UUID.randomUUID()
         every { repositories.soeknadRepository.hentSoeknad(soeknadId) } returns null
 
@@ -116,7 +115,7 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 dersom navReferanseId er ugyldig`() {
+    fun `gir 404 Not Found dersom navReferanseId er ugyldig`() {
         val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
         val respons =
@@ -129,7 +128,7 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man ber om søknader fra lenge før vår tidsregning`() {
+    fun `gir 400 Bad Request dersom man ber om søknader fra lenge før vår tidsregning`() {
         val filter = SykepengesoeknadFilter(orgnr = DEFAULT_ORG)
         every { repositories.soeknadRepository.hentSoeknader(filter) } returns emptyList()
 
@@ -153,7 +152,7 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom request mangler body`() {
+    fun `gir 400 Bad Request dersom request mangler body`() {
         val filter = SykepengesoeknadFilter(orgnr = DEFAULT_ORG)
         every { repositories.soeknadRepository.hentSoeknader(filter) } returns emptyList()
 
@@ -168,7 +167,7 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man ber om søknader for skrekkelig langt inn i fremtiden`() {
+    fun `gir 400 Bad Request dersom man ber om søknader for skrekkelig langt inn i fremtiden`() {
         val filter = SykepengesoeknadFilter(orgnr = DEFAULT_ORG)
         every { repositories.soeknadRepository.hentSoeknader(filter) } returns emptyList()
 
@@ -193,7 +192,7 @@ class SoeknadRoutingTest : ApiTest() {
 
     @ParameterizedTest
     @ValueSource(strings = ["X", "*", ";Select * from soeknad;", "heia", "98", "1234567"])
-    fun `gir 400 ugyldig request dersom orgnr ikke er gyldig`(orgnr: String) {
+    fun `gir 400 Bad Request ugyldig request dersom orgnr ikke er gyldig`(orgnr: String) {
         val repo = repositories.soeknadRepository // kan ikke referere til repositories.. i verify
         runBlocking {
             val respons =
@@ -213,11 +212,58 @@ class SoeknadRoutingTest : ApiTest() {
         }
     }
 
+    @Test
+    fun `gir 400 Bad Request dersom man forsøker å hente sykepengesøknader fra negativt løpenummer`() {
+        runBlocking {
+            val response =
+                client.post("/v1/sykepengesoeknader") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykepengesoeknadFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
+                            fraLoepenr = -1,
+                        ).toJson(
+                            serializer = SykepengesoeknadFilterUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request dersom man forsøker å hente sykepengesøknader fra løpenummer høyere enn Long MAX_VALUE`() {
+        runBlocking {
+            val response =
+                client.post("/v1/sykepengesoeknader") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykepengesoeknadFilterSomTillaterLoepenrOverMaxLong(
+                            orgnr = DEFAULT_ORG,
+                            fraLoepenr = Long.MAX_VALUE.toULong() + 1UL,
+                        ).toJson(
+                            serializer = SykepengesoeknadFilterSomTillaterLoepenrOverMaxLong.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
     @Serializable
     data class SykepengesoeknadFilterUtenValidering(
         val orgnr: String? = null,
         val fnr: String? = null,
         val fom: LocalDate? = null,
         val tom: LocalDate? = null,
+        val fraLoepenr: Long? = null,
+    )
+
+    @Serializable
+    data class SykepengesoeknadFilterSomTillaterLoepenrOverMaxLong(
+        val orgnr: String? = null,
+        val fraLoepenr: ULong? = null,
     )
 }

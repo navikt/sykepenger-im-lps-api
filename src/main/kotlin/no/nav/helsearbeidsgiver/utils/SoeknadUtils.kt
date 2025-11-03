@@ -4,7 +4,7 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import java.time.LocalDateTime
 
-fun SykepengeSoeknadKafkaMelding.konverter(loepenr: ULong): Sykepengesoeknad =
+fun SykepengeSoeknadKafkaMelding.konverter(loepenr: Long): Sykepengesoeknad =
     Sykepengesoeknad(
         loepenr = loepenr,
         soeknadId = id,

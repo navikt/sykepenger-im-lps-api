@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.json.jsonb
 
 object SoeknadEntitet : Table("soknad") {
-    val id = ulong("id").autoIncrement()
+    val id = long("id").autoIncrement()
     val soeknadId = uuid("soknad_id")
     val sykmeldingId = uuid("sykmelding_id")
     val fnr = varchar("fnr", length = 11)
@@ -23,6 +23,6 @@ object SoeknadEntitet : Table("soknad") {
 }
 
 data class SykepengeSoeknadDto(
-    val loepenr: ULong,
+    val loepenr: Long,
     val sykepengeSoeknadKafkaMelding: SykepengeSoeknadKafkaMelding,
 )

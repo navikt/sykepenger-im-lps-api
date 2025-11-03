@@ -130,6 +130,10 @@ paths:
                 type: "string"
               examples:
                 Example#1:
+                  value: "Ugyldig filterparameter"
+                Example#2:
+                  value: "Request mangler eller har ugyldig body"
+                Example#3:
                   value: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
@@ -649,9 +653,6 @@ components:
         - "arbeidsgiverperiodePaakrevd"
         - "inntektPaakrevd"
         - "opprettetTid"
-    ULong:
-      type: "object"
-      properties: { }
     ForespoerselFilter:
       type: "object"
       properties:
@@ -680,8 +681,9 @@ components:
           format: "date"
           nullable: true
         fraLoepenr:
+          type: "integer"
+          format: "int64"
           nullable: true
-          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
     RedusertLoennIAgp:
@@ -1119,8 +1121,9 @@ components:
             - "FEILET"
             - "GODKJENT"
         fraLoepenr:
+          type: "integer"
+          format: "int64"
           nullable: true
-          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
     SykepengesoeknadArbeidsgiver:
@@ -1268,8 +1271,9 @@ components:
           format: "date"
           nullable: true
         fraLoepenr:
+          type: "integer"
+          format: "int64"
           nullable: true
-          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"
     Sykmeldt:
@@ -1442,7 +1446,8 @@ components:
           format: "date"
           nullable: true
         fraLoepenr:
+          type: "integer"
+          format: "int64"
           nullable: true
-          $ref: "#/components/schemas/ULong"
       required:
         - "orgnr"

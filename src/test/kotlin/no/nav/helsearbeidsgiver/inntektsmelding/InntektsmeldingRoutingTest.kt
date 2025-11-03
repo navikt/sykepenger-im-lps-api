@@ -174,7 +174,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 dersom inntektsmelding ikke finnes`() {
+    fun `gir 404 Not Found dersom inntektsmelding ikke finnes`() {
         every {
             repositories.inntektsmeldingRepository.hentMedInnsendingId(any())
         } returns null
@@ -214,7 +214,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom navReferanseId er ugyldig`() {
+    fun `gir 400 Bad Request dersom navReferanseId er ugyldig`() {
         val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
         val response =
@@ -227,7 +227,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man ber om inntektsmeldinger fra lenge før vår tidsregning`() {
+    fun `gir 400 Bad Request dersom man ber om inntektsmeldinger fra lenge før vår tidsregning`() {
         runBlocking {
             val response =
                 client.post("/v1/inntektsmeldinger") {
@@ -248,7 +248,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom request mangler body`() {
+    fun `gir 400 Bad Request dersom request mangler body`() {
         runBlocking {
             val response =
                 client.post("/v1/inntektsmeldinger") {
@@ -260,7 +260,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man ber om inntektsmeldinger for skrekkelig langt inn i fremtiden`() {
+    fun `gir 400 Bad Request dersom man ber om inntektsmeldinger for skrekkelig langt inn i fremtiden`() {
         runBlocking {
             val response =
                 client.post("/v1/inntektsmeldinger") {
@@ -281,7 +281,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man forsøker å hente inntektsmeldinger uten å spesifisere orgnr i filteret`() {
+    fun `gir 400 Bad Request dersom man forsøker å hente inntektsmeldinger uten å spesifisere orgnr i filteret`() {
         runBlocking {
             val response =
                 client.post("/v1/inntektsmeldinger") {
@@ -301,7 +301,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
 
     @ParameterizedTest
     @ValueSource(strings = ["X", "*", ";Select * from inntektsmelding;", "heia", "98", "1234567"])
-    fun `gir 400 dersom orgnr ikke er gyldig`(orgnr: String) {
+    fun `gir 400 Bad Request dersom orgnr ikke er gyldig`(orgnr: String) {
         val repo = repositories.inntektsmeldingRepository
         runBlocking {
             val response =
@@ -321,6 +321,46 @@ class InntektsmeldingRoutingTest : ApiTest() {
         }
     }
 
+    @Test
+    fun `gir 400 Bad Request dersom man forsøker å hente inntektsmeldinger fra negativt løpenummer`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
+                            fraLoepenr = -1,
+                        ).toJson(
+                            serializer = InntektsmeldingFilterUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request dersom man forsøker å hente inntektsmeldinger fra løpenummer høyere enn Long MAX_VALUE`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        InntektsmeldingFilterSomTillaterLoepenrOverMaxLong(
+                            orgnr = DEFAULT_ORG,
+                            fraLoepenr = Long.MAX_VALUE.toULong() + 1UL,
+                        ).toJson(
+                            serializer = InntektsmeldingFilterSomTillaterLoepenrOverMaxLong.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
     @Serializable
     data class InntektsmeldingFilterUtenValidering(
         val orgnr: String? = null,
@@ -330,5 +370,12 @@ class InntektsmeldingRoutingTest : ApiTest() {
         val fom: LocalDate? = null,
         val tom: LocalDate? = null,
         val status: InnsendingStatus? = null,
+        val fraLoepenr: Long? = null,
+    )
+
+    @Serializable
+    data class InntektsmeldingFilterSomTillaterLoepenrOverMaxLong(
+        val orgnr: String? = null,
+        val fraLoepenr: ULong? = null,
     )
 }

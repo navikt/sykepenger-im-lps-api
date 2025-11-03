@@ -110,7 +110,7 @@ class ForespoerselRepository(
                             "Dette er ikke forventet og kan indikere en feil.",
                     )
                     throw IllegalStateException(
-                        "Forventet en aktiv forespærsel med fant ${result.size} aktive forespørsler med eksponertForespoerselId $eksponertForespoerselId",
+                        "Forventet en aktiv forespørsel, men fant ${result.size} aktive forespørsler med eksponertForespoerselId $eksponertForespoerselId",
                     )
                 }
             }
