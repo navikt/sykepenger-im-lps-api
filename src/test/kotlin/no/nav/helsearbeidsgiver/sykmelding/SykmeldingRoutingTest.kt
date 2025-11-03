@@ -279,7 +279,7 @@ class SykmeldingRoutingTest : ApiTest() {
         copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
 }
 
-fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(loepenr: ULong = Random.nextULong()): SykmeldingDTO =
+fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(loepenr: Long = Random.nextLong()): SykmeldingDTO =
     SykmeldingDTO(
         loepenr = loepenr,
         id = event.sykmeldingId,
