@@ -277,11 +277,11 @@ class ForespoerselRoutingTest : ApiTest() {
                 client.post("/v1/forespoersler") {
                     contentType(ContentType.Application.Json)
                     setBody(
-                        ForespoerselFilterFilterSomTillaterLoepenrOverMaxLong(
+                        ForespoerselFilterSomTillaterLoepenrOverMaxLong(
                             orgnr = DEFAULT_ORG,
                             fraLoepenr = Long.MAX_VALUE.toULong() + 1UL,
                         ).toJson(
-                            serializer = ForespoerselFilterFilterSomTillaterLoepenrOverMaxLong.serializer(),
+                            serializer = ForespoerselFilterSomTillaterLoepenrOverMaxLong.serializer(),
                         ),
                     )
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -302,7 +302,7 @@ class ForespoerselRoutingTest : ApiTest() {
     )
 
     @Serializable
-    data class ForespoerselFilterFilterSomTillaterLoepenrOverMaxLong(
+    data class ForespoerselFilterSomTillaterLoepenrOverMaxLong(
         val orgnr: String? = null,
         val fraLoepenr: ULong? = null,
     )
