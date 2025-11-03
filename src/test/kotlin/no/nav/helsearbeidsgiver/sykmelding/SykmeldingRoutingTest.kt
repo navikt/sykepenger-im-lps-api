@@ -35,7 +35,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.random.nextULong
 
 class SykmeldingRoutingTest : ApiTest() {
     @AfterEach
@@ -124,7 +123,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 dersom sykmelding ikke finnes`() {
+    fun `gir 404 Not Found dersom sykmelding ikke finnes`() {
         val sykmeldingId = UUID.randomUUID()
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns null
 
@@ -138,7 +137,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom navReferanseId er ugyldig`() {
+    fun `gir 400 Bad Request dersom navReferanseId er ugyldig`() {
         val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
         val response =
@@ -151,7 +150,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man ber om sykmeldinger fra lenge før vår tidsregning`() {
+    fun `gir 400 Bad Request dersom man ber om sykmeldinger fra lenge før vår tidsregning`() {
         val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
         every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
 
@@ -175,7 +174,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom request mangler body`() {
+    fun `gir 400 Bad Request dersom request mangler body`() {
         val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
         every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
 
@@ -190,7 +189,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 dersom man ber om sykmeldinger for skrekkelig langt inn i fremtiden`() {
+    fun `gir 400 Bad Request dersom man ber om sykmeldinger for skrekkelig langt inn i fremtiden`() {
         val filter = SykmeldingFilter(orgnr = DEFAULT_ORG)
         every { repositories.sykmeldingRepository.hentSykmeldinger(filter) } returns emptyList()
 
@@ -233,13 +232,53 @@ class SykmeldingRoutingTest : ApiTest() {
         }
     }
 
+    @Test
+    fun `gir 400 Bad Request dersom man forsøker å hente sykmeldinger fra negativt løpenummer`() {
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykmeldingFilterUtenValidering(
+                            orgnr = DEFAULT_ORG,
+                            fraLoepenr = -1,
+                        ).toJson(
+                            serializer = SykmeldingFilterUtenValidering.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request dersom man forsøker å hente sykmeldinger fra løpenummer høyere enn Long MAX_VALUE`() {
+        runBlocking {
+            val response =
+                client.post("/v1/sykmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        SykmeldingFilterSomTillaterLoepenrOverMaxLong(
+                            orgnr = DEFAULT_ORG,
+                            fraLoepenr = Long.MAX_VALUE.toULong() + 1UL,
+                        ).toJson(
+                            serializer = SykmeldingFilterSomTillaterLoepenrOverMaxLong.serializer(),
+                        ),
+                    )
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
     private fun SendSykmeldingAivenKafkaMessage.medId(id: UUID) = copy(sykmelding = sykmelding.copy(id = id.toString()))
 
     private fun SendSykmeldingAivenKafkaMessage.medOrgnr(orgnr: String) =
         copy(event = event.copy(arbeidsgiver = ArbeidsgiverStatusDTO(orgnr, "", "")))
 }
 
-fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(loepenr: ULong = Random.nextULong()): SykmeldingDTO =
+fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(loepenr: Long = Random.nextLong()): SykmeldingDTO =
     SykmeldingDTO(
         loepenr = loepenr,
         id = event.sykmeldingId,
@@ -256,4 +295,11 @@ data class SykmeldingFilterUtenValidering(
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
+    val fraLoepenr: Long? = null,
+)
+
+@Serializable
+data class SykmeldingFilterSomTillaterLoepenrOverMaxLong(
+    val orgnr: String,
+    val fraLoepenr: ULong? = null,
 )

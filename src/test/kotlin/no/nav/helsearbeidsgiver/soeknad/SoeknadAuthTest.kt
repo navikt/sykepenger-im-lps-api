@@ -22,7 +22,6 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.random.nextULong
 
 class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter, SykepengeSoeknadDto>() {
     override val filtreringEndepunkt = "/v1/sykepengesoeknader"
@@ -37,7 +36,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
         orgnr: String,
     ): SykepengeSoeknadDto =
         SykepengeSoeknadDto(
-            Random.nextULong(1u, 100u),
+            Random.nextLong(1, 100),
             soeknadMock()
                 .medId(id)
                 .medOrgnr(orgnr),
@@ -67,7 +66,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
         val soeknadId = UUID.randomUUID()
         val mockSoeknad =
             SykepengeSoeknadDto(
-                Random.nextULong(1u, 100u),
+                Random.nextLong(1, 100),
                 soeknadMock()
                     .copy(sendtArbeidsgiver = null)
                     .medId(soeknadId)
@@ -94,7 +93,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
                 antallForventedeSoeknader,
             ) {
                 SykepengeSoeknadDto(
-                    Random.nextULong(1u, 100u),
+                    Random.nextLong(1, 100),
                     soeknadMock()
                         .medId(UUID.randomUUID())
                         .medOrgnr(underenhetOrgnrMedPdpTilgang),
@@ -103,7 +102,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
 
         val soeknadSomIkkeSkalVisesTilArbeidsgiver =
             SykepengeSoeknadDto(
-                Random.nextULong(1u, 100u),
+                Random.nextLong(1, 100),
                 soeknadMock()
                     .copy(sendtArbeidsgiver = null)
                     .medId(UUID.randomUUID())
@@ -143,7 +142,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
                 MAX_ANTALL_I_RESPONS + 10,
             ) {
                 SykepengeSoeknadDto(
-                    Random.nextULong(1u, 100u),
+                    Random.nextLong(1, 100),
                     soeknadMock()
                         .medId(UUID.randomUUID())
                         .medOrgnr(underenhetOrgnrMedPdpTilgang),

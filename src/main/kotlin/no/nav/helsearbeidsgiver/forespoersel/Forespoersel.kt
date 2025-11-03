@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val loepenr: ULong,
+    val loepenr: Long,
     val navReferanseId: UUID,
     val orgnr: String,
     val fnr: String,
@@ -53,13 +53,14 @@ data class ForespoerselFilter(
     val status: Status? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val fraLoepenr: ULong? = null,
+    val fraLoepenr: Long? = null,
 ) {
     init {
         orgnr?.let { require(erGyldig(orgnr)) }
         fom?.year?.let { require(it >= 0) }
         tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
+        fraLoepenr?.let { require(it >= 0) }
     }
 }
 

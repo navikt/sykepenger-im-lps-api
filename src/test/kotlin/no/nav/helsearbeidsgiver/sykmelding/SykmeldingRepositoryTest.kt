@@ -181,7 +181,8 @@ class SykmeldingRepositoryTest {
                 .hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG))
                 .first { it.id == sykmeldingID1.toString() }
                 .loepenr
-        sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = sykmelding1Loepenr)).size shouldBe 2
+        sykmeldingRepository.hentSykmeldinger(SykmeldingFilter(orgnr = DEFAULT_ORG, fraLoepenr = sykmelding1Loepenr)).size shouldBe
+            2
     }
 }
 
