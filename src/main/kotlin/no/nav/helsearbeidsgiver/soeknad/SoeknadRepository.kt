@@ -58,7 +58,7 @@ class SoeknadRepository(
             filter.tom?.let {
                 query.andWhere { opprettet lessEq it.tilTidspunktEndOfDay() }
             }
-            filter.fraLoepenr?.let { query.andWhere { SoeknadEntitet.id greater it.toULong() } }
+            filter.fraLoepenr?.let { query.andWhere { SoeknadEntitet.id greater it } }
             query.orderBy(SoeknadEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1) // Legg på en, for å kunne sjekke om det faktisk finnes flere enn max antall
             query.map {

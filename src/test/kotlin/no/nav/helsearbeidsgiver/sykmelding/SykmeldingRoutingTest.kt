@@ -35,7 +35,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.random.nextULong
 
 class SykmeldingRoutingTest : ApiTest() {
     @AfterEach

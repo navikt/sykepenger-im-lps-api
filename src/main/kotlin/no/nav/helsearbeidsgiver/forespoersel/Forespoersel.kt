@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Serializable
 data class Forespoersel(
-    val loepenr: ULong,
+    val loepenr: Long,
     val navReferanseId: UUID,
     val orgnr: String,
     val fnr: String,

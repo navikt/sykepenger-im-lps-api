@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
 
 object ForespoerselEntitet : Table("forespoersel") {
-    val id = ulong("id").autoIncrement()
+    val id = long("id").autoIncrement()
     val navReferanseId = uuid(name = "nav_referanse_id")
     val orgnr = text("orgnr")
     val fnr = text("fnr")

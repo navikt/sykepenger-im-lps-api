@@ -22,7 +22,7 @@ import java.util.UUID
 
 @Serializable
 data class InntektsmeldingResponse(
-    val loepenr: ULong,
+    val loepenr: Long,
     val id: UUID,
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,

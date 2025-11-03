@@ -35,7 +35,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
-import kotlin.random.nextULong
 
 class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
@@ -55,7 +54,7 @@ class SoeknadRoutingTest : ApiTest() {
 
     @Test
     fun `hent en spesifikk søknad`() {
-        val soeknad = SykepengeSoeknadDto(Random.nextULong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
+        val soeknad = SykepengeSoeknadDto(Random.nextLong(), TestData.soeknadMock().medOrgnr(DEFAULT_ORG))
         every { repositories.soeknadRepository.hentSoeknad(soeknad.sykepengeSoeknadKafkaMelding.id) } returns soeknad
 
         runBlocking {
@@ -80,7 +79,7 @@ class SoeknadRoutingTest : ApiTest() {
                 antallForventedeSoeknader,
             ) {
                 SykepengeSoeknadDto(
-                    Random.nextULong(1u, 100u),
+                    Random.nextLong(1, 100),
                     TestData.soeknadMock().medOrgnr(DEFAULT_ORG).medId(UUID.randomUUID()),
                 )
             }
