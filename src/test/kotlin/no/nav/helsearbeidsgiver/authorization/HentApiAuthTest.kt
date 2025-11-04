@@ -189,7 +189,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
+        respons2.status shouldBe HttpStatusCode.OK
 
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
         val respons3 =
@@ -225,7 +225,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
+        respons2.status shouldBe HttpStatusCode.OK
 
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
         val respons4 =

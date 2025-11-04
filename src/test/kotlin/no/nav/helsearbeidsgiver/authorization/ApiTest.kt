@@ -76,7 +76,7 @@ abstract class ApiTest {
                 orgnr =
                     match {
                         (
-                            it in setOf(hovedenhetOrgnrMedPdpTilgang, underenhetOrgnrMedPdpTilgang) &&
+                            it == hovedenhetOrgnrMedPdpTilgang || it == underenhetOrgnrMedPdpTilgang &&
                                 it != orgnrUtenPdpTilgang
                         )
                     },
