@@ -64,7 +64,7 @@ private fun Route.sendInntektsmelding(services: Services) {
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
-                    orgnumre = setOf(forespoersel.orgnr, systembrukerOrgnr),
+                    orgnr = forespoersel.orgnr,
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -139,7 +139,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
-                    orgnumre = setOf(filter.orgnr, systembrukerOrgnr),
+                    orgnr = filter.orgnr,
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
@@ -192,7 +192,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
-                    orgnumre = setOf(inntektsmelding.arbeidsgiver.orgnr, systembrukerOrgnr),
+                    orgnr = inntektsmelding.arbeidsgiver.orgnr,
                 )
             ) {
                 call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
