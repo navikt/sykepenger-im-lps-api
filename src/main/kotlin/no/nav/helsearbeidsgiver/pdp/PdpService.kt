@@ -10,7 +10,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 interface IPdpService {
     fun harTilgang(
         systembruker: String,
-        orgnumre: Set<String>,
+        orgnr: String,
         ressurs: String,
     ): Boolean
 }
@@ -30,15 +30,15 @@ object PdpService :
 
     override fun harTilgang(
         systembruker: String,
-        orgnumre: Set<String>,
+        orgnr: String,
         ressurs: String,
     ): Boolean =
         runBlocking {
-            sikkerLogger().info("PDP orgnr: $orgnumre, systembruker: $systembruker, ressurs: $ressurs")
+            sikkerLogger().info("PDP orgnr: $orgnr, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjoner(
                     systembrukerId = systembruker,
-                    orgnumre = orgnumre,
+                    orgnumre = setOf(orgnr),
                     ressurs = ressurs,
                 )
             }.getOrDefault(false) // TODO: håndter feil ved å svare status 500/502 tilbake til bruker
@@ -48,7 +48,7 @@ object PdpService :
 object LocalhostPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
-        orgnrSet: Set<String>,
+        orgnr: String,
         ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, har tilgang")
@@ -60,7 +60,7 @@ object LocalhostPdpService : IPdpService {
 object IngenTilgangPdpService : IPdpService {
     override fun harTilgang(
         systembruker: String,
-        orgnumre: Set<String>,
+        orgnr: String,
         ressurs: String,
     ): Boolean {
         sikkerLogger().info("Ingen PDP, ingen tilgang")

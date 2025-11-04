@@ -55,15 +55,15 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
 )
 fun TokenValidationContext.harTilgangTilMinstEnAvRessursene(
     ressurser: Set<String>,
-    orgnumre: Set<String>,
-): Boolean = ressurser.any { harTilgangTilRessurs(it, orgnumre) }
+    orgnr: String,
+): Boolean = ressurser.any { harTilgangTilRessurs(it, orgnr) }
 
 fun TokenValidationContext.harTilgangTilRessurs(
     ressurs: String,
-    orgnumre: Set<String>,
+    orgnr: String,
 ): Boolean {
     val systembruker = this.getSystembrukerId()
-    return getPdpService().harTilgang(systembruker, orgnumre, ressurs)
+    return getPdpService().harTilgang(systembruker, orgnr, ressurs)
 }
 
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))

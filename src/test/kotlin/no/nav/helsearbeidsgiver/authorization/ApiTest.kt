@@ -65,7 +65,7 @@ abstract class ApiTest {
         every {
             getPdpService().harTilgang(
                 systembruker = any(),
-                orgnumre = match { it.contains(orgnrUtenPdpTilgang) },
+                orgnr = match { it == orgnrUtenPdpTilgang },
                 ressurs = any(),
             )
         } returns false
@@ -73,10 +73,12 @@ abstract class ApiTest {
         every {
             getPdpService().harTilgang(
                 systembruker = any(),
-                orgnumre =
+                orgnr =
                     match {
-                        (it.contains(hovedenhetOrgnrMedPdpTilgang) || it.contains(underenhetOrgnrMedPdpTilgang)) &&
-                            !it.contains(orgnrUtenPdpTilgang)
+                        (
+                            it in setOf(hovedenhetOrgnrMedPdpTilgang, underenhetOrgnrMedPdpTilgang) &&
+                                it != orgnrUtenPdpTilgang
+                        )
                     },
                 ressurs = any(),
             )
