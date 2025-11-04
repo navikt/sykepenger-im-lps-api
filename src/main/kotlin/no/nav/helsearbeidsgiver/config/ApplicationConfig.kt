@@ -152,7 +152,6 @@ fun configureRepositories(db: Database): Repositories =
 
 fun configureServices(
     repositories: Repositories,
-    authClient: AuthClient,
     unleashFeatureToggles: UnleashFeatureToggles,
     database: Database,
     pdlService: PdlService,
@@ -173,7 +172,6 @@ fun configureServices(
     val bakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository = repositories.bakgrunnsjobbRepository,
-            createHttpClient(),
         )
 
     val innsendingService =

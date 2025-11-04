@@ -76,7 +76,7 @@ abstract class LpsApiIntegrasjontest {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, mockk(relaxed = true), mockUnleash, db, mockk())
+        services = configureServices(repositories, mockUnleash, db, mockk())
         tolkers = configureTolkere(services, repositories)
 
         server.start(wait = false)

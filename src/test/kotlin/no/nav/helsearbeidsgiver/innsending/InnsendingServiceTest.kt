@@ -28,7 +28,6 @@ class InnsendingServiceTest {
     private val leaderElectedBakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository,
-            httpClient = createHttpClient(),
         )
     private val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
     private val innsendingService =

@@ -29,7 +29,6 @@ abstract class ApiTest {
     val services: Services =
         configureServices(
             repositories = repositories,
-            authClient = mockk(),
             unleashFeatureToggles = unleashFeatureToggles,
             database = mockk(),
             pdlService = mockk(),

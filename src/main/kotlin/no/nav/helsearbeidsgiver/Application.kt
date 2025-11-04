@@ -37,7 +37,7 @@ fun startServer() {
 
     val unleashFeatureToggles = configureUnleashFeatureToggles()
 
-    val services = configureServices(repositories, authClient, unleashFeatureToggles, db, PdlService(authClient))
+    val services = configureServices(repositories, unleashFeatureToggles, db, PdlService(authClient))
     val tolkere =
         configureTolkere(
             services = services,
