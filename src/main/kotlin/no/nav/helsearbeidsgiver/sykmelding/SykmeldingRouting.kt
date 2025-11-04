@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -26,17 +27,31 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 private val SM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_SM_RESSURS_GAMMEL")
 
-fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
+fun Route.sykmeldingV1(
+    sykmeldingService: SykmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     route("/v1") {
-        sykmelding(sykmeldingService)
-        filtrerSykmeldinger(sykmeldingService)
+        sykmelding(sykmeldingService, unleashFeatureToggles)
+        filtrerSykmeldinger(sykmeldingService, unleashFeatureToggles)
     }
 }
 
-private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
+private fun Route.sykmelding(
+    sykmeldingService: SykmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Hent sykmelding med sykmeldingId
     get("/sykmelding/{sykmeldingId}") {
         try {
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+
+            if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@get
+            }
+
             val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
             requireNotNull(sykmeldingId) { "navReferanseId: $sykmeldingId ikke gyldig UUID" }
 
@@ -45,9 +60,6 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
                 call.respond(NotFound, "Sykmelding med id: $sykmeldingId ikke funnet.")
                 return@get
             }
-
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
                     ressurser = setOfNotNull(SM_RESSURS, SM_RESSURS_GAMMEL),
@@ -73,10 +85,20 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
     }
 }
 
-private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
+private fun Route.filtrerSykmeldinger(
+    sykmeldingService: SykmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Filtrer sykmeldinger på orgnr (underenhet), fnr og/eller dato sykmeldingen ble mottatt av NAV.
     post("/sykmeldinger") {
         try {
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@post
+            }
+
             val filter = call.receive<SykmeldingFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
@@ -89,7 +111,6 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
                 return@post
             }
 
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             tellApiRequest()
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",

@@ -30,7 +30,7 @@ fun Application.configureRouting(
                 services = services,
             )
             forespoerselV1(forespoerselService = services.forespoerselService)
-            sykmeldingV1(sykmeldingService = services.sykmeldingService)
+            sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
     }
