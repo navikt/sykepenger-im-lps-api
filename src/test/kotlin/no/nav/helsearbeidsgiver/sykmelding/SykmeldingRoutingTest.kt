@@ -41,12 +41,12 @@ import kotlin.random.Random
 
 class SykmeldingRoutingTest : ApiTest() {
     @BeforeAll
-    fun init() {
+    fun setup() {
         every { unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(TIGERSYS_ORGNR)) } returns true
     }
 
     @AfterEach
-    fun setup() {
+    fun cleanup() {
         clearMocks(repositories.sykmeldingRepository)
     }
 
