@@ -26,7 +26,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -41,7 +40,6 @@ class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
     fun beforeEach() {
         every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
-        every { unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(DEFAULT_ORG)) } returns true
     }
 
     @AfterEach
