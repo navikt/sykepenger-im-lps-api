@@ -75,10 +75,8 @@ fun <K, V> KafkaConsumer<K, V>.toggleConsumer(
     if (!enabled() && !konsumeringPauset) {
         logger().warn("Pauser konsumering av topic $topic}")
         this.pause(assignment)
-        this.close()
     } else if (enabled() && konsumeringPauset) {
         logger().warn("Gjenopptar konsumering av topic $topic}")
-        this.subscribe(listOf(topic))
         this.resume(assignment)
     }
 }

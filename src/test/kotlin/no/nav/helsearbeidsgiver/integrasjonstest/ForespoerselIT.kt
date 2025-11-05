@@ -11,7 +11,9 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -46,6 +48,8 @@ class ForespoerselIT {
 
     private val orgnr = Orgnr("810007982")
 
+    private val unleashMock = mockk<UnleashFeatureToggles>(relaxed = true)
+
     private val port = 33445
     private val mockOAuth2Server =
         MockOAuth2Server().apply {
@@ -73,9 +77,6 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-
-        val unleashMock = mockk<UnleashFeatureToggles>()
-        every { unleashMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
 
         services = configureServices(repositories, unleashMock, db, mockk())
 
