@@ -24,7 +24,9 @@ import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
+import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -67,6 +69,7 @@ abstract class LpsApiIntegrasjontest {
     fun setup() {
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         every { mockUnleash.skalEksponereSykepengesoeknader() } returns true
+        every { mockUnleash.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
         every { mockUnleash.skalKonsumereStatusISpeil() } returns true
         every { mockUnleash.skalKonsumereAvvisteInntektsmeldinger() } returns true
         db =

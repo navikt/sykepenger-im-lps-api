@@ -14,10 +14,12 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
+import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,6 +38,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     fun setup() {
         mockPdpTilganger()
         every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
+        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
     }
 
     @AfterAll

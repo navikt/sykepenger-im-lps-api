@@ -478,12 +478,6 @@ paths:
           schema:
             type: "string"
       responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Sykmelding"
         "401":
           description: "Unauthorized"
           content:
@@ -501,6 +495,18 @@ paths:
                   value: "Uautorisert tilgang"
                 Example#5:
                   value: "Uautorisert tilgang"
+        "403":
+          description: "Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Sykmelding"
         "400":
           description: "Bad Request"
           content:
@@ -543,13 +549,19 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
                 Example#5:
                   value: "Uautorisert tilgang"
+        "403":
+          description: "Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: "object"
         "200":
           description: "OK"
           headers:
