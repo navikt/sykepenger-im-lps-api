@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class UnleashFeatureToggles(
     isLocalEnv: Boolean,
+    val leaderConfig: LeaderConfig,
 ) {
     private val unleashClient: Unleash =
         if (isLocalEnv) {
@@ -66,13 +67,25 @@ class UnleashFeatureToggles(
         unleashClient.isEnabled(
             "konsumer-sykmeldinger",
             false,
-        )
+        ) && !leaderConfig.isElectedLeader()
 
     fun skalKonsumereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykepengesoknader",
             false,
-        )
+        ) && !leaderConfig.isElectedLeader()
+
+    fun skalKonsumereInntektsmeldinger(): Boolean =
+        unleashClient.isEnabled(
+            "konsumer-inntektsmeldinger",
+            false,
+        ) && !leaderConfig.isElectedLeader()
+
+    fun skalKonsumereForespoersler(): Boolean =
+        unleashClient.isEnabled(
+            "konsumer-forespoersler",
+            false,
+        ) && !leaderConfig.isElectedLeader()
 
     // TODO: Skal fjernes så fort vi får juridisk avklaring på at det er OK å eksponere
     fun skalEksponereSykepengesoeknader(): Boolean =
@@ -92,11 +105,11 @@ class UnleashFeatureToggles(
         unleashClient.isEnabled(
             "konsumer-status-i-speil",
             false,
-        )
+        ) && !leaderConfig.isElectedLeader()
 
     fun skalKonsumereAvvisteInntektsmeldinger(): Boolean =
         unleashClient.isEnabled(
             "konsumer-avviste-inntektsmeldinger",
             false,
-        )
+        ) && !leaderConfig.isElectedLeader()
 }

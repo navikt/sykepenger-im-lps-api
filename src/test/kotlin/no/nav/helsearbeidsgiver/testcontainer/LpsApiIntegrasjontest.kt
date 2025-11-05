@@ -26,8 +26,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -52,7 +50,7 @@ abstract class LpsApiIntegrasjontest {
             port = 8080,
             module = {
                 apiModule(services = services, authClient = mockk(relaxed = true), unleashFeatureToggles = mockUnleash)
-                configureKafkaConsumers(tolkers, mockUnleash, getTestLeaderConfig(false))
+                configureKafkaConsumers(tolkers, mockUnleash)
             },
         )
     val mockOAuth2Server =
@@ -69,6 +67,8 @@ abstract class LpsApiIntegrasjontest {
     @BeforeAll
     fun setup() {
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
+        every { mockUnleash.skalKonsumereForespoersler() } returns true
+        every { mockUnleash.skalKonsumereInntektsmeldinger() } returns true
         every { mockUnleash.skalEksponereSykepengesoeknader() } returns true
         every { mockUnleash.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
         every { mockUnleash.skalKonsumereStatusISpeil() } returns true

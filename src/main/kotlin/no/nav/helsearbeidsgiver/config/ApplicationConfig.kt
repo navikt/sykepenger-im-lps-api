@@ -51,10 +51,8 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
-import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderElectionConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -223,23 +221,19 @@ fun configureServices(
     )
 }
 
-fun configureUnleashFeatureToggles(): UnleashFeatureToggles = UnleashFeatureToggles(isLocal())
+fun configureUnleashFeatureToggles(): UnleashFeatureToggles = UnleashFeatureToggles(isLocal(), NaisLeaderElectionConfig)
 
 fun Application.configureKafkaConsumers(
     tolkere: Tolkere,
     unleashFeatureToggles: UnleashFeatureToggles,
-    leaderConfig: LeaderConfig,
 ) {
-    if (leaderConfig.isElectedLeader()) {
-        logger().info("Pod er leder - starter ikke kafka-consumere")
-        return
-    }
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im"))
     launch(Dispatchers.Default) {
         startKafkaConsumer(
             getProperty("kafkaConsumer.inntektsmelding.topic"),
             inntektsmeldingKafkaConsumer,
             tolkere.inntektsmeldingTolker,
+            enabled = unleashFeatureToggles::skalKonsumereInntektsmeldinger,
         )
     }
 
@@ -249,6 +243,7 @@ fun Application.configureKafkaConsumers(
             getProperty("kafkaConsumer.forespoersel.topic"),
             forespoerselKafkaConsumer,
             tolkere.forespoerselTolker,
+            unleashFeatureToggles::skalKonsumereForespoersler,
         )
     }
 

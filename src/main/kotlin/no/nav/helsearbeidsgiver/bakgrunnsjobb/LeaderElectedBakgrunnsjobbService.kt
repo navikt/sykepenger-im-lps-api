@@ -43,7 +43,7 @@ class LeaderElectedBakgrunnsjobbService(
                 val jobbFunnet =
                     bakgrunnsjobbService
                         .finnVentende()
-                        .also { logger().debug("Bakgrunnsjobb: Fant ${it.size} bakgrunnsjobber}") }
+                        .also { logger().debug("Bakgrunnsjobb: Fant ${it.size} bakgrunnsjobber") }
                         .onEach { bakgrunnsjobbService.prosesser(it) }
                         .isNotEmpty()
             } while (jobbFunnet)
