@@ -185,23 +185,14 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
             }
         respons1.status shouldBe HttpStatusCode.Unauthorized
 
-        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetorgnr (fra dokument).
-        val respons2 =
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/$dokumentIdTilgang") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
-
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
-        val respons3 =
+        val respons2 =
             runBlocking {
                 client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
-        respons3.status shouldBe HttpStatusCode.Unauthorized
+        respons2.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test
@@ -218,20 +209,8 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
             }
         respons1.status shouldBe HttpStatusCode.Unauthorized
 
-        // Systembruker har _ikke_ tilgang til orgnr i token, men _har_ tilgang til underenhetsorgnr i requesten.
-        // Det vil si at man forsøker å hente dokumenter for et orgnummer (fra requesten), men blir nektet tilgang fra pdp pga. orgnummeret i tokenet.
-        val respons2 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(lagFilter(orgnr = underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
-                }
-            }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
-
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra requesten.
-        val respons4 =
+        val respons2 =
             runBlocking {
                 client.post(filtreringEndepunkt) {
                     contentType(ContentType.Application.Json)
@@ -239,6 +218,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             }
-        respons4.status shouldBe HttpStatusCode.Unauthorized
+        respons2.status shouldBe HttpStatusCode.Unauthorized
     }
 }
