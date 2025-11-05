@@ -1,6 +1,9 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
+
+val TIGERSYS_ORGNR = Orgnr("315339138")
 
 fun MockOAuth2Server.hentToken(claims: Map<String, Any>): String =
     this
@@ -44,7 +47,7 @@ fun MockOAuth2Server.gyldigSystembrukerAuthToken(orgnr: String): String =
                 "consumer" to
                     mapOf(
                         "authority" to "iso6523-actorid-upis",
-                        "ID" to "0192:991825827",
+                        "ID" to "0192:$TIGERSYS_ORGNR",
                     ),
             ),
     )

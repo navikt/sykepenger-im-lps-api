@@ -23,7 +23,7 @@ class UnleashFeatureToggles(
                     .unleashAPI(Env.getProperty("UNLEASH_SERVER_API_URL") + "/api")
                     .apiKey(Env.getProperty("UNLEASH_SERVER_API_TOKEN"))
                     .environment(Env.getProperty("UNLEASH_SERVER_API_ENV"))
-                    .fetchTogglesInterval(2)
+                    .fetchTogglesInterval(15)
                     .build(),
             )
         }
@@ -78,6 +78,13 @@ class UnleashFeatureToggles(
     fun skalEksponereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "eksponer-soeknad-i-api",
+            false,
+        )
+
+    fun skalEksponereSykmeldinger(orgnr: Orgnr): Boolean =
+        unleashClient.isEnabled(
+            "eksponer-sykmelding-i-api",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
         )
 

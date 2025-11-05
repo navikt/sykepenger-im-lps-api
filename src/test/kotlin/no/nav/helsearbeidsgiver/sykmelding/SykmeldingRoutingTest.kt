@@ -23,12 +23,15 @@ import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -37,8 +40,13 @@ import java.util.UUID
 import kotlin.random.Random
 
 class SykmeldingRoutingTest : ApiTest() {
-    @AfterEach
+    @BeforeAll
     fun setup() {
+        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
+    }
+
+    @AfterEach
+    fun cleanup() {
         clearMocks(repositories.sykmeldingRepository)
     }
 
