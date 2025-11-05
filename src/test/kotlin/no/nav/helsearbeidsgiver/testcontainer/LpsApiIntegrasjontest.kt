@@ -69,7 +69,7 @@ abstract class LpsApiIntegrasjontest {
     fun setup() {
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         every { mockUnleash.skalEksponereSykepengesoeknader() } returns true
-        every { mockUnleash.skalEksponereSykmeldinger(Orgnr(TIGERSYS_ORGNR)) } returns true
+        every { mockUnleash.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
         every { mockUnleash.skalKonsumereStatusISpeil() } returns true
         every { mockUnleash.skalKonsumereAvvisteInntektsmeldinger() } returns true
         db =

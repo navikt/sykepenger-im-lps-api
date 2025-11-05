@@ -1,8 +1,9 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-val TIGERSYS_ORGNR = "315339138"
+val TIGERSYS_ORGNR = Orgnr("315339138")
 
 fun MockOAuth2Server.hentToken(claims: Map<String, Any>): String =
     this

@@ -42,7 +42,7 @@ import kotlin.random.Random
 class SykmeldingRoutingTest : ApiTest() {
     @BeforeAll
     fun setup() {
-        every { unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(TIGERSYS_ORGNR)) } returns true
+        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
     }
 
     @AfterEach
