@@ -7,12 +7,13 @@ import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
-import no.nav.helsearbeidsgiver.utils.LeaderElection
+import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.time.LocalDateTime
 
 class LeaderElectedBakgrunnsjobbService(
     val bakgrunnsjobbRepository: BakgrunnsjobbRepository,
+    val leaderConfig: LeaderConfig,
     delayMillis: Long = 30 * 1000L,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO),
 ) : RecurringJob(coroutineScope, delayMillis) {
@@ -37,7 +38,7 @@ class LeaderElectedBakgrunnsjobbService(
     }
 
     override fun doJob() {
-        if (LeaderElection.isElectedLeader()) {
+        if (leaderConfig.isElectedLeader()) {
             do {
                 val jobbFunnet =
                     bakgrunnsjobbService

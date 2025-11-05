@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -49,7 +50,7 @@ abstract class LpsApiIntegrasjontest {
             port = 8080,
             module = {
                 apiModule(services = services, authClient = mockk(relaxed = true), unleashFeatureToggles = mockUnleash)
-                configureKafkaConsumers(tolkers, mockUnleash)
+                configureKafkaConsumers(tolkers, mockUnleash, getTestLeaderConfig(false))
             },
         )
     val mockOAuth2Server =
