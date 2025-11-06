@@ -18,6 +18,6 @@ class EnvTest {
     @Test
     fun `getPropertyAsList gir liste hvis property er satt`() {
         val scope = "maskinporten.eksponert_scopes"
-        Env.getPropertyAsList(scope) shouldBe listOf("nav:helse/im.read", "nav:helseytelser/sykepenger")
+        Env.getPropertyAsList(scope) shouldBe listOf("nav:helseytelser/sykepenger")
     }
 }

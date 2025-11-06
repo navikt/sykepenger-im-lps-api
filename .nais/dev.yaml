@@ -62,12 +62,6 @@ spec:
         - accessibleForAll: true
           atMaxAge: 600
           enabled: true
-          product: helse
-          separator: "/"
-          name: im.read
-        - accessibleForAll: true
-          atMaxAge: 600
-          enabled: true
           product: helseytelser
           separator: "/"
           name: sykepenger
@@ -92,7 +86,7 @@ spec:
     - secret: sykepenger-im-lps-api-unleash-api-token
   env:
     - name: EKSPONERT_MASKINPORTEN_SCOPES
-      value: "nav:helse/im.read nav:helseytelser/sykepenger"
+      value: "nav:helseytelser/sykepenger"
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS

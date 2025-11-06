@@ -107,7 +107,7 @@ tasks {
             events("failed")
         }
         environment("database.embedded", "true")
-        environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helse/im.read nav:helseytelser/sykepenger")
+        environment("EKSPONERT_MASKINPORTEN_SCOPES", "nav:helseytelser/sykepenger")
         environment(
             "MASKINPORTEN_WELL_KNOWN_URL",
             "http://localhost:33445/maskinporten/.well-known/openid-configuration",
