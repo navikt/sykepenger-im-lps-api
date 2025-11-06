@@ -95,12 +95,6 @@ spec:
       value: "nav:helse/im.read nav:helseytelser/sykepenger"
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
-    - name: ALTINN_IM_RESSURS_GAMMEL
-      value: "nav_system_sykepenger_inntektsmelding"
-    - name: ALTINN_SM_RESSURS_GAMMEL
-      value: "nav_system_sykepenger_sykmelding"
-    - name: ALTINN_SOKNAD_RESSURS_GAMMEL
-      value: "nav_system_sykepenger_soknad"
     - name: ALTINN_IM_RESSURS
       value: "nav_sykepenger_inntektsmelding"
     - name: ALTINN_SM_RESSURS
