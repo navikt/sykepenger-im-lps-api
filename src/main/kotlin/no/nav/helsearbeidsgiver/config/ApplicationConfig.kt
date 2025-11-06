@@ -51,7 +51,7 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
-import no.nav.helsearbeidsgiver.utils.NaisLeaderElectionConfig
+import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -155,6 +155,7 @@ fun configureServices(
     unleashFeatureToggles: UnleashFeatureToggles,
     database: Database,
     pdlService: PdlService,
+    leaderConfig: LeaderConfig,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
@@ -172,7 +173,7 @@ fun configureServices(
     val bakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository = repositories.bakgrunnsjobbRepository,
-            NaisLeaderElectionConfig,
+            leaderConfig,
         )
 
     val innsendingService =
@@ -221,11 +222,12 @@ fun configureServices(
     )
 }
 
-fun configureUnleashFeatureToggles(): UnleashFeatureToggles = UnleashFeatureToggles(isLocal(), NaisLeaderElectionConfig)
+fun configureUnleashFeatureToggles(): UnleashFeatureToggles = UnleashFeatureToggles(isLocal())
 
 fun Application.configureKafkaConsumers(
     tolkere: Tolkere,
     unleashFeatureToggles: UnleashFeatureToggles,
+    leaderConfig: LeaderConfig,
 ) {
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im"))
     launch(Dispatchers.Default) {
@@ -234,6 +236,7 @@ fun Application.configureKafkaConsumers(
             inntektsmeldingKafkaConsumer,
             tolkere.inntektsmeldingTolker,
             enabled = unleashFeatureToggles::skalKonsumereInntektsmeldinger,
+            isLeader = leaderConfig::isElectedLeader,
         )
     }
 
@@ -244,6 +247,7 @@ fun Application.configureKafkaConsumers(
             forespoerselKafkaConsumer,
             tolkere.forespoerselTolker,
             unleashFeatureToggles::skalKonsumereForespoersler,
+            isLeader = leaderConfig::isElectedLeader,
         )
     }
 
@@ -254,6 +258,7 @@ fun Application.configureKafkaConsumers(
             consumer = sykmeldingKafkaConsumer,
             meldingTolker = tolkere.sykmeldingTolker,
             enabled = unleashFeatureToggles::skalKonsumereSykmeldinger,
+            isLeader = leaderConfig::isElectedLeader,
         )
     }
 
@@ -264,6 +269,7 @@ fun Application.configureKafkaConsumers(
             consumer = soeknadKafkaConsumer,
             meldingTolker = tolkere.soeknadTolker,
             enabled = unleashFeatureToggles::skalKonsumereSykepengesoeknader,
+            isLeader = leaderConfig::isElectedLeader,
         )
     }
 
@@ -274,6 +280,7 @@ fun Application.configureKafkaConsumers(
             consumer = statusISpeilKafkaConsumer,
             meldingTolker = tolkere.statusISpeilTolker,
             enabled = unleashFeatureToggles::skalKonsumereStatusISpeil,
+            isLeader = leaderConfig::isElectedLeader,
         )
     }
 
@@ -285,6 +292,7 @@ fun Application.configureKafkaConsumers(
                 topic = getProperty("kafkaConsumer.innsending.topic"),
                 consumer = avvistInntektsmeldingKafkaConsumer,
                 meldingTolker = tolkere.avvistInntektsmeldingTolker,
+                isLeader = leaderConfig::isElectedLeader,
             )
         }
     }

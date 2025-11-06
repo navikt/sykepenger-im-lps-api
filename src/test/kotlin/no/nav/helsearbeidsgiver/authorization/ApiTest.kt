@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.getPdpService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -32,6 +33,7 @@ abstract class ApiTest {
             unleashFeatureToggles = unleashFeatureToggles,
             database = mockk(),
             pdlService = mockk(),
+            leaderConfig = getTestLeaderConfig(isLeader = true),
         )
 
     private val port = 33445

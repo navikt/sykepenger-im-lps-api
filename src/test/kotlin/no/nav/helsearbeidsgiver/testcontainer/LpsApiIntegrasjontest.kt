@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
+import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -44,13 +45,15 @@ abstract class LpsApiIntegrasjontest {
     val priTopic = Env.getProperty("kafkaConsumer.forespoersel.topic")
 
     val mockUnleash = mockk<UnleashFeatureToggles>(relaxed = true)
+    val mockLeaderConfig = mockk<LeaderConfig>(relaxed = true)
+
     val server =
         embeddedServer(
             factory = Netty,
             port = 8080,
             module = {
                 apiModule(services = services, authClient = mockk(relaxed = true), unleashFeatureToggles = mockUnleash)
-                configureKafkaConsumers(tolkers, mockUnleash)
+                configureKafkaConsumers(tolkers, mockUnleash, leaderConfig = mockLeaderConfig)
             },
         )
     val mockOAuth2Server =
@@ -66,6 +69,7 @@ abstract class LpsApiIntegrasjontest {
 
     @BeforeAll
     fun setup() {
+        every { mockLeaderConfig.isElectedLeader() } returns false
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         every { mockUnleash.skalKonsumereForespoersler() } returns true
         every { mockUnleash.skalKonsumereInntektsmeldinger() } returns true
@@ -80,7 +84,7 @@ abstract class LpsApiIntegrasjontest {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, mockUnleash, db, mockk())
+        services = configureServices(repositories, mockUnleash, db, mockk(), leaderConfig = mockLeaderConfig)
         tolkers = configureTolkere(services, repositories)
 
         server.start(wait = false)
