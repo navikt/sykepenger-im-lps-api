@@ -60,7 +60,6 @@ fun TokenValidationContext.harTilgangTilRessurs(
 fun String.gyldigOrgnr(): Boolean = this.matches(Regex("\\d{9}"))
 
 fun TokenValidationContext.gyldigScope(): Boolean =
-    // Kan endre denne tilbake til å sjekke på eksakt match dersom vi bare benytter ett scope
     Env
         .getPropertyAsList("maskinporten.eksponert_scopes")
         .contains(this.getClaims("maskinporten").get("scope").toString())
