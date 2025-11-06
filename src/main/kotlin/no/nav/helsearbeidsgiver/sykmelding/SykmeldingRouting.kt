@@ -13,7 +13,7 @@ import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.harTilgangTilMinstEnAvRessursene
+import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -25,7 +25,6 @@ import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
-private val SM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_SM_RESSURS_GAMMEL")
 
 fun Route.sykmeldingV1(
     sykmeldingService: SykmeldingService,
@@ -61,8 +60,8 @@ private fun Route.sykmelding(
                 return@get
             }
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(SM_RESSURS, SM_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SM_RESSURS,
                     orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
                 )
             ) {
@@ -102,8 +101,8 @@ private fun Route.filtrerSykmeldinger(
             val filter = call.receive<SykmeldingFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(SM_RESSURS, SM_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SM_RESSURS,
                     orgnr = filter.orgnr,
                 )
             ) {
