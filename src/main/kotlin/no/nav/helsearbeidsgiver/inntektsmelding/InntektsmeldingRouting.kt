@@ -15,7 +15,7 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.harTilgangTilMinstEnAvRessursene
+import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
@@ -39,7 +39,6 @@ import java.util.UUID
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-private val IM_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_IM_RESSURS_GAMMEL")
 
 fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
@@ -62,8 +61,8 @@ private fun Route.sendInntektsmelding(services: Services) {
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
                     orgnr = forespoersel.orgnr,
                 )
             ) {
@@ -137,8 +136,8 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
                     orgnr = filter.orgnr,
                 )
             ) {
@@ -190,8 +189,8 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(IM_RESSURS, IM_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = IM_RESSURS,
                     orgnr = inntektsmelding.arbeidsgiver.orgnr,
                 )
             ) {

@@ -49,15 +49,6 @@ fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
         systembrukerOrgnr.gyldigOrgnr()
 }
 
-@Deprecated(
-    "Brukes midlertidig for å støtte både gamle og nye ressurser i en overgangsperiode. " +
-        "Fjernes når vi går over til å kun bruke de nye ressursene.",
-)
-fun TokenValidationContext.harTilgangTilMinstEnAvRessursene(
-    ressurser: Set<String>,
-    orgnr: String,
-): Boolean = ressurser.any { harTilgangTilRessurs(it, orgnr) }
-
 fun TokenValidationContext.harTilgangTilRessurs(
     ressurs: String,
     orgnr: String,

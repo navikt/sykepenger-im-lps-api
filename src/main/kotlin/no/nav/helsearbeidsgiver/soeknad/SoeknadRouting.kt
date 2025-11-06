@@ -12,7 +12,7 @@ import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
-import no.nav.helsearbeidsgiver.auth.harTilgangTilMinstEnAvRessursene
+import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -24,7 +24,6 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
-private val SOKNAD_RESSURS_GAMMEL = Env.getPropertyOrNull("ALTINN_SOKNAD_RESSURS_GAMMEL")
 
 fun Route.soeknadV1(
     soeknadService: SoeknadService,
@@ -59,8 +58,8 @@ private fun Route.soeknad(
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SOEKNAD_RESSURS,
                     orgnr = soeknad.arbeidsgiver.orgnr,
                 )
             ) {
@@ -96,8 +95,8 @@ private fun Route.filtrerSoeknader(
             val filter = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
-            if (!tokenValidationContext().harTilgangTilMinstEnAvRessursene(
-                    ressurser = setOfNotNull(SOEKNAD_RESSURS, SOKNAD_RESSURS_GAMMEL),
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SOEKNAD_RESSURS,
                     orgnr = filter.orgnr,
                 )
             ) {
