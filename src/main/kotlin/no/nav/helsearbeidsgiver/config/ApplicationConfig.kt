@@ -52,6 +52,7 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.LeaderConfig
+import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -155,7 +156,7 @@ fun configureServices(
     unleashFeatureToggles: UnleashFeatureToggles,
     database: Database,
     pdlService: PdlService,
-    leaderConfig: LeaderConfig,
+    leaderConfig: LeaderConfig = NaisLeaderConfig,
 ): Services {
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)

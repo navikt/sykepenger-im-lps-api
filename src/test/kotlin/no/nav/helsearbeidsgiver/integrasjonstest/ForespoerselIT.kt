@@ -76,7 +76,7 @@ class ForespoerselIT {
             ).init()
         repositories = configureRepositories(db)
 
-        services = configureServices(repositories, unleashMock, db, mockk(), getTestLeaderConfig(false))
+        services = configureServices(repositories, unleashMock, db, mockk())
 
         forespoerselTolker =
             ForespoerselTolker(

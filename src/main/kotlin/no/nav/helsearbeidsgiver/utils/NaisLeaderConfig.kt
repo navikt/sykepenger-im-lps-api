@@ -8,11 +8,22 @@ import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.net.InetAddress
 
+/*
+  Brukes for å finne ut hvilken pod som er leder.
+  For å overlate ledervalg til nais, setter man leaderElection: true i nais.yaml
+  (https://doc.nais.io/services/leader-election/?h=leader)
+  I tester kan man overstyre med getTestLeaderConfig(), default er false (ikke leader)
+  I denne applikasjonen brukes valgt leder til å avgjøre hvem som skal gjøre hva:
+  -Leder-podden er den eneste som kjører bakgrunnsjobber (*LeaderElectedBakgrunnsjobbService)
+  -Leder-podden konsumerer IKKE Kafka-topics (ved feil i konsumering, vil appen kunne restarte). Da vil leder fortsatt være oppe og servere API-kall.
+  -Du må med andre ord ha minst to pods for å kjøre applikasjonen.
+
+ */
 interface LeaderConfig {
     fun isElectedLeader(): Boolean
 }
 
-class NaisLeaderElectionConfig : LeaderConfig {
+object NaisLeaderConfig : LeaderConfig {
     private val unknownLeader = "UNKNOWN_LEADER"
     private val httpClient = createHttpClient()
 

@@ -18,7 +18,7 @@ import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.plugins.configureRouting
-import no.nav.helsearbeidsgiver.utils.NaisLeaderElectionConfig
+import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -37,7 +37,6 @@ fun startServer() {
     val authClient = configureAuthClient()
 
     val unleashFeatureToggles = configureUnleashFeatureToggles()
-    val leaderConfig = NaisLeaderElectionConfig()
 
     val services =
         configureServices(
@@ -45,7 +44,7 @@ fun startServer() {
             unleashFeatureToggles,
             db,
             PdlService(authClient),
-            leaderConfig,
+            NaisLeaderConfig,
         )
     val tolkere =
         configureTolkere(
@@ -61,7 +60,7 @@ fun startServer() {
             configureKafkaConsumers(
                 tolkere = tolkere,
                 unleashFeatureToggles = unleashFeatureToggles,
-                leaderConfig = leaderConfig,
+                leaderConfig = NaisLeaderConfig,
             )
         },
     ).start(wait = true)
