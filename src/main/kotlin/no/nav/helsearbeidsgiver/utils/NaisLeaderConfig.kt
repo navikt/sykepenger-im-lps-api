@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.net.InetAddress
 
 /*
@@ -42,12 +43,13 @@ object NaisLeaderConfig : LeaderConfig {
                     logger().debug("Elected leader: ${electedPod.name} and host: ${getHostName()}")
                     electedPod.name
                 } catch (e: Exception) {
-                    logger().warn("feilet å hente elected leader", e)
+                    logger().error("feilet å hente elected leader")
+                    sikkerLogger().error("feilet å hente elected leader", e)
                     UNKNOWN_LEADER
                 }
             } else {
-                logger().warn("ELECTOR_GET_URL er null")
-                getHostName() ?: UNKNOWN_LEADER
+                logger().error("ELECTOR_GET_URL er null - er nais sidecar enablet?")
+                UNKNOWN_LEADER
             }
         }
 

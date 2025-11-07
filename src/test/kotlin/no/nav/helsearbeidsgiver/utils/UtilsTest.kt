@@ -12,4 +12,11 @@ class UtilsTest {
         tid.minute shouldBe 0
         tid.nano shouldBe 0
     }
+
+    @Test
+    fun naisLeaderConfig() {
+        // Dersom vi kjører NaisLeaderConfig uten nais enablet, vil default verdi for isElectedLeader() være false..
+        // Tenker dette er tryggest i en feil-situasjon, da vil ikke to poder spise bakgrunnsjobber
+        NaisLeaderConfig.isElectedLeader() shouldBe false
+    }
 }
