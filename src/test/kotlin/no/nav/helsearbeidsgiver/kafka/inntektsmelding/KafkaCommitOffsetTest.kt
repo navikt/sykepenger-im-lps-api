@@ -180,7 +180,13 @@ class KafkaCommitOffsetTest {
 
         val meldingTolker = mockk<MeldingTolker>()
         runTest(timeout = 500.milliseconds) {
-            startKafkaConsumer("test", kafkaConsumer, meldingTolker, { true }, { true })
+            startKafkaConsumer(
+                topic = "test",
+                consumer = kafkaConsumer,
+                meldingTolker = meldingTolker,
+                enabled = { true },
+                isLeader = { true },
+            )
 
             verify(exactly = 0) { kafkaConsumer.subscribe(listOf("test")) }
             verify(exactly = 0) { kafkaConsumer.close() }

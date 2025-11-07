@@ -40,11 +40,11 @@ fun startServer() {
 
     val services =
         configureServices(
-            repositories,
-            unleashFeatureToggles,
-            db,
-            PdlService(authClient),
-            NaisLeaderConfig,
+            repositories = repositories,
+            unleashFeatureToggles = unleashFeatureToggles,
+            database = db,
+            pdlService = PdlService(authClient),
+            leaderConfig = NaisLeaderConfig,
         )
     val tolkere =
         configureTolkere(

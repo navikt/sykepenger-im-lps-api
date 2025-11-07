@@ -80,9 +80,20 @@ class InnsendingIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, unleashFeatureToggles, db, mockk(), getTestLeaderConfig(false))
+        services =
+            configureServices(
+                repositories = repositories,
+                unleashFeatureToggles = unleashFeatureToggles,
+                database = db,
+                pdlService = mockk(),
+                leaderConfig = getTestLeaderConfig(isLeader = false),
+            )
         inntektsmeldingTolker =
-            InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository, services.dialogportenService)
+            InntektsmeldingTolker(
+                inntektsmeldingService = services.inntektsmeldingService,
+                mottakRepository = repositories.mottakRepository,
+                dialogportenService = services.dialogportenService,
+            )
     }
 
     @Test

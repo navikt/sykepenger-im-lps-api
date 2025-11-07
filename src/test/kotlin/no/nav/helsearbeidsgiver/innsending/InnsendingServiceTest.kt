@@ -28,7 +28,7 @@ class InnsendingServiceTest {
     private val leaderElectedBakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository,
-            getTestLeaderConfig(true),
+            getTestLeaderConfig(isLeader = true),
         )
     private val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
     private val innsendingService =

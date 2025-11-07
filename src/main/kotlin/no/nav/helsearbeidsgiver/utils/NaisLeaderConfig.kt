@@ -24,7 +24,7 @@ interface LeaderConfig {
 }
 
 object NaisLeaderConfig : LeaderConfig {
-    private val unknownLeader = "UNKNOWN_LEADER"
+    private const val UNKNOWN_LEADER = "UNKNOWN_LEADER"
     private val httpClient = createHttpClient()
 
     override fun isElectedLeader(): Boolean {
@@ -43,11 +43,11 @@ object NaisLeaderConfig : LeaderConfig {
                     electedPod.name
                 } catch (e: Exception) {
                     logger().warn("feilet å hente elected leader", e)
-                    unknownLeader
+                    UNKNOWN_LEADER
                 }
             } else {
                 logger().warn("ELECTOR_GET_URL er null")
-                getHostName() ?: unknownLeader
+                getHostName() ?: UNKNOWN_LEADER
             }
         }
 
