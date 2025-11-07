@@ -22,19 +22,19 @@ suspend fun startKafkaConsumer(
 ) {
     val logger = LoggerFactory.getLogger(KafkaConsumer::class.java)
     if (isLeader()) {
-        logger.info("Jeg er leder - konsumerer ikke $topic")
+        logger.info("Pod er leder - konsumerer ikke $topic")
         return
     }
     consumer.subscribe(listOf(topic))
     consumer.asFlow({ consumer.toggleConsumer(enabled, topic) }).collect { record ->
         try {
             if (isLeader()) {
-                logger.info("Jeg har blitt ny leder, hurra! Slutter å konsumere $topic")
+                logger.warn("Pod er valgt til ny leder! Slutter å konsumere $topic")
                 consumer.close()
                 return@collect
             }
             if (!enabled()) {
-                logger.info("Innvendig enabled-sjekk slår til!")
+                logger.info("Innvendig enabled-sjekk slår til!") // TODO: Skal bare se om denne faktisk logges
                 consumer.close()
                 return@collect
             }
