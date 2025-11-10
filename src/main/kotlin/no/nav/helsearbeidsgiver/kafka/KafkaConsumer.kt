@@ -68,7 +68,7 @@ suspend fun startKafkaConsumer(
                     sikkerLogger().error(it, e)
                 }
             KafkaMonitor.registrerFeil(topic)
-            //  consumer.close()
+            consumer.close()
             throw e
         }
     }
