@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class HelseSjekkService(
-    val db: Database,
+    private val db: Database,
 ) {
     fun isReady(): Boolean =
         try {
