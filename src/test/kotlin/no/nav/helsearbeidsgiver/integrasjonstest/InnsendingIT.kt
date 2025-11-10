@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
+import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
@@ -79,9 +80,20 @@ class InnsendingIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-        services = configureServices(repositories, authClient, unleashFeatureToggles, db, mockk())
+        services =
+            configureServices(
+                repositories = repositories,
+                unleashFeatureToggles = unleashFeatureToggles,
+                database = db,
+                pdlService = mockk(),
+                leaderConfig = getTestLeaderConfig(isLeader = false),
+            )
         inntektsmeldingTolker =
-            InntektsmeldingTolker(services.inntektsmeldingService, repositories.mottakRepository, services.dialogportenService)
+            InntektsmeldingTolker(
+                inntektsmeldingService = services.inntektsmeldingService,
+                mottakRepository = repositories.mottakRepository,
+                dialogportenService = services.dialogportenService,
+            )
     }
 
     @Test

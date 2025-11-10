@@ -74,6 +74,18 @@ class UnleashFeatureToggles(
             false,
         )
 
+    fun skalKonsumereInntektsmeldinger(): Boolean =
+        unleashClient.isEnabled(
+            "konsumer-inntektsmeldinger",
+            false,
+        )
+
+    fun skalKonsumereForespoersler(): Boolean =
+        unleashClient.isEnabled(
+            "konsumer-forespoersler",
+            false,
+        )
+
     // TODO: Skal fjernes så fort vi får juridisk avklaring på at det er OK å eksponere
     fun skalEksponereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(

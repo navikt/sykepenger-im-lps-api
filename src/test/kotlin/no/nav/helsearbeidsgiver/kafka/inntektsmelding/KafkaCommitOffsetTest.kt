@@ -173,4 +173,26 @@ class KafkaCommitOffsetTest {
             verify(exactly = 1) { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) }
         }
     }
+
+    @Test
+    fun `leader skal ikke begynne å konsumere`() {
+        val kafkaConsumer = mockk<KafkaConsumer<String, String>>(relaxed = true)
+
+        val meldingTolker = mockk<MeldingTolker>()
+        runTest(timeout = 500.milliseconds) {
+            startKafkaConsumer(
+                topic = "test",
+                consumer = kafkaConsumer,
+                meldingTolker = meldingTolker,
+                enabled = { true },
+                isLeader = { true },
+            )
+
+            verify(exactly = 0) { kafkaConsumer.subscribe(listOf("test")) }
+            verify(exactly = 0) { kafkaConsumer.close() }
+            verify(exactly = 0) { meldingTolker.lesMelding(any()) }
+            verify(exactly = 0) { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) }
+            verify(exactly = 0) { kafkaConsumer.poll(any<Duration>()) }
+        }
+    }
 }

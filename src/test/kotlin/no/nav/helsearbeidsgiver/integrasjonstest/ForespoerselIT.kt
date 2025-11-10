@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
@@ -27,6 +26,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -45,6 +45,8 @@ class ForespoerselIT {
     private val authClient = mockk<AuthClient>(relaxed = true)
 
     private val orgnr = Orgnr("810007982")
+
+    private val unleashMock = mockk<UnleashFeatureToggles>(relaxed = true)
 
     private val port = 33445
     private val mockOAuth2Server =
@@ -74,10 +76,7 @@ class ForespoerselIT {
             ).init()
         repositories = configureRepositories(db)
 
-        val unleashMock = mockk<UnleashFeatureToggles>()
-        every { unleashMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
-
-        services = configureServices(repositories, authClient, unleashMock, db, mockk())
+        services = configureServices(repositories, unleashMock, db, mockk())
 
         forespoerselTolker =
             ForespoerselTolker(

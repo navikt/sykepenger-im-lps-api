@@ -18,12 +18,24 @@ suspend fun startKafkaConsumer(
     consumer: KafkaConsumer<String, String>,
     meldingTolker: MeldingTolker,
     enabled: () -> Boolean = { true },
+    isLeader: () -> Boolean = { false },
 ) {
     val logger = LoggerFactory.getLogger(KafkaConsumer::class.java)
+    if (isLeader()) {
+        logger.info("Pod er leder - konsumerer ikke $topic")
+        return
+    }
     consumer.subscribe(listOf(topic))
     consumer.asFlow({ consumer.toggleConsumer(enabled, topic) }).collect { record ->
         try {
+            if (isLeader()) {
+                logger.warn("Pod er valgt til ny leder! Slutter å konsumere $topic")
+                consumer.close()
+                return@collect
+            }
             if (!enabled()) {
+                logger.info("Innvendig enabled-sjekk slår til!") // TODO: Skal bare se om denne faktisk logges
+                consumer.close()
                 return@collect
             }
             val partition = record.partition()
