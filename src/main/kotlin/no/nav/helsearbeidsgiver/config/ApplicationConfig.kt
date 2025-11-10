@@ -327,5 +327,4 @@ fun getPdpService(): IPdpService =
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
 
-
 private fun isLocal(): Boolean = "local".equals(getPropertyOrNull("application.env"), true)
