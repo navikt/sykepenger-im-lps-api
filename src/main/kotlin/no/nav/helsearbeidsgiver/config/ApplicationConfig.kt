@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
 import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.helsesjekker.DatabaseHelseSjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
@@ -207,7 +208,7 @@ fun configureServices(
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
-    val helseSjekkService = HelseSjekkService(db = database)
+    val helseSjekkService = DatabaseHelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
 
     return Services(

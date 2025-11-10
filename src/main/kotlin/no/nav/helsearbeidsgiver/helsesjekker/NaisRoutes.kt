@@ -21,7 +21,7 @@ fun Route.isAlive() {
 
 fun Route.isReady(helseSjekkService: HelseSjekkService) {
     get("/is-ready") {
-        if (helseSjekkService.databaseIsAlive()) {
+        if (helseSjekkService.isReady()) {
             call.respond(HttpStatusCode.OK, "Ready")
         } else {
             call.respond(HttpStatusCode.InternalServerError, "Not Ready")

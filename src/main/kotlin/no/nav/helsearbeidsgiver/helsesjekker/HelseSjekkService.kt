@@ -5,10 +5,14 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class HelseSjekkService(
-    private val db: Database,
-) {
-    fun databaseIsAlive(): Boolean =
+interface HelseSjekkService {
+    fun isReady(): Boolean
+}
+
+class DatabaseHelseSjekkService(
+    val db: Database,
+) : HelseSjekkService {
+    override fun isReady(): Boolean =
         try {
             transaction(db) {
                 exec("SELECT 1") { rs -> rs.next() }
