@@ -13,8 +13,8 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
+import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -25,10 +25,11 @@ import org.junit.jupiter.api.Test
 class InnsendingServiceTest {
     private val innsendingProducer = mockk<InnsendingProducer>()
     private val bakgrunnsjobbRepository = mockk<BakgrunnsjobbRepository>(relaxed = true)
+    private val leaderConfig = mockk<LeaderConfig>()
     private val leaderElectedBakgrunnsjobbService =
         LeaderElectedBakgrunnsjobbService(
             bakgrunnsjobbRepository,
-            getTestLeaderConfig(isLeader = true),
+            leaderConfig,
         )
     private val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
     private val innsendingService =
@@ -37,6 +38,9 @@ class InnsendingServiceTest {
     @BeforeEach
     fun init() {
         clearAllMocks()
+        every {
+            leaderConfig.isElectedLeader()
+        } returns true
         every {
             innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         } returns JsonNull

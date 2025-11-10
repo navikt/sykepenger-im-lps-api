@@ -44,7 +44,6 @@ import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
-import no.nav.helsearbeidsgiver.pdp.IngenTilgangPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
@@ -333,13 +332,10 @@ fun Application.configureAuth(authClient: AuthClient) {
 
 fun getPdpService(): IPdpService =
     when {
-        isDev() -> PdpService
         isLocal() -> LocalhostPdpService
-        else -> IngenTilgangPdpService
+        else -> PdpService
     }
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
-
-private fun isDev(): Boolean = "dev-gcp".equals(getPropertyOrNull("application.env"), true)
 
 private fun isLocal(): Boolean = "local".equals(getPropertyOrNull("application.env"), true)
