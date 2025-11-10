@@ -50,7 +50,7 @@ spec:
       external:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
-#        - host: platform.altinn.no
+        - host: platform.altinn.no
       rules:
         - application: logging
           namespace: nais-system
@@ -89,24 +89,24 @@ spec:
               - name: lps_api_datastream_bruker
   envFrom:
     - secret: sykepenger-im-lps-api-unleash-api-token
-#    - secret: altinn-subscription
+    - secret: altinn-subscription
   env:
     - name: EKSPONERT_MASKINPORTEN_SCOPES
       value: "nav:helseytelser/sykepenger"
-#    - name: ALTINN_3_BASE_URL
-#      value: "https://platform.altinn.no"
+    - name: ALTINN_3_BASE_URL
+      value: "https://platform.altinn.no"
     - name: ALTINN_IM_RESSURS
       value: "nav_sykepenger_inntektsmelding"
     - name: ALTINN_SM_RESSURS
       value: "nav_sykepenger_sykmelding"
     - name: ALTINN_SOEKNAD_RESSURS
       value: "nav_sykepenger_soeknad"
+    - name: ALTINN_PDP_SCOPE
+      value: "altinn:authorization/authorize"
     - name: PDL_URL
       value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
     - name: PDL_SCOPE
       value: "api://prod-fss.pdl.pdl-api/.default"
-#    - name: ALTINN_PDP_SCOPE
-#      value: "altinn_authorization/authorize"
     - name: JDK_JAVA_OPTIONS
       value: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
 
