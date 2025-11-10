@@ -1,18 +1,15 @@
 package no.nav.helsearbeidsgiver.helsesjekker
 
+import no.nav.helsearbeidsgiver.kafka.KafkaMonitor
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
-interface HelseSjekkService {
-    fun isReady(): Boolean
-}
-
-class DatabaseHelseSjekkService(
+class HelseSjekkService(
     val db: Database,
-) : HelseSjekkService {
-    override fun isReady(): Boolean =
+) {
+    fun isReady(): Boolean =
         try {
             transaction(db) {
                 exec("SELECT 1") { rs -> rs.next() }
@@ -22,4 +19,6 @@ class DatabaseHelseSjekkService(
             sikkerLogger().error("Helsesjekk mot database feilet", e)
             false
         }
+
+    fun isAlive(): Boolean = !KafkaMonitor.harFeil()
 }
