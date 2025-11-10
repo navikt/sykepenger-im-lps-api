@@ -56,14 +56,3 @@ object LocalhostPdpService : IPdpService {
     }
 }
 
-// Benytter default ingen tilgang i prod inntil vi ønsker å eksponere APIet via http
-object IngenTilgangPdpService : IPdpService {
-    override fun harTilgang(
-        systembruker: String,
-        orgnr: String,
-        ressurs: String,
-    ): Boolean {
-        sikkerLogger().info("Ingen PDP, ingen tilgang")
-        return false
-    }
-}
