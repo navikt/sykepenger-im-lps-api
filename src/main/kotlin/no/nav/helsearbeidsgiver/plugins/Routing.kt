@@ -26,10 +26,10 @@ fun Application.configureRouting(
         naisRoutes(services.helseSjekkService)
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         authenticate("systembruker-config") {
-            inntektsmeldingV1(
+            if(unleashFeatureToggles.skalEksponereInntektsmeldinger())inntektsmeldingV1(
                 services = services,
             )
-            forespoerselV1(forespoerselService = services.forespoerselService)
+            if(unleashFeatureToggles.skalEksponereForespoersler()) forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
