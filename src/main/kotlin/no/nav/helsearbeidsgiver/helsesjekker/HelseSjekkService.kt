@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.helsesjekker
 
+import no.nav.helsearbeidsgiver.kafka.KafkaMonitor
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.Database
@@ -8,7 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class HelseSjekkService(
     private val db: Database,
 ) {
-    fun databaseIsAlive(): Boolean =
+    fun isReady(): Boolean =
         try {
             transaction(db) {
                 exec("SELECT 1") { rs -> rs.next() }
@@ -18,4 +19,6 @@ class HelseSjekkService(
             sikkerLogger().error("Helsesjekk mot database feilet", e)
             false
         }
+
+    fun isAlive(): Boolean = !KafkaMonitor.harFeil()
 }

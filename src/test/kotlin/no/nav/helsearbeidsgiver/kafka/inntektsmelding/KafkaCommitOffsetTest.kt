@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -8,6 +9,7 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
+import no.nav.helsearbeidsgiver.kafka.KafkaMonitor
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -63,6 +65,7 @@ class KafkaCommitOffsetTest {
             } finally {
                 verify(exactly = 1) { kafkaConsumer.poll(any<Duration>()) }
                 verify(exactly = 0) { kafkaConsumer.commitSync(any<MutableMap<TopicPartition, OffsetAndMetadata>>()) }
+                KafkaMonitor.harFeil() shouldBe true
             }
         }
     }
@@ -154,7 +157,7 @@ class KafkaCommitOffsetTest {
                         ),
                 ),
             )
-
+        KafkaMonitor.harFeil() shouldBe true
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
         val slot = slot<Set<TopicPartition>>()
         every { kafkaConsumer.pause(capture(slot)) } just runs
@@ -187,7 +190,7 @@ class KafkaCommitOffsetTest {
                 enabled = { true },
                 isLeader = { true },
             )
-
+            KafkaMonitor.harFeil() shouldBe false
             verify(exactly = 0) { kafkaConsumer.subscribe(listOf("test")) }
             verify(exactly = 0) { kafkaConsumer.close() }
             verify(exactly = 0) { meldingTolker.lesMelding(any()) }

@@ -21,11 +21,12 @@ suspend fun startKafkaConsumer(
     isLeader: () -> Boolean = { false },
 ) {
     val logger = LoggerFactory.getLogger(KafkaConsumer::class.java)
+    KafkaMonitor.registrerConsumer(topic) // registrer uavhengig av om vi faktisk konsumerer
     if (isLeader()) {
         logger.info("Pod er leder - konsumerer ikke $topic")
         return
     }
-    consumer.subscribe(listOf(topic))
+    consumer.subscribe(listOf(topic)) // TODO: try / catch her også?
     consumer.asFlow({ consumer.toggleConsumer(enabled, topic) }).collect { record ->
         try {
             if (isLeader()) {
@@ -66,8 +67,8 @@ suspend fun startKafkaConsumer(
                     logger.error(it)
                     sikkerLogger().error(it, e)
                 }
-            // TODO; Forsøk igjen noen ganger først, disable evt lesing fra kafka i en periode.
-            // Kan evt restarte med en gang, hvis vi har flere noder (exit går utover API ellers)
+            KafkaMonitor.registrerFeil(topic)
+            consumer.close()
             throw e
         }
     }

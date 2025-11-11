@@ -8,20 +8,24 @@ import io.ktor.server.routing.route
 
 fun Route.naisRoutes(helseSjekkService: HelseSjekkService) {
     route("/health") {
-        isAlive()
+        isAlive(helseSjekkService)
         isReady(helseSjekkService)
     }
 }
 
-fun Route.isAlive() {
+fun Route.isAlive(helseSjekkService: HelseSjekkService) {
     get("/is-alive") {
-        call.respond(HttpStatusCode.OK, "Alive")
+        if (helseSjekkService.isAlive()) {
+            call.respond(HttpStatusCode.OK, "Alive")
+        } else {
+            call.respond(HttpStatusCode.InternalServerError, "Feilet!")
+        }
     }
 }
 
 fun Route.isReady(helseSjekkService: HelseSjekkService) {
     get("/is-ready") {
-        if (helseSjekkService.databaseIsAlive()) {
+        if (helseSjekkService.isReady()) {
             call.respond(HttpStatusCode.OK, "Ready")
         } else {
             call.respond(HttpStatusCode.InternalServerError, "Not Ready")
