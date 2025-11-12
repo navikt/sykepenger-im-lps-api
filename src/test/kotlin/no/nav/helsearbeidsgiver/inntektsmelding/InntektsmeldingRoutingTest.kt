@@ -33,6 +33,7 @@ import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -40,9 +41,11 @@ import java.time.LocalDate
 import java.util.UUID
 
 class InntektsmeldingRoutingTest : ApiTest() {
-    @AfterEach
+    @BeforeEach
     fun setup() {
         clearMocks(repositories.inntektsmeldingRepository)
+        every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
+        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @AfterAll
