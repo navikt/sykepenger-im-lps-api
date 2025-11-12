@@ -41,8 +41,8 @@ spec:
     timeout: 1
   kafka:
     pool: nav-prod
-#  ingresses:
-#    - https://sykepenger-api.ekstern.nav.no
+  ingresses:
+    - https://sykepenger-api.ekstern.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:
