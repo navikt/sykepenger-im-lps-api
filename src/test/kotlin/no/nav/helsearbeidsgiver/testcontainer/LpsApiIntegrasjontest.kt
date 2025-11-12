@@ -110,8 +110,6 @@ abstract class LpsApiIntegrasjontest {
             ForespoerselEntitet.deleteAll()
             SoeknadEntitet.deleteAll()
         }
-        every { mockUnleash.skalEksponereForespoersler() } returns true
-        every { mockUnleash.skalEksponereInntektsmeldinger() } returns true
     }
 
     @AfterAll
