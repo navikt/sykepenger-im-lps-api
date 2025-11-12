@@ -31,7 +31,9 @@ fun Application.configureRouting(
                     services = services,
                 )
             }
-            if (unleashFeatureToggles.skalEksponereForespoersler()) forespoerselV1(forespoerselService = services.forespoerselService)
+            if (unleashFeatureToggles.skalEksponereForespoersler()) {
+                forespoerselV1(forespoerselService = services.forespoerselService)
+            }
             sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
