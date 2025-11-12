@@ -35,11 +35,11 @@ import java.time.LocalDate
 import java.util.UUID
 
 class ForespoerselRoutingTest : ApiTest() {
-
     @BeforeEach
     fun setup() {
         every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
     }
+
     @Test
     fun `hent en spesifikk forespørsel`() {
         val navReferanseId = UUID.randomUUID()

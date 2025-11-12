@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
@@ -94,6 +95,7 @@ class InnsendingIT {
                 mottakRepository = repositories.mottakRepository,
                 dialogportenService = services.dialogportenService,
             )
+        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @Test
