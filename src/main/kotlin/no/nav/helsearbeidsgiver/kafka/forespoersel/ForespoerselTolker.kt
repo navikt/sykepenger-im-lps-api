@@ -71,8 +71,11 @@ class ForespoerselTolker(
             NotisType.FORESPOERSEL_OPPDATERT -> {
                 transaction {
                     try {
-                        forespoerselService.lagreOppdatertForespoersel(obj)
-                        mottakRepository.opprett(ExposedMottak(melding))
+                        if (obj.forespoersel != null) {
+                            forespoerselService.lagreOppdatertForespoersel(obj)
+                            mottakRepository.opprett(ExposedMottak(melding))
+                            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
+                        }
                     } catch (e: Exception) {
                         rollback()
                         logger.error("Klarte ikke å lagre oppdatert forespørsel i database: $forespoerselId")
