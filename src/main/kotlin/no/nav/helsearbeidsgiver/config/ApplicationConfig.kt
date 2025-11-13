@@ -157,7 +157,6 @@ fun configureServices(
     pdlService: PdlService,
     leaderConfig: LeaderConfig = NaisLeaderConfig,
 ): Services {
-    val forespoerselService = ForespoerselService(repositories.forespoerselRepository)
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
@@ -203,12 +202,13 @@ fun configureServices(
             soeknadRepository = repositories.soeknadRepository,
             unleashFeatureToggles = unleashFeatureToggles,
             inntektsmeldingRepository = repositories.inntektsmeldingRepository,
+            forespoerselRepository = repositories.forespoerselRepository,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
-
+    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService)
     return Services(
         forespoerselService,
         inntektsmeldingService,

@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.forespoersel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
@@ -13,7 +14,8 @@ import kotlin.test.assertEquals
 
 class ForespoerselServiceTest {
     private val forespoerselRepository = mockk<ForespoerselRepository>()
-    private val forespoerselService = ForespoerselService(forespoerselRepository)
+    private val dialogportenService = mockk<DialogportenService>()
+    private val forespoerselService = ForespoerselService(forespoerselRepository, dialogportenService)
 
     @Test
     fun hentForespoerslerForOrgnr() {

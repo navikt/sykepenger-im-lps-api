@@ -11,6 +11,7 @@ import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
@@ -30,12 +31,14 @@ class DialogportenServiceTest {
     val mockSoeknadRepository = mockk<SoeknadRepository>()
     val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
     val mockInntektsmeldingRepository = mockk<InntektsmeldingRepository>()
+    val mockForespoerselRepository = mockk<ForespoerselRepository>()
     val dialogportenService =
         DialogportenService(
             dialogProducer = mockDialogProducer,
             soeknadRepository = mockSoeknadRepository,
             inntektsmeldingRepository = mockInntektsmeldingRepository,
             unleashFeatureToggles = mockUnleashFeatureToggles,
+            forespoerselRepository = mockForespoerselRepository,
         )
 
     @BeforeEach

@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.forespoersel
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.mockk
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
@@ -28,7 +29,7 @@ class ForepoerselBacklogTest {
                 System.getProperty("database.password"),
             ).init()
         forespoerselRepository = configureRepositories(db).forespoerselRepository
-        forespoerselService = ForespoerselService(forespoerselRepository)
+        forespoerselService = ForespoerselService(forespoerselRepository, dialogportenService = mockk())
     }
 
     @Test

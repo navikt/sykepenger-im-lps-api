@@ -89,7 +89,11 @@ class MeldingTolkerTest {
 
         service =
             Services(
-                forespoerselService = ForespoerselService(repositories.forespoerselRepository),
+                forespoerselService =
+                    ForespoerselService(
+                        repositories.forespoerselRepository,
+                        dialogportenService = mockk<DialogportenService>(),
+                    ),
                 inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository),
                 innsendingService = mockk<InnsendingService>(),
                 dialogportenService = mockk<DialogportenService>(),
