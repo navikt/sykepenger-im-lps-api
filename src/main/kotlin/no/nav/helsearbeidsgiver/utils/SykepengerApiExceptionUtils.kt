@@ -16,10 +16,6 @@ sealed class SykepengerApiException(
         message: String,
     ) : SykepengerApiException(message)
 
-    class InvalidUuid(
-        message: String,
-    ) : SykepengerApiException(message)
-
     class BadRequest(
         message: String,
     ) : SykepengerApiException(message)

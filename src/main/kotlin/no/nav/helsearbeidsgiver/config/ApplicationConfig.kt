@@ -342,14 +342,13 @@ fun Application.configureStatusPages() {
                 when (sykepengerApiException) {
                     is SykepengerApiException.NotFound -> HttpStatusCode.NotFound to sykepengerApiException.message
                     is SykepengerApiException.Unauthorized -> HttpStatusCode.Unauthorized to sykepengerApiException.message
-                    is SykepengerApiException.InvalidUuid -> HttpStatusCode.BadRequest to sykepengerApiException.message
                     is SykepengerApiException.BadRequest -> HttpStatusCode.BadRequest to sykepengerApiException.message
                 }
             call.respond(statusCode, message)
         }
 
         exception<Exception> { call, exception ->
-            sikkerLogger().error("Uventet feil i Sykepenger-API-et", exception)
+            sikkerLogger().error("Uventet feil i Sykepenger-APIet", exception)
             call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt.")
         }
     }

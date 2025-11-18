@@ -34,7 +34,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     get("/forespoersel/{navReferanseId}") {
         val navReferanseId =
             call.parameters["navReferanseId"]?.toUuidOrNull()
-                ?: throw SykepengerApiException.InvalidUuid("Ugyldig navReferanseId")
+                ?: throw SykepengerApiException.BadRequest("Ugyldig navReferanseId")
 
         val forespoersel =
             forespoerselService.hentForespoersel(navReferanseId)
