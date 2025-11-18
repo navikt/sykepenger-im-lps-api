@@ -57,6 +57,7 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.SykepengerApiException
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
@@ -348,7 +349,10 @@ fun Application.configureStatusPages() {
         }
 
         exception<Exception> { call, exception ->
-            sikkerLogger().error("Uventet feil i Sykepenger-APIet", exception)
+            "Uventet feil i Sykepenger-APIet".also {
+                logger().error(it)
+                sikkerLogger().error(it, exception)
+            }
             call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt.")
         }
     }
