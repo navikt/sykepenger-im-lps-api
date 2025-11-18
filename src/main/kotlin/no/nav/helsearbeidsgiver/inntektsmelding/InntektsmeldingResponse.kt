@@ -59,7 +59,9 @@ data class InntektsmeldingRequest(
 ) {
     fun valider(): Set<String> {
         val naturalytelserFeilmelding =
-            if (naturalytelser.all { it.verdiBeloep > 0 && it.verdiBeloep < 1_000_000 }) {
+            if (naturalytelser != inntekt?.naturalytelser) { // temp validering
+                "naturalytelser kan ikke være forskjellig fra inntekt.naturalytelser"
+            } else if (naturalytelser.all { it.verdiBeloep > 0 && it.verdiBeloep < 1_000_000 }) {
                 null
             } else {
                 "Beløp må være større enn 0"
