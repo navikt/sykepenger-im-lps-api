@@ -74,6 +74,8 @@ abstract class LpsApiIntegrasjontest {
         every { mockUnleash.skalKonsumereForespoersler() } returns true
         every { mockUnleash.skalKonsumereInntektsmeldinger() } returns true
         every { mockUnleash.skalEksponereSykepengesoeknader() } returns true
+        every { mockUnleash.skalEksponereForespoersler() } returns true
+        every { mockUnleash.skalEksponereInntektsmeldinger() } returns true
         every { mockUnleash.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
         every { mockUnleash.skalKonsumereStatusISpeil() } returns true
         every { mockUnleash.skalKonsumereAvvisteInntektsmeldinger() } returns true

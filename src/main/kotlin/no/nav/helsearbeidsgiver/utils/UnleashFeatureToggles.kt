@@ -93,6 +93,18 @@ class UnleashFeatureToggles(
             false,
         )
 
+    fun skalEksponereInntektsmeldinger(): Boolean =
+        unleashClient.isEnabled(
+            "eksponer-inntektsmeldinger-i-api",
+            false,
+        )
+
+    fun skalEksponereForespoersler(): Boolean =
+        unleashClient.isEnabled(
+            "eksponer-forespoersler-i-api",
+            false,
+        )
+
     fun skalEksponereSykmeldinger(orgnr: Orgnr): Boolean =
         unleashClient.isEnabled(
             "eksponer-sykmelding-i-api",

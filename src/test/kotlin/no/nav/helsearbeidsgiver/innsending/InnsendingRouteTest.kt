@@ -41,6 +41,7 @@ class InnsendingRouteTest : ApiTest() {
     fun setup() {
         mockkStatic(Services::opprettImTransaction)
         every { services.opprettImTransaction(any(), any()) } just Runs
+        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @Test

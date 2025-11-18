@@ -9,7 +9,7 @@ metadata:
 spec:
   leaderElection: true
   replicas:
-    max: 2
+    max: 4
     min: 2
   resources:
     requests:
@@ -41,8 +41,8 @@ spec:
     timeout: 1
   kafka:
     pool: nav-prod
-#  ingresses:
-#    - https://sykepenger-api.ekstern.nav.no
+  ingresses:
+    - https://sykepenger-api.nav.no
   image: {{image}}
   port: 8080
   accessPolicy:

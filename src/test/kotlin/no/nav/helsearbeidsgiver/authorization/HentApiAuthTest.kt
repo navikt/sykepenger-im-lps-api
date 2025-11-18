@@ -38,6 +38,8 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     fun setup() {
         mockPdpTilganger()
         every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
+        every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
+        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
     }
 
