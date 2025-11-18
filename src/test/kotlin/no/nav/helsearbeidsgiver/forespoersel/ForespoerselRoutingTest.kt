@@ -162,13 +162,30 @@ class ForespoerselRoutingTest : ApiTest() {
     fun `gir 400 Bad Request dersom navReferanseId er ugyldig`() {
         val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
 
-        val response =
-            runBlocking {
+        runBlocking {
+            val response =
                 client.get("/v1/forespoersel/$ugyldigNavReferanseId") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-            }
-        response.status shouldBe HttpStatusCode.BadRequest
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.body<String>() shouldBe "Ugyldig navReferanseId"
+        }
+    }
+
+    @Test
+    fun `gir 500 Internal Server Error dersom det oppstår en IllegalArgumentException under prosesseringen av requesten`() {
+        val navReferanseId = UUID.randomUUID()
+
+        every { repositories.forespoerselRepository.hentForespoersel(navReferanseId) } throws
+            IllegalArgumentException("Akerselva, ei åre av snerk, Akerselva, ei rense med verk")
+
+        runBlocking {
+            val response =
+                client.get("/v1/forespoersel/$navReferanseId") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.InternalServerError
+        }
     }
 
     @Test

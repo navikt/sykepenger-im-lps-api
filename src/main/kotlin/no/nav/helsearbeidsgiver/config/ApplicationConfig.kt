@@ -1,9 +1,12 @@
 package no.nav.helsearbeidsgiver.config
 
 import com.nimbusds.jose.util.DefaultResourceRetriever
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
@@ -52,7 +55,9 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
+import no.nav.helsearbeidsgiver.utils.SykepengerApiException
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -207,7 +212,8 @@ fun configureServices(
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
     val helseSjekkService = HelseSjekkService(db = database)
-    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
+    val avvistInntektsmeldingService =
+        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
 
     return Services(
         forespoerselService,
@@ -326,6 +332,27 @@ fun Application.configureAuth(authClient: AuthClient) {
                     DEFAULT_HTTP_SIZE_LIMIT,
                 ),
         )
+    }
+}
+
+fun Application.configureStatusPages() {
+    install(StatusPages) {
+        exception<SykepengerApiException> { call, sykepengerApiException ->
+            val (statusCode, message) =
+                when (sykepengerApiException) {
+                    is SykepengerApiException.NotFound -> HttpStatusCode.NotFound to sykepengerApiException.message
+                    is SykepengerApiException.Unauthorized -> HttpStatusCode.Unauthorized to sykepengerApiException.message
+                    is SykepengerApiException.InvalidUuid -> HttpStatusCode.BadRequest to sykepengerApiException.message
+                    is SykepengerApiException.BadRequest -> HttpStatusCode.BadRequest to sykepengerApiException.message
+                    is SykepengerApiException.InternalServerError -> HttpStatusCode.InternalServerError to sykepengerApiException.message
+                }
+            call.respond(statusCode, message)
+        }
+
+        exception<Exception> { call, exception ->
+            sikkerLogger().error("Uventet feil i Sykepenger-API-et", exception)
+            call.respond(HttpStatusCode.InternalServerError, "Noe gikk galt.")
+        }
     }
 }
 

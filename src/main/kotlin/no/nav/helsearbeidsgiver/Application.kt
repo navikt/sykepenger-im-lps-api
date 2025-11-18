@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.config.configureAuthClient
 import no.nav.helsearbeidsgiver.config.configureKafkaConsumers
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
+import no.nav.helsearbeidsgiver.config.configureStatusPages
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
@@ -81,4 +82,5 @@ fun Application.apiModule(
 
     logger.info("Setter opp routing...")
     configureRouting(services, unleashFeatureToggles)
+    configureStatusPages()
 }
