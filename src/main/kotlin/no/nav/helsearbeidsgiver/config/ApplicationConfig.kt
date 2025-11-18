@@ -344,7 +344,6 @@ fun Application.configureStatusPages() {
                     is SykepengerApiException.Unauthorized -> HttpStatusCode.Unauthorized to sykepengerApiException.message
                     is SykepengerApiException.InvalidUuid -> HttpStatusCode.BadRequest to sykepengerApiException.message
                     is SykepengerApiException.BadRequest -> HttpStatusCode.BadRequest to sykepengerApiException.message
-                    is SykepengerApiException.InternalServerError -> HttpStatusCode.InternalServerError to sykepengerApiException.message
                 }
             call.respond(statusCode, message)
         }

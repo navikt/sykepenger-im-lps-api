@@ -23,10 +23,6 @@ sealed class SykepengerApiException(
     class BadRequest(
         message: String,
     ) : SykepengerApiException(message)
-
-    class InternalServerError(
-        message: String,
-    ) : SykepengerApiException(message)
 }
 
 suspend inline fun <reified T : Any> ApplicationCall.receiveFilter(): T =
