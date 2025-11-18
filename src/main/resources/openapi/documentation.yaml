@@ -1008,12 +1008,17 @@ components:
             - "Endring"
         avsender:
           $ref: "#/components/schemas/Avsender"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
       required:
         - "navReferanseId"
         - "sykmeldtFnr"
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
         - "avsender"
+        - "naturalytelser"
     InntektsmeldingArbeidsgiver:
       type: "object"
       properties:
@@ -1057,6 +1062,10 @@ components:
         refusjon:
           nullable: true
           $ref: "#/components/schemas/Refusjon"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
         sykmeldtFnr:
           type: "string"
         aarsakInnsending:
@@ -1093,6 +1102,7 @@ components:
         - "loepenr"
         - "id"
         - "navReferanseId"
+        - "naturalytelser"
         - "sykmeldtFnr"
         - "aarsakInnsending"
         - "typeInnsending"
