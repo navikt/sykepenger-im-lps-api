@@ -11,6 +11,7 @@ import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -274,8 +275,58 @@ class DialogportenServiceTest {
 
         dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmeldingId)
 
-        verifySequence {
+        verify {
             mockDialogProducer.send(dialogInntektsmelding)
+        }
+    }
+
+    @Test
+    fun `dialogportenservice kaller dialogProducer ved utgått inntektsmeldingsforespørsel`() {
+        val orgnr = Orgnr.genererGyldig()
+        val forespoerselId = UUID.randomUUID()
+        val sykmeldingId = UUID.randomUUID()
+        val forespoersel =
+            mockk<Forespoersel> {
+                every { navReferanseId } returns forespoerselId
+                every { this@mockk.orgnr } returns orgnr.verdi
+            }
+
+        val dialogUtgaattForespoersel =
+            DialogUtgaattInntektsmeldingForespoersel(
+                forespoerselId = forespoerselId,
+                sykmeldingId = sykmeldingId,
+                orgnr = orgnr.verdi,
+            )
+
+        coEvery { mockDialogProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
+        every { mockForespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId) } returns dialogUtgaattForespoersel
+
+        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
+
+        verify {
+            mockDialogProducer.send(dialogUtgaattForespoersel)
+        }
+    }
+
+    @Test
+    fun `dialogportenservice kaller _ikke_ dialogProducer dersom dialogmelding ikke kan hentes for utgått forespørsel`() {
+        val orgnr = Orgnr.genererGyldig()
+        val forespoerselId = UUID.randomUUID()
+        val forespoersel =
+            mockk<Forespoersel> {
+                every { navReferanseId } returns forespoerselId
+                every { this@mockk.orgnr } returns orgnr.verdi
+            }
+
+        coEvery { mockDialogProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
+        every { mockForespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId) } returns null
+
+        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
+
+        verify(exactly = 0) {
+            mockDialogProducer.send(any())
         }
     }
 
