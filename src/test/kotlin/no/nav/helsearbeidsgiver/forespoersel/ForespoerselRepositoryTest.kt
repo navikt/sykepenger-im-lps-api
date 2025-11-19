@@ -9,9 +9,12 @@ import io.mockk.unmockkStatic
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.configureRepositories
+import no.nav.helsearbeidsgiver.inntektsmelding.tilLagreSoeknad
+import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import org.jetbrains.exposed.sql.Database
@@ -20,10 +23,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.test.assertEquals
 
 @WithPostgresContainer
 @ExtendWith(TransactionalExtension::class)
@@ -215,5 +220,30 @@ class ForespoerselRepositoryTest {
         forespoersler.forEach {
             it.loepenr shouldBeGreaterThan forespoersel1Loepenr
         }
+    }
+
+    @Test
+    fun `hentUtgaattForespoerselDialogMelding skal returnere dialogmelding for utgått forespørsel`() {
+        val forespoerselRepository = ForespoerselRepository(db)
+        val soeknadRepository = SoeknadRepository(db)
+
+        val sykmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+
+        val soeknad = TestData.soeknadMock().copy(sykmeldingId = sykmeldingId)
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
+        soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
+
+        forespoerselRepository.lagreForespoersel(
+            forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId, vedtaksperiodeId),
+            eksponertForespoerselId = forespoerselId,
+        )
+
+        val dialogMelding = forespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId)
+        assertNotNull(dialogMelding)
+        assertEquals(DEFAULT_ORG, dialogMelding.orgnr)
+        assertEquals(forespoerselId, dialogMelding.forespoerselId)
+        assertEquals(sykmeldingId, dialogMelding.sykmeldingId)
     }
 }
