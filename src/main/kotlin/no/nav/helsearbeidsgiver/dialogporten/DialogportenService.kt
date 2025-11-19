@@ -51,12 +51,11 @@ class DialogportenService(
         if (sykmeldingId == null) {
             logger.warn(
                 "Fant ingen sykmeldinger for vedtaksperiodeId ${forespoersel.vedtaksperiodeId}. " +
-                        "Kan derfor ikke produsere dialogmelding til hag-dialog.",
+                    "Kan derfor ikke produsere dialogmelding til hag-dialog.",
             )
             return
         }
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
-
             dialogProducer.send(
                 DialogInntektsmeldingsforespoersel(
                     forespoerselId = forespoersel.forespoerselId,
