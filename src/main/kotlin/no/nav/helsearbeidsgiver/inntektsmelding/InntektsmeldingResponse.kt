@@ -50,12 +50,12 @@ data class InntektsmeldingRequest(
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
+    @EncodeDefault
+    val naturalytelser: List<Naturalytelse> = inntekt?.naturalytelser.orEmpty(),
     val sykmeldtFnr: String,
     val arbeidsgiverTlf: String,
     val aarsakInnsending: AarsakInnsending,
     val avsender: Avsender, // avsendersystem
-    @EncodeDefault
-    val naturalytelser: List<Naturalytelse> = inntekt?.naturalytelser.orEmpty(),
 ) {
     fun valider(): Set<String> {
         val naturalytelserFeilmelding =

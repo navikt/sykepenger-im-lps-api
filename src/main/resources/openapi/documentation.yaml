@@ -997,6 +997,10 @@ components:
         refusjon:
           nullable: true
           $ref: "#/components/schemas/Refusjon"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
         sykmeldtFnr:
           type: "string"
         arbeidsgiverTlf:
@@ -1008,17 +1012,13 @@ components:
             - "Endring"
         avsender:
           $ref: "#/components/schemas/Avsender"
-        naturalytelser:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Naturalytelse"
       required:
         - "navReferanseId"
+        - "naturalytelser"
         - "sykmeldtFnr"
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
         - "avsender"
-        - "naturalytelser"
     InntektsmeldingArbeidsgiver:
       type: "object"
       properties:
