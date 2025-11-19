@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -36,7 +37,10 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     get("/forespoersel/{navReferanseId}") {
         try {
             val navReferanseId = call.parameters["navReferanseId"]?.toUuidOrNull()
-            requireNotNull(navReferanseId) { "navReferanseId: $navReferanseId ikke gyldig UUID" }
+            if (navReferanseId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Ugyldig navReferanseId")
+                return@get
+            }
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)
             if (forespoersel == null) {
@@ -63,12 +67,14 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
                     " og forespørselOrgnr: [${forespoersel.orgnr}]",
             )
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.FORESPOERSEL)
-            call.respond(forespoersel)
-        } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
+
+            call.respond(HttpStatusCode.OK, forespoersel)
         } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av forespørsler", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
+            "Feil ved henting av forespørsel".also {
+                logger().error(it)
+                sikkerLogger().error(it, e)
+                call.respond(HttpStatusCode.InternalServerError, it)
+            }
         }
     }
 }

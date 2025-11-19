@@ -31,10 +31,10 @@ import no.nav.helsearbeidsgiver.utils.opprettImTransaction
 import no.nav.helsearbeidsgiver.utils.tilInnsending
 import no.nav.helsearbeidsgiver.utils.tilInntektsmelding
 import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.validerMotForespoersel
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
-import java.util.UUID
 
 private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
@@ -169,8 +169,11 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
     // Hent inntektsmelding med id
     get("/inntektsmelding/{innsendingId}") {
         try {
-            val innsendingId = call.parameters["innsendingId"]?.let { UUID.fromString(it) }
-            requireNotNull(innsendingId)
+            val innsendingId = call.parameters["innsendingId"]?.toUuidOrNull()
+            if (innsendingId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Ugyldig innsendingId")
+                return@get
+            }
 
             val inntektsmelding =
                 inntektsmeldingService
@@ -207,11 +210,12 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             )
 
             call.respond(HttpStatusCode.OK, inntektsmelding)
-        } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+            "Feil ved henting av inntektsmelding".also {
+                logger().error(it)
+                sikkerLogger().error(it, e)
+                call.respond(HttpStatusCode.InternalServerError, it)
+            }
         }
     }
 }
