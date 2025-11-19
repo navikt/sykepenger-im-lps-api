@@ -46,16 +46,16 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: ForespoerselDokument) {
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
-            val sykmeldingId = hentSykmeldingId(forespoersel.vedtaksperiodeId)
+        val sykmeldingId = hentSykmeldingId(forespoersel.vedtaksperiodeId)
 
-            if (sykmeldingId == null) {
-                logger.warn(
-                    "Fant ingen sykmeldinger for vedtaksperiodeId ${forespoersel.vedtaksperiodeId}. " +
+        if (sykmeldingId == null) {
+            logger.warn(
+                "Fant ingen sykmeldinger for vedtaksperiodeId ${forespoersel.vedtaksperiodeId}. " +
                         "Kan derfor ikke produsere dialogmelding til hag-dialog.",
-                )
-                return
-            }
+            )
+            return
+        }
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
 
             dialogProducer.send(
                 DialogInntektsmeldingsforespoersel(
