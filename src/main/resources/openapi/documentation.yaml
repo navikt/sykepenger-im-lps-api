@@ -997,6 +997,10 @@ components:
         refusjon:
           nullable: true
           $ref: "#/components/schemas/Refusjon"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
         sykmeldtFnr:
           type: "string"
         arbeidsgiverTlf:
@@ -1010,6 +1014,7 @@ components:
           $ref: "#/components/schemas/Avsender"
       required:
         - "navReferanseId"
+        - "naturalytelser"
         - "sykmeldtFnr"
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
@@ -1057,6 +1062,10 @@ components:
         refusjon:
           nullable: true
           $ref: "#/components/schemas/Refusjon"
+        naturalytelser:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Naturalytelse"
         sykmeldtFnr:
           type: "string"
         aarsakInnsending:
@@ -1093,6 +1102,7 @@ components:
         - "loepenr"
         - "id"
         - "navReferanseId"
+        - "naturalytelser"
         - "sykmeldtFnr"
         - "aarsakInnsending"
         - "typeInnsending"

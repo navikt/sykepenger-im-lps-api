@@ -2,12 +2,14 @@
 
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Naturalytelse
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -28,6 +30,8 @@ data class InntektsmeldingResponse(
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
+    @EncodeDefault
+    val naturalytelser: List<Naturalytelse> = inntekt?.naturalytelser.orEmpty(),
     val sykmeldtFnr: String,
     val aarsakInnsending: AarsakInnsending,
     val typeInnsending: InnsendingType,
@@ -46,12 +50,27 @@ data class InntektsmeldingRequest(
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
+    @EncodeDefault
+    val naturalytelser: List<Naturalytelse> = inntekt?.naturalytelser.orEmpty(),
     val sykmeldtFnr: String,
     val arbeidsgiverTlf: String,
     val aarsakInnsending: AarsakInnsending,
     val avsender: Avsender, // avsendersystem
 ) {
-    fun valider(): Set<String> = SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, refusjon).valider()
+    fun valider(): Set<String> {
+        val naturalytelserFeilmelding =
+            if (naturalytelser.all { it.verdiBeloep > 0 && it.verdiBeloep < 1_000_000 }) {
+                null
+            } else {
+                "Beløp må være større enn 0"
+            }
+
+        return SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, refusjon)
+            .valider()
+            .plus(naturalytelserFeilmelding)
+            .mapNotNull { it }
+            .toSet()
+    }
 }
 
 enum class InnsendingType {
