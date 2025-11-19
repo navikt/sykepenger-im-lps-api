@@ -1,5 +1,7 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -12,6 +14,7 @@ class DialogportenService(
     val dialogProducer: DialogProducer,
     val soeknadRepository: SoeknadRepository,
     val inntektsmeldingRepository: InntektsmeldingRepository,
+    val forespoerselRepository: ForespoerselRepository,
     val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
@@ -88,6 +91,30 @@ class DialogportenService(
         } else {
             logger.info(
                 "Sendte _ikke_ melding til hag-dialog for inntektsmelding med innsendingsId: ${dialogInntektsmelding.innsendingId}, sykmeldingId: ${dialogInntektsmelding.sykmeldingId}, fordi feature toggle er av.",
+            )
+        }
+    }
+
+    fun oppdaterDialogMedUtgaattForespoersel(forespoersel: Forespoersel) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
+            val utgaattForespoerselDialogMelding = forespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoersel.navReferanseId)
+            if (utgaattForespoerselDialogMelding == null) {
+                logger.warn(
+                    "Klarte ikke å finne alle data til dialogmelding for forespoersel med id: ${forespoersel.navReferanseId} sender ikke melding til dialogporten.",
+                )
+                return
+            }
+
+            dialogProducer.send(
+                utgaattForespoerselDialogMelding,
+            )
+
+            logger.info(
+                "Sendte melding til hag-dialog for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, sykmeldingId: ${utgaattForespoerselDialogMelding.sykmeldingId}.",
+            )
+        } else {
+            logger.info(
+                "Sendte _ikke_ melding til hag-dialog for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, fordi feature toggle er av.",
             )
         }
     }

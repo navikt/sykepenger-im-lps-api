@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -8,6 +9,7 @@ import java.util.UUID
 
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
+    private val dialogportenService: DialogportenService,
 ) {
     fun filtrerForespoersler(filter: ForespoerselFilter): List<Forespoersel> {
         val orgnr = filter.orgnr
@@ -115,12 +117,14 @@ class ForespoerselService(
     }
 
     fun settForkastet(navReferanseId: UUID) {
-        forespoerselRepository.hentForespoersel(navReferanseId)
+        val forespoersel = forespoerselRepository.hentForespoersel(navReferanseId)
+        forespoersel
             ?: run {
                 sikkerLogger().warn("Forespørsel med id: $navReferanseId finnes ikke, kan ikke oppdatere status til FORKASTET")
                 return
             }
         forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
+        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
     }
 
