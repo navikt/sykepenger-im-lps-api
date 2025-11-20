@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -75,7 +76,10 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
+    fun oppdaterDialogMedInntektsmelding(
+        inntektsmeldingId: UUID,
+        arsakInnsending: AarsakInnsending? = AarsakInnsending.Ny,
+    ) {
         val dialogInntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
         if (dialogInntektsmelding == null) {
             logger.warn(
