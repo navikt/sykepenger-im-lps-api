@@ -86,10 +86,10 @@ class UnleashFeatureToggles(
             false,
         )
 
-    // TODO: Skal fjernes så fort vi får juridisk avklaring på at det er OK å eksponere
-    fun skalEksponereSykepengesoeknader(): Boolean =
+    fun skalEksponereSykepengesoeknader(orgnr: Orgnr): Boolean =
         unleashClient.isEnabled(
             "eksponer-soeknad-i-api",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
         )
 
