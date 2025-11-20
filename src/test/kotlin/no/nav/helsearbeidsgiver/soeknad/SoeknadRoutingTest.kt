@@ -115,16 +115,16 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 Not Found dersom navReferanseId er ugyldig`() {
-        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
+    fun `gir 400 Bad Request dersom soeknadId er ugyldig`() {
+        val ugyldigSoeknadId = "noe-helt-feil-og-ugyldig"
 
         val respons =
             runBlocking {
-                client.get("/v1/sykepengesoeknad/$ugyldigNavReferanseId") {
+                client.get("/v1/sykepengesoeknad/$ugyldigSoeknadId") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
-        respons.status shouldBe HttpStatusCode.NotFound
+        respons.status shouldBe HttpStatusCode.BadRequest
     }
 
     @Test

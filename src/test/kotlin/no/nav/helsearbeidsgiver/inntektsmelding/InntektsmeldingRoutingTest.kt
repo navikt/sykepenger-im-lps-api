@@ -32,7 +32,6 @@ import no.nav.helsearbeidsgiver.utils.mockAvvistInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -217,12 +216,12 @@ class InntektsmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 Bad Request dersom navReferanseId er ugyldig`() {
-        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
+    fun `gir 400 Bad Request dersom innsendingId er ugyldig`() {
+        val ugyldigInnsendingId = "noe-helt-feil-og-ugyldig"
 
         val response =
             runBlocking {
-                client.get("/v1/inntektsmelding/$ugyldigNavReferanseId") {
+                client.get("/v1/inntektsmelding/$ugyldigInnsendingId") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }

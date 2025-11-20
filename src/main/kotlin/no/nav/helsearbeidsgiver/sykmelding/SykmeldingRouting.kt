@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -52,7 +53,10 @@ private fun Route.sykmelding(
             }
 
             val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
-            requireNotNull(sykmeldingId) { "navReferanseId: $sykmeldingId ikke gyldig UUID" }
+            if (sykmeldingId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Ugyldig sykmeldingId")
+                return@get
+            }
 
             val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
             if (sykmelding == null) {
@@ -74,12 +78,14 @@ private fun Route.sykmelding(
                     " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
             )
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
+
             call.respond(sykmelding)
-        } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
         } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av sykmelding", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmelding")
+            "Feil ved henting av sykmelding".also {
+                logger().error(it)
+                sikkerLogger().error(it, e)
+                call.respond(HttpStatusCode.InternalServerError, it)
+            }
         }
     }
 }
