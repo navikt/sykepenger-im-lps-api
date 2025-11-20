@@ -41,11 +41,15 @@ private fun Route.soeknad(
 ) {
     // Hent én sykepengesøknad basert på søknadId
     get("/sykepengesoeknad/{soeknadId}") {
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
         try {
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@get
+            }
+
             val soeknadId = call.parameters["soeknadId"]?.let { UUID.fromString(it) }
             requireNotNull(soeknadId) { "soeknadId: $soeknadId ikke gyldig UUID" }
 
@@ -55,8 +59,6 @@ private fun Route.soeknad(
                 call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soeknadId")
                 return@get
             }
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SOEKNAD_RESSURS,
@@ -87,11 +89,13 @@ private fun Route.filtrerSoeknader(
     // Filtrer søknader på orgnr (underenhet), fnr og/eller dato søknaden ble mottatt av NAV.
 
     post("/sykepengesoeknader") {
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
         try {
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@post
+            }
+
             val filter = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
@@ -104,7 +108,6 @@ private fun Route.filtrerSoeknader(
                 return@post
             }
 
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             tellApiRequest()
 
             sikkerLogger().info(
