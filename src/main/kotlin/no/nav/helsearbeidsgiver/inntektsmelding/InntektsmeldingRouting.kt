@@ -209,7 +209,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
                     "systembrukerOrgnr: [$systembrukerOrgnr] og inntektsmeldingOrgnr: [${inntektsmelding.arbeidsgiver.orgnr}]",
             )
 
-            call.respond(HttpStatusCode.OK, inntektsmelding)
+            call.respond(inntektsmelding)
         } catch (e: Exception) {
             "Feil ved henting av inntektsmelding".also {
                 logger().error(it)

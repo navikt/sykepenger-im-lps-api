@@ -74,7 +74,7 @@ private fun Route.soeknad(
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
 
-            call.respond(HttpStatusCode.OK, soeknad)
+            call.respond(soeknad)
         } catch (e: Exception) {
             "Feil ved henting av sykepengesøknad".also {
                 logger().error(it)

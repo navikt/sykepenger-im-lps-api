@@ -68,7 +68,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             )
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.FORESPOERSEL)
 
-            call.respond(HttpStatusCode.OK, forespoersel)
+            call.respond(forespoersel)
         } catch (e: Exception) {
             "Feil ved henting av forespørsel".also {
                 logger().error(it)

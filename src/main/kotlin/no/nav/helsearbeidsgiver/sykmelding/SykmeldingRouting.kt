@@ -79,7 +79,7 @@ private fun Route.sykmelding(
             )
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
 
-            call.respond(HttpStatusCode.OK, sykmelding)
+            call.respond(sykmelding)
         } catch (e: Exception) {
             "Feil ved henting av sykmelding".also {
                 logger().error(it)
