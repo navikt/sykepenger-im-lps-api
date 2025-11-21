@@ -339,6 +339,23 @@ paths:
           schema:
             type: "string"
       responses:
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Uautorisert tilgang"
+                Example#2:
+                  value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
+                Example#4:
+                  value: "Uautorisert tilgang"
+                Example#5:
+                  value: "Uautorisert tilgang"
         "403":
           description: "Forbidden"
           content:
@@ -363,23 +380,6 @@ paths:
               examples:
                 Example#1:
                   value: ""
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Uautorisert tilgang"
-                Example#2:
-                  value: "Ikke tilgang til ressurs"
-                Example#3:
-                  value: "Uautorisert tilgang"
-                Example#4:
-                  value: "Uautorisert tilgang"
-                Example#5:
-                  value: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -406,12 +406,6 @@ paths:
               $ref: "#/components/schemas/SykepengesoeknadFilter"
         required: true
       responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "401":
           description: "Unauthorized"
           content:
@@ -422,13 +416,19 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
-                Example#3:
                   value: "Ikke tilgang til ressurs"
+                Example#3:
+                  value: "Uautorisert tilgang"
                 Example#4:
                   value: "Uautorisert tilgang"
                 Example#5:
                   value: "Uautorisert tilgang"
+        "403":
+          description: "Forbidden"
+          content:
+            '*/*':
+              schema:
+                type: "object"
         "200":
           description: "OK"
           headers:
@@ -737,41 +737,6 @@ components:
       required:
         - "perioder"
         - "egenmeldinger"
-    Naturalytelse:
-      type: "object"
-      properties:
-        naturalytelse:
-          type: "string"
-          enum:
-            - "AKSJERGRUNNFONDSBEVISTILUNDERKURS"
-            - "ANNET"
-            - "BEDRIFTSBARNEHAGEPLASS"
-            - "BESOEKSREISERHJEMMETANNET"
-            - "BIL"
-            - "BOLIG"
-            - "ELEKTRONISKKOMMUNIKASJON"
-            - "FRITRANSPORT"
-            - "INNBETALINGTILUTENLANDSKPENSJONSORDNING"
-            - "KOSTBESPARELSEIHJEMMET"
-            - "KOSTDAGER"
-            - "KOSTDOEGN"
-            - "LOSJI"
-            - "OPSJONER"
-            - "RENTEFORDELLAAN"
-            - "SKATTEPLIKTIGDELFORSIKRINGER"
-            - "TILSKUDDBARNEHAGEPLASS"
-            - "YRKEBILTJENESTLIGBEHOVKILOMETER"
-            - "YRKEBILTJENESTLIGBEHOVLISTEPRIS"
-        verdiBeloep:
-          type: "number"
-          format: "double"
-        sluttdato:
-          type: "string"
-          format: "date"
-      required:
-        - "naturalytelse"
-        - "verdiBeloep"
-        - "sluttdato"
     InntektEndringAarsak:
       type: "object"
       oneOf:
@@ -929,10 +894,6 @@ components:
         inntektsdato:
           type: "string"
           format: "date"
-        naturalytelser:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Naturalytelse"
         endringAarsaker:
           type: "array"
           items:
@@ -940,7 +901,6 @@ components:
       required:
         - "beloep"
         - "inntektsdato"
-        - "naturalytelser"
         - "endringAarsaker"
     RefusjonEndring:
       type: "object"
@@ -967,6 +927,41 @@ components:
       required:
         - "beloepPerMaaned"
         - "endringer"
+    Naturalytelse:
+      type: "object"
+      properties:
+        naturalytelse:
+          type: "string"
+          enum:
+            - "AKSJERGRUNNFONDSBEVISTILUNDERKURS"
+            - "ANNET"
+            - "BEDRIFTSBARNEHAGEPLASS"
+            - "BESOEKSREISERHJEMMETANNET"
+            - "BIL"
+            - "BOLIG"
+            - "ELEKTRONISKKOMMUNIKASJON"
+            - "FRITRANSPORT"
+            - "INNBETALINGTILUTENLANDSKPENSJONSORDNING"
+            - "KOSTBESPARELSEIHJEMMET"
+            - "KOSTDAGER"
+            - "KOSTDOEGN"
+            - "LOSJI"
+            - "OPSJONER"
+            - "RENTEFORDELLAAN"
+            - "SKATTEPLIKTIGDELFORSIKRINGER"
+            - "TILSKUDDBARNEHAGEPLASS"
+            - "YRKEBILTJENESTLIGBEHOVKILOMETER"
+            - "YRKEBILTJENESTLIGBEHOVLISTEPRIS"
+        verdiBeloep:
+          type: "number"
+          format: "double"
+        sluttdato:
+          type: "string"
+          format: "date"
+      required:
+        - "naturalytelse"
+        - "verdiBeloep"
+        - "sluttdato"
     Avsender:
       type: "object"
       properties:
