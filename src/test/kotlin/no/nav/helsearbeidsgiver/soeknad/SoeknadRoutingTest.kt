@@ -20,6 +20,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
@@ -39,7 +40,7 @@ import kotlin.random.Random
 class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
     fun beforeEach() {
-        every { unleashFeatureToggles.skalEksponereSykepengesoeknader() } returns true
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknader(TIGERSYS_ORGNR) } returns true
     }
 
     @AfterEach
@@ -115,16 +116,16 @@ class SoeknadRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 404 Not Found dersom navReferanseId er ugyldig`() {
-        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
+    fun `gir 400 Bad Request dersom soeknadId er ugyldig`() {
+        val ugyldigSoeknadId = "noe-helt-feil-og-ugyldig"
 
         val respons =
             runBlocking {
-                client.get("/v1/sykepengesoeknad/$ugyldigNavReferanseId") {
+                client.get("/v1/sykepengesoeknad/$ugyldigSoeknadId") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
-        respons.status shouldBe HttpStatusCode.NotFound
+        respons.status shouldBe HttpStatusCode.BadRequest
     }
 
     @Test

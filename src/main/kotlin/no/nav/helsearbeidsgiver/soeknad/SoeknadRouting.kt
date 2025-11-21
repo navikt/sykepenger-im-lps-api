@@ -19,9 +19,10 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.util.UUID
 
 private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
 
@@ -41,13 +42,20 @@ private fun Route.soeknad(
 ) {
     // Hent én sykepengesøknad basert på søknadId
     get("/sykepengesoeknad/{soeknadId}") {
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
         try {
-            val soeknadId = call.parameters["soeknadId"]?.let { UUID.fromString(it) }
-            requireNotNull(soeknadId) { "soeknadId: $soeknadId ikke gyldig UUID" }
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+            if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@get
+            }
+
+            val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
+            if (soeknadId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Ugyldig soeknadId")
+                return@get
+            }
 
             val soeknad = soeknadService.hentSoeknad(soeknadId)
 
@@ -55,8 +63,6 @@ private fun Route.soeknad(
                 call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soeknadId")
                 return@get
             }
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
             if (!tokenValidationContext().harTilgangTilRessurs(
                     ressurs = SOEKNAD_RESSURS,
@@ -69,13 +75,14 @@ private fun Route.soeknad(
             tellApiRequest()
             sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
+
             call.respond(soeknad)
-        } catch (e: IllegalArgumentException) {
-            sikkerLogger().error(e.message, e)
-            call.respond(HttpStatusCode.NotFound, "Ikke gyldig søknadId")
         } catch (e: Exception) {
-            sikkerLogger().error("Feil ved henting av søknader", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av søknad")
+            "Feil ved henting av sykepengesøknad".also {
+                logger().error(it)
+                sikkerLogger().error(it, e)
+                call.respond(HttpStatusCode.InternalServerError, it)
+            }
         }
     }
 }
@@ -87,11 +94,13 @@ private fun Route.filtrerSoeknader(
     // Filtrer søknader på orgnr (underenhet), fnr og/eller dato søknaden ble mottatt av NAV.
 
     post("/sykepengesoeknader") {
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
         try {
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@post
+            }
+
             val filter = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
@@ -104,7 +113,6 @@ private fun Route.filtrerSoeknader(
                 return@post
             }
 
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             tellApiRequest()
 
             sikkerLogger().info(

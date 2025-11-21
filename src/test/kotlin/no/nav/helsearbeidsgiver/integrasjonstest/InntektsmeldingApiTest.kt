@@ -50,7 +50,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             ugyldig.status shouldBe HttpStatusCode.BadRequest
-            ugyldig.bodyAsText() shouldBe "Ugyldig identifikator"
+            ugyldig.bodyAsText() shouldBe "Ugyldig innsendingId"
         }
     }
 }

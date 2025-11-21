@@ -28,7 +28,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -145,12 +144,12 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 400 Bad Request dersom navReferanseId er ugyldig`() {
-        val ugyldigNavReferanseId = "noe-helt-feil-og-ugyldig"
+    fun `gir 400 Bad Request dersom sykmeldingId er ugyldig`() {
+        val ugyldigSykmeldingId = "noe-helt-feil-og-ugyldig"
 
         val response =
             runBlocking {
-                client.get("/v1/sykmelding/$ugyldigNavReferanseId") {
+                client.get("/v1/sykmelding/$ugyldigSykmeldingId") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }

@@ -178,8 +178,10 @@ class DialogportenServiceTest {
     fun `kaller _ikke_ dialogProducer ved mottatt inntektsmeldingsforespørsel dersom feature toggle for dialogutsending er skrudd av`() {
         val orgnr = Orgnr.genererGyldig()
         val forespoerselDokument = forespoerselDokument(orgnr.toString(), Fnr.genererGyldig().toString())
+        val soeknad = soeknadMock()
 
         coEvery { mockDialogProducer.send(any()) } just Runs
+        every { mockSoeknadRepository.hentSoeknaderMedVedtaksperiodeId(any()) } returns listOf(soeknad)
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns false
 
         dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoerselDokument)
