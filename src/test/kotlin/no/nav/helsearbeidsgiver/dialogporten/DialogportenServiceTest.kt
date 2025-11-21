@@ -269,6 +269,7 @@ class DialogportenServiceTest {
                 sykmeldingId = sykmeldingId,
                 orgnr = orgnr.toString(),
                 status = mockk(),
+                aarsakInnsending = mockk(),
             )
 
         coEvery { mockDialogProducer.send(any()) } just Runs

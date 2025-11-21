@@ -75,10 +75,7 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmelding(
-        inntektsmeldingId: UUID,
-        arsakInnsending: AarsakInnsending? = AarsakInnsending.Ny,
-    ) {
+    fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
         val dialogInntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
         if (dialogInntektsmelding == null) {
             logger.warn(
@@ -86,6 +83,7 @@ class DialogportenService(
             )
             return
         }
+
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
             dialogProducer.send(dialogInntektsmelding)
             logger.info(

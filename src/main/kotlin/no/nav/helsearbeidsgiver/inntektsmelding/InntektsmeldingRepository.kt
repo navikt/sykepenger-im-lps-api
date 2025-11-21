@@ -152,6 +152,7 @@ class InntektsmeldingRepository(
                         sykmeldingId = row[SoeknadEntitet.sykmeldingId],
                         forespoerselId = row[navReferanseId],
                         status = row[status],
+                        aarsakInnsending = row[aarsakInnsending],
                     )
                 }.firstOrNull()
         }
