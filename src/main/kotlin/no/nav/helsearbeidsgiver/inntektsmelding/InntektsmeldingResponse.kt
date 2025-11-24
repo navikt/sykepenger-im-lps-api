@@ -30,8 +30,7 @@ data class InntektsmeldingResponse(
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
-    @EncodeDefault
-    val naturalytelser: List<Naturalytelse> = inntekt?.naturalytelser.orEmpty(),
+    val naturalytelser: List<Naturalytelse>,
     val sykmeldtFnr: String,
     val aarsakInnsending: AarsakInnsending,
     val typeInnsending: InnsendingType,
@@ -50,27 +49,15 @@ data class InntektsmeldingRequest(
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
-    @EncodeDefault
-    val naturalytelser: List<Naturalytelse> = inntekt?.naturalytelser.orEmpty(),
+    val naturalytelser: List<Naturalytelse>,
     val sykmeldtFnr: String,
     val arbeidsgiverTlf: String,
     val aarsakInnsending: AarsakInnsending,
     val avsender: Avsender, // avsendersystem
 ) {
-    fun valider(): Set<String> {
-        val naturalytelserFeilmelding =
-            if (naturalytelser.all { it.verdiBeloep > 0 && it.verdiBeloep < 1_000_000 }) {
-                null
-            } else {
-                "Beløp må være større enn 0"
-            }
-
-        return SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, refusjon)
+    fun valider(): Set<String> =
+        SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, naturalytelser, refusjon)
             .valider()
-            .plus(naturalytelserFeilmelding)
-            .mapNotNull { it }
-            .toSet()
-    }
 }
 
 enum class InnsendingType {

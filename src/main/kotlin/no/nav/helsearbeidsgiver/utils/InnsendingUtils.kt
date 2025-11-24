@@ -51,6 +51,7 @@ fun InntektsmeldingRequest.tilInntektsmelding(
         sykmeldingsperioder = forespoersel.sykmeldingsperioder,
         agp = agp,
         inntekt = inntekt,
+        naturalytelser = naturalytelser,
         refusjon = refusjon,
         aarsakInnsending = aarsakInnsending,
         mottatt = OffsetDateTime.now(),
@@ -69,6 +70,7 @@ fun InntektsmeldingRequest.tilInnsending(
             avsenderTlf = arbeidsgiverTlf,
             agp = agp,
             inntekt = inntekt,
+            naturalytelser = naturalytelser,
             refusjon = refusjon,
         )
     return Innsending(
@@ -87,6 +89,7 @@ fun InntektsmeldingResponse.tilSkjemaInntektsmelding(eksponertForespoerselId: UU
         avsenderTlf = arbeidsgiver.tlf,
         agp = agp,
         inntekt = inntekt,
+        naturalytelser = naturalytelser,
         refusjon = refusjon,
     )
 

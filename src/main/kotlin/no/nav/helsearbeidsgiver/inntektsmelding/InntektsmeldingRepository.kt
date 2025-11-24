@@ -50,7 +50,7 @@ class InntektsmeldingRepository(
                 it[orgnr] = im.avsender.orgnr.verdi
                 it[fnr] = im.sykmeldt.fnr.verdi
                 it[innsendt] = im.mottatt.toLocalDateTime()
-                it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.refusjon)
+                it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.naturalytelser, im.refusjon)
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
@@ -153,6 +153,7 @@ class InntektsmeldingRepository(
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,
+            naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
             sykmeldtFnr = this[fnr],
             aarsakInnsending = this[aarsakInnsending],
