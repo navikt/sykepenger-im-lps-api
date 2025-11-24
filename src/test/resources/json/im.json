@@ -33,9 +33,9 @@
   "inntekt": {
     "beloep": 20000.0,
     "inntektsdato": "2024-07-01",
-    "naturalytelser": [],
     "endringAarsaker": []
   },
+  "naturalytelser": [],
   "refusjon": null,
   "aarsakInnsending": "Ny",
   "mottatt": "2024-10-23T14:32:16.708400904+02:00",

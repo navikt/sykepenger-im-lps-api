@@ -12,8 +12,11 @@ import org.jetbrains.exposed.sql.json.json
 import java.time.LocalDateTime
 
 object InntektsmeldingEntitet : Table("inntektsmelding") {
-    val id = long("id").autoIncrement() // TODO: bytte navn til serienr?
-    val innsendingId = uuid("innsending_id") // TODO: kalle denne for id..?
+    val id = long("id").autoIncrement()
+    val innsendingId = uuid("innsending_id")
+
+    // Dokument = "Orginal payload inntektsmelding"
+    // - brukes ikke i visning / videre behandling
     val dokument = json<Inntektsmelding>("dokument", jsonMapper)
     val orgnr = varchar("orgnr", length = 9)
     val fnr = varchar("fnr", length = 11)
