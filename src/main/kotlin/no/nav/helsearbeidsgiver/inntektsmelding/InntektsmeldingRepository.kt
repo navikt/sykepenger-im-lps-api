@@ -161,7 +161,7 @@ class InntektsmeldingRepository(
             loepenr = this[InntektsmeldingEntitet.id],
             navReferanseId = this[navReferanseId],
             agp = this[skjema].agp,
-            inntekt = this[skjema].inntekt, // kommer til å knekke ...
+            inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
             sykmeldtFnr = this[fnr],
