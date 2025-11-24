@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import org.junit.jupiter.api.Test
@@ -34,6 +35,7 @@ class AvvistInntektsmeldingServiceTest {
         every {
             dialogportenService.oppdaterDialogMedInntektsmelding(
                 inntektsmeldingId,
+                DialogInntektsmelding.Kilde.API,
             )
         } just Runs
         avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(avvistInntektsmeldingMock)

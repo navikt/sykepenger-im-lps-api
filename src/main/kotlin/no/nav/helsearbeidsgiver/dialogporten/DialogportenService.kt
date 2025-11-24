@@ -1,10 +1,15 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
+import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -75,15 +80,28 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmelding(inntektsmeldingId: UUID) {
-        val dialogInntektsmelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
-        if (dialogInntektsmelding == null) {
+    fun oppdaterDialogMedInntektsmelding(
+        inntektsmeldingId: UUID,
+        kilde: DialogInntektsmelding.Kilde,
+    ) {
+        val resultRow = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        if (resultRow == null) {
             logger.warn(
                 "Klarte ikke å finne alle data til dialogmelding for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten.",
             )
             return
         }
 
+        val dialogInntektsmelding =
+            DialogInntektsmelding(
+                orgnr = resultRow[orgnr],
+                innsendingId = resultRow[innsendingId],
+                sykmeldingId = resultRow[SoeknadEntitet.sykmeldingId],
+                forespoerselId = resultRow[navReferanseId],
+                status = resultRow[status],
+                aarsakInnsending = resultRow[aarsakInnsending],
+                kilde = kilde,
+            )
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
             dialogProducer.send(dialogInntektsmelding)
             logger.info(

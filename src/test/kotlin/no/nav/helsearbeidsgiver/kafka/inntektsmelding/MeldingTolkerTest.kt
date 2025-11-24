@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.Tolkere
 import no.nav.helsearbeidsgiver.config.configureTolkere
+import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
@@ -115,7 +116,7 @@ class MeldingTolkerTest {
     @Test
     fun kunLagreEventerSomMatcher() {
         every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
-        every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any()) } just Runs
+        every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any(), DialogInntektsmelding.Kilde.NAV_PORTAL) } just Runs
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
 

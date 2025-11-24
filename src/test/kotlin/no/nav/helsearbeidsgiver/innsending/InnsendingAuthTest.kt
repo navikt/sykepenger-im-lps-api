@@ -52,6 +52,7 @@ class InnsendingAuthTest : ApiTest() {
     fun `gir 200 OK ved innsending av inntektsmelding`() {
         val sykmeldtFnr = Fnr.genererGyldig().toString()
         val requestBody = mockInntektsmeldingRequest().copy(sykmeldtFnr = sykmeldtFnr)
+        every { repositories.inntektsmeldingRepository.hentInntektsmeldingDialogMelding(any()) } returns null
         mockForespoerselOgInntektsmelding(
             requestBody = requestBody,
             sykmeldtFnr = sykmeldtFnr,

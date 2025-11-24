@@ -60,4 +60,10 @@ data class DialogInntektsmelding(
     val orgnr: String,
     val status: InnsendingStatus,
     val aarsakInnsending: AarsakInnsending,
-) : DialogMelding()
+    val kilde: Kilde?,
+) : DialogMelding() {
+    enum class Kilde {
+        API,
+        NAV_PORTAL,
+    }
+}

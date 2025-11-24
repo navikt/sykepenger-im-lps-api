@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.utils.log.logger
 
@@ -24,7 +25,10 @@ class AvvistInntektsmeldingService(
                     "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
                         "med feilkode ${avvistInntektsmelding.feilkode}.",
                 )
-                dialogportenService.oppdaterDialogMedInntektsmelding(avvistInntektsmelding.inntektsmeldingId)
+                dialogportenService.oppdaterDialogMedInntektsmelding(
+                    avvistInntektsmelding.inntektsmeldingId,
+                    DialogInntektsmelding.Kilde.API,
+                )
             }
         }
     }

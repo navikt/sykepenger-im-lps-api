@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
@@ -119,7 +120,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
-            services.dialogportenService.oppdaterDialogMedInntektsmelding(innsending.innsendingId)
+            services.dialogportenService.oppdaterDialogMedInntektsmelding(innsending.innsendingId, DialogInntektsmelding.Kilde.API)
             call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)

@@ -10,9 +10,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.TestData.forespoerselDokument
@@ -22,6 +25,7 @@ import no.nav.helsearbeidsgiver.utils.test.date.januar
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.jetbrains.exposed.sql.ResultRow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -260,26 +264,38 @@ class DialogportenServiceTest {
     fun `dialogportenservice kaller dialogProducer ved mottatt inntektsmelding`() {
         val orgnr = Orgnr.genererGyldig()
         val inntektsmeldingId = UUID.randomUUID()
-        val sykmeldingId = UUID.randomUUID()
+        val resultRow = mockk<ResultRow>()
         val innsendingId = UUID.randomUUID()
-        val dialogInntektsmelding =
-            DialogInntektsmelding(
-                forespoerselId = UUID.randomUUID(),
-                innsendingId = innsendingId,
-                sykmeldingId = sykmeldingId,
-                orgnr = orgnr.toString(),
-                status = mockk(),
-                aarsakInnsending = mockk(),
-            )
+        val sykmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
+        val status = InnsendingStatus.MOTTATT
+        val aarsakInnsending = AarsakInnsending.Ny
+
+        every { resultRow[InntektsmeldingEntitet.orgnr] } returns orgnr.verdi
+        every { resultRow[InntektsmeldingEntitet.innsendingId] } returns innsendingId
+        every { resultRow[no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykmeldingId] } returns sykmeldingId
+        every { resultRow[InntektsmeldingEntitet.navReferanseId] } returns forespoerselId
+        every { resultRow[InntektsmeldingEntitet.status] } returns status
+        every { resultRow[InntektsmeldingEntitet.aarsakInnsending] } returns aarsakInnsending
 
         coEvery { mockDialogProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
-        every { mockInntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId) } returns dialogInntektsmelding
+        every { mockInntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId) } returns resultRow
 
-        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmeldingId)
+        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmeldingId, DialogInntektsmelding.Kilde.API)
 
         verify {
-            mockDialogProducer.send(dialogInntektsmelding)
+            mockDialogProducer.send(
+                DialogInntektsmelding(
+                    orgnr = orgnr.verdi,
+                    innsendingId = innsendingId,
+                    sykmeldingId = sykmeldingId,
+                    forespoerselId = forespoerselId,
+                    status = status,
+                    aarsakInnsending = aarsakInnsending,
+                    kilde = DialogInntektsmelding.Kilde.API,
+                ),
+            )
         }
     }
 

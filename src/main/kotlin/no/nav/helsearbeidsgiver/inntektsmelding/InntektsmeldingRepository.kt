@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
@@ -137,7 +136,7 @@ class InntektsmeldingRepository(
             }
         }
 
-    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): DialogInntektsmelding? =
+    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): ResultRow? =
         transaction(db) {
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
@@ -145,16 +144,7 @@ class InntektsmeldingRepository(
                 .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status)
                 .where({ innsendingId eq inntektsmeldingId })
                 .limit(1)
-                .map { row ->
-                    DialogInntektsmelding(
-                        orgnr = row[orgnr],
-                        innsendingId = row[innsendingId],
-                        sykmeldingId = row[SoeknadEntitet.sykmeldingId],
-                        forespoerselId = row[navReferanseId],
-                        status = row[status],
-                        aarsakInnsending = row[aarsakInnsending],
-                    )
-                }.firstOrNull()
+                .firstOrNull()
         }
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
