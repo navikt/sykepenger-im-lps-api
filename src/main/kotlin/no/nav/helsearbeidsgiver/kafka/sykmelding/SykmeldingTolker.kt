@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.kafka.sykmelding
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
@@ -17,6 +18,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
     private val dialogportenService: DialogportenService,
+    private val dokumentkoblingService: DokumentkoblingService,
     private val pdlService: PdlService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
@@ -30,7 +32,8 @@ class SykmeldingTolker(
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
             val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr, sykmeldingId)
-            val harLagretSykmelding = sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
+            val harLagretSykmelding =
+                sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
 
             if (harLagretSykmelding) {
                 val dialogSykmelding =
@@ -39,9 +42,21 @@ class SykmeldingTolker(
                         orgnr = Orgnr(sykmeldingMessage.event.arbeidsgiver.orgnummer),
                         foedselsdato = fullPerson.foedselsdato,
                         fulltNavn = fullPerson.navn.fulltNavn(),
-                        sykmeldingsperioder = sykmeldingMessage.sykmelding.sykmeldingsperioder.map { Periode(it.fom, it.tom) },
+                        sykmeldingsperioder =
+                            sykmeldingMessage.sykmelding.sykmeldingsperioder.map {
+                                Periode(
+                                    it.fom,
+                                    it.tom,
+                                )
+                            },
                     )
                 dialogportenService.opprettNyDialogMedSykmelding(dialogSykmelding)
+
+                dokumentkoblingService.produserSykmeldingKobling(
+                    sykmeldingId = sykmeldingId,
+                    sykmeldingMessage = sykmeldingMessage,
+                    fullPerson = fullPerson,
+                )
             } else {
                 logger
                     .info(
@@ -50,7 +65,10 @@ class SykmeldingTolker(
             }
         } catch (e: FantIkkePersonException) {
             logger.error("Fant ikke person i PDL, ignorerer sykmelding!")
-            sikkerLogger.error("Fant ikke person i PDL med fnr(${e.fnr}), ignorerer sykmelding med id: ${e.sykmeldingId}!", e)
+            sikkerLogger.error(
+                "Fant ikke person i PDL med fnr(${e.fnr}), ignorerer sykmelding med id: ${e.sykmeldingId}!",
+                e,
+            )
         } catch (e: Exception) {
             "Klarte ikke å lagre sykmelding og opprette Dialogporten-dialog!".also {
                 logger.error(it)

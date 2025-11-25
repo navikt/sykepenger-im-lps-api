@@ -18,6 +18,8 @@ import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
 import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingProducer
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
 import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
@@ -82,6 +84,7 @@ data class Services(
     val inntektsmeldingService: InntektsmeldingService,
     val innsendingService: InnsendingService,
     val dialogportenService: DialogportenService,
+    val dokumentkoblingService: DokumentkoblingService,
     val sykmeldingService: SykmeldingService,
     val pdlService: PdlService,
     val soeknadService: SoeknadService,
@@ -118,6 +121,7 @@ fun configureTolkere(
         SykmeldingTolker(
             sykmeldingService = services.sykmeldingService,
             dialogportenService = services.dialogportenService,
+            dokumentkoblingService = services.dokumentkoblingService,
             pdlService = services.pdlService,
         )
     val soeknadTolker = SoeknadTolker(services.soeknadService)
@@ -205,15 +209,33 @@ fun configureServices(
             forespoerselRepository = repositories.forespoerselRepository,
         )
 
-    val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService)
+    val dokumentkoblingProducer =
+        DokumentkoblingProducer(
+            KafkaProducer(
+                createKafkaProducerConfig(producerName = "dokumentkobling-producer"),
+                StringSerializer(),
+                DialogSerializer(),
+            ),
+        )
+
+    val dokumentkoblingService =
+        DokumentkoblingService(
+            dokumentkoblingProducer = dokumentkoblingProducer,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
+
+    val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
-    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
+    val avvistInntektsmeldingService =
+        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService)
+
     return Services(
         forespoerselService,
         inntektsmeldingService,
         innsendingService,
         dialogportenService,
+        dokumentkoblingService,
         sykmeldingService,
         pdlService,
         soeknadService,

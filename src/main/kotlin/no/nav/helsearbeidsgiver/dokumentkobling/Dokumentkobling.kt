@@ -1,6 +1,6 @@
 @file:UseSerializers(LocalDateSerializer::class, UuidSerializer::class)
 
-package no.nav.helsearbeidsgiver.dokumentKobling
+package no.nav.helsearbeidsgiver.dokumentkobling
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-sealed class DokumentKobling
+sealed class Dokumentkobling
 
 @Serializable
 @SerialName("Sykmelding")
@@ -23,7 +23,7 @@ data class Sykmelding(
     val foedselsdato: LocalDate,
     val fulltNavn: String,
     val sykmeldingsperioder: List<Periode>,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("Sykepengesoeknad")
@@ -31,44 +31,44 @@ data class Sykepengesoeknad(
     val soeknadId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("VedtaksperiodeSoeknadKobling")
 data class VedtaksperiodeSoeknadKobling(
     val vedtaksperiodeId: UUID,
     val soeknadId: UUID,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("ForespoerselSendt")
 data class ForespoerselSendt(
     val forespoerselKobling: ForespoerselKobling,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("ForespoerselUtgaatt")
 data class ForespoerselUtgaatt(
     val forespoerselKobling: ForespoerselKobling,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingMottatt")
 data class InntektsmeldingMottatt(
     val inntektsmeldingKobling: InntektsmeldingKobling,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingAvvist")
 data class InntektsmeldingAvvist(
     val inntektsmeldingKobling: InntektsmeldingKobling,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingGodkjent")
 data class InntektsmeldingGodkjent(
     val inntektsmeldingKobling: InntektsmeldingKobling,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 abstract class ForespoerselKobling(
