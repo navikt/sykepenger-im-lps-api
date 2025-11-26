@@ -141,7 +141,7 @@ class InntektsmeldingRepository(
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
                 .join(SoeknadEntitet, JoinType.INNER, ForespoerselEntitet.vedtaksperiodeId, SoeknadEntitet.vedtaksperiodeId)
-                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status, aarsakInnsending)
+                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status)
                 .where({ innsendingId eq inntektsmeldingId })
                 .limit(1)
                 .firstOrNull()
