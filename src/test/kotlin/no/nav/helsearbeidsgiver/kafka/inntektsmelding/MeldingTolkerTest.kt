@@ -116,7 +116,7 @@ class MeldingTolkerTest {
     @Test
     fun kunLagreEventerSomMatcher() {
         every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
-        every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any(), Kanal.HR_SYSTEM_API) } just Runs
+        every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any(), Kanal.NAV_NO) } just Runs
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
 
