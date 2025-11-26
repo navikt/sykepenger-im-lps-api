@@ -179,6 +179,7 @@ class InnsendingRouteTest : ApiTest() {
                 navReferanseId = requestBody.navReferanseId,
                 arbeidsgiver = InntektsmeldingArbeidsgiver(DEFAULT_ORG, requestBody.arbeidsgiverTlf),
                 inntekt = requestBody.inntekt,
+                naturalytelser = requestBody.naturalytelser,
                 refusjon = requestBody.refusjon,
                 agp = requestBody.agp,
             )

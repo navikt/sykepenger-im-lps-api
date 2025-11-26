@@ -34,6 +34,7 @@ tasks.register("modifyOpenApi") {
                     Regex("components:"),
                     """servers:
   - url: https://sykepenger-api.ekstern.dev.nav.no
+  - url: https://sykepenger-api.nav.no
 components:
   securitySchemes:
     bearerAuth:

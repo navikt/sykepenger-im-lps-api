@@ -60,7 +60,7 @@ fun buildJournalfoertInntektsmelding(
 }
 
 fun Inntektsmelding.tilSkjema(): SkjemaInntektsmelding =
-    SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.refusjon)
+    SkjemaInntektsmelding(this.type.id, this.avsender.tlf, this.agp, this.inntekt, this.naturalytelser, this.refusjon)
 
 fun buildInntektsmelding(
     inntektsmeldingId: UUID = UUID.randomUUID(),
@@ -174,6 +174,7 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
         avsenderTlf = randomDigitString(8),
         agp = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
+        naturalytelser = mockNaturalytelser(),
         refusjon = mockRefusjon(),
     )
 
@@ -184,6 +185,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         navReferanseId = im.id,
         agp = im.agp,
         inntekt = im.inntekt,
+        naturalytelser = im.naturalytelser,
         refusjon = im.refusjon,
         sykmeldtFnr = im.sykmeldt.fnr.verdi,
         aarsakInnsending = im.aarsakInnsending,
@@ -224,6 +226,7 @@ fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
         navReferanseId = UUID.randomUUID(),
         agp = mockArbeidsgiverperiode(),
         inntekt = mockInntekt(),
+        naturalytelser = mockNaturalytelser(),
         refusjon = mockRefusjon(),
         sykmeldtFnr = Fnr.genererGyldig().toString(),
         arbeidsgiverTlf = "22222222",
@@ -264,25 +267,26 @@ private fun mockInntekt(): Inntekt =
     Inntekt(
         beloep = 544.6,
         inntektsdato = 28.september,
-        naturalytelser =
-            listOf(
-                Naturalytelse(
-                    naturalytelse = Naturalytelse.Kode.BEDRIFTSBARNEHAGEPLASS,
-                    verdiBeloep = 52.5,
-                    sluttdato = 10.oktober,
-                ),
-                Naturalytelse(
-                    naturalytelse = Naturalytelse.Kode.BIL,
-                    verdiBeloep = 434.0,
-                    sluttdato = 12.oktober,
-                ),
-            ),
         endringAarsaker =
             listOf(
                 NyStillingsprosent(
                     gjelderFra = 16.oktober,
                 ),
             ),
+    )
+
+private fun mockNaturalytelser(): List<Naturalytelse> =
+    listOf(
+        Naturalytelse(
+            naturalytelse = Naturalytelse.Kode.BEDRIFTSBARNEHAGEPLASS,
+            verdiBeloep = 52.5,
+            sluttdato = 10.oktober,
+        ),
+        Naturalytelse(
+            naturalytelse = Naturalytelse.Kode.BIL,
+            verdiBeloep = 434.0,
+            sluttdato = 12.oktober,
+        ),
     )
 
 private fun mockRefusjon(): Refusjon =
