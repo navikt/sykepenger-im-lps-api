@@ -53,12 +53,6 @@ data class ForespoerselUtgaatt(
 ) : Dokumentkobling()
 
 @Serializable
-@SerialName("InntektsmeldingMottatt")
-data class InntektsmeldingMottatt(
-    val inntektsmeldingKobling: InntektsmeldingKobling,
-) : Dokumentkobling()
-
-@Serializable
 @SerialName("InntektsmeldingAvvist")
 data class InntektsmeldingAvvist(
     val inntektsmeldingKobling: InntektsmeldingKobling,
