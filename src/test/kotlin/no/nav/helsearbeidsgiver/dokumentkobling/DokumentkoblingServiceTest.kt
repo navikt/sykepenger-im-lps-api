@@ -31,6 +31,9 @@ class DokumentkoblingServiceTest {
             dokumentkoblingProducer = mockDokumentkoblingProducer,
             unleashFeatureToggles = mockUnleashFeatureToggles,
         )
+    private val sykmeldingId = UUID.randomUUID()
+    private val soeknadId = UUID.randomUUID()
+    private val orgnr = Orgnr.genererGyldig()
 
     @BeforeEach
     fun clearMocks() {
@@ -39,9 +42,6 @@ class DokumentkoblingServiceTest {
 
     @Test
     fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt sykmelding`() {
-        val sykmeldingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig()
-
         val sykmeldingMessage =
             sykmeldingMock()
                 .medId(sykmeldingId.toString())
@@ -61,9 +61,6 @@ class DokumentkoblingServiceTest {
 
     @Test
     fun `dokumentkoblingService kaster feil dersom opprettelse av kobling går galt`() {
-        val sykmeldingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig()
-
         val sykmeldingMessage =
             sykmeldingMock()
                 .medId(sykmeldingId.toString())
@@ -83,9 +80,6 @@ class DokumentkoblingServiceTest {
 
     @Test
     fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer dersom feature toggle er skrudd av`() {
-        val sykmeldingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig()
-
         val sykmeldingMessage =
             sykmeldingMock()
                 .medId(sykmeldingId.toString())
@@ -105,10 +99,6 @@ class DokumentkoblingServiceTest {
 
     @Test
     fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt sykepengesøknad`() {
-        val soeknadId = UUID.randomUUID()
-        val sykmeldingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig()
-
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr) } returns true
 
@@ -121,10 +111,6 @@ class DokumentkoblingServiceTest {
 
     @Test
     fun `dokumentkoblingService kaster feil dersom opprettelse av søknadkobling går galt`() {
-        val soeknadId = UUID.randomUUID()
-        val sykmeldingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig()
-
         coEvery {
             mockDokumentkoblingProducer.send(any())
         } throws SerializationException("Noe gikk galt")
@@ -137,10 +123,6 @@ class DokumentkoblingServiceTest {
 
     @Test
     fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer for søknad dersom feature toggle er skrudd av`() {
-        val soeknadId = UUID.randomUUID()
-        val sykmeldingId = UUID.randomUUID()
-        val orgnr = Orgnr.genererGyldig()
-
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr) } returns false
 
