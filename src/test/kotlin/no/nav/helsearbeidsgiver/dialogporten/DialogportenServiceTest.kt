@@ -292,7 +292,6 @@ class DialogportenServiceTest {
                     sykmeldingId = sykmeldingId,
                     forespoerselId = forespoerselId,
                     status = status,
-                    aarsakInnsending = aarsakInnsending,
                     kilde = DialogInntektsmelding.Kilde.API,
                 ),
             )

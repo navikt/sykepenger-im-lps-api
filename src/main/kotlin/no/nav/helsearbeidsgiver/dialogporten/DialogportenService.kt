@@ -99,7 +99,6 @@ class DialogportenService(
                 sykmeldingId = resultRow[SoeknadEntitet.sykmeldingId],
                 forespoerselId = resultRow[navReferanseId],
                 status = resultRow[status],
-                aarsakInnsending = resultRow[aarsakInnsending],
                 kilde = kilde,
             )
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
