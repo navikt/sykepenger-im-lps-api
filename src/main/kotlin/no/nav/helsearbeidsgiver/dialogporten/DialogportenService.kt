@@ -87,7 +87,7 @@ class DialogportenService(
         val resultRow = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
         if (resultRow == null) {
             logger.warn(
-                "Klarte ikke å finne alle data til dialogmelding for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten.",
+                "Klarte ikke å finne alle data til dialogmelding for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten. ",
             )
             return
         }
