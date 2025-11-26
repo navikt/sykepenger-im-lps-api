@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.soeknad
 
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.Called
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -11,11 +12,13 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -33,6 +36,9 @@ class SoeknadServiceTest {
     private lateinit var soeknadService: SoeknadService
     private lateinit var soeknadRepository: SoeknadRepository
     private lateinit var dialogportenService: DialogportenService
+    private lateinit var dokumentkoblingService: DokumentkoblingService
+
+    private val orgnr = Orgnr.genererGyldig()
 
     @BeforeAll
     fun setup() {
@@ -43,8 +49,10 @@ class SoeknadServiceTest {
                 System.getProperty("database.password"),
             ).init()
         soeknadRepository = SoeknadRepository(db)
+        dokumentkoblingService = mockk<DokumentkoblingService>()
         dialogportenService = mockk<DialogportenService>()
-        soeknadService = SoeknadService(soeknadRepository, dialogportenService)
+        dokumentkoblingService = mockk<DokumentkoblingService>()
+        soeknadService = SoeknadService(soeknadRepository, dialogportenService, dokumentkoblingService)
     }
 
     @BeforeEach
@@ -53,12 +61,12 @@ class SoeknadServiceTest {
 
         clearAllMocks()
         every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just Runs
+        every { dokumentkoblingService.produserSykepengesoeknadKobling(any(), any(), orgnr) } just Runs
     }
 
     @Test
     fun `skal lagre søknad som skal sendes til arbeidsgiver`() {
-        val soeknad =
-            soeknadMock()
+        val soeknad = soeknadMock().medOrgnr(orgnr)
 
         soeknadService.behandleSoeknad(soeknad)
 
@@ -70,8 +78,7 @@ class SoeknadServiceTest {
 
     @Test
     fun `søknad som skal sendes til arbeidsgiver sendes videre til hag-dialog`() {
-        val soeknad =
-            soeknadMock()
+        val soeknad = soeknadMock().medOrgnr(orgnr)
 
         soeknadService.behandleSoeknad(soeknad)
 
@@ -87,7 +94,15 @@ class SoeknadServiceTest {
                             .shouldNotBeNull(),
                     ),
             )
+
         verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoeknad(forventetDialogSykepengesoeknad) }
+        verify(exactly = 1) {
+            dokumentkoblingService.produserSykepengesoeknadKobling(
+                soeknad.id,
+                soeknad.sykmeldingId.shouldNotBeNull(),
+                forventetDialogSykepengesoeknad.orgnr,
+            )
+        }
     }
 
     @Test
@@ -99,9 +114,10 @@ class SoeknadServiceTest {
 
         val lagretSoeknad =
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
-
         lagretSoeknad shouldBe null
+
         verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        verify { dokumentkoblingService wasNot Called }
     }
 
     @Test
@@ -121,6 +137,7 @@ class SoeknadServiceTest {
 
         lagretSoeknad shouldBe null
         verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        verify { dokumentkoblingService wasNot Called }
     }
 
     @Test
@@ -146,11 +163,12 @@ class SoeknadServiceTest {
 
         lagretSoeknad shouldBe null
         verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        verify { dokumentkoblingService wasNot Called }
     }
 
     @Test
     fun `skal kun behandle søknad for søknadstype GRADERT_REISETILSKUDD eller BEHANDLINGSDAGER dersom arbeidssituasjon ARBEIDSTAKER`() {
-        val soeknad = soeknadMock()
+        val soeknad = soeknadMock().medOrgnr(orgnr)
 
         val idSomSkalLagres1 = UUID.randomUUID()
         val idSomSkalLagres2 = UUID.randomUUID()
@@ -202,6 +220,13 @@ class SoeknadServiceTest {
                 match { it.soeknadId == idSomSkalLagres1 || it.soeknadId == idSomSkalLagres2 },
             )
         }
+        verify(exactly = 2) {
+            dokumentkoblingService.produserSykepengesoeknadKobling(
+                match { it == idSomSkalLagres1 || it == idSomSkalLagres2 },
+                any(),
+                orgnr,
+            )
+        }
     }
 
     @Test
@@ -218,6 +243,7 @@ class SoeknadServiceTest {
 
         lagretSoeknad shouldBe null
         verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        verify { dokumentkoblingService wasNot Called }
     }
 
     @Test
@@ -237,6 +263,7 @@ class SoeknadServiceTest {
 
         lagretSoeknad shouldBe null
         verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        verify { dokumentkoblingService wasNot Called }
     }
 
     @Test
@@ -253,11 +280,12 @@ class SoeknadServiceTest {
 
         lagretSoeknad shouldBe soeknadSomSkalLagresMenIkkeVideresendes
         verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        verify { dokumentkoblingService wasNot Called }
     }
 
     @Test
     fun `skal _ikke_ lagre eller videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
-        val soeknad = soeknadMock()
+        val soeknad = soeknadMock().medOrgnr(orgnr)
         val soeknadId = UUID.randomUUID()
 
         val soeknadSomSkalLagres = soeknad.medId(id = soeknadId)
@@ -274,5 +302,21 @@ class SoeknadServiceTest {
         lagredeSoeknader.size shouldBe 1
         lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
         verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoeknad(match { it.soeknadId == soeknadSomSkalLagres.id }) }
+        verify(exactly = 1) {
+            dokumentkoblingService.produserSykepengesoeknadKobling(
+                soeknadSomSkalLagres.id,
+                soeknadSomSkalLagres.sykmeldingId.shouldNotBeNull(),
+                orgnr,
+            )
+        }
     }
+
+    fun SykepengeSoeknadKafkaMelding.medOrgnr(orgnr: Orgnr) =
+        this.copy(
+            arbeidsgiver =
+                SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO(
+                    this.arbeidsgiver?.navn,
+                    orgnr.toString(),
+                ),
+        )
 }
