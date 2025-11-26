@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.utils.log.logger
 
 class AvvistInntektsmeldingService(
@@ -27,7 +27,7 @@ class AvvistInntektsmeldingService(
                 )
                 dialogportenService.oppdaterDialogMedInntektsmelding(
                     avvistInntektsmelding.inntektsmeldingId,
-                    DialogInntektsmelding.Kilde.API,
+                    Kanal.HR_SYSTEM_API,
                 )
             }
         }

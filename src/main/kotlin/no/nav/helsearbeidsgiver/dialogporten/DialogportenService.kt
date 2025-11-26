@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
@@ -82,7 +82,7 @@ class DialogportenService(
 
     fun oppdaterDialogMedInntektsmelding(
         inntektsmeldingId: UUID,
-        kilde: DialogInntektsmelding.Kilde,
+        kanal: Kanal,
     ) {
         val resultRow = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
         if (resultRow == null) {
@@ -99,7 +99,7 @@ class DialogportenService(
                 sykmeldingId = resultRow[SoeknadEntitet.sykmeldingId],
                 forespoerselId = resultRow[navReferanseId],
                 status = resultRow[status],
-                kilde = kilde,
+                kanal = kanal,
             )
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
             dialogProducer.send(dialogInntektsmelding)

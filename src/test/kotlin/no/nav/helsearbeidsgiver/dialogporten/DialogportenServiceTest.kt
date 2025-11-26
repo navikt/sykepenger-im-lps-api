@@ -11,6 +11,7 @@ import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
@@ -282,7 +283,7 @@ class DialogportenServiceTest {
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
         every { mockInntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId) } returns resultRow
 
-        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmeldingId, DialogInntektsmelding.Kilde.API)
+        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmeldingId, Kanal.HR_SYSTEM_API)
 
         verify {
             mockDialogProducer.send(
@@ -292,7 +293,7 @@ class DialogportenServiceTest {
                     sykmeldingId = sykmeldingId,
                     forespoerselId = forespoerselId,
                     status = status,
-                    kilde = DialogInntektsmelding.Kilde.API,
+                    kanal = Kanal.HR_SYSTEM_API,
                 ),
             )
         }
