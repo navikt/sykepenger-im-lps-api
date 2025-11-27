@@ -53,7 +53,6 @@ class InnsendingRouteTest : ApiTest() {
                 forespoersel
             every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
-            every { repositories.inntektsmeldingRepository.hentInntektsmeldingDialogMelding(any()) } returns null
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
             verify(exactly = 1) {
