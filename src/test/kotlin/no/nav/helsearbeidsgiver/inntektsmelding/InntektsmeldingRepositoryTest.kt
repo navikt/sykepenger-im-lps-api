@@ -9,7 +9,6 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.LagreSoeknad
-import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -312,34 +311,35 @@ class InntektsmeldingRepositoryTest {
 
     @Test
     fun `hentInntektsmeldingDialogMelding skal returnere inntektsmelding for dialogmelding`() {
-        val repository = InntektsmeldingRepository(db)
+        val inntektsmeldingRepository = InntektsmeldingRepository(db)
+        val soeknadRepository = SoeknadRepository(db)
+        val forespoerselRepository = ForespoerselRepository(db)
+
         val sykmeldingId = UUID.randomUUID()
         val inntektsmeldingId = UUID.randomUUID()
         val forespoerselId = UUID.randomUUID()
         val vedtaksperiodeId = UUID.randomUUID()
 
-        SoeknadRepository(db).apply {
-            val soeknad = soeknadMock().copy(sykmeldingId = sykmeldingId)
-            lagreSoeknad(soeknad.tilLagreSoeknad())
-            oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
-        }
-        ForespoerselRepository(db).lagreForespoersel(
-            forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId, vedtaksperiodeId),
+        val soeknad = soeknadMock().copy(sykmeldingId = sykmeldingId)
+        soeknadRepository.lagreSoeknad(soeknad.tilLagreSoeknad())
+        soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(setOf(soeknad.id), vedtaksperiodeId)
+
+        forespoerselRepository.lagreForespoersel(
+            forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId, vedtaksperiodeId),
             eksponertForespoerselId = forespoerselId,
         )
-        repository.opprettInntektsmelding(
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId),
-        )
 
-        val dialogMelding = repository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
-        assertNotNull(dialogMelding)
-        with(dialogMelding) {
-            assertEquals(DEFAULT_ORG, this[InntektsmeldingEntitet.orgnr])
-            assertEquals(inntektsmeldingId, this[InntektsmeldingEntitet.innsendingId])
-            assertEquals(sykmeldingId, this[SoeknadEntitet.sykmeldingId])
-            assertEquals(forespoerselId, this[InntektsmeldingEntitet.navReferanseId])
-            assertEquals(InnsendingStatus.GODKJENT, this[InntektsmeldingEntitet.status])
-        }
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        inntektsmeldingRepository.opprettInntektsmelding(inntektsmeldingJson)
+
+        val inntektsmeldingDialogMelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
+        assertNotNull(inntektsmeldingDialogMelding)
+        assertEquals(DEFAULT_ORG, inntektsmeldingDialogMelding.orgnr)
+        assertEquals(inntektsmeldingId, inntektsmeldingDialogMelding.innsendingId)
+        assertEquals(sykmeldingId, inntektsmeldingDialogMelding.sykmeldingId)
+        assertEquals(forespoerselId, inntektsmeldingDialogMelding.forespoerselId)
+        assertEquals(InnsendingStatus.GODKJENT, inntektsmeldingDialogMelding.status)
     }
 
     private fun generateTestData(

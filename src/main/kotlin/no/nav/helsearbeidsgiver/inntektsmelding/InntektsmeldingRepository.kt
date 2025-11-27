@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
@@ -136,15 +137,24 @@ class InntektsmeldingRepository(
             }
         }
 
-    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): ResultRow? =
+    fun hentInntektsmeldingDialogMelding(inntektsmeldingId: UUID): DialogInntektsmelding? =
         transaction(db) {
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
                 .join(SoeknadEntitet, JoinType.INNER, ForespoerselEntitet.vedtaksperiodeId, SoeknadEntitet.vedtaksperiodeId)
-                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status)
+                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status, typeInnsending)
                 .where({ innsendingId eq inntektsmeldingId })
                 .limit(1)
-                .firstOrNull()
+                .map { row ->
+                    DialogInntektsmelding(
+                        orgnr = row[orgnr],
+                        innsendingId = row[innsendingId],
+                        sykmeldingId = row[SoeknadEntitet.sykmeldingId],
+                        forespoerselId = row[navReferanseId],
+                        status = row[status],
+                        kanal = row[typeInnsending].toKanal(),
+                    )
+                }.firstOrNull()
         }
 
     private fun ResultRow.toExposedInntektsmelding(): InntektsmeldingResponse =
