@@ -142,7 +142,7 @@ class InntektsmeldingRepository(
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
                 .join(SoeknadEntitet, JoinType.INNER, ForespoerselEntitet.vedtaksperiodeId, SoeknadEntitet.vedtaksperiodeId)
-                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status)
+                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status, typeInnsending)
                 .where({ innsendingId eq inntektsmeldingId })
                 .limit(1)
                 .map { row ->
@@ -152,6 +152,7 @@ class InntektsmeldingRepository(
                         sykmeldingId = row[SoeknadEntitet.sykmeldingId],
                         forespoerselId = row[navReferanseId],
                         status = row[status],
+                        kanal = row[typeInnsending].toKanal(),
                     )
                 }.firstOrNull()
         }

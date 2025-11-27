@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
@@ -269,6 +270,7 @@ class DialogportenServiceTest {
                 sykmeldingId = sykmeldingId,
                 orgnr = orgnr.toString(),
                 status = mockk(),
+                kanal = Kanal.HR_SYSTEM_API,
             )
 
         coEvery { mockDialogProducer.send(any()) } just Runs

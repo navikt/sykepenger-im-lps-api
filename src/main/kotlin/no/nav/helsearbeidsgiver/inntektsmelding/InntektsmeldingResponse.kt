@@ -2,13 +2,13 @@
 
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Naturalytelse
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
@@ -79,6 +79,13 @@ enum class InnsendingType {
                 is Inntektsmelding.Type.ForespurtEkstern -> FORESPURT_EKSTERN
             }
     }
+
+    fun toKanal(): Kanal =
+        when (this) {
+            FORESPURT -> Kanal.NAV_NO
+            ARBEIDSGIVER_INITIERT -> Kanal.NAV_NO
+            FORESPURT_EKSTERN -> Kanal.HR_SYSTEM_API
+        }
 }
 
 @Serializable
