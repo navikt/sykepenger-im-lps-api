@@ -13,6 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
 import no.nav.helsearbeidsgiver.apiModule
@@ -151,8 +152,9 @@ class InnsendingIT {
         }
 
     @AfterAll
-    fun shutdownStuff() {
-        testApplication.stop()
-        mockOAuth2Server.shutdown()
-    }
+    fun shutdownStuff() =
+        runBlocking {
+            testApplication.stop()
+            mockOAuth2Server.shutdown()
+        }
 }
