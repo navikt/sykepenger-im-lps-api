@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.integrasjonstest
 
+import io.kotest.common.runBlocking
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -110,8 +111,9 @@ class ForespoerselIT {
     }
 
     @AfterAll
-    fun shutdownStuff() {
-        testApplication.stop()
-        mockOAuth2Server.shutdown()
-    }
+    fun shutdownStuff() =
+        runBlocking {
+            testApplication.stop()
+            mockOAuth2Server.shutdown()
+        }
 }

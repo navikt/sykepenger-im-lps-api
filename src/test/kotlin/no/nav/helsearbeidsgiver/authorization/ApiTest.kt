@@ -7,6 +7,7 @@ import io.ktor.server.testing.TestApplication
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
@@ -55,10 +56,11 @@ abstract class ApiTest {
         }
 
     @AfterAll
-    fun shutdownStuff() {
-        testApplication.stop()
-        mockOAuth2Server.shutdown()
-    }
+    fun shutdownStuff() =
+        runBlocking {
+            testApplication.stop()
+            mockOAuth2Server.shutdown()
+        }
 
     fun mockPdpTilganger() {
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
