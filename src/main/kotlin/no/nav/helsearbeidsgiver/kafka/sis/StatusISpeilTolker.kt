@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.sis
 
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -11,6 +12,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 class StatusISpeilTolker(
     private val soeknadRepository: SoeknadRepository,
     private val statusISpeilRepository: StatusISpeilRepository,
+    private val dokumentkoblingService: DokumentkoblingService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
@@ -33,10 +35,19 @@ class StatusISpeilTolker(
                     logger.info(
                         "Oppdater søknader ${behandlingstatusmelding.eksterneSøknadIder} med vedtaksperiodeId ${behandlingstatusmelding.vedtaksperiodeId}",
                     )
+
+                    behandlingstatusmelding.eksterneSøknadIder.forEach { soeknadId ->
+                        dokumentkoblingService.produserVedtaksperiodeSoeknadKobling(
+                            behandlingstatusmelding.vedtaksperiodeId,
+                            soeknadId,
+                        )
+                    }
+
                     soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(
                         behandlingstatusmelding.eksterneSøknadIder,
                         behandlingstatusmelding.vedtaksperiodeId,
                     )
+
                     statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
                 }
             }
