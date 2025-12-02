@@ -24,7 +24,9 @@ class AvvistInntektsmeldingService(
                     "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
                         "med feilkode ${avvistInntektsmelding.feilkode}.",
                 )
-                dialogportenService.oppdaterDialogMedInntektsmelding(avvistInntektsmelding.inntektsmeldingId)
+                dialogportenService.oppdaterDialogMedInntektsmelding(
+                    avvistInntektsmelding.inntektsmeldingId,
+                )
             }
         }
     }

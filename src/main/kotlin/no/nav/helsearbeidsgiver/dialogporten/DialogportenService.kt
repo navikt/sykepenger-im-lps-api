@@ -82,6 +82,7 @@ class DialogportenService(
             )
             return
         }
+
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(dialogInntektsmelding.orgnr)) {
             dialogProducer.send(dialogInntektsmelding)
             logger.info(

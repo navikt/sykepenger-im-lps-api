@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.Tolkere
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
@@ -97,6 +98,7 @@ class MeldingTolkerTest {
                 inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository),
                 innsendingService = mockk<InnsendingService>(),
                 dialogportenService = mockk<DialogportenService>(),
+                dokumentkoblingService = mockk<DokumentkoblingService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
                 pdlService = mockk<PdlService>(),
                 soeknadService = mockk<SoeknadService>(),
@@ -143,11 +145,13 @@ class MeldingTolkerTest {
             )
 
         every { service.dialogportenService.opprettNyDialogMedSykmelding(any()) } just Runs
+        every { service.dokumentkoblingService.produserSykmeldingKobling(any(), any(), any()) } just Runs
 
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verifySequence {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
             service.dialogportenService.opprettNyDialogMedSykmelding(any())
+            service.dokumentkoblingService.produserSykmeldingKobling(any(), any(), any())
         }
     }
 
@@ -165,6 +169,7 @@ class MeldingTolkerTest {
         verify(exactly = 0) {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
             service.dialogportenService.opprettNyDialogMedSykmelding(any())
+            service.dokumentkoblingService.produserSykmeldingKobling(any(), any(), any())
         }
     }
 

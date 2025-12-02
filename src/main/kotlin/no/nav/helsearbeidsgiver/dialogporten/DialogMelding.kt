@@ -5,6 +5,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -58,4 +59,5 @@ data class DialogInntektsmelding(
     val sykmeldingId: UUID,
     val orgnr: String,
     val status: InnsendingStatus,
+    val kanal: Kanal,
 ) : DialogMelding()
