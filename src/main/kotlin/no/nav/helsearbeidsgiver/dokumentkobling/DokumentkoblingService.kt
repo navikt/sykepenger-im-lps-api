@@ -88,11 +88,6 @@ class DokumentkoblingService(
                 "Sendte melding på helsearbeidsgiver.dokument-kobling for vedtaksperiode-søknad-kobling med " +
                     "vedtaksperiodeId: $vedtaksperiodeId og soeknadId: $soeknadId",
             )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for vedtaksperiode-søknad-kobling med " +
-                    "vedtaksperiodeId: $vedtaksperiodeId og soeknadId: $soeknadId",
-            )
         }
     }
 }
