@@ -72,4 +72,22 @@ class DokumentkoblingService(
             )
         }
     }
+
+    fun produserVedtaksperiodeSoeknadKobling(
+        vedtaksperiodeId: UUID,
+        soeknadId: UUID,
+    ) {
+        if (unleashFeatureToggles.skalSendeVedtaksperiodeSoeknadKoblinger()) {
+            val vedtaksperiodeSoeknadKobling =
+                VedtaksperiodeSoeknadKobling(
+                    vedtaksperiodeId = vedtaksperiodeId,
+                    soeknadId = soeknadId,
+                )
+            dokumentkoblingProducer.send(vedtaksperiodeSoeknadKobling)
+            logger.info(
+                "Sendte melding på helsearbeidsgiver.dokument-kobling for vedtaksperiode-søknad-kobling med " +
+                    "vedtaksperiodeId: $vedtaksperiodeId og soeknadId: $soeknadId",
+            )
+        }
+    }
 }

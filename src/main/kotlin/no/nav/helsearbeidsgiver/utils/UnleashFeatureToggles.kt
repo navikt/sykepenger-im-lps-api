@@ -56,6 +56,12 @@ class UnleashFeatureToggles(
             false,
         )
 
+    fun skalSendeVedtaksperiodeSoeknadKoblinger(): Boolean =
+        unleashClient.isEnabled(
+            "send-vedtaksperiode-soeknad-koblinger",
+            false,
+        )
+
     fun skalSendeApiInnsendteImerTilSimba(): Boolean =
         unleashClient.isEnabled(
             "send-api-innsendte-imer-til-simba",
