@@ -38,8 +38,8 @@ class StatusISpeilTolker(
 
                     behandlingstatusmelding.eksterneSøknadIder.forEach { soeknadId ->
                         dokumentkoblingService.produserVedtaksperiodeSoeknadKobling(
-                            behandlingstatusmelding.vedtaksperiodeId,
-                            soeknadId,
+                            vedtaksperiodeId = behandlingstatusmelding.vedtaksperiodeId,
+                            soeknadId = soeknadId,
                         )
                     }
 
