@@ -216,6 +216,7 @@ fun mockForespoersel(): Forespoersel =
         status = Status.AKTIV,
         sykmeldingsperioder = emptyList(),
         egenmeldingsperioder = emptyList(),
+        inntektsDato = LocalDate.now(),
         arbeidsgiverperiodePaakrevd = true,
         inntektPaakrevd = true,
         opprettetTid = LocalDateTime.now(),

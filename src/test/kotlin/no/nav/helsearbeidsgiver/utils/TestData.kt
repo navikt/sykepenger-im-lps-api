@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
@@ -8,6 +9,7 @@ import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
+import no.nav.helsearbeidsgiver.utils.test.date.januar
 import java.util.UUID
 
 object TestData {
@@ -913,7 +915,7 @@ object TestData {
         forespoerselId = forespoerselId,
         vedtaksperiodeId = vedtaksperiodeId,
         egenmeldingsperioder = emptyList(),
-        sykmeldingsperioder = emptyList(),
+        sykmeldingsperioder = listOf(Periode(1.januar, 31.januar)),
         bestemmendeFravaersdager = emptyMap(),
         forespurtData =
             ForespurtData(
