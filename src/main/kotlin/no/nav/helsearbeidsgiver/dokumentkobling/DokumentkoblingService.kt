@@ -145,4 +145,26 @@ class DokumentkoblingService(
             )
         }
     }
+
+    fun produserInntektsmeldingGodkjentKobling(inntektsmeldingId: UUID) {
+        val inntektsmeldingGodkjent = repositories.inntektsmeldingRepository.hentDokumentKoblingInntektsmelding(inntektsmeldingId)
+        if (inntektsmeldingGodkjent == null) {
+            logger.warn(
+                "Klarte ikke å finne alle data til dokumentkobling for inntektsmelding med id: $inntektsmeldingId sender ikke melding til dialogporten.",
+            )
+            return
+        }
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmeldingGodkjent.orgnr.verdi)) {
+            dokumentkoblingProducer.send(
+                inntektsmeldingGodkjent,
+            )
+            logger.info(
+                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling med innsendingsId: ${inntektsmeldingGodkjent.innsendingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}.",
+            )
+        } else {
+            logger.info(
+                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding med innsendingsId: ${inntektsmeldingGodkjent.innsendingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}",
+            )
+        }
+    }
 }

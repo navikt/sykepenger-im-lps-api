@@ -142,9 +142,10 @@ class DokumentkoblingServiceTest {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns false
 
-        dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi))
+        dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(
+            forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi),
+        )
         dokumentkoblingService.oppdaterDialogMedUtgaattForespoersel(forespoersel = mockForespoersel().copy(orgnr = orgnr.verdi))
-
 
         verify(exactly = 0) {
             mockDokumentkoblingProducer.send(any())
@@ -156,7 +157,9 @@ class DokumentkoblingServiceTest {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
 
-        dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi))
+        dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(
+            forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi),
+        )
 
         verifySequence {
             mockDokumentkoblingProducer.send(any<ForespoerselSendt>())

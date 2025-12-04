@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -16,6 +17,7 @@ class InntektsmeldingTolker(
     private val inntektsmeldingService: InntektsmeldingService,
     private val mottakRepository: MottakRepository,
     private val dialogportenService: DialogportenService,
+    private val dokumentkoblingService: DokumentkoblingService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
@@ -39,6 +41,7 @@ class InntektsmeldingTolker(
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
                 dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
+                dokumentkoblingService.produserInntektsmeldingGodkjentKobling(obj.inntektsmelding.id)
             } catch (e: Exception) {
                 rollback()
                 sikkerLogger.error("Klarte ikke å lagre i database!", e)

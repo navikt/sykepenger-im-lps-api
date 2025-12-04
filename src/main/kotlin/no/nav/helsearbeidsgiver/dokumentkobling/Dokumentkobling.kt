@@ -5,6 +5,7 @@ package no.nav.helsearbeidsgiver.dokumentkobling
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -61,6 +62,7 @@ data class ForespoerselUtgaatt(
 data class InntektsmeldingAvvist(
     val innsendingId: UUID,
     val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
 ) : Dokumentkobling()
 
@@ -69,5 +71,7 @@ data class InntektsmeldingAvvist(
 data class InntektsmeldingGodkjent(
     val innsendingId: UUID,
     val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
+    val kanal: Kanal,
 ) : Dokumentkobling()

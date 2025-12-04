@@ -95,6 +95,7 @@ class InnsendingIT {
                 inntektsmeldingService = services.inntektsmeldingService,
                 mottakRepository = repositories.mottakRepository,
                 dialogportenService = services.dialogportenService,
+                dokumentkoblingService = services.dokumentkoblingService,
             )
         every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }

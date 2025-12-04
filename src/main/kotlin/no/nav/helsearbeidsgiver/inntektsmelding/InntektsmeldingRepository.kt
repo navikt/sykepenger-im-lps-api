@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
+import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingGodkjent
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
@@ -24,6 +25,7 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
@@ -109,6 +111,29 @@ class InntektsmeldingRepository(
                 .where { (InntektsmeldingEntitet.innsendingId eq innsendingId) }
                 .map { it.toExposedInntektsmelding() }
                 .firstOrNull()
+        }
+
+    fun hentDokumentKoblingInntektsmelding(innsendingId: UUID): InntektsmeldingGodkjent? =
+        transaction(db) {
+            InntektsmeldingEntitet
+                .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
+                .select(
+                    orgnr,
+                    InntektsmeldingEntitet.innsendingId,
+                    ForespoerselEntitet.vedtaksperiodeId,
+                    navReferanseId,
+                    typeInnsending,
+                ).where({ InntektsmeldingEntitet.innsendingId eq innsendingId })
+                .limit(1)
+                .map {
+                    InntektsmeldingGodkjent(
+                        innsendingId = it[InntektsmeldingEntitet.innsendingId],
+                        forespoerselId = it[navReferanseId],
+                        vedtaksperiodeId = it[ForespoerselEntitet.vedtaksperiodeId],
+                        orgnr = Orgnr(it[orgnr]),
+                        kanal = it[typeInnsending].toKanal(),
+                    )
+                }.firstOrNull()
         }
 
     fun oppdaterStatus(
