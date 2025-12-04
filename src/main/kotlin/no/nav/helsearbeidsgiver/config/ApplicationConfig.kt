@@ -228,13 +228,14 @@ fun configureServices(
         DokumentkoblingService(
             dokumentkoblingProducer = dokumentkoblingProducer,
             unleashFeatureToggles = unleashFeatureToggles,
+            forespoerselRepository = repositories.forespoerselRepository,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
         AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
-    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService)
+    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
 
     return Services(
         forespoerselService,

@@ -2,6 +2,8 @@ package no.nav.helsearbeidsgiver.dokumentkobling
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -13,6 +15,7 @@ import java.util.UUID
 class DokumentkoblingService(
     val dokumentkoblingProducer: DokumentkoblingProducer,
     val unleashFeatureToggles: UnleashFeatureToggles,
+    val forespoerselRepository: ForespoerselRepository,
 ) {
     private val logger = logger()
 
@@ -105,11 +108,41 @@ class DokumentkoblingService(
             )
 
             logger.info(
-                "Sendte melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}.",
+                "Sendte melding på helsearbeidsgiver.dokument-kobling for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, fordi feature toggle er av.",
+                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, fordi feature toggle er av.",
+            )
+        }
+    }
+
+    fun oppdaterDialogMedUtgaattForespoersel(forespoersel: Forespoersel) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
+            val vedtaksperiodeId =
+                forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId)
+                    ?: run {
+                        // TODO: kan vi finne en bedre måte å håndtere dette på?
+                        logger.warn(
+                            "Fant ingen vedtaksperiodeId for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}. " +
+                                "Kan derfor ikke produsere dialogmelding på helsearbeidsgiver.dokument-kobling.",
+                        )
+                        return
+                    }
+            dokumentkoblingProducer.send(
+                ForespoerselUtgaatt(
+                    forespoerselId = forespoersel.navReferanseId,
+                    vedtaksperiodeId = vedtaksperiodeId,
+                    orgnr = Orgnr(forespoersel.orgnr),
+                ),
+            )
+
+            logger.info(
+                "Sendte melding på helsearbeidsgiver.dokument-kobling for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, vedtaksperiodeId: $vedtaksperiodeId.",
+            )
+        } else {
+            logger.info(
+                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, fordi feature toggle er av.",
             )
         }
     }

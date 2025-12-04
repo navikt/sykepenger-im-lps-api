@@ -47,6 +47,7 @@ class KafkaErrorHandlingTest {
                 forespoerselService = mockForespoerselService,
                 mottakRepository = mockMottakRepository,
                 dialogportenService = mockk(),
+                dokumentkoblingService = mockk(),
             )
     }
 
@@ -73,6 +74,7 @@ class KafkaErrorHandlingTest {
                 forespoerselService = mockForespoerselService,
                 mottakRepository = mockMottakRepository,
                 dialogportenService = mockk(),
+                dokumentkoblingService = mockk(),
             )
         assertThrows<SerializationException> {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)

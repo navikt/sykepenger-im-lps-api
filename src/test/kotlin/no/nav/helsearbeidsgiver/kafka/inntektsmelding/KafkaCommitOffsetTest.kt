@@ -80,6 +80,7 @@ class KafkaCommitOffsetTest {
                     mockk(),
                     mockk(),
                     mockk(),
+                    mockk(),
                 ),
             )
         val topicPartition = TopicPartition("test", 0)

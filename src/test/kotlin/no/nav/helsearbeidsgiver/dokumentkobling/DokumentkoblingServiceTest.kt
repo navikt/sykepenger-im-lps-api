@@ -30,6 +30,7 @@ class DokumentkoblingServiceTest {
         DokumentkoblingService(
             dokumentkoblingProducer = mockDokumentkoblingProducer,
             unleashFeatureToggles = mockUnleashFeatureToggles,
+            forespoerselRepository = mockk(),
         )
     private val sykmeldingId = UUID.randomUUID()
     private val soeknadId = UUID.randomUUID()

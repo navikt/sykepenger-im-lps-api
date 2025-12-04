@@ -78,6 +78,7 @@ class ForespoerselTolker(
                             forespoerselService.lagreOppdatertForespoersel(obj)
                             mottakRepository.opprett(ExposedMottak(melding))
                             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
+                            dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
                         }
                     } catch (e: Exception) {
                         rollback()
