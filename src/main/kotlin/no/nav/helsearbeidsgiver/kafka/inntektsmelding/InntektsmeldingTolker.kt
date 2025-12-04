@@ -41,7 +41,7 @@ class InntektsmeldingTolker(
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
                 dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
-                dokumentkoblingService.produserInntektsmeldingGodkjentKobling(obj.inntektsmelding.id)
+                dokumentkoblingService.produserInntektsmeldingGodkjentKobling(obj.inntektsmelding)
             } catch (e: Exception) {
                 rollback()
                 sikkerLogger.error("Klarte ikke å lagre i database!", e)

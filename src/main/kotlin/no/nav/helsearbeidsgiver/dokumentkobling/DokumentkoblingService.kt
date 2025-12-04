@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.dokumentkobling
 
 import no.nav.helsearbeidsgiver.config.Repositories
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
@@ -146,14 +147,22 @@ class DokumentkoblingService(
         }
     }
 
-    fun produserInntektsmeldingGodkjentKobling(inntektsmeldingId: UUID) {
-        val inntektsmeldingGodkjent = repositories.inntektsmeldingRepository.hentDokumentKoblingInntektsmeldingGodkjent(inntektsmeldingId)
-        if (inntektsmeldingGodkjent == null) {
+    fun produserInntektsmeldingGodkjentKobling(inntektsmelding: Inntektsmelding) {
+        val vedtaksperiodeId = inntektsmelding.vedtaksperiodeId
+        if (vedtaksperiodeId == null) {
             logger.warn(
-                "Klarte ikke å finne alle data til dokumentkobling for inntektsmelding med id: $inntektsmeldingId sender ikke melding på helsearbeidsgiver.dokument-kobling .",
+                "Klarte ikke å finne alle data til dokumentkobling for inntektsmelding med id: ${inntektsmelding.id} sender ikke melding på helsearbeidsgiver.dokument-kobling .",
             )
             return
         }
+        val inntektsmeldingGodkjent =
+            InntektsmeldingGodkjent(
+                innsendingId = inntektsmelding.id,
+                forespoerselId = inntektsmelding.type.id,
+                vedtaksperiodeId = vedtaksperiodeId,
+                orgnr = inntektsmelding.avsender.orgnr,
+                kanal = inntektsmelding.type.kanal,
+            )
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmeldingGodkjent.orgnr.verdi)) {
             dokumentkoblingProducer.send(
                 inntektsmeldingGodkjent,
