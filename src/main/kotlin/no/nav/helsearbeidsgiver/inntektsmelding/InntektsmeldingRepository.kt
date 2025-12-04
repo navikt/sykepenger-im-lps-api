@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
+import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingAvvist
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingGodkjent
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
@@ -37,6 +38,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.util.UUID
+import kotlin.collections.map
 
 class InntektsmeldingRepository(
     private val db: Database,
@@ -53,7 +55,15 @@ class InntektsmeldingRepository(
                 it[orgnr] = im.avsender.orgnr.verdi
                 it[fnr] = im.sykmeldt.fnr.verdi
                 it[innsendt] = im.mottatt.toLocalDateTime()
-                it[skjema] = SkjemaInntektsmelding(im.type.id, im.avsender.tlf, im.agp, im.inntekt, im.naturalytelser, im.refusjon)
+                it[skjema] =
+                    SkjemaInntektsmelding(
+                        im.type.id,
+                        im.avsender.tlf,
+                        im.agp,
+                        im.inntekt,
+                        im.naturalytelser,
+                        im.refusjon,
+                    )
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
                 it[navReferanseId] = im.type.id
@@ -113,7 +123,28 @@ class InntektsmeldingRepository(
                 .firstOrNull()
         }
 
-    fun hentDokumentKoblingInntektsmelding(innsendingId: UUID): InntektsmeldingGodkjent? =
+    fun hentDokumentKoblingInntektsmeldingGodkjent(innsendingId: UUID) =
+        hentDokumentKoblingInntektsmelding(innsendingId)?.let {
+            InntektsmeldingGodkjent(
+                innsendingId = it[InntektsmeldingEntitet.innsendingId],
+                forespoerselId = it[navReferanseId],
+                vedtaksperiodeId = it[ForespoerselEntitet.vedtaksperiodeId],
+                orgnr = Orgnr(it[orgnr]),
+                kanal = it[typeInnsending].toKanal(),
+            )
+        }
+
+    fun hentDokumentKoblingInntektsmeldingAvvist(innsendingId: UUID) =
+        hentDokumentKoblingInntektsmelding(innsendingId)?.let {
+            InntektsmeldingAvvist(
+                innsendingId = it[InntektsmeldingEntitet.innsendingId],
+                forespoerselId = it[navReferanseId],
+                vedtaksperiodeId = it[ForespoerselEntitet.vedtaksperiodeId],
+                orgnr = Orgnr(it[orgnr]),
+            )
+        }
+
+    fun hentDokumentKoblingInntektsmelding(innsendingId: UUID): ResultRow? =
         transaction(db) {
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
@@ -125,15 +156,7 @@ class InntektsmeldingRepository(
                     typeInnsending,
                 ).where({ InntektsmeldingEntitet.innsendingId eq innsendingId })
                 .limit(1)
-                .map {
-                    InntektsmeldingGodkjent(
-                        innsendingId = it[InntektsmeldingEntitet.innsendingId],
-                        forespoerselId = it[navReferanseId],
-                        vedtaksperiodeId = it[ForespoerselEntitet.vedtaksperiodeId],
-                        orgnr = Orgnr(it[orgnr]),
-                        kanal = it[typeInnsending].toKanal(),
-                    )
-                }.firstOrNull()
+                .firstOrNull()
         }
 
     fun oppdaterStatus(
@@ -166,8 +189,12 @@ class InntektsmeldingRepository(
         transaction(db) {
             InntektsmeldingEntitet
                 .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
-                .join(SoeknadEntitet, JoinType.INNER, ForespoerselEntitet.vedtaksperiodeId, SoeknadEntitet.vedtaksperiodeId)
-                .select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status, typeInnsending)
+                .join(
+                    SoeknadEntitet,
+                    JoinType.INNER,
+                    ForespoerselEntitet.vedtaksperiodeId,
+                    SoeknadEntitet.vedtaksperiodeId,
+                ).select(orgnr, innsendingId, SoeknadEntitet.sykmeldingId, navReferanseId, status, typeInnsending)
                 .where({ innsendingId eq inntektsmeldingId })
                 .limit(1)
                 .map { row ->
