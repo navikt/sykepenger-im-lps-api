@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
@@ -17,6 +18,7 @@ class ForespoerselTolker(
     private val forespoerselService: ForespoerselService,
     private val mottakRepository: MottakRepository,
     private val dialogportenService: DialogportenService,
+    private val dokumentkoblingService: DokumentkoblingService,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
     private val logger = logger()
@@ -55,6 +57,7 @@ class ForespoerselTolker(
                             forespoerselService.lagreNyForespoersel(forespoersel)
                             mottakRepository.opprett(ExposedMottak(melding))
                             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
+                            dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
                         } catch (e: Exception) {
                             rollback()
                             logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")

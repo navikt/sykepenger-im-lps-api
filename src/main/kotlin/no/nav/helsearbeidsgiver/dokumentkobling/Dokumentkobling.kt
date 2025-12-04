@@ -43,37 +43,31 @@ data class VedtaksperiodeSoeknadKobling(
 @Serializable
 @SerialName("ForespoerselSendt")
 data class ForespoerselSendt(
-    val forespoerselKobling: ForespoerselKobling,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
 ) : Dokumentkobling()
 
 @Serializable
 @SerialName("ForespoerselUtgaatt")
 data class ForespoerselUtgaatt(
-    val forespoerselKobling: ForespoerselKobling,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
 ) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingAvvist")
 data class InntektsmeldingAvvist(
-    val inntektsmeldingKobling: InntektsmeldingKobling,
+    val innsendingId: UUID,
+    val forespoerselId: UUID,
+    val orgnr: Orgnr,
 ) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingGodkjent")
 data class InntektsmeldingGodkjent(
-    val inntektsmeldingKobling: InntektsmeldingKobling,
-) : Dokumentkobling()
-
-@Serializable
-abstract class ForespoerselKobling(
-    val forespoerselId: UUID,
-    val vedtaksperiodeId: UUID,
-    val orgnr: String,
-)
-
-@Serializable
-abstract class InntektsmeldingKobling(
     val innsendingId: UUID,
     val forespoerselId: UUID,
-    val orgnr: String,
-)
+    val orgnr: Orgnr,
+) : Dokumentkobling()

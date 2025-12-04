@@ -116,6 +116,7 @@ fun configureTolkere(
             mottakRepository = repositories.mottakRepository,
             dialogportenService = services.dialogportenService,
             forespoerselService = services.forespoerselService,
+            dokumentkoblingService = services.dokumentkoblingService,
         )
     val sykmeldingTolker =
         SykmeldingTolker(
