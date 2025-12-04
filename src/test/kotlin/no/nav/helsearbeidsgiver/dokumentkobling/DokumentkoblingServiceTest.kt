@@ -10,8 +10,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -35,7 +33,7 @@ class DokumentkoblingServiceTest {
         DokumentkoblingService(
             dokumentkoblingProducer = mockDokumentkoblingProducer,
             unleashFeatureToggles = mockUnleashFeatureToggles,
-            forespoerselRepository = mockk(),
+            repositories = mockk(),
         )
     private val sykmeldingId = UUID.randomUUID()
     private val soeknadId = UUID.randomUUID()
@@ -169,7 +167,7 @@ class DokumentkoblingServiceTest {
     fun `dokumentkoblingService kaller dokumentkoblingProducer ved utgaat forespoersel`() {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
-        every { dokumentkoblingService.forespoerselRepository.hentVedtaksperiodeId(any()) } returns UUID.randomUUID()
+        every { dokumentkoblingService.repositories.forespoerselRepository.hentVedtaksperiodeId(any()) } returns UUID.randomUUID()
 
         dokumentkoblingService.oppdaterDialogMedUtgaattForespoersel(forespoersel = mockForespoersel().copy(orgnr = orgnr.verdi))
 

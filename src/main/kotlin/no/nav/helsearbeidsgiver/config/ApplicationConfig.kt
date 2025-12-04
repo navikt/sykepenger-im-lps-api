@@ -228,7 +228,7 @@ fun configureServices(
         DokumentkoblingService(
             dokumentkoblingProducer = dokumentkoblingProducer,
             unleashFeatureToggles = unleashFeatureToggles,
-            forespoerselRepository = repositories.forespoerselRepository,
+            repositories = repositories,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)

@@ -1,9 +1,8 @@
 package no.nav.helsearbeidsgiver.dokumentkobling
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmeldingsforespoersel
+import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -15,7 +14,7 @@ import java.util.UUID
 class DokumentkoblingService(
     val dokumentkoblingProducer: DokumentkoblingProducer,
     val unleashFeatureToggles: UnleashFeatureToggles,
-    val forespoerselRepository: ForespoerselRepository,
+    val repositories: Repositories,
 ) {
     private val logger = logger()
 
@@ -120,7 +119,7 @@ class DokumentkoblingService(
     fun oppdaterDialogMedUtgaattForespoersel(forespoersel: Forespoersel) {
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
             val vedtaksperiodeId =
-                forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId)
+                repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId)
                     ?: run {
                         // TODO: kan vi finne en bedre måte å håndtere dette på?
                         logger.warn(
