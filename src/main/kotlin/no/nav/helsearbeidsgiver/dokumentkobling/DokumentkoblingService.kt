@@ -151,7 +151,7 @@ class DokumentkoblingService(
         val vedtaksperiodeId = inntektsmelding.vedtaksperiodeId
         if (vedtaksperiodeId == null) {
             logger.warn(
-                "Klarte ikke å finne alle data til dokumentkobling for inntektsmelding med id: ${inntektsmelding.id} sender ikke melding på helsearbeidsgiver.dokument-kobling .",
+                "Klarte ikke å finne alle data til dokumentkobling for inntektsmelding med id: ${inntektsmelding.id} med type: ${inntektsmelding.type::class.simpleName} sender ikke melding på helsearbeidsgiver.dokument-kobling .",
             )
             return
         }

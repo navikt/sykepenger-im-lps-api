@@ -120,6 +120,7 @@ class MeldingTolkerTest {
         every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
         every { service.dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
         every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any()) } just Runs
+        every { service.dokumentkoblingService.produserInntektsmeldingGodkjentKobling(any()) } just Runs
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
 
