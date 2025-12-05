@@ -235,7 +235,7 @@ fun configureServices(
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
-        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
+        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService, dokumentkoblingService)
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
 
     return Services(
