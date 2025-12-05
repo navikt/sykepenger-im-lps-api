@@ -60,7 +60,7 @@ data class ForespoerselUtgaatt(
 @Serializable
 @SerialName("InntektsmeldingAvvist")
 data class InntektsmeldingAvvist(
-    val innsendingId: UUID,
+    val inntektsmeldingId: UUID,
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
@@ -69,7 +69,7 @@ data class InntektsmeldingAvvist(
 @Serializable
 @SerialName("InntektsmeldingGodkjent")
 data class InntektsmeldingGodkjent(
-    val innsendingId: UUID,
+    val inntektsmeldingId: UUID,
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,

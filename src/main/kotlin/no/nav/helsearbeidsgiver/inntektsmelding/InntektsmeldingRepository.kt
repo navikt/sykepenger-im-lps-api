@@ -123,42 +123,6 @@ class InntektsmeldingRepository(
                 .firstOrNull()
         }
 
-    fun hentDokumentKoblingInntektsmeldingGodkjent(innsendingId: UUID) =
-        hentDokumentKoblingInntektsmelding(innsendingId)?.let {
-            InntektsmeldingGodkjent(
-                innsendingId = it[InntektsmeldingEntitet.innsendingId],
-                forespoerselId = it[navReferanseId],
-                vedtaksperiodeId = it[ForespoerselEntitet.vedtaksperiodeId],
-                orgnr = Orgnr(it[orgnr]),
-                kanal = it[typeInnsending].toKanal(),
-            )
-        }
-
-    fun hentDokumentKoblingInntektsmeldingAvvist(innsendingId: UUID) =
-        hentDokumentKoblingInntektsmelding(innsendingId)?.let {
-            InntektsmeldingAvvist(
-                innsendingId = it[InntektsmeldingEntitet.innsendingId],
-                forespoerselId = it[navReferanseId],
-                vedtaksperiodeId = it[ForespoerselEntitet.vedtaksperiodeId],
-                orgnr = Orgnr(it[orgnr]),
-            )
-        }
-
-    fun hentDokumentKoblingInntektsmelding(innsendingId: UUID): ResultRow? =
-        transaction(db) {
-            InntektsmeldingEntitet
-                .join(ForespoerselEntitet, JoinType.INNER, navReferanseId, ForespoerselEntitet.navReferanseId)
-                .select(
-                    orgnr,
-                    InntektsmeldingEntitet.innsendingId,
-                    ForespoerselEntitet.vedtaksperiodeId,
-                    navReferanseId,
-                    typeInnsending,
-                ).where({ InntektsmeldingEntitet.innsendingId eq innsendingId })
-                .limit(1)
-                .firstOrNull()
-        }
-
     fun oppdaterStatus(
         inntektsmelding: Inntektsmelding,
         nyStatus: InnsendingStatus,
