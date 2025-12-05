@@ -11,6 +11,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -190,6 +191,31 @@ class DokumentkoblingServiceTest {
         dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
 
         verifySequence {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingGodkjent>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer ved selvbestemt Inntektsmelding`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        val inntektsmelding = buildInntektsmelding(orgnr = orgnr).copy(type = Inntektsmelding.Type.Selvbestemt(UUID.randomUUID()))
+        dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingGodkjent>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer når vedtaksperiodeId er null`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        val inntektsmelding =
+            buildInntektsmelding(
+                orgnr = orgnr,
+            ).copy(type = Inntektsmelding.Type.Fisker(UUID.randomUUID()), vedtaksperiodeId = null)
+        dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
+        verify(exactly = 0) {
             mockDokumentkoblingProducer.send(any<InntektsmeldingGodkjent>())
         }
     }
