@@ -148,11 +148,25 @@ class DokumentkoblingService(
         }
     }
 
+    private fun Inntektsmelding.Type.manglerForespoersel(): Boolean =
+        when (this) {
+            is Inntektsmelding.Type.Forespurt,
+            is Inntektsmelding.Type.ForespurtEkstern,
+            -> false
+            else -> true
+        }
+
     fun produserInntektsmeldingGodkjentKobling(inntektsmelding: Inntektsmelding) {
         val vedtaksperiodeId = inntektsmelding.vedtaksperiodeId
         if (vedtaksperiodeId == null) {
             logger.warn(
                 "Klarte ikke å finne alle data til dokumentkobling for inntektsmelding med id: ${inntektsmelding.id} med type: ${inntektsmelding.type::class.simpleName} sender ikke melding på helsearbeidsgiver.dokument-kobling .",
+            )
+            return
+        }
+        if (inntektsmelding.type.manglerForespoersel()) {
+            logger.warn(
+                "Inntektsmelding med id: ${inntektsmelding.id} er ikke av forespurt type, sender ikke melding på helsearbeidsgiver.dokument-kobling .",
             )
             return
         }
