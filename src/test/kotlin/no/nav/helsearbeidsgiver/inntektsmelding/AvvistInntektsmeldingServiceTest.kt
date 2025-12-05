@@ -7,6 +7,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -22,6 +24,9 @@ class AvvistInntektsmeldingServiceTest {
         val avvistInntektsmeldingMock =
             AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
+                forespoerselId = UUID.randomUUID(),
+                vedtaksperiodeId = UUID.randomUUID(),
+                orgnr = Orgnr.genererGyldig(),
                 feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 
