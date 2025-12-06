@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.dokumentkobling
 
 import io.kotest.assertions.throwables.shouldThrowExactly
-import io.kotest.matchers.ints.exactly
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -233,7 +232,7 @@ class DokumentkoblingServiceTest {
     }
 
     @Test
-    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer for inntektsmelding Godkjent eller Avvist dersom feature toggle er skrudd av`() {
+    fun `dokumentkoblingService kaller ikke dokumentkoblingProducer for inntektsmelding  dersom feature toggle er skrudd av`() {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns false
         val avvistInntektsmelding = mockAvvistInntektsmelding().copy(orgnr = orgnr)

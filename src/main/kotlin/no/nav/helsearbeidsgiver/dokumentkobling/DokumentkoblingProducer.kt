@@ -7,16 +7,18 @@ import no.nav.helsearbeidsgiver.utils.json.toPretty
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.util.UUID
 
 class DokumentkoblingProducer(
-    private val kafkaProducer: KafkaProducer<String, JsonElement>,
+    private val kafkaProducer: KafkaProducer<UUID, JsonElement>,
 ) {
     private val topic = getProperty("kafkaProducer.dokument_kobling.topic")
 
     fun send(dokumentkobling: Dokumentkobling) {
+        val key = finnKafkaKey(dokumentkobling)
         val message = dokumentkobling.toJson(Dokumentkobling.serializer())
         runCatching {
-            kafkaProducer.send(message.toRecord()).get()
+            kafkaProducer.send(message.toRecord(key)).get()
         }.map { message }
             .onSuccess {
                 sikkerLogger().info("Publiserte melding om dokumentkobling på topic $topic:\n${it.toPretty()}")
@@ -26,5 +28,16 @@ class DokumentkoblingProducer(
             }
     }
 
-    private fun JsonElement.toRecord(): ProducerRecord<String, JsonElement> = ProducerRecord(topic, this)
+    private fun finnKafkaKey(dokumentkobling: Dokumentkobling): UUID =
+        when (dokumentkobling) {
+            is Sykmelding -> dokumentkobling.sykmeldingId
+            is Sykepengesoeknad -> dokumentkobling.sykmeldingId
+            is VedtaksperiodeSoeknadKobling -> dokumentkobling.vedtaksperiodeId
+            is ForespoerselSendt -> dokumentkobling.vedtaksperiodeId
+            is ForespoerselUtgaatt -> dokumentkobling.vedtaksperiodeId
+            is InntektsmeldingAvvist -> dokumentkobling.vedtaksperiodeId
+            is InntektsmeldingGodkjent -> dokumentkobling.vedtaksperiodeId
+        }
+
+    private fun JsonElement.toRecord(key: UUID): ProducerRecord<UUID, JsonElement> = ProducerRecord(topic, key, this)
 }

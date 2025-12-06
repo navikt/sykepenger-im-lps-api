@@ -65,6 +65,7 @@ import no.nav.security.token.support.v3.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.kafka.common.serialization.UUIDSerializer
 import org.jetbrains.exposed.sql.Database
 
 val MAX_ANTALL_I_RESPONS = 1000 // Max antall entiteter som kan returneres i API-kall
@@ -220,7 +221,7 @@ fun configureServices(
         DokumentkoblingProducer(
             KafkaProducer(
                 createKafkaProducerConfig(producerName = "dokumentkobling-producer"),
-                StringSerializer(),
+                UUIDSerializer(),
                 DialogSerializer(),
             ),
         )
