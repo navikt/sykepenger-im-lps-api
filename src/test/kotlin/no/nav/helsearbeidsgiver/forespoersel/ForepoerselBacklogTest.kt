@@ -29,7 +29,7 @@ class ForepoerselBacklogTest {
                 System.getProperty("database.password"),
             ).init()
         forespoerselRepository = configureRepositories(db).forespoerselRepository
-        forespoerselService = ForespoerselService(forespoerselRepository, dialogportenService = mockk())
+        forespoerselService = ForespoerselService(forespoerselRepository, dialogportenService = mockk(), dokumentkoblinService = mockk())
     }
 
     @Test

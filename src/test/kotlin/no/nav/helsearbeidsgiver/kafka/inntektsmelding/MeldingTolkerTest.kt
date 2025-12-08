@@ -94,6 +94,7 @@ class MeldingTolkerTest {
                     ForespoerselService(
                         repositories.forespoerselRepository,
                         dialogportenService = mockk<DialogportenService>(),
+                        dokumentkoblinService = mockk<DokumentkoblingService>(),
                     ),
                 inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository),
                 innsendingService = mockk<InnsendingService>(),
@@ -117,7 +118,9 @@ class MeldingTolkerTest {
     @Test
     fun kunLagreEventerSomMatcher() {
         every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
+        every { service.dokumentkoblingService.produserForespoerselKobling(any()) } just Runs
         every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any()) } just Runs
+        every { service.dokumentkoblingService.produserInntektsmeldingGodkjentKobling(any()) } just Runs
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
 
@@ -176,6 +179,7 @@ class MeldingTolkerTest {
     @Test
     fun `forespoerselTolker håndterer duplikater`() {
         every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
+        every { service.dokumentkoblingService.produserForespoerselKobling(any()) } just Runs
         assertDoesNotThrow {
             tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
             tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)

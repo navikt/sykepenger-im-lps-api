@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -10,6 +11,7 @@ import java.util.UUID
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
     private val dialogportenService: DialogportenService,
+    private val dokumentkoblinService: DokumentkoblingService,
 ) {
     fun filtrerForespoersler(filter: ForespoerselFilter): List<Forespoersel> {
         val orgnr = filter.orgnr
@@ -125,6 +127,7 @@ class ForespoerselService(
             }
         forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
         dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
+        dokumentkoblinService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
     }
 

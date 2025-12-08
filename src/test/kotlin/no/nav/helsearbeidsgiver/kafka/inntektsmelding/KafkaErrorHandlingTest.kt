@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
@@ -30,6 +31,19 @@ class KafkaErrorHandlingTest {
 
     val mockMottakRepository = mockk<MottakRepository>()
     val mockForespoerselService = mockk<ForespoerselService>(relaxed = true)
+    val mockServices =
+        Services(
+            forespoerselService = mockForespoerselService,
+            inntektsmeldingService = mockk(),
+            innsendingService = mockk(),
+            dialogportenService = mockk(),
+            dokumentkoblingService = mockk(),
+            sykmeldingService = mockk(),
+            pdlService = mockk(),
+            soeknadService = mockk(),
+            helseSjekkService = mockk(),
+            avvistInntektsmeldingService = mockk(),
+        )
 
     private lateinit var forespoerselTolker: ForespoerselTolker
 
@@ -44,9 +58,8 @@ class KafkaErrorHandlingTest {
         forespoerselRepository = ForespoerselRepository(db)
         forespoerselTolker =
             ForespoerselTolker(
-                forespoerselService = mockForespoerselService,
                 mottakRepository = mockMottakRepository,
-                dialogportenService = mockk(),
+                services = mockServices,
             )
     }
 
@@ -70,9 +83,8 @@ class KafkaErrorHandlingTest {
         val mockForespoerselRepository = mockk<ForespoerselRepository>()
         val mockConsumer =
             ForespoerselTolker(
-                forespoerselService = mockForespoerselService,
                 mottakRepository = mockMottakRepository,
-                dialogportenService = mockk(),
+                services = mockServices,
             )
         assertThrows<SerializationException> {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_MOTTATT)

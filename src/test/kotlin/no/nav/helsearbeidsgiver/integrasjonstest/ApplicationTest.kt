@@ -130,18 +130,23 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     fun `oppdaterer riktig inntektsmeldingstatus fra mottatt til feilet dersom vi mottar avvistevent`() {
         val inntektsmeldingId1 = UUID.randomUUID()
         val inntektsmeldingId2 = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+        val inntektsmelding1 = buildInntektsmelding(inntektsmeldingId = inntektsmeldingId1, vedtaksperiodeId)
 
         repositories.inntektsmeldingRepository.opprettInntektsmelding(
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId1),
+            inntektsmelding1,
             innsendingStatus = InnsendingStatus.MOTTATT,
         )
         repositories.inntektsmeldingRepository.opprettInntektsmelding(
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId2),
+            inntektsmelding1.copy(id = inntektsmeldingId2),
             innsendingStatus = InnsendingStatus.MOTTATT,
         )
         val avvistInntektsmelding =
             AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId2,
+                forespoerselId = inntektsmelding1.type.id,
+                vedtaksperiodeId = vedtaksperiodeId,
+                orgnr = inntektsmelding1.avsender.orgnr,
                 feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 

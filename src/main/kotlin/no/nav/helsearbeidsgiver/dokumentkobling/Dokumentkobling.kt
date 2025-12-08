@@ -5,6 +5,7 @@ package no.nav.helsearbeidsgiver.dokumentkobling
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -43,37 +44,34 @@ data class VedtaksperiodeSoeknadKobling(
 @Serializable
 @SerialName("ForespoerselSendt")
 data class ForespoerselSendt(
-    val forespoerselKobling: ForespoerselKobling,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
 ) : Dokumentkobling()
 
 @Serializable
 @SerialName("ForespoerselUtgaatt")
 data class ForespoerselUtgaatt(
-    val forespoerselKobling: ForespoerselKobling,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
 ) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingAvvist")
 data class InntektsmeldingAvvist(
-    val inntektsmeldingKobling: InntektsmeldingKobling,
+    val inntektsmeldingId: UUID,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
 ) : Dokumentkobling()
 
 @Serializable
 @SerialName("InntektsmeldingGodkjent")
 data class InntektsmeldingGodkjent(
-    val inntektsmeldingKobling: InntektsmeldingKobling,
-) : Dokumentkobling()
-
-@Serializable
-abstract class ForespoerselKobling(
+    val inntektsmeldingId: UUID,
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
-    val orgnr: String,
-)
-
-@Serializable
-abstract class InntektsmeldingKobling(
-    val innsendingId: UUID,
-    val forespoerselId: UUID,
-    val orgnr: String,
-)
+    val orgnr: Orgnr,
+    val kanal: Kanal,
+) : Dokumentkobling()

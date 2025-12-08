@@ -107,15 +107,13 @@ fun configureTolkere(
 ): Tolkere {
     val inntektsmeldingTolker =
         InntektsmeldingTolker(
-            inntektsmeldingService = services.inntektsmeldingService,
             mottakRepository = repositories.mottakRepository,
-            dialogportenService = services.dialogportenService,
+            services = services,
         )
     val forespoerselTolker =
         ForespoerselTolker(
             mottakRepository = repositories.mottakRepository,
-            dialogportenService = services.dialogportenService,
-            forespoerselService = services.forespoerselService,
+            services = services,
         )
     val sykmeldingTolker =
         SykmeldingTolker(
@@ -227,13 +225,14 @@ fun configureServices(
         DokumentkoblingService(
             dokumentkoblingProducer = dokumentkoblingProducer,
             unleashFeatureToggles = unleashFeatureToggles,
+            repositories = repositories,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
-        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
-    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService)
+        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService, dokumentkoblingService)
+    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
 
     return Services(
         forespoerselService,

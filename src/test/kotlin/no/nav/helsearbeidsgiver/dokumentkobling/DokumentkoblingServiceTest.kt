@@ -10,13 +10,19 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
+import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.mockAvvistInntektsmelding
+import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +36,7 @@ class DokumentkoblingServiceTest {
         DokumentkoblingService(
             dokumentkoblingProducer = mockDokumentkoblingProducer,
             unleashFeatureToggles = mockUnleashFeatureToggles,
+            repositories = mockk(),
         )
     private val sykmeldingId = UUID.randomUUID()
     private val soeknadId = UUID.randomUUID()
@@ -130,6 +137,115 @@ class DokumentkoblingServiceTest {
 
         verify(exactly = 0) {
             mockDokumentkoblingProducer.send(any())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer for forespørsler dersom feature toggle er skrudd av`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns false
+
+        dokumentkoblingService.produserForespoerselKobling(
+            forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi),
+        )
+        dokumentkoblingService.oppdaterDialogMedUtgaattForespoersel(forespoersel = mockForespoersel().copy(orgnr = orgnr.verdi))
+
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt forespoersel`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
+
+        dokumentkoblingService.produserForespoerselKobling(
+            forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi),
+        )
+
+        verifySequence {
+            mockDokumentkoblingProducer.send(any<ForespoerselSendt>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller dokumentkoblingProducer ved utgaat forespoersel`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
+        every { dokumentkoblingService.repositories.forespoerselRepository.hentVedtaksperiodeId(any()) } returns UUID.randomUUID()
+
+        dokumentkoblingService.oppdaterDialogMedUtgaattForespoersel(forespoersel = mockForespoersel().copy(orgnr = orgnr.verdi))
+
+        verifySequence {
+            mockDokumentkoblingProducer.send(any<ForespoerselUtgaatt>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller dokumentkoblingProducer ved Godkjent Inntektsmelding`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        val inntektsmelding = buildInntektsmelding(orgnr = orgnr)
+        dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
+
+        verifySequence {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingGodkjent>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer ved selvbestemt Inntektsmelding`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        val inntektsmelding = buildInntektsmelding(orgnr = orgnr).copy(type = Inntektsmelding.Type.Selvbestemt(UUID.randomUUID()))
+        dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingGodkjent>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer når vedtaksperiodeId er null`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        val inntektsmelding =
+            buildInntektsmelding(
+                orgnr = orgnr,
+            ).copy(type = Inntektsmelding.Type.Fisker(UUID.randomUUID()), vedtaksperiodeId = null)
+        dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingGodkjent>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller dokumentkoblingProducer ved Avvist Inntektsmelding`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns true
+        val avvistInntektsmelding = mockAvvistInntektsmelding().copy(orgnr = orgnr)
+        dokumentkoblingService.produserInntektsmeldingAvvistKobling(avvistInntektsmelding = avvistInntektsmelding)
+
+        verifySequence {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingAvvist>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _ikke_ dokumentkoblingProducer for inntektsmelding Godkjent eller Avvist dersom feature toggle er skrudd av`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr.verdi) } returns false
+        val avvistInntektsmelding = mockAvvistInntektsmelding().copy(orgnr = orgnr)
+        dokumentkoblingService.produserInntektsmeldingAvvistKobling(avvistInntektsmelding = avvistInntektsmelding)
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingAvvist>())
+        }
+
+        val inntektsmelding = buildInntektsmelding(orgnr = orgnr)
+        dokumentkoblingService.produserInntektsmeldingGodkjentKobling(inntektsmelding = inntektsmelding)
+
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any<InntektsmeldingAvvist>())
         }
     }
 
