@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
@@ -14,10 +15,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 class InntektsmeldingTolker(
-    private val inntektsmeldingService: InntektsmeldingService,
     private val mottakRepository: MottakRepository,
-    private val dialogportenService: DialogportenService,
-    private val dokumentkoblingService: DokumentkoblingService,
+    private val services: Services,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
 
@@ -34,14 +33,14 @@ class InntektsmeldingTolker(
             try {
                 if (innsendtFraNavPortal(obj.inntektsmelding.type)) { // TODO: flytt denne sjekken inn i Service
                     sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
-                    inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
+                    services.inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                 } else {
                     sikkerLogger.info("Mottok im sendt fra LPS - oppdaterer status")
-                    inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
+                    services.inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
-                dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
-                dokumentkoblingService.produserInntektsmeldingGodkjentKobling(obj.inntektsmelding)
+                services.dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
+                services.dokumentkoblingService.produserInntektsmeldingGodkjentKobling(obj.inntektsmelding)
             } catch (e: Exception) {
                 rollback()
                 sikkerLogger.error("Klarte ikke å lagre i database!", e)

@@ -107,10 +107,8 @@ fun configureTolkere(
 ): Tolkere {
     val inntektsmeldingTolker =
         InntektsmeldingTolker(
-            inntektsmeldingService = services.inntektsmeldingService,
             mottakRepository = repositories.mottakRepository,
-            dialogportenService = services.dialogportenService,
-            dokumentkoblingService = services.dokumentkoblingService,
+            services = services,
         )
     val forespoerselTolker =
         ForespoerselTolker(
