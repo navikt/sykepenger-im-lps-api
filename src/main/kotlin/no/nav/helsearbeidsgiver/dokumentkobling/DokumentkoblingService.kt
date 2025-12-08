@@ -97,7 +97,7 @@ class DokumentkoblingService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: ForespoerselDokument) {
+    fun produserForespoerselKobling(forespoersel: ForespoerselDokument) {
         val orgnr = Orgnr(forespoersel.orgnr)
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = orgnr)) {
             dokumentkoblingProducer.send(
@@ -183,11 +183,11 @@ class DokumentkoblingService(
                 inntektsmeldingGodkjent,
             )
             logger.info(
-                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}.",
+                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Godkjent med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}",
+                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding Godkjent med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}",
             )
         }
     }
@@ -205,11 +205,11 @@ class DokumentkoblingService(
                 dokumentkoblingImAvvist,
             )
             logger.info(
-                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling med innsendingsId: ${dokumentkoblingImAvvist.inntektsmeldingId}, vedtaksperiodeId: ${dokumentkoblingImAvvist.vedtaksperiodeId}.",
+                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Avvist med innsendingsId: ${dokumentkoblingImAvvist.inntektsmeldingId}, vedtaksperiodeId: ${dokumentkoblingImAvvist.vedtaksperiodeId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding med innsendingsId: ${avvistInntektsmelding.inntektsmeldingId}, vedtaksperiodeId: ${avvistInntektsmelding.vedtaksperiodeId}",
+                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding Avvist med innsendingsId: ${avvistInntektsmelding.inntektsmeldingId}, vedtaksperiodeId: ${avvistInntektsmelding.vedtaksperiodeId}",
             )
         }
     }

@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.dokumentkobling
 
 import io.kotest.assertions.throwables.shouldThrowExactly
-import io.kotest.matchers.ints.exactly
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -146,7 +145,7 @@ class DokumentkoblingServiceTest {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns false
 
-        dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(
+        dokumentkoblingService.produserForespoerselKobling(
             forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi),
         )
         dokumentkoblingService.oppdaterDialogMedUtgaattForespoersel(forespoersel = mockForespoersel().copy(orgnr = orgnr.verdi))
@@ -161,7 +160,7 @@ class DokumentkoblingServiceTest {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
 
-        dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(
+        dokumentkoblingService.produserForespoerselKobling(
             forespoersel = TestData.forespoerselDokument(fnr = Fnr.genererGyldig().verdi, orgnr = orgnr.verdi),
         )
 

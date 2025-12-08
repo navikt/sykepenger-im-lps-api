@@ -57,7 +57,7 @@ class ForespoerselTolker(
                             forespoerselService.lagreNyForespoersel(forespoersel)
                             mottakRepository.opprett(ExposedMottak(melding))
                             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
-                            dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
+                            dokumentkoblingService.produserForespoerselKobling(forespoersel)
                         } catch (e: Exception) {
                             rollback()
                             logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")
@@ -78,7 +78,7 @@ class ForespoerselTolker(
                             forespoerselService.lagreOppdatertForespoersel(obj)
                             mottakRepository.opprett(ExposedMottak(melding))
                             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
-                            dokumentkoblingService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
+                            dokumentkoblingService.produserForespoerselKobling(obj.forespoersel)
                         }
                     } catch (e: Exception) {
                         rollback()
