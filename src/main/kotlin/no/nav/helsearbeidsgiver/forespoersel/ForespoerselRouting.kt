@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -38,13 +39,13 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
         try {
             val navReferanseId = call.parameters["navReferanseId"]?.toUuidOrNull()
             if (navReferanseId == null) {
-                call.respond(HttpStatusCode.BadRequest, "Ugyldig navReferanseId")
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig navReferanseId"))
                 return@get
             }
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)
             if (forespoersel == null) {
-                call.respond(HttpStatusCode.NotFound, "Forespørsel med navReferanseId: $navReferanseId ikke funnet.")
+                call.respond(HttpStatusCode.NotFound, ErrorResponse("Forespørsel med navReferanseId: $navReferanseId ikke funnet."))
                 return@get
             }
 
@@ -56,7 +57,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
                     orgnr = forespoersel.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@get
             }
 
@@ -73,7 +74,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             "Feil ved henting av forespørsel".also {
                 logger().error(it)
                 sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, it)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
             }
         }
     }
@@ -91,7 +92,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@post
             }
 
@@ -107,14 +108,14 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             call.respondWithMaxLimit(forespoersler)
             return@post
         } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig identifikator"))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, "Request mangler eller har ugyldig body")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Request mangler eller har ugyldig body"))
         } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig filterparameter"))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av forespørsler", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av forespørsler")
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Feil ved henting av forespørsler"))
         }
     }
 }

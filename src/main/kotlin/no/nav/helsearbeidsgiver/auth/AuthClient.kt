@@ -112,7 +112,7 @@ class DefaultAuthClient : AuthClient {
     }
 
     private suspend fun ResponseException.logAndRethrow(): Nothing {
-        val error = response.body<ErrorResponse>()
+        val error = response.body<AuthErrorResponse>()
         val msg = "Klarte ikke hente token. Feilet med status '${response.status}' og feilmelding '${error.errorDescription}'."
 
         sikkerLogger.error(msg)
