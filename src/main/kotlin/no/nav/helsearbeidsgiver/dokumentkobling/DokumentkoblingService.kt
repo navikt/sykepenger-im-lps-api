@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
+import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -176,7 +177,7 @@ class DokumentkoblingService(
                 forespoerselId = inntektsmelding.type.id,
                 vedtaksperiodeId = vedtaksperiodeId,
                 orgnr = inntektsmelding.avsender.orgnr,
-                kanal = inntektsmelding.type.kanal,
+                innsendingType = InnsendingType.from(inntektsmelding.type),
             )
         if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmeldingGodkjent.orgnr.verdi)) {
             dokumentkoblingProducer.send(
