@@ -31,19 +31,18 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig navReferanseId"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig navReferanseId"
         "404":
           description: "Not Found"
           content:
             '*/*':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: ""
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: "Unauthorized"
           content:
@@ -54,7 +53,9 @@ paths:
                 Example#1:
                   value: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
                   value: "Uautorisert tilgang"
                 Example#4:
@@ -72,7 +73,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
   /v1/forespoersler:
     post:
       tags:
@@ -100,7 +101,9 @@ paths:
                 Example#2:
                   value: "Uautorisert tilgang"
                 Example#3:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#4:
                   value: "Uautorisert tilgang"
                 Example#5:
@@ -124,23 +127,31 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig filterparameter"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig filterparameter"
                 Example#2:
-                  value: "Request mangler eller har ugyldig body"
+                  description: ""
+                  value:
+                    feilmelding: "Request mangler eller har ugyldig body"
                 Example#3:
-                  value: "Ugyldig identifikator"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Feil ved henting av forespørsler"
+                  description: ""
+                  value:
+                    feilmelding: "Feil ved henting av forespørsler"
   /v1/inntektsmelding:
     post:
       tags:
@@ -604,6 +615,13 @@ components:
       bearerFormat: JWT
 
   schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        feilmelding:
+          type: "string"
+      required:
+        - "feilmelding"
     Periode:
       type: "object"
       properties:
