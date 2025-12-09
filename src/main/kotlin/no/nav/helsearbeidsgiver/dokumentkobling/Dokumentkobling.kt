@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -73,5 +74,5 @@ data class InntektsmeldingGodkjent(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
-    val kanal: Kanal,
+    val innsendingType: InnsendingType
 ) : Dokumentkobling()
