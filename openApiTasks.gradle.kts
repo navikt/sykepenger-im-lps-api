@@ -98,11 +98,10 @@ tags:
 
         val pathPatterns =
             mapOf(
-
                 // Legg til header X-warning-limit-reached i response på alle POST-requests som returnerer 200 OK
                 // (og slutter på "er:" pga greedy matching) - TODO: bør gjøres litt mer robust..
                 Regex("""(er:\s+post:[\s\S]*?"200":\s*description:\s*"OK")\s*(content:)""") to
-                        """$1
+                    """$1
           headers:
             X-Warning-limit-reached:
               description: "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
@@ -110,50 +109,38 @@ tags:
                 type: integer
                 example: 1000
           $2""",
-
                 // GET /v1/forespoersel/{navReferanseId}
                 Regex("""(  /v1/forespoersel/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: "Hent forespørsel"""",
-
+                    """$1$2$3:$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: "Hent forespørsel"""",
                 // POST /v1/forespoersler
                 Regex("""(  /v1/forespoersler:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
-                        """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: Hent forespørsler""",
-
+                    """$1$2$3$2  tags:$2    - "Forespørsel om inntektsmelding"$2  summary: Hent forespørsler""",
                 // GET /v1/sykmelding/{sykmeldingId}
                 Regex("""(  /v1/sykmelding/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmelding"""",
-
+                    """$1$2$3:$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmelding"""",
                 // POST /v1/sykmeldinger
                 Regex("""(  /v1/sykmeldinger:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
-                        """$1$2$3$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmeldinger"""",
-
+                    """$1$2$3$2  tags:$2    - "Sykmelding"$2  summary: "Hent sykmeldinger"""",
                 // GET /v1/sykepengesoeknad/{soeknadId}
                 Regex("""(  /v1/sykepengesoeknad/[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknad"""",
-
+                    """$1$2$3:$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknad"""",
                 // POST /v1/sykepengesoeknader
                 Regex("""(  /v1/sykepengesoeknader:(?:[\s\S]*?))(\s+)(post:)(?!\s+tags:)""") to
-                        """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknader"""",
-
-                //GET /v1/inntektsmelding/{inntektsmeldingId}
+                    """$1$2$3$2  tags:$2    - "Sykepengesøknad"$2  summary: "Hent sykepengesøknader"""",
+                // GET /v1/inntektsmelding/{inntektsmeldingId}
                 Regex("""(  /v1/inntektsmelding/\{[^:]*:)(\s+)(get):(?!\s+tags:)""") to
-                        """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmelding"""",
-
+                    """$1$2$3:$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmelding"""",
                 // POST /v1/inntektsmeldinger
                 Regex("""(  /v1/inntektsmeldinger:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to
-                        """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmeldinger"""",
-
+                    """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Hent inntektsmeldinger"""",
                 // POST /v1/inntektsmelding
                 Regex("""(  /v1/inntektsmelding:(?:[\s\S]*?)(\s+)post:)(?!\s+tags:)""") to
-                        """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Send inn inntektsmelding"""",
-
+                    """$1$2  tags:$2    - "Inntektsmelding"$2  summary: "Send inn inntektsmelding"""",
                 // Fjern helsesjekk-endepunkter
                 Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
-
                 // Fjern metrics-endepunkt
                 Regex("""  /metrics:[\s\S]*?(?=  /[^/]|$)""") to "",
-
-                )
+            )
 
         var newContent = content
         for ((pattern, replacement) in pathPatterns) {
