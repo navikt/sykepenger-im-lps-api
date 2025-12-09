@@ -74,5 +74,5 @@ data class InntektsmeldingGodkjent(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
-    val innsendingType: InnsendingType
+    val innsendingType: InnsendingType,
 ) : Dokumentkobling()
