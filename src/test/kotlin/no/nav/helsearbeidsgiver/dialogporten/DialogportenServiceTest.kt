@@ -306,7 +306,7 @@ class DialogportenServiceTest {
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockForespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId) } returns dialogUtgaattForespoersel
 
-        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
+        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoerselId, orgnr)
 
         verify {
             mockDialogProducer.send(dialogUtgaattForespoersel)
@@ -327,7 +327,7 @@ class DialogportenServiceTest {
         every { mockUnleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr) } returns true
         every { mockForespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId) } returns null
 
-        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
+        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoerselId, orgnr)
 
         verify(exactly = 0) {
             mockDialogProducer.send(any())

@@ -1,11 +1,12 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespoerselFraBro
 
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
@@ -53,7 +54,7 @@ class ForespoerselService(
     }
 
     fun lagreNyForespoersel(
-        forespoersel: ForespoerselDokument,
+        forespoersel: ForespoerselFraBro,
         status: Status = Status.AKTIV,
     ) {
         if (erDuplikat(forespoersel)) return
@@ -124,7 +125,7 @@ class ForespoerselService(
                 return
             }
         forespoerselRepository.oppdaterStatus(navReferanseId, Status.FORKASTET)
-        dialogportenService.oppdaterDialogMedUtgaattForespoersel(forespoersel)
+        dialogportenService.oppdaterDialogMedUtgaattForespoersel(navReferanseId, Orgnr(forespoersel.orgnr))
         logger().info("Oppdaterer status til FORKASTET for forespørsel med id: $navReferanseId")
     }
 
@@ -146,7 +147,7 @@ class ForespoerselService(
         }
     }
 
-    private fun erDuplikat(forespoersel: ForespoerselDokument): Boolean {
+    private fun erDuplikat(forespoersel: ForespoerselFraBro): Boolean {
         val f = forespoerselRepository.hentForespoersel(forespoersel.forespoerselId)
         if (f != null) {
             logger().warn("Duplikat id: ${forespoersel.forespoerselId}, kan ikke lagre")
@@ -167,7 +168,7 @@ class ForespoerselService(
             }
 
     fun lagreEllerOppdaterForespoersel(
-        forespoersel: ForespoerselDokument,
+        forespoersel: ForespoerselFraBro,
         status: Status?,
         eksponertForespoerselId: UUID,
     ) {

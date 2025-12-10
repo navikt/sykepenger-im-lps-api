@@ -19,6 +19,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
+// Ekstern. Brukes av API-konsumenter
 @Serializable
 data class Forespoersel(
     val loepenr: Long,

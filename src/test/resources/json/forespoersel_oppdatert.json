@@ -36,7 +36,8 @@
         }
       }
     },
-    "erBesvart": false
+    "erBesvart": false,
+    "erBegrenset": false
   },
   "eksponertForespoerselId": "%%%EKSPONERT_FORESPOERSEL_ID%%%"
 }

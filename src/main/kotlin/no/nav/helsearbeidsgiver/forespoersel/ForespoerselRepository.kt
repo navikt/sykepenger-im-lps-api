@@ -2,13 +2,13 @@ package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.dialogporten.DialogUtgaattInntektsmeldingForespoersel
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespoerselFraBro
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.opprettet
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
-import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
@@ -34,20 +34,20 @@ class ForespoerselRepository(
     private val db: Database,
 ) {
     fun lagreForespoersel(
-        forespoersel: ForespoerselDokument,
+        forespoersel: ForespoerselFraBro,
         status: Status = Status.AKTIV,
         eksponertForespoerselId: UUID,
     ) {
         transaction(db) {
             ForespoerselEntitet.insert {
                 it[navReferanseId] = forespoersel.forespoerselId
-                it[orgnr] = forespoersel.orgnr
-                it[fnr] = forespoersel.fnr
+                it[orgnr] = forespoersel.orgnr.toString()
+                it[fnr] = forespoersel.fnr.toString()
                 it[opprettet] = LocalDateTime.now()
                 it[this.status] = status
                 it[this.eksponertForespoerselId] = eksponertForespoerselId
                 it[vedtaksperiodeId] = forespoersel.vedtaksperiodeId
-                it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
+                it[dokument] = jsonMapper.encodeToString(ForespoerselFraBro.serializer(), forespoersel)
             }
         }
         logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
@@ -70,7 +70,7 @@ class ForespoerselRepository(
                 .selectAll()
                 .where { ForespoerselEntitet.navReferanseId eq navReferanseId }
                 .map {
-                    it[dokument].fromJson(ForespoerselDokument.serializer()).vedtaksperiodeId
+                    it[dokument].fromJson(ForespoerselFraBro.serializer()).vedtaksperiodeId
                 }.firstOrNull()
         }
 
@@ -134,7 +134,7 @@ class ForespoerselRepository(
         }
 
     private fun ResultRow.toExposedforespoersel(): Forespoersel {
-        val dokument = jsonMapper.decodeFromString<ForespoerselDokument>(this[dokument])
+        val dokument = jsonMapper.decodeFromString<ForespoerselFraBro>(this[dokument])
         return Forespoersel(
             navReferanseId = this[navReferanseId],
             orgnr = this[orgnr],
@@ -142,7 +142,7 @@ class ForespoerselRepository(
             status = this[status],
             sykmeldingsperioder = dokument.sykmeldingsperioder,
             egenmeldingsperioder = dokument.egenmeldingsperioder,
-            inntektsDato = dokument.forslagInntektsdato(),
+            inntektsDato = dokument.toForespoersel().forslagInntektsdato(),
             arbeidsgiverperiodePaakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
             inntektPaakrevd = dokument.forespurtData.inntekt.paakrevd,
             opprettetTid = this[opprettet],

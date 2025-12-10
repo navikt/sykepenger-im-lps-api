@@ -39,6 +39,7 @@
         }
       }
     },
-    "erBesvart": false
+    "erBesvart": false,
+    "erBegrenset": false
   }
 }

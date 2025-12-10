@@ -1,14 +1,13 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
-import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespoerselFraBro as Forespoersel
 
 class DialogportenService(
     val dialogProducer: DialogProducer,
@@ -45,7 +44,7 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: ForespoerselDokument) {
+    fun oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel: Forespoersel) {
         val sykmeldingId = hentSykmeldingId(forespoersel.vedtaksperiodeId)
 
         if (sykmeldingId == null) {
@@ -55,12 +54,12 @@ class DialogportenService(
             )
             return
         }
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = forespoersel.orgnr)) {
             dialogProducer.send(
                 DialogInntektsmeldingsforespoersel(
                     forespoerselId = forespoersel.forespoerselId,
                     sykmeldingId = sykmeldingId,
-                    orgnr = Orgnr(forespoersel.orgnr),
+                    orgnr = forespoersel.orgnr,
                 ),
             )
 
@@ -95,12 +94,15 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedUtgaattForespoersel(forespoersel: Forespoersel) {
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
-            val utgaattForespoerselDialogMelding = forespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoersel.navReferanseId)
+    fun oppdaterDialogMedUtgaattForespoersel(
+        forespoerselId: UUID,
+        orgnr: Orgnr,
+    ) {
+        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = orgnr)) {
+            val utgaattForespoerselDialogMelding = forespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId)
             if (utgaattForespoerselDialogMelding == null) {
                 logger.warn(
-                    "Klarte ikke å finne alle data til dialogmelding for forespoersel med id: ${forespoersel.navReferanseId} sender ikke melding til dialogporten.",
+                    "Klarte ikke å finne alle data til dialogmelding for forespoersel med id: $forespoerselId sender ikke melding til dialogporten.",
                 )
                 return
             }
@@ -110,11 +112,11 @@ class DialogportenService(
             )
 
             logger.info(
-                "Sendte melding til hag-dialog for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, sykmeldingId: ${utgaattForespoerselDialogMelding.sykmeldingId}.",
+                "Sendte melding til hag-dialog for utgått inntektsmeldingsforespørsel med id: $forespoerselId, sykmeldingId: ${utgaattForespoerselDialogMelding.sykmeldingId}.",
             )
         } else {
             logger.info(
-                "Sendte _ikke_ melding til hag-dialog for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, fordi feature toggle er av.",
+                "Sendte _ikke_ melding til hag-dialog for utgått inntektsmeldingsforespørsel med id: $forespoerselId, fordi feature toggle er av.",
             )
         }
     }

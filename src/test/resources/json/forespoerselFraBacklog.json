@@ -33,7 +33,8 @@
         }
       }
     },
-    "erBesvart": true
+    "erBesvart": true,
+    "erBegrenset": false
   },
   "eksponertForespoerselId": "%%%EKSPONERT_FORESPOERSEL_ID%%%",
   "status": "%%%STATUS%%%"

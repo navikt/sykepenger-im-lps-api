@@ -1,16 +1,20 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespurtData
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespurtData.Arbeidsgiverperiode
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespurtData.Inntekt
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespurtData.Refusjon
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForslagRefusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
-import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
-import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
-import no.nav.helsearbeidsgiver.forespoersel.Inntekt
-import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.test.date.januar
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespoerselFraBro as ForespoerselDokument
 
 object TestData {
     const val FORESPOERSEL_MOTTATT = """
@@ -55,7 +59,8 @@ object TestData {
                 }
             }
         },
-        "erBesvart": false
+        "erBesvart": false, 
+        "erBegrenset": false
     }
 }
         """
@@ -291,6 +296,7 @@ object TestData {
                         }
                     },
                     "erBesvart": false,
+                    "erBegrenset": false, 
                     "opprettetUpresisIkkeBruk": "2025-03-20"
                 },
                 "boomerang": {
@@ -910,8 +916,8 @@ object TestData {
         forespoerselId: UUID = UUID.randomUUID(),
         vedtaksperiodeId: UUID = UUID.randomUUID(),
     ) = ForespoerselDokument(
-        orgnr = orgnr,
-        fnr = fnr,
+        orgnr = Orgnr(orgnr),
+        fnr = Fnr(fnr),
         forespoerselId = forespoerselId,
         vedtaksperiodeId = vedtaksperiodeId,
         egenmeldingsperioder = emptyList(),
@@ -920,8 +926,14 @@ object TestData {
         forespurtData =
             ForespurtData(
                 Arbeidsgiverperiode(true),
-                Inntekt(paakrevd = true),
+                Inntekt(paakrevd = true, null),
+                Refusjon(
+                    paakrevd = false,
+                    forslag = ForslagRefusjon(emptyList(), null),
+                ),
             ),
+        erBesvart = false,
+        erBegrenset = false,
     )
 
     fun sykmeldingMock(sykmeldingMottattMelding: String = SYKMELDING_MOTTATT): SendSykmeldingAivenKafkaMessage =
