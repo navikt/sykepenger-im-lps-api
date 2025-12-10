@@ -65,6 +65,7 @@ import no.nav.security.token.support.v3.tokenValidationSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.apache.kafka.common.serialization.UUIDSerializer
 import org.jetbrains.exposed.sql.Database
 
 val MAX_ANTALL_I_RESPONS = 1000 // Max antall entiteter som kan returneres i API-kall
@@ -107,15 +108,13 @@ fun configureTolkere(
 ): Tolkere {
     val inntektsmeldingTolker =
         InntektsmeldingTolker(
-            inntektsmeldingService = services.inntektsmeldingService,
             mottakRepository = repositories.mottakRepository,
-            dialogportenService = services.dialogportenService,
+            services = services,
         )
     val forespoerselTolker =
         ForespoerselTolker(
             mottakRepository = repositories.mottakRepository,
-            dialogportenService = services.dialogportenService,
-            forespoerselService = services.forespoerselService,
+            services = services,
         )
     val sykmeldingTolker =
         SykmeldingTolker(
@@ -218,7 +217,7 @@ fun configureServices(
         DokumentkoblingProducer(
             KafkaProducer(
                 createKafkaProducerConfig(producerName = "dokumentkobling-producer"),
-                StringSerializer(),
+                UUIDSerializer(),
                 DialogSerializer(),
             ),
         )
@@ -227,13 +226,14 @@ fun configureServices(
         DokumentkoblingService(
             dokumentkoblingProducer = dokumentkoblingProducer,
             unleashFeatureToggles = unleashFeatureToggles,
+            repositories = repositories,
         )
 
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
-        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService)
-    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService)
+        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService, dokumentkoblingService)
+    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
 
     return Services(
         forespoerselService,

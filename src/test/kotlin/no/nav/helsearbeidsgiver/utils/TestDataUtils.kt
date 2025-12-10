@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
+import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -220,6 +221,15 @@ fun mockForespoersel(): Forespoersel =
         arbeidsgiverperiodePaakrevd = true,
         inntektPaakrevd = true,
         opprettetTid = LocalDateTime.now(),
+    )
+
+fun mockAvvistInntektsmelding(): AvvistInntektsmelding =
+    AvvistInntektsmelding(
+        inntektsmeldingId = UUID.randomUUID(),
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        orgnr = Orgnr(DEFAULT_ORG),
+        feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
     )
 
 fun mockInntektsmeldingRequest(): InntektsmeldingRequest =

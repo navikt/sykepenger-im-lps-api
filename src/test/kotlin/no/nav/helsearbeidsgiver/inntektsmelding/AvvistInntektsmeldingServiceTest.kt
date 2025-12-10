@@ -6,15 +6,23 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 class AvvistInntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
     private val dialogportenService = mockk<DialogportenService>()
+    private val dokumentKoblingService = mockk<DokumentkoblingService>()
     private val avvistInntektsmeldingService =
-        AvvistInntektsmeldingService(inntektsmeldingRepository = inntektsmeldingRepository, dialogportenService = dialogportenService)
+        AvvistInntektsmeldingService(
+            inntektsmeldingRepository = inntektsmeldingRepository,
+            dialogportenService = dialogportenService,
+            dokumentkoblingService = dokumentKoblingService,
+        )
 
     @Test
     fun `oppdaterInnteksmeldingTilFeilet skal kalle inntektsmeldingRepository`() {
@@ -22,6 +30,9 @@ class AvvistInntektsmeldingServiceTest {
         val avvistInntektsmeldingMock =
             AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
+                forespoerselId = UUID.randomUUID(),
+                vedtaksperiodeId = UUID.randomUUID(),
+                orgnr = Orgnr.genererGyldig(),
                 feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 
@@ -34,6 +45,12 @@ class AvvistInntektsmeldingServiceTest {
         every {
             dialogportenService.oppdaterDialogMedInntektsmelding(
                 inntektsmeldingId,
+            )
+        } just Runs
+
+        every {
+            dokumentKoblingService.produserInntektsmeldingAvvistKobling(
+                avvistInntektsmeldingMock,
             )
         } just Runs
         avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(avvistInntektsmeldingMock)

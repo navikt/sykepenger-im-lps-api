@@ -904,6 +904,9 @@ object TestData {
             "data": {
                 "avvist_inntektsmelding": {
                     "inntektsmeldingId": "002cc8ad-982e-4ebe-92d3-ec53ae795d56",
+                    "forespoerselId": "a35dfec7-d4af-4d4c-b3f0-79aab9bd1a71",
+                    "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
+                    "orgnr": "315339138",
                     "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
                 }
             }

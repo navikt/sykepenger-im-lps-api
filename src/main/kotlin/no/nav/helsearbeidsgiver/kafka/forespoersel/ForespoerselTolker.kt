@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
@@ -14,9 +16,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
 class ForespoerselTolker(
-    private val forespoerselService: ForespoerselService,
     private val mottakRepository: MottakRepository,
-    private val dialogportenService: DialogportenService,
+    private val services: Services,
 ) : MeldingTolker {
     private val sikkerLogger = LoggerFactory.getLogger("tjenestekall")
     private val logger = logger()
@@ -52,9 +53,10 @@ class ForespoerselTolker(
                 if (forespoersel != null) {
                     transaction {
                         try {
-                            forespoerselService.lagreNyForespoersel(forespoersel)
+                            services.forespoerselService.lagreNyForespoersel(forespoersel)
                             mottakRepository.opprett(ExposedMottak(melding))
-                            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
+                            services.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
+                            services.dokumentkoblingService.produserForespoerselKobling(forespoersel)
                         } catch (e: Exception) {
                             rollback()
                             logger.error("Klarte ikke å lagre forespørsel i database: $forespoerselId")
@@ -72,9 +74,10 @@ class ForespoerselTolker(
                 transaction {
                     try {
                         if (obj.forespoersel != null) {
-                            forespoerselService.lagreOppdatertForespoersel(obj)
+                            services.forespoerselService.lagreOppdatertForespoersel(obj)
                             mottakRepository.opprett(ExposedMottak(melding))
-                            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
+                            services.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
+                            services.dokumentkoblingService.produserForespoerselKobling(obj.forespoersel)
                         }
                     } catch (e: Exception) {
                         rollback()
@@ -86,17 +89,17 @@ class ForespoerselTolker(
             }
 
             NotisType.FORESPOERSEL_BESVART -> {
-                forespoerselService.settBesvart(forespoerselId)
+                services.forespoerselService.settBesvart(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
             }
 
             NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                forespoerselService.settBesvart(forespoerselId)
+                services.forespoerselService.settBesvart(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
             }
 
             NotisType.FORESPOERSEL_FORKASTET -> {
-                forespoerselService.settForkastet(forespoerselId)
+                services.forespoerselService.settForkastet(forespoerselId)
                 mottakRepository.opprett(ExposedMottak(melding))
             }
 
@@ -113,7 +116,13 @@ class ForespoerselTolker(
                         "import fsp: Lagrer eller oppdaterer forespørsel med id: ${forespoersel.forespoerselId} for vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}",
                     )
 
-                    obj.eksponertForespoerselId?.let { forespoerselService.lagreEllerOppdaterForespoersel(forespoersel, obj.status, it) }
+                    obj.eksponertForespoerselId?.let {
+                        services.forespoerselService.lagreEllerOppdaterForespoersel(
+                            forespoersel,
+                            obj.status,
+                            it,
+                        )
+                    }
                         ?: logger.error(
                             "import fsp: Eksponert forespørsel ID er null for forespørsel med id: ${forespoersel.forespoerselId}",
                         )

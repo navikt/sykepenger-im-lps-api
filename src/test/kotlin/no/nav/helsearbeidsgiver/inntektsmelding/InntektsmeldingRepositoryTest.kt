@@ -237,6 +237,9 @@ class InntektsmeldingRepositoryTest {
         repository.oppdaterFeilstatusOgFeilkode(
             AvvistInntektsmelding(
                 inntektsmeldingId = inntektsmeldingId,
+                forespoerselId = forespoerselId,
+                vedtaksperiodeId = inntektsmelding1.vedtaksperiodeId!!,
+                orgnr = inntektsmelding1.avsender.orgnr,
                 feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             ),
         )

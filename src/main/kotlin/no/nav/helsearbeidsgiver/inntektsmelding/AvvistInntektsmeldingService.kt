@@ -1,11 +1,13 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.utils.log.logger
 
 class AvvistInntektsmeldingService(
     private val inntektsmeldingRepository: InntektsmeldingRepository,
     private val dialogportenService: DialogportenService,
+    private val dokumentkoblingService: DokumentkoblingService,
 ) {
     private val logger = logger()
 
@@ -26,6 +28,9 @@ class AvvistInntektsmeldingService(
                 )
                 dialogportenService.oppdaterDialogMedInntektsmelding(
                     avvistInntektsmelding.inntektsmeldingId,
+                )
+                dokumentkoblingService.produserInntektsmeldingAvvistKobling(
+                    avvistInntektsmelding,
                 )
             }
         }
