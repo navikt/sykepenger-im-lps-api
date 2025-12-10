@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -56,7 +57,7 @@ private fun Route.sendInntektsmelding(services: Services) {
 
             val forespoersel =
                 services.forespoerselService.hentForespoersel(request.navReferanseId)
-                    ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig NavReferanseId")
+                    ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig NavReferanseId"))
 
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -66,7 +67,7 @@ private fun Route.sendInntektsmelding(services: Services) {
                     orgnr = forespoersel.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@post
             }
             tellApiRequest()
@@ -76,7 +77,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             )
 
             request.valider().takeIf { it.isNotEmpty() }?.let {
-                return@post call.respond(HttpStatusCode.BadRequest, it)
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(it.joinToString("; ")))
             }
 
             request.validerMotForespoersel(forespoersel)?.let {
@@ -88,7 +89,7 @@ private fun Route.sendInntektsmelding(services: Services) {
                     sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
                     logger().warn("Mottatt ugyldig innsending: $it")
                 }
-                return@post call.respond(HttpStatusCode.BadRequest, it)
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(it))
             }
             val sisteInntektsmelding =
                 services.inntektsmeldingService
@@ -115,14 +116,14 @@ private fun Route.sendInntektsmelding(services: Services) {
                     sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
                 )
             ) {
-                return@post call.respond(HttpStatusCode.Conflict, sisteInntektsmelding.id.toString())
+                return@post call.respond(HttpStatusCode.Conflict, ErrorResponse("Siste inntektsmelding : ${sisteInntektsmelding.id}"))
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
-            call.respond(HttpStatusCode.Created, inntektsmelding.id.toString())
+            call.respond(HttpStatusCode.Created, InnsendingResponse(inntektsmelding.id.toString()))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
-            call.respond(HttpStatusCode.InternalServerError, "En feil oppstod")
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("En feil oppstod"))
         }
     }
 }
@@ -140,7 +141,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@post
             }
 
@@ -154,12 +155,12 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
         } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig filterparameter"))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, "Request mangler eller har ugyldig body")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Request mangler eller har ugyldig body"))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av inntektsmeldinger: {$e}")
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av inntektsmeldinger")
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Feil ved henting av inntektsmeldinger"))
         }
     }
 }
@@ -170,7 +171,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
         try {
             val innsendingId = call.parameters["innsendingId"]?.toUuidOrNull()
             if (innsendingId == null) {
-                call.respond(HttpStatusCode.BadRequest, "Ugyldig innsendingId")
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig innsendingId"))
                 return@get
             }
 
@@ -183,7 +184,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             if (inntektsmelding == null) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    "Inntektsmelding med innsendingId: $innsendingId ikke funnet.",
+                    ErrorResponse("Inntektsmelding med innsendingId: $innsendingId ikke funnet."),
                 )
                 return@get
             }
@@ -196,7 +197,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
                     orgnr = inntektsmelding.arbeidsgiver.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@get
             }
 
@@ -213,7 +214,7 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             "Feil ved henting av inntektsmelding".also {
                 logger().error(it)
                 sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, it)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
             }
         }
     }
