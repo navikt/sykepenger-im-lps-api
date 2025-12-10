@@ -1,11 +1,11 @@
 package no.nav.helsearbeidsgiver.innsending
 
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -91,7 +92,8 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
-            response.bodyAsText() shouldBe InnsendingMockData.imResponse.id.toString()
+            response.body<ErrorResponse>().feilmelding shouldBe
+                "Siste inntektsmelding : ${InnsendingMockData.imResponse.id}"
             verify(exactly = 0) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
