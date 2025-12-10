@@ -2,13 +2,12 @@ package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
+import no.nav.helsearbeidsgiver.domene.forespoersel.ForespoerselFraBro
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
-import no.nav.helsearbeidsgiver.domene.forespoersel.ForespoerselFraBro
 
 class ForespoerselService(
     private val forespoerselRepository: ForespoerselRepository,
