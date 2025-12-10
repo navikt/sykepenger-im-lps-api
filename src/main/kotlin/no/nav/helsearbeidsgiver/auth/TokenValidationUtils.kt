@@ -19,18 +19,18 @@ suspend fun RoutingContext.tokenValidationContext(): TokenValidationContext {
     return tokenValidationContext
 }
 
-fun TokenValidationContext.getAuthDetails() = this.getClaims("maskinporten").get("authorization_details") as List<Map<String, String>>
+fun TokenValidationContext.getAuthDetails() = this.getClaims("maskinporten").get("authorization_details") as List<*>
 
 fun TokenValidationContext.getSystembrukerOrgnr(): String {
     val authorizationDetails = this.getAuthDetails()
-    val systemBrukerOrgMap = authorizationDetails.first().get("systemuser_org") as Map<String, String>
+    val systemBrukerOrgMap = (authorizationDetails.firstOrNull() as? Map<*, *>)?.get("systemuser_org") as Map<*, *>
     val systemBrukerOrgnr = systemBrukerOrgMap.extractOrgnummer()
     require(systemBrukerOrgnr != null)
     return systemBrukerOrgnr
 }
 
 fun TokenValidationContext.getConsumerOrgnr(): String {
-    val consumer = this.getClaims("maskinporten").get("consumer") as Map<String, String>
+    val consumer = this.getClaims("maskinporten").get("consumer") as Map<*, *>
     val orgnr = consumer.extractOrgnummer()
     require(orgnr != null)
     return orgnr
@@ -38,8 +38,9 @@ fun TokenValidationContext.getConsumerOrgnr(): String {
 
 fun TokenValidationContext.getSystembrukerId(): String {
     val authDetails = this.getAuthDetails()
-    val systemBrukerIdListe = authDetails.first().get("systemuser_id") as List<String>
-    return systemBrukerIdListe.first()
+    val systemBrukerIdListe = (authDetails.firstOrNull() as? Map<*, *>)?.get("systemuser_id") as? List<*>
+    return systemBrukerIdListe?.firstOrNull() as? String
+        ?: throw IllegalStateException("systemuser_id ikke funnet i token")
 }
 
 fun TokenValidationContext.gyldigSystembrukerOgConsumer(): Boolean {
@@ -64,7 +65,7 @@ fun TokenValidationContext.gyldigScope(): Boolean =
         .getPropertyAsList("maskinporten.eksponert_scopes")
         .contains(this.getClaims("maskinporten").get("scope").toString())
 
-private fun Map<String, String>.extractOrgnummer(): String? =
-    get("ID")
+private fun Map<*, *>.extractOrgnummer(): String? =
+    (get("ID") as? String)
         ?.split(":")
-        ?.get(1)
+        ?.getOrNull(1)
