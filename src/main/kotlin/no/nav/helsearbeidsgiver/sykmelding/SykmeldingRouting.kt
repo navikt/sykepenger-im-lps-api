@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -54,13 +55,13 @@ private fun Route.sykmelding(
 
             val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
             if (sykmeldingId == null) {
-                call.respond(HttpStatusCode.BadRequest, "Ugyldig sykmeldingId")
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig sykmeldingId"))
                 return@get
             }
 
             val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
             if (sykmelding == null) {
-                call.respond(NotFound, "Sykmelding med id: $sykmeldingId ikke funnet.")
+                call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
                 return@get
             }
 
@@ -69,7 +70,7 @@ private fun Route.sykmelding(
                     orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@get
             }
             tellApiRequest()
@@ -84,7 +85,7 @@ private fun Route.sykmelding(
             "Feil ved henting av sykmelding".also {
                 logger().error(it)
                 sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, it)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
             }
         }
     }
@@ -112,7 +113,7 @@ private fun Route.filtrerSykmeldinger(
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@post
             }
 
@@ -126,14 +127,14 @@ private fun Route.filtrerSykmeldinger(
             call.respondWithMaxLimit(sykemeldinger)
             return@post
         } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig identifikator")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig identifikator"))
         } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig filterparameter"))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, "Request mangler eller har ugyldig body")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Request mangler eller har ugyldig body"))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av sykmeldinger", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykmeldinger")
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Feil ved henting av sykmeldinger"))
         }
     }
 }
