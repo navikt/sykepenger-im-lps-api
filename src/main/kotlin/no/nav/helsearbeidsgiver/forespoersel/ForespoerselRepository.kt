@@ -142,6 +142,7 @@ class ForespoerselRepository(
             status = this[status],
             sykmeldingsperioder = dokument.sykmeldingsperioder,
             egenmeldingsperioder = dokument.egenmeldingsperioder,
+            inntektsDato = dokument.forslagInntektsdato(),
             arbeidsgiverperiodePaakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
             inntektPaakrevd = dokument.forespurtData.inntekt.paakrevd,
             opprettetTid = this[opprettet],

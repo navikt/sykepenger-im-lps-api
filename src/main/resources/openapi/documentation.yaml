@@ -643,6 +643,9 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Periode"
+        inntektsDato:
+          type: "string"
+          format: "date"
         arbeidsgiverperiodePaakrevd:
           type: "boolean"
         inntektPaakrevd:
@@ -658,6 +661,7 @@ components:
         - "status"
         - "sykmeldingsperioder"
         - "egenmeldingsperioder"
+        - "inntektsDato"
         - "arbeidsgiverperiodePaakrevd"
         - "inntektPaakrevd"
         - "opprettetTid"

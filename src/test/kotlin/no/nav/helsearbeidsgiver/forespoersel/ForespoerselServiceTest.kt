@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -63,6 +64,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 status = Status.AKTIV,
                 sykmeldingsperioder = emptyList(),
                 egenmeldingsperioder = emptyList(),
+                inntektsDato = LocalDate.now(),
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
                 opprettetTid = LocalDateTime.now(),
@@ -75,6 +77,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 status = Status.AKTIV,
                 sykmeldingsperioder = emptyList(),
                 egenmeldingsperioder = emptyList(),
+                inntektsDato = LocalDate.now(),
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
                 opprettetTid = LocalDateTime.now(),
