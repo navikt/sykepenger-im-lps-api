@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -53,14 +54,14 @@ private fun Route.soeknad(
 
             val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
             if (soeknadId == null) {
-                call.respond(HttpStatusCode.BadRequest, "Ugyldig soeknadId")
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig soeknadId"))
                 return@get
             }
 
             val soeknad = soeknadService.hentSoeknad(soeknadId)
 
             if (soeknad == null) {
-                call.respond(HttpStatusCode.NotFound, "Fant ingen søknad for id $soeknadId")
+                call.respond(HttpStatusCode.NotFound, ErrorResponse("Fant ingen søknad for id $soeknadId"))
                 return@get
             }
 
@@ -69,7 +70,7 @@ private fun Route.soeknad(
                     orgnr = soeknad.arbeidsgiver.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@get
             }
             tellApiRequest()
@@ -81,7 +82,7 @@ private fun Route.soeknad(
             "Feil ved henting av sykepengesøknad".also {
                 logger().error(it)
                 sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, it)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
             }
         }
     }
@@ -109,7 +110,7 @@ private fun Route.filtrerSoeknader(
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, "Ikke tilgang til ressurs")
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Ikke tilgang til ressurs"))
                 return@post
             }
 
@@ -123,12 +124,12 @@ private fun Route.filtrerSoeknader(
             call.respondWithMaxLimit(soeknader)
             return@post
         } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, "Ugyldig filterparameter")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Ugyldig filterparameter"))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, "Request mangler eller har ugyldig body")
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse("Request mangler eller har ugyldig body"))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved henting av sykepengesøknader", e)
-            call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av sykepengesøknader")
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Feil ved henting av sykepengesøknader"))
         }
     }
 }
