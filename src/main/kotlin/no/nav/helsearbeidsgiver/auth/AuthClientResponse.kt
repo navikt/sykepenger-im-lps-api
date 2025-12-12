@@ -21,7 +21,7 @@ internal data class TokenIntrospectionResponse(
 
 @Serializable
 @OptIn(ExperimentalSerializationApi::class)
-internal data class ErrorResponse(
+internal data class AuthErrorResponse(
     val error: String,
     @JsonNames("error_description")
     val errorDescription: String,
