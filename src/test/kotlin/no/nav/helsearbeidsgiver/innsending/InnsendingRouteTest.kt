@@ -94,8 +94,7 @@ class InnsendingRouteTest : ApiTest() {
             response.status shouldBe HttpStatusCode.Conflict
             response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id
 
-            verify(exactly = 0)
-            {
+            verify(exactly = 0) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
                     match { it.type.id == requestBody.navReferanseId },
