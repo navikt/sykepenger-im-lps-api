@@ -92,7 +92,7 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
-            response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id
+            response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id.toString()
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
