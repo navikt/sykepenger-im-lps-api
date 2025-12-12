@@ -10,7 +10,7 @@ data class ErrorResponse(
 object ErrorMessages {
     const val UGYLDIG_FILTERPARAMETER = "Ugyldig filterparameter"
     const val UGYLDIG_IDENTIFIKATOR = "Ugyldig identifikator"
-    const val UGYLDIG_REQUEST_BODY = "Request mangler eller har ugyldig body"
+    const val UGYLDIG_REQUEST_BODY = "Ugyldig request"
     const val IKKE_TILGANG_TIL_RESSURS = "Ikke tilgang til ressurs"
     const val EN_FEIL_OPPSTOD = "En feil oppstod"
 
