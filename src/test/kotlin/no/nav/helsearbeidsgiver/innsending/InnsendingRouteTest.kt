@@ -92,9 +92,10 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
-            response.body<ErrorResponse>().feilmelding shouldBe
-                "Siste inntektsmelding : ${InnsendingMockData.imResponse.id}"
-            verify(exactly = 0) {
+            response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id
+
+            verify(exactly = 0)
+            {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
                     match { it.type.id == requestBody.navReferanseId },

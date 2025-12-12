@@ -124,7 +124,7 @@ private fun Route.sendInntektsmelding(services: Services) {
                     sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
                 )
             ) {
-                return@post call.respond(HttpStatusCode.Conflict, ErrorResponse("Siste inntektsmelding : ${sisteInntektsmelding.id}"))
+                return@post call.respond(HttpStatusCode.Conflict, ErrorResponse(sisteInntektsmelding.id.toString()))
             }
 
             services.opprettImTransaction(inntektsmelding, innsending)
