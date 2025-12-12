@@ -6,6 +6,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.config.getPdpService
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.security.token.support.core.context.TokenValidationContext
 import no.nav.security.token.support.v3.TokenValidationContextPrincipal
 
@@ -13,7 +14,7 @@ suspend fun RoutingContext.tokenValidationContext(): TokenValidationContext {
     val principal = call.principal<TokenValidationContextPrincipal>()
     val tokenValidationContext = principal?.context
     if (tokenValidationContext == null) {
-        call.respond(HttpStatusCode.Unauthorized, "Uautorisert tilgang")
+        call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Uautorisert tilgang"))
         throw IllegalStateException("Teknisk feil - mangler tokenValidationContext")
     }
     return tokenValidationContext

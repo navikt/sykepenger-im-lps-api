@@ -31,36 +31,45 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig navReferanseId"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig navReferanseId"
         "404":
           description: "Not Found"
           content:
             '*/*':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: ""
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: "Unauthorized"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -72,7 +81,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
   /v1/forespoersler:
     post:
       tags:
@@ -93,18 +102,28 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#3:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "200":
           description: "OK"
           headers:
@@ -124,23 +143,31 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig filterparameter"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig filterparameter"
                 Example#2:
-                  value: "Request mangler eller har ugyldig body"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig request"
                 Example#3:
-                  value: "Ugyldig identifikator"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Feil ved henting av forespørsler"
+                  description: ""
+                  value:
+                    feilmelding: "Feil ved henting av forespørsler"
   /v1/inntektsmelding:
     post:
       tags:
@@ -159,48 +186,62 @@ paths:
           content:
             '*/*':
               schema:
-                type: "object"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig NavReferanseId"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig navReferanseId"
         "401":
           description: "Unauthorized"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "409":
           description: "Conflict"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
         "201":
           description: "Created"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/InnsendingResponse"
         "500":
           description: "Internal Server Error"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "En feil oppstod"
+                  description: ""
+                  value:
+                    feilmelding: "En feil oppstod"
   /v1/inntektsmelding/{innsendingId}:
     get:
       tags:
@@ -219,36 +260,45 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig innsendingId"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig innsendingId"
         "404":
           description: "Not Found"
           content:
             '*/*':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: ""
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: "Unauthorized"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "200":
           description: "OK"
           content:
@@ -260,7 +310,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
   /v1/inntektsmeldinger:
     post:
       tags:
@@ -280,18 +330,28 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#3:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "200":
           description: "OK"
           headers:
@@ -311,21 +371,27 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Request mangler eller har ugyldig body"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig request"
                 Example#2:
-                  value: "Ugyldig filterparameter"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Feil ved henting av inntektsmeldinger"
+                  description: ""
+                  value:
+                    feilmelding: "Feil ved henting av inntektsmeldinger"
   /v1/sykepengesoeknad/{soeknadId}:
     get:
       tags:
@@ -344,18 +410,28 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "403":
           description: "Forbidden"
           content:
@@ -367,19 +443,18 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig soeknadId"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig soeknadId"
         "404":
           description: "Not Found"
           content:
             '*/*':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: ""
+                $ref: "#/components/schemas/ErrorResponse"
         "200":
           description: "OK"
           content:
@@ -391,7 +466,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
   /v1/sykepengesoeknader:
     post:
       tags:
@@ -411,18 +486,28 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "403":
           description: "Forbidden"
           content:
@@ -448,21 +533,27 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Request mangler eller har ugyldig body"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig request"
                 Example#2:
-                  value: "Ugyldig filterparameter"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Feil ved henting av sykepengesøknader"
+                  description: ""
+                  value:
+                    feilmelding: "Feil ved henting av sykepengesøknader"
   /v1/sykmelding/{sykmeldingId}:
     get:
       tags:
@@ -481,18 +572,28 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "403":
           description: "Forbidden"
           content:
@@ -504,10 +605,12 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Ugyldig sykmeldingId"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig sykmeldingId"
         "200":
           description: "OK"
           content:
@@ -519,7 +622,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
   /v1/sykmeldinger:
     post:
       tags:
@@ -539,18 +642,28 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#2:
-                  value: "Ikke tilgang til ressurs"
+                  description: ""
+                  value:
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#4:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
                 Example#5:
-                  value: "Uautorisert tilgang"
+                  description: ""
+                  value:
+                    feilmelding: "Uautorisert tilgang"
         "403":
           description: "Forbidden"
           content:
@@ -576,23 +689,31 @@ paths:
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Request mangler eller har ugyldig body"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig request"
                 Example#2:
-                  value: "Ugyldig filterparameter"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig filterparameter"
                 Example#3:
-                  value: "Ugyldig identifikator"
+                  description: ""
+                  value:
+                    feilmelding: "Ugyldig identifikator"
         "500":
           description: "Internal Server Error"
           content:
             '*/*':
               schema:
-                type: "string"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
-                  value: "Feil ved henting av sykmeldinger"
+                  description: ""
+                  value:
+                    feilmelding: "Feil ved henting av sykmeldinger"
 servers:
   - url: https://sykepenger-api.ekstern.dev.nav.no
   - url: https://sykepenger-api.nav.no
@@ -604,6 +725,13 @@ components:
       bearerFormat: JWT
 
   schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        feilmelding:
+          type: "string"
+      required:
+        - "feilmelding"
     Periode:
       type: "object"
       properties:
@@ -1010,6 +1138,13 @@ components:
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
         - "avsender"
+    InnsendingResponse:
+      type: "object"
+      properties:
+        innsendingId:
+          type: "string"
+      required:
+        - "innsendingId"
     InntektsmeldingArbeidsgiver:
       type: "object"
       properties:

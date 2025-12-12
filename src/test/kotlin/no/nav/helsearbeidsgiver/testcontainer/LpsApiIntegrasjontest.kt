@@ -27,6 +27,7 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -63,7 +64,7 @@ abstract class LpsApiIntegrasjontest {
     val client =
         HttpClient {
             install(ContentNegotiation) {
-                json()
+                json(jsonConfig)
             }
         }
 
