@@ -1,0 +1,9 @@
+name: Ktlint
+
+on: pull_request
+
+jobs:
+  ktlint:
+    uses: navikt/hag-workflows/.github/workflows/ktlint.yml@main
+    with:
+      ktlint-version: 1.7.1
