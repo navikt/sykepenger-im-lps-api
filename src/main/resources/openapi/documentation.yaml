@@ -148,11 +148,11 @@ paths:
                 Example#1:
                   description: ""
                   value:
-                    feilmelding: "'Ugyldig filterparameter'"
+                    feilmelding: "Ugyldig filterparameter"
                 Example#2:
                   description: ""
                   value:
-                    feilmelding: "Request mangler eller har ugyldig body"
+                    feilmelding: "Ugyldig request"
                 Example#3:
                   description: ""
                   value:
@@ -376,11 +376,11 @@ paths:
                 Example#1:
                   description: ""
                   value:
-                    feilmelding: "Request mangler eller har ugyldig body"
+                    feilmelding: "Ugyldig request"
                 Example#2:
                   description: ""
                   value:
-                    feilmelding: "'Ugyldig filterparameter'"
+                    feilmelding: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
           content:
@@ -538,11 +538,11 @@ paths:
                 Example#1:
                   description: ""
                   value:
-                    feilmelding: "Request mangler eller har ugyldig body"
+                    feilmelding: "Ugyldig request"
                 Example#2:
                   description: ""
                   value:
-                    feilmelding: "'Ugyldig filterparameter'"
+                    feilmelding: "Ugyldig filterparameter"
         "500":
           description: "Internal Server Error"
           content:
@@ -694,11 +694,11 @@ paths:
                 Example#1:
                   description: ""
                   value:
-                    feilmelding: "Request mangler eller har ugyldig body"
+                    feilmelding: "Ugyldig request"
                 Example#2:
                   description: ""
                   value:
-                    feilmelding: "'Ugyldig filterparameter'"
+                    feilmelding: "Ugyldig filterparameter"
                 Example#3:
                   description: ""
                   value:
