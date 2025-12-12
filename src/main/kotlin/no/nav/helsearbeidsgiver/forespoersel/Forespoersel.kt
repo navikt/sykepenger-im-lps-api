@@ -28,6 +28,7 @@ data class Forespoersel(
     val status: Status,
     val sykmeldingsperioder: List<Periode>,
     val egenmeldingsperioder: List<Periode>,
+    val inntektsdato: LocalDate,
     val arbeidsgiverperiodePaakrevd: Boolean,
     val inntektPaakrevd: Boolean,
     val opprettetTid: LocalDateTime,
