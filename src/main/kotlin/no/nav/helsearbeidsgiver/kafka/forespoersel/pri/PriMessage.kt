@@ -5,6 +5,7 @@ package no.nav.helsearbeidsgiver.kafka.forespoersel.pri
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.bestemmendeFravaersdag
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -35,4 +36,34 @@ data class ForespoerselDokument(
     val sykmeldingsperioder: List<Periode>,
     val bestemmendeFravaersdager: Map<Orgnr, LocalDate> = emptyMap(),
     val forespurtData: ForespurtData,
-)
+) {
+    // TODO: Kopiert fra simba kontrakt-domene-forespoersel: no.nav.hag.simba.kontrakt.domene.forespoersel
+    // Bør vurdere å lage en felles utils-pakke
+
+    fun forslagInntektsdato(): LocalDate {
+        val forslag = bestemmendeFravaersdager.minOfOrNull { it.value }
+        return brukForslagEllerUtled(forslag)
+    }
+
+    private fun brukForslagEllerUtled(forslag: LocalDate?): LocalDate {
+        val gyldigeEgenmeldinger =
+            if (forespurtData.arbeidsgiverperiode.paakrevd) {
+                egenmeldingsperioder
+            } else {
+                emptyList()
+            }
+
+        val utledet =
+            bestemmendeFravaersdag(
+                arbeidsgiverperioder = emptyList(),
+                sykefravaersperioder = gyldigeEgenmeldinger.plus(sykmeldingsperioder).sortedBy { it.fom },
+            )
+
+        return when {
+            forslag == null -> utledet
+            // Spleis hensyntar ikke sykmeldtes rapporterte egenmeldinger når de utleder forslaget sitt
+            gyldigeEgenmeldinger.isEmpty() -> forslag
+            else -> minOf(forslag, utledet)
+        }
+    }
+}
