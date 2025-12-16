@@ -119,7 +119,7 @@ object Feilmelding {
     const val AGP_ER_PAAKREVD = "AGP er paakrevd"
     const val INNTEKT_ER_IKKE_PAAKREVD = "Inntekt er ikke paakrevd"
     const val AGP_IKKE_FORESPURT_ER_UGYLDIG =
-        "Ugyldig AGP. Ikke-forespurt AGP må indikere at sykmeldt arbeidet i starten av sykmeldingsperioden."
+        "Ugyldig arbeidsgiverperiode. Oppgi arbeidsgiverperiode bare ved nytt sykefravær der første fraværsdag er mer enn 16 dager etter forrige sykefraværsdag."
     const val UGYLDIG_AARSAK = "Ugyldig aarsak innsending"
     const val FORESPOERSEL_FORKASTET = "Forespoersel er trukket tilbake"
     const val UGYLDIG_REFERANSE = "Ugyldig referanse"
