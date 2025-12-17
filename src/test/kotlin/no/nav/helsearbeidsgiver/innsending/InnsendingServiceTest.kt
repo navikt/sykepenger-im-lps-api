@@ -14,7 +14,6 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.utils.LeaderConfig
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -31,9 +30,7 @@ class InnsendingServiceTest {
             bakgrunnsjobbRepository,
             leaderConfig,
         )
-    private val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
-    private val innsendingService =
-        InnsendingService(innsendingProducer, leaderElectedBakgrunnsjobbService, mockUnleashFeatureToggles)
+    private val innsendingService = InnsendingService(innsendingProducer, leaderElectedBakgrunnsjobbService)
 
     @BeforeEach
     fun init() {
@@ -48,8 +45,6 @@ class InnsendingServiceTest {
 
     @Test
     fun `sendInn kaller innsendingproducer sin send-metode med forventede nøkler og verdier`() {
-        every { mockUnleashFeatureToggles.skalSendeApiInnsendteImerTilSimba() } returns true
-
         val innsendtSkjema = mockInnsending()
         val (kontekstId, mottatt) = innsendingService.sendInn(innsendtSkjema)
 
@@ -81,16 +76,6 @@ class InnsendingServiceTest {
                         jobb.dataJson == innsendtSkjema.toJson(Innsending.serializer())
                 },
             )
-        }
-    }
-
-    @Test
-    fun `sendInn kaller _ikke_ innsendingproducer sin send-metode dersom videresending til simba er skrudd av med feature toggle`() {
-        every { mockUnleashFeatureToggles.skalSendeApiInnsendteImerTilSimba() } returns false
-        innsendingService.sendInn(mockInnsending())
-
-        verify(exactly = 0) {
-            innsendingProducer.send(any(), *anyVararg<Pair<InnsendingKafka.Key, JsonElement>>())
         }
     }
 }
