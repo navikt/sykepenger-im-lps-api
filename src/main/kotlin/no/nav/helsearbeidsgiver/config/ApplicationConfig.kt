@@ -187,7 +187,6 @@ fun configureServices(
         InnsendingService(
             innsendingProducer = innsendingProducer,
             bakgrunnsjobbService = bakgrunnsjobbService,
-            unleashFeatureToggles = unleashFeatureToggles,
         )
 
     bakgrunnsjobbService
@@ -232,8 +231,13 @@ fun configureServices(
     val soeknadService = SoeknadService(repositories.soeknadRepository, dialogportenService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
-        AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dialogportenService, dokumentkoblingService)
-    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
+        AvvistInntektsmeldingService(
+            repositories.inntektsmeldingRepository,
+            dialogportenService,
+            dokumentkoblingService,
+        )
+    val forespoerselService =
+        ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
 
     return Services(
         forespoerselService,
@@ -311,17 +315,15 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    if (unleashFeatureToggles.skalKonsumereAvvisteInntektsmeldinger()) {
-        val avvistInntektsmeldingKafkaConsumer =
-            KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im-avvist"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.innsending.topic"),
-                consumer = avvistInntektsmeldingKafkaConsumer,
-                meldingTolker = tolkere.avvistInntektsmeldingTolker,
-                isLeader = leaderConfig::isElectedLeader,
-            )
-        }
+    val avvistInntektsmeldingKafkaConsumer =
+        KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im-avvist"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.innsending.topic"),
+            consumer = avvistInntektsmeldingKafkaConsumer,
+            meldingTolker = tolkere.avvistInntektsmeldingTolker,
+            isLeader = leaderConfig::isElectedLeader,
+        )
     }
 }
 

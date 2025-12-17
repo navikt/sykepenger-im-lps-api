@@ -84,18 +84,16 @@ class DokumentkoblingService(
         vedtaksperiodeId: UUID,
         soeknadId: UUID,
     ) {
-        if (unleashFeatureToggles.skalSendeVedtaksperiodeSoeknadKoblinger()) {
-            val vedtaksperiodeSoeknadKobling =
-                VedtaksperiodeSoeknadKobling(
-                    vedtaksperiodeId = vedtaksperiodeId,
-                    soeknadId = soeknadId,
-                )
-            dokumentkoblingProducer.send(vedtaksperiodeSoeknadKobling)
-            logger.info(
-                "Sendte melding på helsearbeidsgiver.dokument-kobling for vedtaksperiode-søknad-kobling med " +
-                    "vedtaksperiodeId: $vedtaksperiodeId og soeknadId: $soeknadId",
+        val vedtaksperiodeSoeknadKobling =
+            VedtaksperiodeSoeknadKobling(
+                vedtaksperiodeId = vedtaksperiodeId,
+                soeknadId = soeknadId,
             )
-        }
+        dokumentkoblingProducer.send(vedtaksperiodeSoeknadKobling)
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for vedtaksperiode-søknad-kobling med " +
+                "vedtaksperiodeId: $vedtaksperiodeId og soeknadId: $soeknadId",
+        )
     }
 
     fun produserForespoerselKobling(forespoersel: ForespoerselDokument) {
@@ -154,6 +152,7 @@ class DokumentkoblingService(
             is Inntektsmelding.Type.Forespurt,
             is Inntektsmelding.Type.ForespurtEkstern,
             -> false
+
             else -> true
         }
 
