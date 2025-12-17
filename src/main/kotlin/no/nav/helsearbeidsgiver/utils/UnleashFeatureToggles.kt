@@ -56,18 +56,6 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalSendeVedtaksperiodeSoeknadKoblinger(): Boolean =
-        unleashClient.isEnabled(
-            "send-vedtaksperiode-soeknad-koblinger",
-            false,
-        )
-
-    fun skalSendeApiInnsendteImerTilSimba(): Boolean =
-        unleashClient.isEnabled(
-            "send-api-innsendte-imer-til-simba",
-            false,
-        )
-
     fun skalKonsumereSykmeldinger(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykmeldinger",
@@ -121,12 +109,6 @@ class UnleashFeatureToggles(
     fun skalKonsumereStatusISpeil(): Boolean =
         unleashClient.isEnabled(
             "konsumer-status-i-speil",
-            false,
-        )
-
-    fun skalKonsumereAvvisteInntektsmeldinger(): Boolean =
-        unleashClient.isEnabled(
-            "konsumer-avviste-inntektsmeldinger",
             false,
         )
 }
