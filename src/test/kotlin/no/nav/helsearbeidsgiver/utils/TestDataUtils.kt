@@ -243,6 +243,7 @@ fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
         arbeidsgiverTlf = "22222222",
         aarsakInnsending = AarsakInnsending.Ny,
         avsender = Avsender("Tigersys", "3.0"),
+        kontaktinformasjon = "Tigergutt",
     )
 
 private fun randomDigitString(length: Int): String =

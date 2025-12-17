@@ -45,7 +45,7 @@ fun InntektsmeldingRequest.tilInntektsmelding(
             Avsender(
                 sluttbrukerOrgnr,
                 "",
-                "", //TODO : Sett inn navn her!!!
+                "", // TODO : Sett inn navn her!!!
                 arbeidsgiverTlf,
             ),
         sykmeldingsperioder = forespoersel.sykmeldingsperioder,

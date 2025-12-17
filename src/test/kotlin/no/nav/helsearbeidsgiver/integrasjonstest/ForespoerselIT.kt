@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.integrasjonstest
 
-import io.kotest.common.runBlocking
+import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
