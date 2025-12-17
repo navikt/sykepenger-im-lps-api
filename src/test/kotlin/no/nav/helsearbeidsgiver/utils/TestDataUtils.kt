@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.test.date.november
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -215,7 +216,11 @@ fun mockForespoersel(): Forespoersel =
         orgnr = DEFAULT_ORG,
         fnr = Fnr.genererGyldig().toString(),
         status = Status.AKTIV,
-        sykmeldingsperioder = emptyList(),
+        sykmeldingsperioder =
+            listOf(
+                5.oktober til 15.oktober,
+                20.oktober til 10.november,
+            ),
         egenmeldingsperioder = emptyList(),
         inntektsdato = LocalDate.now(),
         arbeidsgiverperiodePaakrevd = true,
