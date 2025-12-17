@@ -108,7 +108,7 @@ enum class InnsendingType {
 data class InntektsmeldingArbeidsgiver(
     val orgnr: String, // Arbeidsgivers orgnr
     val tlf: String, // Arbeidsgiver
-    val kontaktInformasjon: String = "", // TODO må være nullable / default
+    val kontaktinformasjon: String = "", // TODO må være nullable / default
 )
 
 @Serializable

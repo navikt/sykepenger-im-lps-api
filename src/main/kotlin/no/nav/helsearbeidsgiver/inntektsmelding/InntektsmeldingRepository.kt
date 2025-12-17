@@ -2,8 +2,6 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
-import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingAvvist
-import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingGodkjent
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
@@ -16,6 +14,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.kontaktinformasjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.navReferanseId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.orgnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
@@ -26,7 +25,6 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
@@ -38,7 +36,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.util.UUID
-import kotlin.collections.map
 
 class InntektsmeldingRepository(
     private val db: Database,
@@ -70,6 +67,7 @@ class InntektsmeldingRepository(
                 it[versjon] = 1 // TODO: legges til i dokument-payload..?
                 it[avsenderSystemNavn] = im.type.avsenderSystem.navn
                 it[avsenderSystemVersjon] = im.type.avsenderSystem.versjon
+                it[kontaktinformasjon] = im.avsender.navn
                 it[status] = innsendingStatus
             }[innsendingId]
         }
@@ -186,7 +184,12 @@ class InntektsmeldingRepository(
             typeInnsending = this[typeInnsending],
             innsendtTid = this[innsendt],
             versjon = this[versjon],
-            arbeidsgiver = InntektsmeldingArbeidsgiver(orgnr = this[orgnr], tlf = this[skjema].avsenderTlf),
+            arbeidsgiver =
+                InntektsmeldingArbeidsgiver(
+                    orgnr = this[orgnr],
+                    tlf = this[skjema].avsenderTlf,
+                    kontaktinformasjon = this[kontaktinformasjon],
+                ),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
             valideringsfeil = this[feilkode]?.let { Valideringsfeil(feilkode = it, feilmelding = it.feilmelding) },

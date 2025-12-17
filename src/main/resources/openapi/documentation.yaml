@@ -1135,6 +1135,9 @@ components:
             - "Endring"
         avsender:
           $ref: "#/components/schemas/Avsender"
+        kontaktinformasjon:
+          type: "string"
+          default: ""
       required:
         - "navReferanseId"
         - "naturalytelser"
@@ -1142,6 +1145,7 @@ components:
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
         - "avsender"
+        - "kontaktinformasjon"
     InnsendingResponse:
       type: "object"
       properties:
@@ -1156,9 +1160,13 @@ components:
           type: "string"
         tlf:
           type: "string"
+        kontaktinformasjon:
+          type: "string"
+          default: ""
       required:
         - "orgnr"
         - "tlf"
+        - "kontaktinformasjon"
     Valideringsfeil:
       type: "object"
       properties:

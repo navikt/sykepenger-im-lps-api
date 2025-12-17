@@ -166,6 +166,7 @@ fun mockInnsending(): Innsending {
         aarsakInnsending = AarsakInnsending.Ny,
         type = Inntektsmelding.Type.Forespurt(skjema.forespoerselId),
         innsendtTid = OffsetDateTime.now(),
+        kontaktinformasjon = "kontaktinformasjon",
         versjon = 1,
     )
 }

@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilter
@@ -37,6 +38,7 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -102,9 +104,11 @@ class InnsendingIT {
     fun `les inntektsmelding på kafka og hent gjennom apiet`() {
         runTest {
             val orgnr1 = "810007982"
+            val melding = buildJournalfoertInntektsmelding(orgnr = Orgnr(orgnr1))
             inntektsmeldingTolker.lesMelding(
-                buildJournalfoertInntektsmelding(orgnr = Orgnr(orgnr1)),
+                melding,
             )
+            val innsendtJson = melding.fromJson(JournalfoertInntektsmelding.serializer())
             val response =
                 client.post("/v1/inntektsmeldinger") {
                     contentType(ContentType.Application.Json)
@@ -112,10 +116,11 @@ class InnsendingIT {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr1))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<List<InntektsmeldingResponse>>()
-            forespoerselSvar.size shouldBe 1
-            forespoerselSvar[0].status shouldBe InnsendingStatus.GODKJENT
-            forespoerselSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
+            val inntektsmeldingSvar = response.body<List<InntektsmeldingResponse>>()
+            inntektsmeldingSvar.size shouldBe 1
+            inntektsmeldingSvar[0].status shouldBe InnsendingStatus.GODKJENT
+            inntektsmeldingSvar[0].arbeidsgiver.orgnr shouldBe orgnr1
+            inntektsmeldingSvar[0].arbeidsgiver.kontaktinformasjon shouldBe innsendtJson.inntektsmelding.avsender.navn
         }
     }
 
@@ -137,10 +142,13 @@ class InnsendingIT {
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
             response.status shouldBe HttpStatusCode.Created
-            repositories.inntektsmeldingRepository
-                .hent(requestBody.navReferanseId)
-                .first()
+            val innsendtIM =
+                repositories.inntektsmeldingRepository
+                    .hent(requestBody.navReferanseId)
+                    .first()
+            innsendtIM
                 .navReferanseId shouldBe requestBody.navReferanseId
+            innsendtIM.arbeidsgiver.kontaktinformasjon shouldBe requestBody.kontaktinformasjon
             repositories.bakgrunnsjobbRepository
                 .findByKjoeretidBeforeAndStatusIn(
                     timeout = LocalDateTime.now(),
