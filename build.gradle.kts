@@ -50,6 +50,13 @@ repositories {
 }
 
 dependencies {
+
+    // PDF generation dependencies
+    implementation("com.github.jknack:handlebars:4.3.1")
+    implementation("com.openhtmltopdf:openhtmltopdf-core:1.0.10")
+    implementation("com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10")
+
+    // Andre OG dependencies
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")

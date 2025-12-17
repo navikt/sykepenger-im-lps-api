@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Sykmelding - {{sykmeldt.navn}}</title>
+    <meta name="description" content="Sykmelding for {{sykmeldt.navn}}"/>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 2cm;
+            font-weight: 400;
+            color: #262626;
+            line-height: 1.6;
+        }
+
+        .header {
+            border-bottom: 3px solid #0067C5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #0067C5;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+
+        h2 {
+            color: #0067C5;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 30px 0 15px 0;
+            border-bottom: 2px solid #E0E0E0;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #262626;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #5A5A5A;
+        }
+
+        .value {
+            color: #262626;
+        }
+
+        .periode-box {
+            background-color: #F8F8F8;
+            border-left: 4px solid #0067C5;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .periode-box h3 {
+            margin-top: 0;
+            color: #0067C5;
+        }
+
+        .alert-box {
+            background-color: #FFF4E5;
+            border-left: 4px solid #FF9100;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .info-box {
+            background-color: #E6F3FF;
+            border-left: 4px solid #0067C5;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .metadata {
+            font-size: 12px;
+            color: #5A5A5A;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .top-right-img {
+            position: fixed;
+            top: 5px;
+            right: 5px;
+            width: 110px;
+            height: auto;
+        }
+
+        .boolean-yes {
+            color: #06893A;
+            font-weight: 600;
+        }
+
+        .boolean-no {
+            color: #BA3A26;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <img
+        src="data:image/png;base64,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"
+        alt="My image"
+        class="top-right-img"
+    />
+
+    <div class="header">
+        <h1>Sykmelding</h1>
+{{!--         <p><strong>Sykmeldings-ID:</strong> {{sykmeldingId}}</p> --}}
+    </div>
+
+    <h2>Den sykmeldte</h2>
+    <div class="info-grid">
+        <div class="label">Navn:</div>
+        <div class="value">{{sykmeldt.navn}}</div>
+
+        <div class="label">Fødselsnummer:</div>
+        <div class="value">{{sykmeldt.fnr}}</div>
+    </div>
+
+    <h2>Arbeidsgiver</h2>
+    <div class="info-grid">
+        <div class="label">Navn:</div>
+        <div class="value">{{arbeidsgiver.navn}}</div>
+
+        <div class="label">Organisasjonsnummer:</div>
+        <div class="value">{{arbeidsgiver.orgnr}}</div>
+    </div>
+
+    <h2>Sykmeldingsperioder</h2>
+    {{#if sykefravaerFom}}
+    <div class="info-box">
+        <strong>Sykefravær startet:</strong> {{sykefravaerFomFormatted}}
+    </div>
+    {{/if}}
+
+    {{#each sykmeldingPerioder}}
+    <div class="periode-box">
+        <h3>Periode {{fomFormatted}} - {{tomFormatted}}</h3>
+        <div class="info-grid">
+            <div class="label">Type:</div>
+            <div class="value">{{aktivitetBeskrivelse}}</div>
+
+            {{#if aktivitet.gradertSykmelding}}
+            <div class="label">Sykmeldingsgrad:</div>
+            <div class="value">{{aktivitet.gradertSykmelding.sykmeldingsgrad}}%</div>
+            {{/if}}
+
+            {{#if aktivitet.aktivitetIkkeMulig}}
+            <div class="label">Beskrivelse:</div>
+            <div class="value">{{aktivitet.aktivitetIkkeMulig.beskrivelse}}</div>
+
+            <div class="label">Manglende tilrettelegging:</div>
+            <div class="value">
+                {{#if aktivitet.aktivitetIkkeMulig.manglendeTilretteleggingPaaArbeidsplassen}}
+                <span class="boolean-yes">Ja</span>
+                {{else}}
+                <span class="boolean-no">Nei</span>
+                {{/if}}
+            </div>
+            {{/if}}
+
+            <div class="label">Reisetilskudd:</div>
+            <div class="value">
+                {{#if aktivitet.harReisetilskudd}}
+                <span class="boolean-yes">Ja</span>
+                {{else}}
+                <span class="boolean-no">Nei</span>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    {{/each}}
+
+    {{#if egenmeldingsdager}}
+    {{#if egenmeldingsdager.length}}
+    <h2>Egenmeldingsdager</h2>
+    <ul>
+        {{#each egenmeldingsdager}}
+        <li>{{fomFormatted}} - {{tomFormatted}}</li>
+        {{/each}}
+    </ul>
+    {{/if}}
+    {{/if}}
+
+    <h2>Oppfølging</h2>
+    {{#if oppfoelging.prognose}}
+    <div class="info-grid">
+        <div class="label">Arbeidsfør etter perioden:</div>
+        <div class="value">
+            {{#if oppfoelging.prognose.erArbeidsfoerEtterEndtPeriode}}
+            <span >Ja</span>
+            {{else}}
+            <span >Nei</span>
+            {{/if}}
+        </div>
+
+        {{#if oppfoelging.prognose.beskrivHensynArbeidsplassen}}
+        <div class="label">Hensyn på arbeidsplassen:</div>
+        <div class="value">{{oppfoelging.prognose.beskrivHensynArbeidsplassen}}</div>
+        {{/if}}
+    </div>
+    {{/if}}
+
+    {{#if oppfoelging.tiltakArbeidsplassen}}
+    <div class="info-box">
+        <strong>Tiltak på arbeidsplassen:</strong><br/>
+        {{oppfoelging.tiltakArbeidsplassen}}
+    </div>
+    {{/if}}
+
+    {{#if oppfoelging.meldingTilArbeidsgiver}}
+    <div class="alert-box">
+        <strong>Melding til arbeidsgiver:</strong><br/>
+        {{oppfoelging.meldingTilArbeidsgiver}}
+    </div>
+    {{/if}}
+
+    {{#if behandler}}
+    <h2>Behandler</h2>
+    <div class="info-grid">
+        <div class="label">Navn:</div>
+        <div class="value">{{behandler.navn}}</div>
+
+        <div class="label">Telefon:</div>
+        <div class="value">{{behandler.tlf}}</div>
+    </div>
+    {{/if}}
+
+    <div class="metadata">
+        <div class="info-grid">
+            <div class="label">Kontakt med pasient:</div>
+            <div class="value">{{kontaktMedPasientFormatted}}</div>
+
+            <div class="label">Mottatt av NAV:</div>
+            <div class="value">{{mottattAvNavFormatted}}</div>
+        </div>
+    </div>
+</body>
+</html>
+

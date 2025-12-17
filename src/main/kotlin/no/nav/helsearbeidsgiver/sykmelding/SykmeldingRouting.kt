@@ -1,11 +1,15 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -27,6 +31,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_SYKMELDING_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -42,6 +47,53 @@ fun Route.sykmeldingV1(
     route("/v1") {
         sykmelding(sykmeldingService, unleashFeatureToggles)
         filtrerSykmeldinger(sykmeldingService, unleashFeatureToggles)
+        pdfSykmelding(sykmeldingService)
+    }
+}
+
+private fun Route.pdfSykmelding(sykmeldingService: SykmeldingService) {
+    post("/sykmelding/pdf/{sykmeldingId}") {
+        try {
+            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+
+            val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
+            if (sykmeldingId == null) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
+                return@post
+            }
+
+            val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
+            if (sykmelding == null) {
+                call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
+                return@post
+            }
+
+            if (!tokenValidationContext().harTilgangTilRessurs(
+                    ressurs = SM_RESSURS,
+                    orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
+                )
+            ) {
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                return@post
+            }
+
+            val pdfBytes = sykmelding.toPdf()
+
+            // Return PDF file as response (inline display)
+            call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding_report.pdf\"")
+            call.respondBytes(
+                bytes = pdfBytes,
+                contentType = ContentType.Application.Pdf,
+                status = HttpStatusCode.OK,
+            )
+        } catch (e: Exception) {
+            FEIL_VED_HENTING_SYKMELDING.also {
+                logger().error(it)
+                sikkerLogger().error(it, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+            }
+        }
     }
 }
 
