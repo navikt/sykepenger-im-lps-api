@@ -33,7 +33,7 @@ class InntektsmeldingRequestTest {
                 " ",
                 "  ",
                 "}{\"hei\":\"hopp\"}",
-                "Little Bobby Tables; drop table students;---",
+                "drop table students;---",
                 "Heia!",
                 "$<&>",
                 "alert('javascript er kult')",
@@ -47,6 +47,7 @@ class InntektsmeldingRequestTest {
     fun `valider ugyldig fritekst skal feile`(fritekst: String) {
         mockInntektsmeldingRequest().copy(kontaktinformasjon = fritekst).valider().first() shouldStartWith
             "Ugyldig kontaktinformasjon"
-        mockInntektsmeldingRequest().copy(avsender = Avsender(fritekst, fritekst)).valider().first() shouldStartWith "Ugyldig system"
+        mockInntektsmeldingRequest().copy(avsender = Avsender(fritekst, "1")).valider().first() shouldStartWith "Ugyldig systemNavn"
+        mockInntektsmeldingRequest().copy(avsender = Avsender("Simba", fritekst)).valider().first() shouldStartWith "Ugyldig systemVersjon"
     }
 }
