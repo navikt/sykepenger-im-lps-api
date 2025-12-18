@@ -56,7 +56,7 @@ data class InntektsmeldingRequest(
     val arbeidsgiverTlf: String,
     val aarsakInnsending: AarsakInnsending,
     val avsender: Avsender, // avsendersystem
-    val kontaktinformasjon: String = "", // nytt felt
+    val kontaktinformasjon: String = "Kontaktinformasjon mangler", // nytt felt
 ) {
     fun valider(): Set<String> =
         SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, naturalytelser, refusjon)
@@ -108,7 +108,7 @@ enum class InnsendingType {
 data class InntektsmeldingArbeidsgiver(
     val orgnr: String, // Arbeidsgivers orgnr
     val tlf: String, // Arbeidsgiver
-    val kontaktinformasjon: String = "", // TODO må være nullable / default
+    val kontaktinformasjon: String = "Kontaktinformasjon mangler", // må ha default-verdi
 )
 
 @Serializable

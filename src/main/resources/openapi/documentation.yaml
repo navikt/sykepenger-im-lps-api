@@ -1099,8 +1099,14 @@ components:
       type: "object"
       properties:
         systemNavn:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
         systemVersjon:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
       required:
         - "systemNavn"
@@ -1136,8 +1142,11 @@ components:
         avsender:
           $ref: "#/components/schemas/Avsender"
         kontaktinformasjon:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
-          default: ""
+          default: "Kontaktinformasjon mangler"
       required:
         - "navReferanseId"
         - "naturalytelser"
@@ -1161,8 +1170,11 @@ components:
         tlf:
           type: "string"
         kontaktinformasjon:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
-          default: ""
+          default: "Kontaktinformasjon mangler"
       required:
         - "orgnr"
         - "tlf"
