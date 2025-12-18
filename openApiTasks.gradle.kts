@@ -87,7 +87,7 @@ security:
                     """kontaktinformasjon:
           pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
           minLength: 2
-          maxLength: 64"""
+          maxLength: 64""",
                 )
         content =
             content
@@ -96,7 +96,7 @@ security:
                     """systemNavn:
           pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
           minLength: 2
-          maxLength: 64"""
+          maxLength: 64""",
                 )
         content =
             content
@@ -105,7 +105,7 @@ security:
                     """systemVersjon:
           pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
           minLength: 2
-          maxLength: 64"""
+          maxLength: 64""",
                 )
         // Legg til tags for å gruppere endepunkter i denne rekkefølgen
         if (!content.contains("tags:")) {
