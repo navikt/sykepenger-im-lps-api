@@ -54,9 +54,6 @@ fun Route.sykmeldingV1(
 private fun Route.pdfSykmelding(sykmeldingService: SykmeldingService) {
     post("/sykmelding/pdf/{sykmeldingId}") {
         try {
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-
             val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
             if (sykmeldingId == null) {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))

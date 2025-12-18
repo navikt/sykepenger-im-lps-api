@@ -9,15 +9,12 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
 fun Sykmelding.toPdf(): ByteArray {
-    // Setup Handlebars
     val loader = ClassPathTemplateLoader()
     loader.prefix = "/"
     loader.suffix = ".hbs"
 
     val handlebars = Handlebars(loader)
     val template = handlebars.compile("template")
-
-    // Render the template with the sykmelding object
     val htmlContent = template.apply(this)
 
     val fontSupplier: FSSupplier<InputStream> =
@@ -27,8 +24,6 @@ fun Sykmelding.toPdf(): ByteArray {
                 .getResourceAsStream("/opensans-font.ttf")
                 ?: throw IllegalStateException("Could not find variable font file in resources.")
         }
-
-    // Use ByteArrayOutputStream to return PDF as byte array
     ByteArrayOutputStream().use { os ->
         PdfRendererBuilder()
             .useFastMode()
