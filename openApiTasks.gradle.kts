@@ -81,44 +81,47 @@ security:
                 }
 
         content =
-        content.replace(
-            "kontaktinformasjon:",
-            """kontaktinformasjon:
+            content
+                .replace(
+                    "kontaktinformasjon:",
+                    """kontaktinformasjon:
           pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
           minLength: 2
           maxLength: 64"""
         ).also {
-                if (it != content) {
-                    println("oppdatert kontaktinformasjon.")
-                    modified = true
-                }
+            if (it != content) {
+                println("oppdatert kontaktinformasjon.")
+                modified = true
             }
+        }
         content =
-            content.replace(
-                "systemNavn:",
-                """systemNavn:
+            content
+                .replace(
+                    "systemNavn:",
+                    """systemNavn:
           pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
           minLength: 2
           maxLength: 64"""
-            ).also {
-                if (it != content) {
-                    println("oppdatert systemnavn.")
-                    modified = true
+                ).also {
+                    if (it != content) {
+                        println("oppdatert systemNavn.")
+                        modified = true
+                    }
                 }
-            }
         content =
-            content.replace(
-                "systemVersjon:",
-                """systemVersjon:
+            content
+                .replace(
+                    "systemVersjon:",
+                    """systemVersjon:
           pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
           minLength: 2
           maxLength: 64"""
-            ).also {
-                if (it != content) {
-                    println("oppdatert systemversjon.")
-                    modified = true
+                ).also {
+                    if (it != content) {
+                        println("oppdatert systemVersjon.")
+                        modified = true
+                    }
                 }
-            }
         // Legg til tags for å gruppere endepunkter i denne rekkefølgen
         if (!content.contains("tags:")) {
             content =
