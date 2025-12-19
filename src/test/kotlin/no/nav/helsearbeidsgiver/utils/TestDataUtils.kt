@@ -166,6 +166,7 @@ fun mockInnsending(): Innsending {
         aarsakInnsending = AarsakInnsending.Ny,
         type = Inntektsmelding.Type.Forespurt(skjema.forespoerselId),
         innsendtTid = OffsetDateTime.now(),
+        kontaktinfo = "kontaktinformasjon",
         versjon = 1,
     )
 }
@@ -248,6 +249,7 @@ fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
         arbeidsgiverTlf = "22222222",
         aarsakInnsending = AarsakInnsending.Ny,
         avsender = Avsender("Tigersys", "3.0"),
+        kontaktinformasjon = "Tigergutt",
     )
 
 private fun randomDigitString(length: Int): String =

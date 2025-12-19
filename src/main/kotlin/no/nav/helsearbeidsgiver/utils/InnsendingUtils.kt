@@ -43,10 +43,10 @@ fun InntektsmeldingRequest.tilInntektsmelding(
         sykmeldt = Sykmeldt(Fnr(sykmeldtFnr), ""),
         avsender =
             Avsender(
-                sluttbrukerOrgnr,
-                "",
-                "",
-                arbeidsgiverTlf,
+                orgnr = sluttbrukerOrgnr,
+                orgNavn = "",
+                navn = kontaktinformasjon,
+                tlf = arbeidsgiverTlf,
             ),
         sykmeldingsperioder = forespoersel.sykmeldingsperioder,
         agp = agp,
@@ -79,6 +79,7 @@ fun InntektsmeldingRequest.tilInnsending(
         aarsakInnsending = aarsakInnsending,
         type = type,
         innsendtTid = OffsetDateTime.now(),
+        kontaktinfo = kontaktinformasjon,
         versjon = versjon,
     )
 }

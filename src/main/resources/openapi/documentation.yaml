@@ -1099,8 +1099,14 @@ components:
       type: "object"
       properties:
         systemNavn:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
         systemVersjon:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
       required:
         - "systemNavn"
@@ -1135,6 +1141,12 @@ components:
             - "Endring"
         avsender:
           $ref: "#/components/schemas/Avsender"
+        kontaktinformasjon:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
+          type: "string"
+          default: "Kontaktinformasjon mangler"
       required:
         - "navReferanseId"
         - "naturalytelser"
@@ -1142,6 +1154,7 @@ components:
         - "arbeidsgiverTlf"
         - "aarsakInnsending"
         - "avsender"
+        - "kontaktinformasjon"
     InnsendingResponse:
       type: "object"
       properties:
@@ -1156,9 +1169,16 @@ components:
           type: "string"
         tlf:
           type: "string"
+        kontaktinformasjon:
+          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          minLength: 2
+          maxLength: 64
+          type: "string"
+          default: "Kontaktinformasjon mangler"
       required:
         - "orgnr"
         - "tlf"
+        - "kontaktinformasjon"
     Valideringsfeil:
       type: "object"
       properties:

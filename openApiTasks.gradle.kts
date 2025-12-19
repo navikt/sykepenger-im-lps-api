@@ -80,6 +80,33 @@ security:
                     }
                 }
 
+        content =
+            content
+                .replace(
+                    "kontaktinformasjon:",
+                    """kontaktinformasjon:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64""",
+                )
+        content =
+            content
+                .replace(
+                    "systemNavn:",
+                    """systemNavn:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64""",
+                )
+        content =
+            content
+                .replace(
+                    "systemVersjon:",
+                    """systemVersjon:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64""",
+                )
         // Legg til tags for å gruppere endepunkter i denne rekkefølgen
         if (!content.contains("tags:")) {
             content =
