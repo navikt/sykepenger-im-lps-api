@@ -85,7 +85,7 @@ security:
                 .replace(
                     "kontaktinformasjon:",
                     """kontaktinformasjon:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64""",
                 )
@@ -94,7 +94,7 @@ security:
                 .replace(
                     "systemNavn:",
                     """systemNavn:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64""",
                 )
@@ -103,7 +103,7 @@ security:
                 .replace(
                     "systemVersjon:",
                     """systemVersjon:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64""",
                 )

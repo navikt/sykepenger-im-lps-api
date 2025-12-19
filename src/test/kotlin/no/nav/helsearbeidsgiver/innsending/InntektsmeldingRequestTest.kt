@@ -18,6 +18,7 @@ class InntektsmeldingRequestTest {
                 "punktum.",
                 "Organisasjonen Blåbærsyltetøy",
                 "1.2.3-alpha",
+                "1.2.3_alpha",
             ),
     )
     fun `valider gyldig fritekst`(fritekst: String) {

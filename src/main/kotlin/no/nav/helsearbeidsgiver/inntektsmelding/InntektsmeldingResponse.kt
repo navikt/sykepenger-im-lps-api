@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-private val gyldigeFritekstTegn = "^[.A-Za-zæøøåÆØÅ0-9 _-]{2,64}\$"
+private val gyldigeFritekstTegn = "^[.A-Za-zæøåÆØÅ0-9 _-]{2,64}\$"
 
 @Serializable
 data class InntektsmeldingResponse(
