@@ -79,7 +79,7 @@ fun InntektsmeldingRequest.tilInnsending(
         aarsakInnsending = aarsakInnsending,
         type = type,
         innsendtTid = OffsetDateTime.now(),
-        kontaktinformasjon = kontaktinformasjon,
+        kontaktinfo = kontaktinformasjon,
         versjon = versjon,
     )
 }
