@@ -53,10 +53,10 @@ data class InntektsmeldingRequest(
     val refusjon: Refusjon?,
     val naturalytelser: List<Naturalytelse>,
     val sykmeldtFnr: String,
-    val arbeidsgiverTlf: String,
     val aarsakInnsending: AarsakInnsending,
-    val avsender: Avsender, // avsendersystem
     val kontaktinformasjon: String = "Kontaktinformasjon mangler", // nytt felt
+    val arbeidsgiverTlf: String,
+    val avsender: Avsender, // avsendersystem
 ) {
     fun valider(): Set<String> =
         SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, naturalytelser, refusjon)

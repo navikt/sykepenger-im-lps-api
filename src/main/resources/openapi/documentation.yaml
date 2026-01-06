@@ -1099,12 +1099,12 @@ components:
       type: "object"
       properties:
         systemNavn:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
         systemVersjon:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1132,29 +1132,29 @@ components:
             $ref: "#/components/schemas/Naturalytelse"
         sykmeldtFnr:
           type: "string"
-        arbeidsgiverTlf:
-          type: "string"
         aarsakInnsending:
           type: "string"
           enum:
             - "Ny"
             - "Endring"
-        avsender:
-          $ref: "#/components/schemas/Avsender"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
           default: "Kontaktinformasjon mangler"
+        arbeidsgiverTlf:
+          type: "string"
+        avsender:
+          $ref: "#/components/schemas/Avsender"
       required:
         - "navReferanseId"
         - "naturalytelser"
         - "sykmeldtFnr"
-        - "arbeidsgiverTlf"
         - "aarsakInnsending"
-        - "avsender"
         - "kontaktinformasjon"
+        - "arbeidsgiverTlf"
+        - "avsender"
     InnsendingResponse:
       type: "object"
       properties:
@@ -1170,7 +1170,7 @@ components:
         tlf:
           type: "string"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zøøåÆØÅ0-9 -]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
