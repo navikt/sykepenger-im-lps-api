@@ -70,6 +70,8 @@ private fun Route.sykmelding(
         val sykmelding = hentSykmeldingMedId(unleashFeatureToggles, sykmeldingService)
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
+            call.response.headers.append("Content-Type", "application/pdf")
+            call.response.headers.append("Content-Disposition", "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
             call.respond(pdfBytes)
         }
     }
