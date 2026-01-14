@@ -124,6 +124,7 @@ private suspend fun RoutingContext.hentSykmeldingMedId(
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
         }
     }
+    return null
 }
 
 private fun Route.filtrerSykmeldinger(
