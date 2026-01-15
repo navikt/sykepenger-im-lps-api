@@ -74,11 +74,7 @@ private fun Route.sykmelding(
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
             call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
-            call.respondBytes(
-                bytes = pdfBytes,
-                contentType = ContentType.Application.Pdf,
-                status = HttpStatusCode.OK,
-            )
+            call.respondBytes(bytes = pdfBytes, contentType = ContentType.Application.Pdf)
         }
     }
 }
