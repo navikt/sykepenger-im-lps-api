@@ -4,13 +4,16 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.http.contentType
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
@@ -70,9 +73,12 @@ private fun Route.sykmelding(
         val sykmelding = hentSykmeldingMedId(unleashFeatureToggles, sykmeldingService)
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
-            call.response.headers.append("Content-Type", "application/pdf")
-            call.response.headers.append("Content-Disposition", "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
-            call.respond(pdfBytes)
+            call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
+            call.respondBytes(
+                bytes = pdfBytes,
+                contentType = ContentType.Application.Pdf,
+                status = HttpStatusCode.OK,
+            )
         }
     }
 }
