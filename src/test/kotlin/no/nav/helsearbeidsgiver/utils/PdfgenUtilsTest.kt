@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.utils
 
-// Using Ktor MockEngine for proper HttpClient testing
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -13,7 +12,6 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import io.mockk.every
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
@@ -79,6 +77,6 @@ private fun mockHttpClient(mockEngine: MockEngine) {
                 json()
             }
         }
-    mockkStatic("no.nav.helsearbeidsgiver.utils.UtilsKt")
-    every { createHttpClient() } returns mockHttpClient
+    io.mockk.mockkObject(PdfgenHttpClient)
+    every { PdfgenHttpClient.httpClient } returns mockHttpClient
 }

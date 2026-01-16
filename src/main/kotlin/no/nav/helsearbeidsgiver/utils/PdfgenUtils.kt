@@ -12,10 +12,13 @@ import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
 val PDFGEN_URL = getPropertyOrNull("PDFGEN_SYKMELDING_URL").orDefault { throw RuntimeException("PDFGEN_SYKMELDING_URL ikke satt") }
 
-suspend fun genererSykmeldingPdf(sykmelding: Sykmelding): ByteArray {
+object PdfgenHttpClient {
     val httpClient = createHttpClient()
+}
+
+suspend fun genererSykmeldingPdf(sykmelding: Sykmelding): ByteArray {
     val response =
-        httpClient.post(PDFGEN_URL) {
+        PdfgenHttpClient.httpClient.post(PDFGEN_URL) {
             contentType(ContentType.Application.Json)
             setBody(sykmelding)
         }
