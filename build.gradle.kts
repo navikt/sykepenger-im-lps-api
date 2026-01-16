@@ -84,6 +84,7 @@ dependencies {
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
