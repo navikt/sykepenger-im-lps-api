@@ -103,4 +103,4 @@ spec:
     - name: PDL_SCOPE
       value: "api://dev-fss.pdl.pdl-api/.default"
     - name: PDFGEN_SYKMELDING_URL
-      value: "https://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
+      value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
