@@ -79,10 +79,9 @@ private fun Route.sykmelding(
     }
 }
 
-
 private suspend fun RoutingContext.hentSykmeldingMedId(
     unleashFeatureToggles: UnleashFeatureToggles,
-    sykmeldingService: SykmeldingService
+    sykmeldingService: SykmeldingService,
 ): Sykmelding? {
     try {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -116,7 +115,7 @@ private suspend fun RoutingContext.hentSykmeldingMedId(
         tellApiRequest()
         sikkerLogger().info(
             "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
-                    " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
+                " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
         )
         tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
 

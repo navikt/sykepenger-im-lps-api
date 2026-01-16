@@ -9,10 +9,13 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.clearMocks
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -25,6 +28,7 @@ import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -42,6 +46,7 @@ class SykmeldingRoutingTest : ApiTest() {
     @BeforeAll
     fun setup() {
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
+        mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
     }
 
     @AfterEach
@@ -69,6 +74,29 @@ class SykmeldingRoutingTest : ApiTest() {
             val sykmeldingSvar = response.body<Sykmelding>()
             sykmeldingSvar.sykmeldingId shouldBe sykmeldingId.toString()
             sykmeldingSvar.arbeidsgiver.orgnr.toString() shouldBe DEFAULT_ORG
+        }
+    }
+
+    @Test
+    fun `hent en spesifikk sykmelding i PDF format`() {
+        val sykmeldingId = UUID.randomUUID()
+        val mockPdfBytes = "Mock PDF innhold".toByteArray()
+
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
+            sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+
+        coEvery { genererSykmeldingPdf(any()) } returns mockPdfBytes
+
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding/$sykmeldingId.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            response.contentType() shouldBe ContentType.Application.Pdf
+            response.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"sykmelding-$sykmeldingId.pdf\""
+            val pdfBytes = response.body<ByteArray>()
+            pdfBytes shouldBe mockPdfBytes
         }
     }
 
