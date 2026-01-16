@@ -46,7 +46,6 @@ class SykmeldingRoutingTest : ApiTest() {
     @BeforeAll
     fun setup() {
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
-        mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
     }
 
     @AfterEach
@@ -82,6 +81,7 @@ class SykmeldingRoutingTest : ApiTest() {
         val sykmeldingId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
 
+        mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
 
