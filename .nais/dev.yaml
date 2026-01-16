@@ -52,8 +52,8 @@ spec:
         - host: platform.tt02.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: helsearbeidsgiver-pdfgen.intern.dev.nav.no
       rules:
+        - application: helsearbeidsgiver-pdfgen
         - application: logging
           namespace: nais-system
   maskinporten:
@@ -103,4 +103,4 @@ spec:
     - name: PDL_SCOPE
       value: "api://dev-fss.pdl.pdl-api/.default"
     - name: PDFGEN_SYKMELDING_URL
-      value: "https://helsearbeidsgiver-pdfgen.intern.dev.nav.no/api/v1/genpdf/sykmelding/sykmelding"
+      value: "https://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
