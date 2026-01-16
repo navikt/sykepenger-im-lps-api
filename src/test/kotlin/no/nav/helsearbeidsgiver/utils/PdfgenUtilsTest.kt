@@ -7,7 +7,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
@@ -17,6 +16,7 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
+import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingModelMock
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -31,37 +31,24 @@ class PdfgenUtilsTest {
     fun `genererSykmeldingPdf skal sende POST til PDFGEN_URL med sykmelding JSON og returnere bytes`() =
         runTest {
             val testSykmelding = sykmeldingModelMock()
-            val expectedBytes = "PDF content".toByteArray()
+            val forventetBytes = "PDF innhold".toByteArray()
 
             val mockEngine =
                 MockEngine { request ->
-                    // Verify the request is to the correct URL
+                    PDFGEN_URL shouldBe getPropertyOrNull("PDFGEN_SYKMELDING_URL")
                     request.url.toString() shouldBe PDFGEN_URL
 
-                    // Return a mock response with the PDF bytes
                     respond(
-                        content = ByteReadChannel(expectedBytes),
+                        content = ByteReadChannel(forventetBytes),
                         status = HttpStatusCode.OK,
                         headers = headersOf(HttpHeaders.ContentType, "application/pdf"),
                     )
                 }
 
-            val mockHttpClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
-            mockkStatic("no.nav.helsearbeidsgiver.utils.UtilsKt")
-            every { createHttpClient() } returns mockHttpClient
-
+            mockHttpClient(mockEngine)
             val result = genererSykmeldingPdf(testSykmelding)
 
-            // Verify returns bytes
-            result shouldBe expectedBytes
-
-            mockHttpClient.close()
+            result shouldBe forventetBytes
         }
 
     @Test
@@ -77,20 +64,21 @@ class PdfgenUtilsTest {
                     )
                 }
 
-            val mockHttpClient =
-                HttpClient(mockEngine) {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
-            mockkStatic("no.nav.helsearbeidsgiver.utils.UtilsKt")
-            every { createHttpClient() } returns mockHttpClient
+            mockHttpClient(mockEngine)
 
             shouldThrow<RuntimeException> {
                 genererSykmeldingPdf(testSykmelding)
             }
-
-            mockHttpClient.close()
         }
+}
+
+private fun mockHttpClient(mockEngine: MockEngine) {
+    val mockHttpClient =
+        HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+    mockkStatic("no.nav.helsearbeidsgiver.utils.UtilsKt")
+    every { createHttpClient() } returns mockHttpClient
 }
