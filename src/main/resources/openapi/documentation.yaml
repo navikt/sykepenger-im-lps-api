@@ -1099,8 +1099,14 @@ components:
       type: "object"
       properties:
         systemNavn:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
         systemVersjon:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64
           type: "string"
       required:
         - "systemNavn"
@@ -1126,21 +1132,28 @@ components:
             $ref: "#/components/schemas/Naturalytelse"
         sykmeldtFnr:
           type: "string"
-        arbeidsgiverTlf:
-          type: "string"
         aarsakInnsending:
           type: "string"
           enum:
             - "Ny"
             - "Endring"
+        kontaktinformasjon:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64
+          type: "string"
+          default: "Kontaktinformasjon mangler"
+        arbeidsgiverTlf:
+          type: "string"
         avsender:
           $ref: "#/components/schemas/Avsender"
       required:
         - "navReferanseId"
         - "naturalytelser"
         - "sykmeldtFnr"
-        - "arbeidsgiverTlf"
         - "aarsakInnsending"
+        - "kontaktinformasjon"
+        - "arbeidsgiverTlf"
         - "avsender"
     InnsendingResponse:
       type: "object"
@@ -1156,9 +1169,16 @@ components:
           type: "string"
         tlf:
           type: "string"
+        kontaktinformasjon:
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          minLength: 2
+          maxLength: 64
+          type: "string"
+          default: "Kontaktinformasjon mangler"
       required:
         - "orgnr"
         - "tlf"
+        - "kontaktinformasjon"
     Valideringsfeil:
       type: "object"
       properties:

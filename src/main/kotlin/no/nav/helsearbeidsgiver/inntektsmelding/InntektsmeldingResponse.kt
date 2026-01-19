@@ -22,6 +22,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
+private val gyldigeFritekstTegn = "^[.A-Za-zæøåÆØÅ0-9 _-]{2,64}\$"
+
 @Serializable
 data class InntektsmeldingResponse(
     val loepenr: Long,
@@ -51,13 +53,27 @@ data class InntektsmeldingRequest(
     val refusjon: Refusjon?,
     val naturalytelser: List<Naturalytelse>,
     val sykmeldtFnr: String,
-    val arbeidsgiverTlf: String,
     val aarsakInnsending: AarsakInnsending,
+    val kontaktinformasjon: String = "Kontaktinformasjon mangler", // nytt felt
+    val arbeidsgiverTlf: String,
     val avsender: Avsender, // avsendersystem
 ) {
     fun valider(): Set<String> =
         SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, naturalytelser, refusjon)
-            .valider()
+            .valider() + validerAvsender() + validerKontaktInformasjon()
+
+    private fun validerAvsender(): Set<String> =
+        runCatching { avsender.valider() }
+            .exceptionOrNull()
+            ?.let { setOf(it.message ?: "Ugyldig avsender") }
+            ?: emptySet()
+
+    private fun validerKontaktInformasjon(): Set<String> =
+        if (!Regex(gyldigeFritekstTegn).matches(kontaktinformasjon.trim())) {
+            setOf("Ugyldig kontaktinformasjon - tillatte tegn er $gyldigeFritekstTegn")
+        } else {
+            emptySet()
+        }
 }
 
 enum class InnsendingType {
@@ -92,6 +108,7 @@ enum class InnsendingType {
 data class InntektsmeldingArbeidsgiver(
     val orgnr: String, // Arbeidsgivers orgnr
     val tlf: String, // Arbeidsgiver
+    val kontaktinformasjon: String = "Kontaktinformasjon mangler", // må ha default-verdi
 )
 
 @Serializable
@@ -118,4 +135,11 @@ data class InntektsmeldingFilter(
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
         fraLoepenr?.let { require(it >= 0) }
     }
+}
+
+fun Avsender.valider() {
+    require(this.systemNavn.trim().matches(Regex(gyldigeFritekstTegn))) { "Ugyldig systemNavn, tillatte tegn er $gyldigeFritekstTegn" }
+    require(
+        this.systemVersjon.trim().matches(Regex(gyldigeFritekstTegn)),
+    ) { "Ugyldig systemVersjon, tillatte tegn er $gyldigeFritekstTegn" }
 }

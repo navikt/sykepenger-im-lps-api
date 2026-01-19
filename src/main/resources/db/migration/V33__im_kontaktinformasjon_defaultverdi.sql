@@ -1,0 +1,1 @@
+UPDATE inntektsmelding set kontaktinformasjon = '';

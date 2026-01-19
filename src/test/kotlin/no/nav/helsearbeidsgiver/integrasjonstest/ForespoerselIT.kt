@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.integrasjonstest
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -13,6 +12,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.DatabaseConfig

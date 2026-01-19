@@ -1,16 +1,26 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.readRawBytes
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.http.contentType
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
@@ -27,9 +37,13 @@ import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_SYKMELDING_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.createHttpClient
+import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
@@ -49,53 +63,71 @@ private fun Route.sykmelding(
     sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Hent sykmelding med sykmeldingId
     get("/sykmelding/{sykmeldingId}") {
-        try {
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-
-            if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
-                call.respond(HttpStatusCode.Forbidden)
-                return@get
-            }
-
-            val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
-            if (sykmeldingId == null) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
-                return@get
-            }
-
-            val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
-            if (sykmelding == null) {
-                call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
-                return@get
-            }
-
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = SM_RESSURS,
-                    orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
-                )
-            ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
-                return@get
-            }
-            tellApiRequest()
-            sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
-                    " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
-            )
-            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
-
+        val sykmelding = hentSykmeldingMedId(unleashFeatureToggles, sykmeldingService)
+        if (sykmelding != null) {
             call.respond(sykmelding)
-        } catch (e: Exception) {
-            FEIL_VED_HENTING_SYKMELDING.also {
-                logger().error(it)
-                sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
-            }
         }
     }
+    get("/sykmelding/{sykmeldingId}.pdf") {
+        val sykmelding = hentSykmeldingMedId(unleashFeatureToggles, sykmeldingService)
+        if (sykmelding != null) {
+            val pdfBytes = genererSykmeldingPdf(sykmelding)
+            call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
+            call.respondBytes(bytes = pdfBytes, contentType = ContentType.Application.Pdf)
+        }
+    }
+}
+
+private suspend fun RoutingContext.hentSykmeldingMedId(
+    unleashFeatureToggles: UnleashFeatureToggles,
+    sykmeldingService: SykmeldingService,
+): Sykmelding? {
+    try {
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+
+        if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
+            call.respond(HttpStatusCode.Forbidden)
+            return null
+        }
+
+        val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
+        if (sykmeldingId == null) {
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
+            return null
+        }
+
+        val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
+        if (sykmelding == null) {
+            call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
+            return null
+        }
+
+        if (!tokenValidationContext().harTilgangTilRessurs(
+                ressurs = SM_RESSURS,
+                orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
+            )
+        ) {
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+            return null
+        }
+        tellApiRequest()
+        sikkerLogger().info(
+            "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
+                " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
+        )
+        tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
+
+        return sykmelding
+    } catch (e: Exception) {
+        FEIL_VED_HENTING_SYKMELDING.also {
+            logger().error(it)
+            sikkerLogger().error(it, e)
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+        }
+    }
+    return null
 }
 
 private fun Route.filtrerSykmeldinger(

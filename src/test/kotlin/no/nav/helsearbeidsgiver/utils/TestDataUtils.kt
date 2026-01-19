@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.test.date.november
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
@@ -172,6 +173,7 @@ fun mockInnsending(): Innsending {
         aarsakInnsending = AarsakInnsending.Ny,
         type = Inntektsmelding.Type.Forespurt(skjema.forespoerselId),
         innsendtTid = OffsetDateTime.now(),
+        kontaktinfo = "kontaktinformasjon",
         versjon = 1,
     )
 }
@@ -222,7 +224,11 @@ fun mockForespoersel(): Forespoersel =
         orgnr = DEFAULT_ORG,
         fnr = Fnr.genererGyldig().toString(),
         status = Status.AKTIV,
-        sykmeldingsperioder = emptyList(),
+        sykmeldingsperioder =
+            listOf(
+                5.oktober til 15.oktober,
+                20.oktober til 10.november,
+            ),
         egenmeldingsperioder = emptyList(),
         inntektsdato = LocalDate.now(),
         arbeidsgiverperiodePaakrevd = true,
@@ -250,6 +256,7 @@ fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
         arbeidsgiverTlf = "22222222",
         aarsakInnsending = AarsakInnsending.Ny,
         avsender = Avsender("Tigersys", "3.0"),
+        kontaktinformasjon = "Tigergutt",
     )
 
 private fun randomDigitString(length: Int): String =

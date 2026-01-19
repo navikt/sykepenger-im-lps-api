@@ -53,6 +53,7 @@ spec:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
       rules:
+        - application: helsearbeidsgiver-pdfgen
         - application: logging
           namespace: nais-system
   maskinporten:
@@ -101,4 +102,5 @@ spec:
       value: "https://pdl-api.dev-fss-pub.nais.io/graphql"
     - name: PDL_SCOPE
       value: "api://dev-fss.pdl.pdl-api/.default"
-
+    - name: PDFGEN_SYKMELDING_URL
+      value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
