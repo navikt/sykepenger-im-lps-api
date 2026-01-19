@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -45,6 +46,8 @@ private const val STATUS = "%%%STATUS%%%"
 
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
+
+fun getForespoerselFormJson(json: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(PriMessage.serializer(), json)
 
 fun buildJournalfoertInntektsmelding(
     inntektsmeldingId: UUID = UUID.randomUUID(),
@@ -117,6 +120,8 @@ fun buildForespoerselOppdatertJson(
     eksponertForespoerselId: UUID = UUID.randomUUID(),
     vedtaksperiodeId: UUID = UUID.randomUUID(),
     orgnummer: String = DEFAULT_ORG,
+    agPaakrevd: Boolean = true,
+    inntektPaakrevd: Boolean = true,
 ): String {
     val filePath = "json/forespoersel_oppdatert.json"
     return readJsonFromResources(filePath)
@@ -124,6 +129,8 @@ fun buildForespoerselOppdatertJson(
         .replace(EKSPONERT_FORESPOERSEL_ID, eksponertForespoerselId.toString())
         .replace(ORGNUMMER, orgnummer)
         .replace(VEDTAKSPERIODE_ID, vedtaksperiodeId.toString())
+        .replace("%%%AG_PAAKREVD%%%", agPaakrevd.toString())
+        .replace("%%%INNTEKT_PAAKREVD%%%", inntektPaakrevd.toString())
 }
 
 fun buildForespoerselFraBacklog(

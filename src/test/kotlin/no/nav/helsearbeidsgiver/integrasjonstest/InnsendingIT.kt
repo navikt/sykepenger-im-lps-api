@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilter
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -46,6 +47,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import java.util.UUID
 
 @WithPostgresContainer
 class InnsendingIT {
@@ -148,6 +150,48 @@ class InnsendingIT {
                     alle = true,
                 ).first()
                 .type shouldBe InnsendingProcessor.JOB_TYPE
+        }
+
+    @Test
+    fun `innsending av inntektsmelding merger forespurtdata hvis et finnes en besvart fra før`() =
+        runTest {
+            val requestBody = mockInntektsmeldingRequest().copy(sykmeldtFnr = DEFAULT_FNR)
+            val vedtaksperiodeId = UUID.randomUUID()
+            val forespoersel1 =
+                TestData
+                    .forespoerselDokument(
+                        orgnr = DEFAULT_ORG,
+                        fnr = DEFAULT_FNR,
+                        vedtaksperiodeId = vedtaksperiodeId,
+                        agpPaakrevd = true,
+                        inntektPaakrevd = false,
+                    )
+
+            services.forespoerselService.lagreNyForespoersel(
+                forespoersel1,
+                status = Status.BESVART,
+            )
+            val forespoersel2 =
+                TestData
+                    .forespoerselDokument(
+                        orgnr = DEFAULT_ORG,
+                        fnr = DEFAULT_FNR,
+                        vedtaksperiodeId = vedtaksperiodeId,
+                        agpPaakrevd = false,
+                        inntektPaakrevd = true,
+                    ).copy(forespoerselId = requestBody.navReferanseId)
+
+            services.forespoerselService.lagreNyForespoersel(
+                forespoersel2,
+                status = Status.AKTIV,
+            )
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status shouldBe HttpStatusCode.Created
         }
 
     @AfterAll

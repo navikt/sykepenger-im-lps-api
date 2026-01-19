@@ -37,8 +37,12 @@ class ForespoerselRepository(
         forespoersel: ForespoerselDokument,
         status: Status = Status.AKTIV,
         eksponertForespoerselId: UUID,
+        inntektPaakrevd: Boolean = forespoersel.forespurtData.inntekt.paakrevd,
+        arbeidsgiverperiodePaakrevd: Boolean = forespoersel.forespurtData.arbeidsgiverperiode.paakrevd,
     ) {
         transaction(db) {
+            addLogger(StdOutSqlLogger)
+
             ForespoerselEntitet.insert {
                 it[navReferanseId] = forespoersel.forespoerselId
                 it[orgnr] = forespoersel.orgnr
@@ -48,6 +52,8 @@ class ForespoerselRepository(
                 it[this.eksponertForespoerselId] = eksponertForespoerselId
                 it[vedtaksperiodeId] = forespoersel.vedtaksperiodeId
                 it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
+                it[this.arbeidsgiverperiodePaakrevd] = arbeidsgiverperiodePaakrevd
+                it[this.inntektPaakrevd] = inntektPaakrevd
             }
         }
         logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
@@ -143,8 +149,8 @@ class ForespoerselRepository(
             sykmeldingsperioder = dokument.sykmeldingsperioder,
             egenmeldingsperioder = dokument.egenmeldingsperioder,
             inntektsdato = dokument.forslagInntektsdato(),
-            arbeidsgiverperiodePaakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
-            inntektPaakrevd = dokument.forespurtData.inntekt.paakrevd,
+            arbeidsgiverperiodePaakrevd = this[ForespoerselEntitet.arbeidsgiverperiodePaakrevd],
+            inntektPaakrevd = this[ForespoerselEntitet.inntektPaakrevd],
             opprettetTid = this[opprettet],
             loepenr = this[ForespoerselEntitet.id],
         )
@@ -193,5 +199,21 @@ class ForespoerselRepository(
                         sykmeldingId = row[SoeknadEntitet.sykmeldingId],
                     )
                 }.firstOrNull()
+        }
+
+    fun hentAlleForespoerselerPaaVedtaksperiodeId(navReferanseId: UUID): List<Forespoersel> =
+        transaction(db) {
+            addLogger(StdOutSqlLogger)
+            val subQuery =
+                ForespoerselEntitet
+                    .select(ForespoerselEntitet.vedtaksperiodeId)
+                    .where { ForespoerselEntitet.navReferanseId eq navReferanseId }
+
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.vedtaksperiodeId inSubQuery subQuery) and
+                        (status neq Status.FORKASTET)
+                }.map { it.toExposedforespoersel() }
         }
 }

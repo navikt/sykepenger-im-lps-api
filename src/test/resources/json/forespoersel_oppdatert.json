@@ -22,10 +22,10 @@
     },
     "forespurtData": {
       "arbeidsgiverperiode": {
-        "paakrevd": false
+        "paakrevd": "%%%AG_PAAKREVD%%%"
       },
       "inntekt": {
-        "paakrevd": true,
+        "paakrevd": "%%%INNTEKT_PAAKREVD%%%",
         "forslag": null
       },
       "refusjon": {
