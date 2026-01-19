@@ -64,13 +64,23 @@ private fun Route.sykmelding(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     get("/sykmelding/{sykmeldingId}") {
-        val sykmelding = hentSykmeldingMedId(unleashFeatureToggles, sykmeldingService)
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
+        val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
             call.respond(sykmelding)
         }
     }
     get("/sykmelding/{sykmeldingId}.pdf") {
-        val sykmelding = hentSykmeldingMedId(unleashFeatureToggles, sykmeldingService)
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF(orgnr = Orgnr(lpsOrgnr))) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
+        val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
             call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
@@ -79,19 +89,8 @@ private fun Route.sykmelding(
     }
 }
 
-private suspend fun RoutingContext.hentSykmeldingMedId(
-    unleashFeatureToggles: UnleashFeatureToggles,
-    sykmeldingService: SykmeldingService,
-): Sykmelding? {
+private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: SykmeldingService): Sykmelding? {
     try {
-        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-
-        if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
-            call.respond(HttpStatusCode.Forbidden)
-            return null
-        }
-
         val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
         if (sykmeldingId == null) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
@@ -113,9 +112,11 @@ private suspend fun RoutingContext.hentSykmeldingMedId(
             return null
         }
         tellApiRequest()
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
         sikkerLogger().info(
-            "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
-                " og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
+            "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: " +
+                "[$systembrukerOrgnr] og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
         )
         tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
 
