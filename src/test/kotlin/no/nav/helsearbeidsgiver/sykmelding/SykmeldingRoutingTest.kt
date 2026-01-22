@@ -81,6 +81,7 @@ class SykmeldingRoutingTest : ApiTest() {
         val sykmeldingId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
 
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF(TIGERSYS_ORGNR) } returns true
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
@@ -97,6 +98,20 @@ class SykmeldingRoutingTest : ApiTest() {
             response.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"sykmelding-$sykmeldingId.pdf\""
             val pdfBytes = response.body<ByteArray>()
             pdfBytes shouldBe mockPdfBytes
+        }
+    }
+
+    @Test
+    fun `gir 403 Forbidden error om skymelding i PDF format feature toggle er skrud av`() {
+        val sykmeldingId = UUID.randomUUID()
+
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF(TIGERSYS_ORGNR) } returns false
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding/$sykmeldingId.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.Forbidden
         }
     }
 
