@@ -28,6 +28,7 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -142,6 +143,8 @@ abstract class LpsApiIntegrasjontest {
                 client.get(url) {
                     bearerAuth(token)
                 }
+            println("****$response")
+            logger().info("****$response")
             if (response.status.value == 200 && betingelse(response)) break
             delay(delayMillis)
         } while (attempts < maxAttempts)
