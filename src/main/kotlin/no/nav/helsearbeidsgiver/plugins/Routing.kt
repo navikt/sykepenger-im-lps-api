@@ -34,18 +34,6 @@ fun Application.configureRouting(
                 forespoerselService = services.forespoerselService,
                 unleashFeatureToggles = unleashFeatureToggles,
             )
-//            if (unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
-//                inntektsmeldingV1(
-//                    services = services,
-//                    unleashFeatureToggles = unleashFeatureToggles,
-//                )
-//            }
-//            if (unleashFeatureToggles.skalEksponereForespoersler()) {
-//                forespoerselV1(
-//                    forespoerselService = services.forespoerselService,
-//                    unleashFeatureToggles = unleashFeatureToggles
-//                )
-//            }
             sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
