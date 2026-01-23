@@ -26,23 +26,34 @@ import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_NAV_REFERANSE_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
-fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
+fun Route.forespoerselV1(
+    forespoerselService: ForespoerselService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     route("/v1") {
-        forespoersel(forespoerselService)
-        filtrerForespoersler(forespoerselService)
+        forespoersel(forespoerselService, unleashFeatureToggles)
+        filtrerForespoersler(forespoerselService, unleashFeatureToggles)
     }
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
-private fun Route.forespoersel(forespoerselService: ForespoerselService) {
+private fun Route.forespoersel(
+    forespoerselService: ForespoerselService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Hent forespørsel med navReferanseId.
     get("/forespoersel/{navReferanseId}") {
+        if (!unleashFeatureToggles.skalEksponereForespoersler()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
         try {
             val navReferanseId = call.parameters["navReferanseId"]?.toUuidOrNull()
             if (navReferanseId == null) {
@@ -87,9 +98,16 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
     }
 }
 
-private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
+private fun Route.filtrerForespoersler(
+    forespoerselService: ForespoerselService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV.
     post("/forespoersler") {
+        if (!unleashFeatureToggles.skalEksponereForespoersler()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@post
+        }
         try {
             val filter = call.receive<ForespoerselFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
