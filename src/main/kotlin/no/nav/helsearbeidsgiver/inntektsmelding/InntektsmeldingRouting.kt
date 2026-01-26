@@ -31,6 +31,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_NAV_REFERANSE_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.MdcUtils
@@ -49,20 +50,30 @@ private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
-fun Route.inntektsmeldingV1(services: Services) {
+fun Route.inntektsmeldingV1(
+    services: Services,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     route("/v1") {
-        sendInntektsmelding(services)
-        filtrerInntektsmeldinger(services.inntektsmeldingService)
-        hentInntektsmelding(services.inntektsmeldingService)
+        sendInntektsmelding(services, unleashFeatureToggles)
+        filtrerInntektsmeldinger(services.inntektsmeldingService, unleashFeatureToggles)
+        hentInntektsmelding(services.inntektsmeldingService, unleashFeatureToggles)
     }
 }
 
-private fun Route.sendInntektsmelding(services: Services) {
+private fun Route.sendInntektsmelding(
+    services: Services,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Send inn inntektsmelding
+
     post("/inntektsmelding") {
+        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@post
+        }
         try {
             val request = call.receive<InntektsmeldingRequest>()
-
             val forespoersel =
                 services.forespoerselService.hentForespoersel(request.navReferanseId)
                     ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_NAV_REFERANSE_ID))
@@ -136,9 +147,16 @@ private fun Route.sendInntektsmelding(services: Services) {
     }
 }
 
-private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.filtrerInntektsmeldinger(
+    inntektsmeldingService: InntektsmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
     post("/inntektsmeldinger") {
+        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@post
+        }
         try {
             val filter = call.receive<InntektsmeldingFilter>()
 
@@ -173,9 +191,16 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
     }
 }
 
-private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingService) {
+private fun Route.hentInntektsmelding(
+    inntektsmeldingService: InntektsmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     // Hent inntektsmelding med id
     get("/inntektsmelding/{innsendingId}") {
+        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
         try {
             val innsendingId = call.parameters["innsendingId"]?.toUuidOrNull()
             if (innsendingId == null) {
