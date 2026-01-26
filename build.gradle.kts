@@ -26,7 +26,7 @@ val microMeterVersion: String by project
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "3.3.2"
+    id("io.ktor.plugin") version "3.4.0"
     id("org.jmailen.kotlinter")
 }
 
@@ -96,6 +96,8 @@ dependencies {
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.14.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.2")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
