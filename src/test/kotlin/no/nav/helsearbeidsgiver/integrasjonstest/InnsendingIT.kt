@@ -162,7 +162,6 @@ class InnsendingIT {
                 .type shouldBe InnsendingProcessor.JOB_TYPE
         }
 
-// TODO kommentert ut midlertidig. Denne feiler med Mottatt ugyldig innsending: Ugyldig arbeidsgiverperiode. Oppgi arbeidsgiverperiode bare ved nytt sykefravær der første fraværsdag er mer enn 16 dager etter forrige sykefraværsdag.
     @Test
     fun `innsending av inntektsmelding merger forespurtdata hvis et finnes en besvart fra før`() =
         runTest {

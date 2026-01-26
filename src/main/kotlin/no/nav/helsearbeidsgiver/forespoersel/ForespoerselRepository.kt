@@ -19,8 +19,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
@@ -41,8 +39,6 @@ class ForespoerselRepository(
         arbeidsgiverperiodePaakrevd: Boolean = forespoersel.forespurtData.arbeidsgiverperiode.paakrevd,
     ) {
         transaction(db) {
-            addLogger(StdOutSqlLogger)
-
             ForespoerselEntitet.insert {
                 it[navReferanseId] = forespoersel.forespoerselId
                 it[orgnr] = forespoersel.orgnr
@@ -82,7 +78,6 @@ class ForespoerselRepository(
 
     fun hentForespoersler(filter: ForespoerselFilter): List<Forespoersel> =
         transaction(db) {
-            addLogger(StdOutSqlLogger)
             val query =
                 ForespoerselEntitet
                     .selectAll()
