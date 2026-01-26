@@ -72,7 +72,7 @@ class ForespoerselServiceTest {
 
         val priMessage = getForespoerselFormJson(forespoersel)
         every { forespoerselRepository.hentForespoersel(forespoerselId) } returns null
-        every { forespoerselRepository.hentAlleForespoerselerPaaVedtaksperiodeId(forespoerselId) } returns
+        every { forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId) } returns
             listOf(
                 Forespoersel(
                     loepenr = Random.nextLong(),

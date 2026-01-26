@@ -201,18 +201,13 @@ class ForespoerselRepository(
                 }.firstOrNull()
         }
 
-    fun hentAlleForespoerselerPaaVedtaksperiodeId(navReferanseId: UUID): List<Forespoersel> =
-        transaction(db) {
-            addLogger(StdOutSqlLogger)
-            val subQuery =
-                ForespoerselEntitet
-                    .select(ForespoerselEntitet.vedtaksperiodeId)
-                    .where { ForespoerselEntitet.navReferanseId eq navReferanseId }
-
+    fun hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =
+        transaction(db)
+        {
             ForespoerselEntitet
                 .selectAll()
                 .where {
-                    (ForespoerselEntitet.vedtaksperiodeId inSubQuery subQuery) and
+                    (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId) and
                         (status neq Status.FORKASTET)
                 }.map { it.toExposedforespoersel() }
         }

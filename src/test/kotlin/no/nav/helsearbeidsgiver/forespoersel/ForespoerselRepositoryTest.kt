@@ -265,7 +265,7 @@ class ForespoerselRepositoryTest {
             eksponertForespoerselId = forespoerselId2,
         )
 
-        val forespoersler = forespoerselRepository.hentAlleForespoerselerPaaVedtaksperiodeId(forespoerselId2)
+        val forespoersler = forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId)
         assertEquals(2, forespoersler.size)
         assert(forespoersler.any { it.navReferanseId == forespoerselId1 })
         assert(forespoersler.any { it.navReferanseId == forespoerselId2 })

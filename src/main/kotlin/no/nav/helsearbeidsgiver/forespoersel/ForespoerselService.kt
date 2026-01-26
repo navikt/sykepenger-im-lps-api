@@ -69,8 +69,8 @@ class ForespoerselService(
         }
 
         val tidligereForespoersler =
-            forespoerselRepository.hentAlleForespoerselerPaaVedtaksperiodeId(
-                forespoersel.forespoerselId,
+            forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(
+                forespoersel.vedtaksperiodeId,
             )
 
         return Pair(
