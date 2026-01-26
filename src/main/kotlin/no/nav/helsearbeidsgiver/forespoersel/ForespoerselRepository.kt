@@ -202,8 +202,7 @@ class ForespoerselRepository(
         }
 
     fun hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =
-        transaction(db)
-        {
+        transaction(db) {
             ForespoerselEntitet
                 .selectAll()
                 .where {
