@@ -93,6 +93,6 @@ class KafkaErrorHandlingTest {
             mockConsumer.lesMelding(UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID)
         }
         verify(exactly = 0) { mockMottakRepository.opprett(any()) }
-        verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any(), any()) }
+        verify(exactly = 0) { mockForespoerselRepository.lagreForespoersel(any(), any(), any(), any(), any()) }
     }
 }
