@@ -25,7 +25,6 @@ import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
-import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingFilter
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -180,7 +179,6 @@ class InnsendingIT {
 
             services.forespoerselService.lagreNyForespoersel(
                 forespoersel1,
-                status = Status.BESVART,
             )
             val forespoersel2 =
                 TestData
