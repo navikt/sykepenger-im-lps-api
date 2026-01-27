@@ -205,7 +205,7 @@ fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
                     call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
                     return@get
                 }
-                if (tokenContext.personHarTilgangTilRessurs(
+                if (!tokenContext.personHarTilgangTilRessurs(
                         ressurs = SM_RESSURS,
                         orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
                         pid = pid,
