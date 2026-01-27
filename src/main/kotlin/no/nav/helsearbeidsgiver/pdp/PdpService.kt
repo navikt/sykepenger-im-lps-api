@@ -65,7 +65,6 @@ object PdpService :
                 )
             }.getOrDefault(false)
         }
-
 }
 
 object LocalhostPdpService : IPdpService {

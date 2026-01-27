@@ -52,7 +52,6 @@ fun MockOAuth2Server.gyldigSystembrukerAuthToken(orgnr: String): String =
             ),
     )
 
-
 fun MockOAuth2Server.gyldigTokenxToken(pid: String): String =
     hentToken(
         claims =

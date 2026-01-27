@@ -206,10 +206,11 @@ fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
                     return@get
                 }
                 if (tokenContext.personHarTilgangTilRessurs(
-                    ressurs = SM_RESSURS,
-                    orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
-                    pid = pid,
-                )) {
+                        ressurs = SM_RESSURS,
+                        orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
+                        pid = pid,
+                    )
+                ) {
                     call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
                     return@get
                 }

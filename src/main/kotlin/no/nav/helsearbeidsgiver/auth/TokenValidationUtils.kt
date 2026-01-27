@@ -72,6 +72,7 @@ private fun Map<String, String>.extractOrgnummer(): String? =
 
 // TokenX authentication helpers
 fun TokenValidationContext.getPidFromTokenX(): String? = this.getClaims("tokenx").get("pid")?.toString()
+
 fun TokenValidationContext.personHarTilgangTilRessurs(
     pid: String,
     ressurs: String,
