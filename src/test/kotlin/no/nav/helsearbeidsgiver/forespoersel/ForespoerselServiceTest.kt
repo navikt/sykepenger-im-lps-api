@@ -7,8 +7,8 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.buildForespoerselFromJson
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
-import no.nav.helsearbeidsgiver.utils.getForespoerselFormJson
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -70,7 +70,7 @@ class ForespoerselServiceTest {
                 inntektPaakrevd = true,
             )
 
-        val priMessage = getForespoerselFormJson(forespoersel)
+        val priMessage = buildForespoerselFromJson(forespoersel)
         every { forespoerselRepository.hentForespoersel(forespoerselId) } returns null
         every { forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId) } returns
             listOf(
