@@ -216,7 +216,7 @@ fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
                 }
 
                 tellApiRequest()
-                sikkerLogger().info("Bruker med pid: $pid henter sykmelding PDF: $sykmeldingId")
+                sikkerLogger().info("Bruker med PID: $pid henter sykmelding PDF: $sykmeldingId")
 
                 val pdfBytes = genererSykmeldingPdf(sykmelding)
                 call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
