@@ -162,39 +162,24 @@ class InnsendingIT {
         }
 
     @Test
-    fun `innsending av inntektsmelding merger forespurtdata hvis et finnes en besvart fra før`() =
+    fun `innsending uten agp skal feile når merget forespørsel krever både agp og inntekt`() =
         runTest {
-            val navReferanseId = UUID.randomUUID()
+            val navReferanseId = lagTestdataForMergeFsp()
+            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId, sykmeldtFnr = DEFAULT_FNR, agp = null)
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+
+    @Test
+    fun `innsending av inntektsmelding med agp og inntekt  godtas når forespørsel er merget`() =
+        runTest {
+            val navReferanseId = lagTestdataForMergeFsp()
             val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId, sykmeldtFnr = DEFAULT_FNR)
-            val vedtaksperiodeId = UUID.randomUUID()
-            val forespoersel1 =
-                TestData
-                    .forespoerselDokument(
-                        orgnr = DEFAULT_ORG,
-                        fnr = DEFAULT_FNR,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        agpPaakrevd = true,
-                        inntektPaakrevd = false,
-                    )
-
-            services.forespoerselService.lagreNyForespoersel(
-                forespoersel1,
-            )
-            val forespoersel2 =
-                TestData
-                    .forespoerselDokument(
-                        forespoerselId = navReferanseId,
-                        orgnr = DEFAULT_ORG,
-                        fnr = DEFAULT_FNR,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        agpPaakrevd = false,
-                        inntektPaakrevd = true,
-                    )
-
-            services.forespoerselService.lagreOppdatertForespoersel(
-                PriMessage(notis = NotisType.FORESPOERSEL_OPPDATERT, forespoersel2),
-            )
-
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -203,6 +188,40 @@ class InnsendingIT {
                 }
             response.status shouldBe HttpStatusCode.Created
         }
+
+    private fun lagTestdataForMergeFsp(): UUID {
+        val navReferanseId = UUID.randomUUID()
+
+        val vedtaksperiodeId = UUID.randomUUID()
+        val forespoersel1 =
+            TestData
+                .forespoerselDokument(
+                    orgnr = DEFAULT_ORG,
+                    fnr = DEFAULT_FNR,
+                    vedtaksperiodeId = vedtaksperiodeId,
+                    agpPaakrevd = true,
+                    inntektPaakrevd = false,
+                )
+
+        services.forespoerselService.lagreNyForespoersel(
+            forespoersel1,
+        )
+        val forespoersel2 =
+            TestData
+                .forespoerselDokument(
+                    forespoerselId = navReferanseId,
+                    orgnr = DEFAULT_ORG,
+                    fnr = DEFAULT_FNR,
+                    vedtaksperiodeId = vedtaksperiodeId,
+                    agpPaakrevd = false,
+                    inntektPaakrevd = true,
+                )
+
+        services.forespoerselService.lagreOppdatertForespoersel(
+            PriMessage(notis = NotisType.FORESPOERSEL_OPPDATERT, forespoersel2),
+        )
+        return navReferanseId
+    }
 
     @AfterAll
     fun shutdownStuff() =

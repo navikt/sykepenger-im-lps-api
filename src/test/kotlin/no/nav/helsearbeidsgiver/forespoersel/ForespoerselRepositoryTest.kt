@@ -258,10 +258,12 @@ class ForespoerselRepositoryTest {
 
         forespoerselRepository.lagreForespoersel(
             forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId1, vedtaksperiodeId),
+            Status.BESVART,
             eksponertForespoerselId = forespoerselId1,
         )
         forespoerselRepository.lagreForespoersel(
             forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId2, vedtaksperiodeId),
+            Status.AKTIV,
             eksponertForespoerselId = forespoerselId2,
         )
 

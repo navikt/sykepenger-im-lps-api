@@ -89,8 +89,10 @@ class ForespoerselServiceTest {
                 ),
             )
         forespoerselService.lagreOppdatertForespoersel(priMessage)
-        verify { forespoerselRepository.hentForespoersel(forespoerselId) }
-        verify { priMessage.forespoersel?.let { forespoerselRepository.lagreForespoersel(it, Status.AKTIV, any(), true, false) } }
+        verify(exactly = 1) { forespoerselRepository.hentForespoersel(forespoerselId) }
+        verify(
+            exactly = 1,
+        ) { priMessage.forespoersel?.let { forespoerselRepository.lagreForespoersel(it, Status.AKTIV, any(), true, false) } }
     }
 }
 
