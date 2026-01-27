@@ -51,3 +51,13 @@ fun MockOAuth2Server.gyldigSystembrukerAuthToken(orgnr: String): String =
                     ),
             ),
     )
+
+
+fun MockOAuth2Server.gyldigTokenxToken(pid: String): String =
+    hentToken(
+        claims =
+            mapOf(
+                "pid" to pid,
+                "aud" to "helsearbeidsgiver.dev-gcp.sykepenger-im-lps-api",
+            ),
+    )

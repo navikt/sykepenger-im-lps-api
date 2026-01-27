@@ -22,8 +22,10 @@ import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
+import no.nav.helsearbeidsgiver.auth.getPidFromTokenX
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
+import no.nav.helsearbeidsgiver.auth.personHarTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -45,6 +47,7 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
@@ -175,6 +178,55 @@ private fun Route.filtrerSykmeldinger(
         } catch (e: Exception) {
             sikkerLogger().error(FEIL_VED_HENTING_SYKMELDINGER, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(FEIL_VED_HENTING_SYKMELDINGER))
+        }
+    }
+}
+
+fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
+    route("/v1") {
+        get("/sykmelding/{sykmeldingId}.pdf") {
+            try {
+                val tokenContext = tokenValidationContext()
+                val pid = tokenContext.getPidFromTokenX()
+
+                if (pid == null) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Mangler brukeridentifikasjon i token"))
+                    return@get
+                }
+
+                val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
+                if (sykmeldingId == null) {
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
+                    return@get
+                }
+
+                val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
+                if (sykmelding == null) {
+                    call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
+                    return@get
+                }
+                if (tokenContext.personHarTilgangTilRessurs(
+                    ressurs = SM_RESSURS,
+                    orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
+                    pid = pid,
+                )) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                    return@get
+                }
+
+                tellApiRequest()
+                sikkerLogger().info("Bruker med pid: $pid henter sykmelding PDF: $sykmeldingId")
+
+                val pdfBytes = genererSykmeldingPdf(sykmelding)
+                call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
+                call.respondBytes(bytes = pdfBytes, contentType = ContentType.Application.Pdf)
+            } catch (e: Exception) {
+                FEIL_VED_HENTING_SYKMELDING.also {
+                    logger().error(it)
+                    sikkerLogger().error(it, e)
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+                }
+            }
         }
     }
 }
