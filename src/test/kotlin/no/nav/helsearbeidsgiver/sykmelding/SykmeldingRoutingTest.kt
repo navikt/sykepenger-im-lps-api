@@ -3,11 +3,13 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -17,6 +19,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -25,11 +28,13 @@ import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
+import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
+import no.nav.helsearbeidsgiver.utils.gyldigTokenxToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.AfterAll
@@ -99,6 +104,68 @@ class SykmeldingRoutingTest : ApiTest() {
             val pdfBytes = response.body<ByteArray>()
             pdfBytes shouldBe mockPdfBytes
         }
+    }
+
+    @Test
+    fun `hent med TokenX person bruker en spesifikk sykmelding i PDF format`() {
+        val sykmeldingId = UUID.randomUUID()
+        val mockPdfBytes = "Mock PDF innhold".toByteArray()
+
+        mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
+            sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+
+        coEvery { genererSykmeldingPdf(any()) } returns mockPdfBytes
+
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding-person/$sykmeldingId.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
+                }
+            response.status shouldBe HttpStatusCode.OK
+            response.contentType() shouldBe ContentType.Application.Pdf
+            response.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"sykmelding-$sykmeldingId.pdf\""
+            val pdfBytes = response.body<ByteArray>()
+            pdfBytes shouldBe mockPdfBytes
+        }
+    }
+
+    @Test
+    fun `hent med TokenX person som har maskinporten token skal ikke funke`() {
+        val sykmeldingId = UUID.randomUUID()
+
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
+            sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding-person/$sykmeldingId.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.Unauthorized
+        }
+    }
+
+    @Test
+    fun `hent med TokenX token som ikke har tilgang skal ikke funke`() {
+        val sykmeldingId = UUID.randomUUID()
+
+        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        every {
+            no.nav.helsearbeidsgiver.config
+                .getPdpService()
+                .personHarTilgang(fnr = DEFAULT_FNR, any(), any())
+        } returns false
+
+        every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
+            sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding-person/$sykmeldingId.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
+                }
+            response.status shouldBe HttpStatusCode.Unauthorized
+        }
+        unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
 
     @Test

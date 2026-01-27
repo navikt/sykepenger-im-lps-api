@@ -5,7 +5,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 
 val TIGERSYS_ORGNR = Orgnr("315339138")
 
-fun MockOAuth2Server.hentToken(claims: Map<String, Any>): String =
+fun MockOAuth2Server.hentMaskinportenToken(claims: Map<String, Any>): String =
     this
         .issueToken(
             issuerId = "maskinporten",
@@ -13,8 +13,16 @@ fun MockOAuth2Server.hentToken(claims: Map<String, Any>): String =
             claims = claims,
         ).serialize()
 
+fun MockOAuth2Server.hentTokenXToken(claims: Map<String, Any>): String =
+    this
+        .issueToken(
+            issuerId = "tokenx",
+            audience = "dev-gcp:helsearbeidsgiver:sykepenger-im-lps-api",
+            claims = claims,
+        ).serialize()
+
 fun MockOAuth2Server.ugyldigTokenManglerSystembruker() =
-    hentToken(
+    hentMaskinportenToken(
         claims =
             mapOf(
                 "scope" to "nav:helseytelser/sykepenger",
@@ -27,7 +35,7 @@ fun MockOAuth2Server.ugyldigTokenManglerSystembruker() =
     )
 
 fun MockOAuth2Server.gyldigSystembrukerAuthToken(orgnr: String): String =
-    hentToken(
+    hentMaskinportenToken(
         claims =
             mapOf(
                 "authorization_details" to
@@ -53,10 +61,10 @@ fun MockOAuth2Server.gyldigSystembrukerAuthToken(orgnr: String): String =
     )
 
 fun MockOAuth2Server.gyldigTokenxToken(pid: String): String =
-    hentToken(
+    hentTokenXToken(
         claims =
             mapOf(
                 "pid" to pid,
-                "aud" to "helsearbeidsgiver.dev-gcp.sykepenger-im-lps-api",
+                "scope" to "openid",
             ),
     )

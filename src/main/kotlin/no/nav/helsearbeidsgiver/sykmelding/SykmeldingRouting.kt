@@ -15,6 +15,7 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -46,9 +47,11 @@ import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
+import no.nav.helsearbeidsgiver.utils.respondMedPDF
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.apache.kafka.common.utils.Bytes
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
@@ -86,8 +89,7 @@ private fun Route.sykmelding(
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
-            call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
-            call.respondBytes(bytes = pdfBytes, contentType = ContentType.Application.Pdf)
+            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
         }
     }
 }
@@ -184,7 +186,7 @@ private fun Route.filtrerSykmeldinger(
 
 fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
-        get("/sykmelding/{sykmeldingId}.pdf") {
+        get("/sykmelding-person/{sykmeldingId}.pdf") {
             try {
                 val tokenContext = tokenValidationContext()
                 val pid = tokenContext.getPidFromTokenX()
@@ -214,13 +216,11 @@ fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
                     call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
                     return@get
                 }
-
-                tellApiRequest()
+                // TODO: Legg til Prometheus metrikk telling
                 sikkerLogger().info("Bruker med PID: $pid henter sykmelding PDF: $sykmeldingId")
 
                 val pdfBytes = genererSykmeldingPdf(sykmelding)
-                call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
-                call.respondBytes(bytes = pdfBytes, contentType = ContentType.Application.Pdf)
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
             } catch (e: Exception) {
                 FEIL_VED_HENTING_SYKMELDING.also {
                     logger().error(it)
