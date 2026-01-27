@@ -912,6 +912,8 @@ object TestData {
         fnr: String,
         forespoerselId: UUID = UUID.randomUUID(),
         vedtaksperiodeId: UUID = UUID.randomUUID(),
+        agpPaakrevd: Boolean = true,
+        inntektPaakrevd: Boolean = true,
     ) = ForespoerselDokument(
         orgnr = orgnr,
         fnr = fnr,
@@ -922,8 +924,8 @@ object TestData {
         bestemmendeFravaersdager = emptyMap(),
         forespurtData =
             ForespurtData(
-                Arbeidsgiverperiode(true),
-                Inntekt(paakrevd = true),
+                Arbeidsgiverperiode(paakrevd = agpPaakrevd),
+                Inntekt(paakrevd = inntektPaakrevd),
             ),
     )
 

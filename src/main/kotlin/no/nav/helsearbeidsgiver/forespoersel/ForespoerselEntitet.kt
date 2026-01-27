@@ -13,4 +13,6 @@ object ForespoerselEntitet : Table("forespoersel") {
     val dokument = text("dokument")
     val eksponertForespoerselId = uuid("eksponert_forespoersel_id")
     val vedtaksperiodeId = uuid("vedtaksperiode_id")
+    val arbeidsgiverperiodePaakrevd = bool("arbeidsgiverperiode_paakrevd")
+    val inntektPaakrevd = bool("inntekt_paakrevd")
 }

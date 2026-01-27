@@ -246,4 +246,30 @@ class ForespoerselRepositoryTest {
         assertEquals(forespoerselId, dialogMelding.forespoerselId)
         assertEquals(sykmeldingId, dialogMelding.sykmeldingId)
     }
+
+    @Test
+    fun `hentAlleForespoerselPaaVedtaksperiodeId skal returnere alle forespørsler for en vedtaksperiode`() {
+        val forespoerselRepository = ForespoerselRepository(db)
+
+        val vedtaksperiodeId = UUID.randomUUID()
+
+        val forespoerselId1 = UUID.randomUUID()
+        val forespoerselId2 = UUID.randomUUID()
+
+        forespoerselRepository.lagreForespoersel(
+            forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId1, vedtaksperiodeId),
+            Status.BESVART,
+            eksponertForespoerselId = forespoerselId1,
+        )
+        forespoerselRepository.lagreForespoersel(
+            forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId2, vedtaksperiodeId),
+            Status.AKTIV,
+            eksponertForespoerselId = forespoerselId2,
+        )
+
+        val forespoersler = forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId)
+        assertEquals(2, forespoersler.size)
+        assert(forespoersler.any { it.navReferanseId == forespoerselId1 })
+        assert(forespoersler.any { it.navReferanseId == forespoerselId2 })
+    }
 }
