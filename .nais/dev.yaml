@@ -56,6 +56,13 @@ spec:
         - application: helsearbeidsgiver-pdfgen
         - application: logging
           namespace: nais-system
+    inbound:
+      rules:
+        - application: tokenx-token-generator
+          namespace: nais
+          cluster: dev-gcp
+  tokenx:
+    enabled: true
   maskinporten:
     enabled: true
     scopes:
