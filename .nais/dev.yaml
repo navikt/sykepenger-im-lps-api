@@ -56,8 +56,11 @@ spec:
         - application: helsearbeidsgiver-pdfgen
         - application: logging
           namespace: nais-system
+
     inbound:
       rules:
+        - application: im-dokument-proxy
+        # TODO: Fjern om vi ikke trenger tokenx-token-generator lenger
         - application: tokenx-token-generator
           namespace: nais
           cluster: dev-gcp
