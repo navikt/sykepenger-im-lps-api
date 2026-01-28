@@ -1,27 +1,17 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.readRawBytes
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.http.contentType
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
-import io.ktor.server.response.header
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getPidFromTokenX
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
@@ -42,16 +32,12 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import no.nav.helsearbeidsgiver.utils.respondMedPDF
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
-import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import org.apache.kafka.common.utils.Bytes
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
@@ -186,12 +172,12 @@ private fun Route.filtrerSykmeldinger(
     }
 }
 
-fun Route.sykmeldingTokenXV1(
+fun Route.sykmeldingTokenX(
     sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    route("/v1") {
-        get("/sykmelding-person/{sykmeldingId}.pdf") {
+    route("/intern/personbruker") {
+        get("/sykmelding/{sykmeldingId}.pdf") {
             try {
                 if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF()) {
                     call.respond(HttpStatusCode.Forbidden)

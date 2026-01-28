@@ -120,7 +120,7 @@ class SykmeldingRoutingTest : ApiTest() {
 
         runBlocking {
             val response =
-                client.get("/v1/sykmelding-person/$sykmeldingId.pdf") {
+                client.get("/intern/personbruker/sykmelding/$sykmeldingId.pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -139,7 +139,7 @@ class SykmeldingRoutingTest : ApiTest() {
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
         runBlocking {
             val response =
-                client.get("/v1/sykmelding-person/$sykmeldingId.pdf") {
+                client.get("/intern/personbruker/sykmelding/$sykmeldingId.pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -161,7 +161,7 @@ class SykmeldingRoutingTest : ApiTest() {
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
         runBlocking {
             val response =
-                client.get("/v1/sykmelding-person/$sykmeldingId.pdf") {
+                client.get("/intern/personbruker/sykmelding/$sykmeldingId.pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
