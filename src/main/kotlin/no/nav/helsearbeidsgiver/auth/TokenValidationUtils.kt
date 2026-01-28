@@ -69,3 +69,19 @@ private fun Map<String, String>.extractOrgnummer(): String? =
     get("ID")
         ?.split(":")
         ?.get(1)
+
+// TokenX authentication helpers
+fun TokenValidationContext.getPidFromTokenX(): String? = this.getClaims("tokenx").get("pid")?.toString()
+
+fun TokenValidationContext.personHarTilgangTilRessurs(
+    pid: String,
+    ressurs: String,
+    orgnr: String,
+): Boolean {
+    val pdpService = getPdpService()
+    return pdpService.personHarTilgang(
+        fnr = pid,
+        orgnr = orgnr,
+        ressurs = ressurs,
+    )
+}

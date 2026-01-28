@@ -1,29 +1,22 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.readRawBytes
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.http.contentType
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
-import io.ktor.server.response.header
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
+import no.nav.helsearbeidsgiver.auth.getPidFromTokenX
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
+import no.nav.helsearbeidsgiver.auth.personHarTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -39,11 +32,10 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.pipe.orDefault
+import no.nav.helsearbeidsgiver.utils.respondMedPDF
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
@@ -76,15 +68,16 @@ private fun Route.sykmelding(
     }
     get("/sykmelding/{sykmeldingId}.pdf") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF(orgnr = Orgnr(lpsOrgnr))) {
+        if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr)) ||
+            !unleashFeatureToggles.skalEksponereSykmeldingerPDF()
+        ) {
             call.respond(HttpStatusCode.Forbidden)
             return@get
         }
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
-            call.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"sykmelding-${sykmelding.sykmeldingId}.pdf\"")
-            call.respondBytes(bytes = pdfBytes, contentType = ContentType.Application.Pdf)
+            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
         }
     }
 }
@@ -175,6 +168,61 @@ private fun Route.filtrerSykmeldinger(
         } catch (e: Exception) {
             sikkerLogger().error(FEIL_VED_HENTING_SYKMELDINGER, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(FEIL_VED_HENTING_SYKMELDINGER))
+        }
+    }
+}
+
+fun Route.sykmeldingTokenX(
+    sykmeldingService: SykmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
+    route("/intern/personbruker") {
+        get("/sykmelding/{sykmeldingId}.pdf") {
+            try {
+                if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF()) {
+                    call.respond(HttpStatusCode.Forbidden)
+                    return@get
+                }
+                val tokenContext = tokenValidationContext()
+                val pid = tokenContext.getPidFromTokenX()
+
+                if (pid == null) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Mangler brukeridentifikasjon i token"))
+                    return@get
+                }
+
+                val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
+                if (sykmeldingId == null) {
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
+                    return@get
+                }
+
+                val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
+                if (sykmelding == null) {
+                    call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
+                    return@get
+                }
+                if (!tokenContext.personHarTilgangTilRessurs(
+                        ressurs = SM_RESSURS,
+                        orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
+                        pid = pid,
+                    )
+                ) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                    return@get
+                }
+                // TODO: Legg til Prometheus metrikk telling
+                sikkerLogger().info("Bruker med PID: $pid henter sykmelding PDF: $sykmeldingId")
+
+                val pdfBytes = genererSykmeldingPdf(sykmelding)
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
+            } catch (e: Exception) {
+                FEIL_VED_HENTING_SYKMELDING.also {
+                    logger().error(it)
+                    sikkerLogger().error(it, e)
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+                }
+            }
         }
     }
 }

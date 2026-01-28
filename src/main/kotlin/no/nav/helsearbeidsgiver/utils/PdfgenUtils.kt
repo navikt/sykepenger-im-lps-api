@@ -4,8 +4,12 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.server.response.header
+import io.ktor.server.response.respondBytes
+import io.ktor.server.routing.RoutingCall
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
@@ -26,4 +30,16 @@ suspend fun genererSykmeldingPdf(sykmelding: Sykmelding): ByteArray {
         throw RuntimeException("En feil oppstod ved generering av sykmelding PDF med pdfgen: ${response.status}")
     }
     return response.readRawBytes()
+}
+
+suspend fun RoutingCall.respondMedPDF(
+    bytes: ByteArray,
+    filnavn: String,
+) {
+    this.response.header(HttpHeaders.ContentDisposition, "inline; filename=\"$filnavn\"")
+    this.respondBytes(
+        bytes = bytes,
+        contentType = ContentType.Application.Pdf,
+        status = HttpStatusCode.OK,
+    )
 }
