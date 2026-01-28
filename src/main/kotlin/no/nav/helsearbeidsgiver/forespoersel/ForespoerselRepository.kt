@@ -148,6 +148,7 @@ class ForespoerselRepository(
             inntektPaakrevd = this[ForespoerselEntitet.inntektPaakrevd],
             opprettetTid = this[opprettet],
             loepenr = this[ForespoerselEntitet.id],
+            vedtaksperiodeId = this[ForespoerselEntitet.vedtaksperiodeId],
         )
     }
 
@@ -204,5 +205,15 @@ class ForespoerselRepository(
                     (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId) and
                         (status neq Status.FORKASTET)
                 }.map { it.toExposedforespoersel() }
+        }
+
+    fun hentForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId)
+                }.sortedByDescending { opprettet }
+                .map { it.toExposedforespoersel() }
         }
 }

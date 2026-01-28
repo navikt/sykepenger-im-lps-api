@@ -8,6 +8,7 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -32,6 +33,8 @@ data class Forespoersel(
     val arbeidsgiverperiodePaakrevd: Boolean,
     val inntektPaakrevd: Boolean,
     val opprettetTid: LocalDateTime,
+    @Transient
+    val vedtaksperiodeId: UUID? = null,
 )
 
 @Serializable

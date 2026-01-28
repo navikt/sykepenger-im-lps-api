@@ -101,6 +101,14 @@ class ForespoerselService(
 
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
 
+    fun hentForespoerselerPaaVedtaksperiodeId(navReferanseId: UUID) {
+        val vedtaksperiodeId =
+            hentVedtaksperiodeId(navReferanseId) ?: throw NoSuchElementException("Forespørsel med id: $navReferanseId finnes ikke")
+
+        val forespoerslerPaaVedtaksperiodeId = forespoerselRepository.hentForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId)
+        forespoerslerPaaVedtaksperiodeId.first()
+    }
+
     fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
 
     fun settBesvart(navReferanseId: UUID) {
