@@ -39,7 +39,7 @@ fun Application.configureRouting(
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
         authenticate("tokenx-config") {
-            sykmeldingTokenXV1(sykmeldingService = services.sykmeldingService)
+            sykmeldingTokenXV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
         }
     }
 }

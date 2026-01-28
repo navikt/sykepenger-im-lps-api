@@ -64,7 +64,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent en spesifikk sykmelding`() {
+    fun `hent en sykmelding med id`() {
         val sykmeldingId = UUID.randomUUID()
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
@@ -82,11 +82,11 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent en spesifikk sykmelding i PDF format`() {
+    fun `hent en sykmelding med id i PDF format`() {
         val sykmeldingId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
 
-        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF(TIGERSYS_ORGNR) } returns true
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns true
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
@@ -107,10 +107,11 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent med TokenX person bruker en spesifikk sykmelding i PDF format`() {
+    fun `hent med TokenX person en sykmelding med id i PDF format`() {
         val sykmeldingId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
 
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns true
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
@@ -131,7 +132,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent med TokenX person som har maskinporten token skal ikke funke`() {
+    fun `hent med TokenX person endepunkt skal ikke funke med en maskinporten token`() {
         val sykmeldingId = UUID.randomUUID()
 
         every { repositories.sykmeldingRepository.hentSykmelding(sykmeldingId) } returns
@@ -146,7 +147,7 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent med TokenX token som ikke har tilgang skal ikke funke`() {
+    fun `hent med TokenX person som ikke har tilgang skal ikke funke`() {
         val sykmeldingId = UUID.randomUUID()
 
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
@@ -169,10 +170,24 @@ class SykmeldingRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `gir 403 Forbidden error om skymelding i PDF format feature toggle er skrud av`() {
+    fun `gir 403 Forbidden error om eksponer-sykmelding-PDF-i-api er skrudd av`() {
         val sykmeldingId = UUID.randomUUID()
 
-        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF(TIGERSYS_ORGNR) } returns false
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns false
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding/$sykmeldingId.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.Forbidden
+        }
+    }
+
+    @Test
+    fun `gir 403 Forbidden error om eksponer-sykmelding-i-api er skrudd av`() {
+        val sykmeldingId = UUID.randomUUID()
+
+        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns false
         runBlocking {
             val response =
                 client.get("/v1/sykmelding/$sykmeldingId.pdf") {

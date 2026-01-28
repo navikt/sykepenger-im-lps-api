@@ -82,7 +82,9 @@ private fun Route.sykmelding(
     }
     get("/sykmelding/{sykmeldingId}.pdf") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF(orgnr = Orgnr(lpsOrgnr))) {
+        if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr)) ||
+            !unleashFeatureToggles.skalEksponereSykmeldingerPDF()
+        ) {
             call.respond(HttpStatusCode.Forbidden)
             return@get
         }
@@ -184,10 +186,17 @@ private fun Route.filtrerSykmeldinger(
     }
 }
 
-fun Route.sykmeldingTokenXV1(sykmeldingService: SykmeldingService) {
+fun Route.sykmeldingTokenXV1(
+    sykmeldingService: SykmeldingService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     route("/v1") {
         get("/sykmelding-person/{sykmeldingId}.pdf") {
             try {
+                if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF()) {
+                    call.respond(HttpStatusCode.Forbidden)
+                    return@get
+                }
                 val tokenContext = tokenValidationContext()
                 val pid = tokenContext.getPidFromTokenX()
 
