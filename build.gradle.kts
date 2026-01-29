@@ -4,6 +4,7 @@ val exposedVersion: String by project
 val flywayCoreVersion: String by project
 val hagDomeneInntektsmeldingVersion: String by project
 val hikariVersion: String by project
+val junitJupiterVersion: String by project
 val kafkaVersion: String by project
 val kotestVersion: String by project
 val kotlinVersion: String by project
@@ -92,12 +93,11 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
-    testImplementation("org.testcontainers:junit-jupiter:$testContainerVersion")
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.14.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.14.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
