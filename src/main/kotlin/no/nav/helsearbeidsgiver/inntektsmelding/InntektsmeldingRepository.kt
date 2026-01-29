@@ -175,7 +175,7 @@ class InntektsmeldingRepository(
         InntektsmeldingResponse(
             loepenr = this[InntektsmeldingEntitet.id],
             navReferanseId = this[navReferanseId],
-            agp = this[skjema].agp,
+            agp = this[skjema].agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
             inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
