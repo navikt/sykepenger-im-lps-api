@@ -11,9 +11,9 @@ import java.lang.reflect.Method
 // (test som feilet: InntektsmeldingRepository: opprett skal ikke kunne lagre samme inntektsmelding (id) to ganger)
 class TransactionalExtension : InvocationInterceptor {
     override fun interceptTestMethod(
-        invocation: InvocationInterceptor.Invocation<Void>?,
-        invocationContext: ReflectiveInvocationContext<Method>?,
-        extensionContext: ExtensionContext?,
+        invocation: InvocationInterceptor.Invocation<Void?>,
+        invocationContext: ReflectiveInvocationContext<Method>,
+        extensionContext: ExtensionContext,
     ) {
         transaction {
             invocation?.proceed()
