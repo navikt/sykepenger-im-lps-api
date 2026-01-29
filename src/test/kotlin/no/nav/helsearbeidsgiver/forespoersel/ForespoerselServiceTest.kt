@@ -7,6 +7,8 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.buildForespoerselFromJson
+import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,7 +17,7 @@ import kotlin.random.Random
 import kotlin.test.assertEquals
 
 class ForespoerselServiceTest {
-    private val forespoerselRepository = mockk<ForespoerselRepository>()
+    private val forespoerselRepository = mockk<ForespoerselRepository>(relaxed = true)
     private val dialogportenService = mockk<DialogportenService>()
     private val dokumentkoblingService = mockk<DokumentkoblingService>()
     private val forespoerselService = ForespoerselService(forespoerselRepository, dialogportenService, dokumentkoblingService)
@@ -50,6 +52,47 @@ class ForespoerselServiceTest {
         assertEquals(2, response.size)
 
         verify { forespoerselRepository.hentForespoersler(request) }
+    }
+
+    @Test
+    fun `lagreOppdatertForespoersel forkaster eksisterende aktiv forespørsel`() {
+        val forespoerselId = UUID.randomUUID()
+        val vedtaksperiodeId = UUID.randomUUID()
+        val eksponertForespoerselId = UUID.randomUUID()
+
+        // Oppdarter forespørsel med agPaakrevd = false og inntektPaakrevd = true
+        val forespoersel =
+            buildForespoerselOppdatertJson(
+                forespoerselId = forespoerselId,
+                vedtaksperiodeId = vedtaksperiodeId,
+                eksponertForespoerselId = eksponertForespoerselId,
+                agPaakrevd = false,
+                inntektPaakrevd = true,
+            )
+
+        val priMessage = buildForespoerselFromJson(forespoersel)
+        every { forespoerselRepository.hentForespoersel(forespoerselId) } returns null
+        every { forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId) } returns
+            listOf(
+                Forespoersel(
+                    loepenr = Random.nextLong(),
+                    navReferanseId = eksponertForespoerselId,
+                    orgnr = DEFAULT_ORG,
+                    fnr = DEFAULT_FNR,
+                    status = Status.AKTIV,
+                    sykmeldingsperioder = emptyList(),
+                    egenmeldingsperioder = emptyList(),
+                    inntektsdato = LocalDate.now(),
+                    arbeidsgiverperiodePaakrevd = false,
+                    inntektPaakrevd = false,
+                    opprettetTid = LocalDateTime.now(),
+                ),
+            )
+        forespoerselService.lagreOppdatertForespoersel(priMessage)
+        verify(exactly = 1) { forespoerselRepository.hentForespoersel(forespoerselId) }
+        verify(
+            exactly = 1,
+        ) { priMessage.forespoersel?.let { forespoerselRepository.lagreForespoersel(it, Status.AKTIV, any(), true, false) } }
     }
 }
 

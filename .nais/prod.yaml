@@ -54,6 +54,8 @@ spec:
       rules:
         - application: logging
           namespace: nais-system
+  tokenx:
+    enabled: true
   maskinporten:
     enabled: true
     scopes:

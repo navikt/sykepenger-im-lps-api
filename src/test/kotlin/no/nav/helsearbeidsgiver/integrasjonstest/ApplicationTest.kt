@@ -292,6 +292,8 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             val oppdatertFsp = sjekkForespoerselStatus(oppdatertForespoerselId, Status.AKTIV)
             oppdatertFsp.navReferanseId shouldBe oppdatertForespoerselId
             oppdatertFsp.status shouldBe Status.AKTIV
+            oppdatertFsp.arbeidsgiverperiodePaakrevd shouldBe true
+            oppdatertFsp.inntektPaakrevd shouldBe true
 
             sjekkForespoerselEntitetIDb(oppdatertForespoerselId, forespoerselId)
 

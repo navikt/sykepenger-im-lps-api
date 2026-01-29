@@ -32,19 +32,25 @@ class ForespoerselService(
             priMessage.forespoersel
                 ?: throw IllegalArgumentException("Forespørsel må ikke være null i oppdatert forespørsel")
 
-        val eksponertForespoerselId =
-            priMessage.eksponertForespoerselId
-                ?: forespoersel.forespoerselId
+        val eksponertForespoerselId = priMessage.eksponertForespoerselId ?: forespoersel.forespoerselId
+
         runCatching {
             if (erDuplikat(forespoersel)) return
+
             logger().info(
                 "Lagrer oppdatert forespørsel med id: ${forespoersel.forespoerselId} og eksponertForespoerselId: $eksponertForespoerselId",
             )
+
             endreStatusAktivForespoersel(eksponertForespoerselId)
+
+            val (inntektPaakrevd, arbeidsgiverperiodePaakrevd) = finnPaakrevdeFelter(forespoersel)
+
             forespoerselRepository.lagreForespoersel(
                 forespoersel = forespoersel,
                 status = Status.AKTIV,
                 eksponertForespoerselId = eksponertForespoerselId,
+                inntektPaakrevd = inntektPaakrevd,
+                arbeidsgiverperiodePaakrevd = arbeidsgiverperiodePaakrevd,
             )
         }.onSuccess {
             logger().info("Lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId} fullført")
@@ -52,6 +58,25 @@ class ForespoerselService(
             sikkerLogger().error("Feil ved lagring av oppdatert forespørsel med id: ${forespoersel.forespoerselId}", it)
             throw RuntimeException("Feil ved lagring av forespørsel med id: ${forespoersel.forespoerselId}", it)
         }
+    }
+
+    private fun finnPaakrevdeFelter(forespoersel: ForespoerselDokument): Pair<Boolean, Boolean> {
+        val inntektPaakrevd = forespoersel.forespurtData.inntekt.paakrevd
+        val arbeidsgiverperiodePaakrevd = forespoersel.forespurtData.arbeidsgiverperiode.paakrevd
+
+        if (inntektPaakrevd && arbeidsgiverperiodePaakrevd) {
+            return Pair(true, true)
+        }
+
+        val tidligereForespoersler =
+            forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(
+                forespoersel.vedtaksperiodeId,
+            )
+
+        return Pair(
+            inntektPaakrevd || tidligereForespoersler.any { it.inntektPaakrevd },
+            arbeidsgiverperiodePaakrevd || tidligereForespoersler.any { it.arbeidsgiverperiodePaakrevd },
+        )
     }
 
     fun lagreNyForespoersel(

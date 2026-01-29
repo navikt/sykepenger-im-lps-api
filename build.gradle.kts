@@ -114,6 +114,10 @@ tasks {
             "MASKINPORTEN_WELL_KNOWN_URL",
             "http://localhost:33445/maskinporten/.well-known/openid-configuration",
         )
+        environment(
+            "TOKENX_WELL_KNOWN_URL",
+            "http://localhost:33445/tokenx/.well-known/openid-configuration",
+        )
         environment("ALTINN_IM_RESSURS", "nav_sykepenger_inntektsmelding")
         environment("ALTINN_SM_RESSURS", "nav_sykepenger_sykmelding")
         environment("ALTINN_SOEKNAD_RESSURS", "nav_sykepenger_soeknad")

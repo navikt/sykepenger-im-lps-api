@@ -19,8 +19,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
@@ -37,6 +35,8 @@ class ForespoerselRepository(
         forespoersel: ForespoerselDokument,
         status: Status = Status.AKTIV,
         eksponertForespoerselId: UUID,
+        inntektPaakrevd: Boolean = forespoersel.forespurtData.inntekt.paakrevd,
+        arbeidsgiverperiodePaakrevd: Boolean = forespoersel.forespurtData.arbeidsgiverperiode.paakrevd,
     ) {
         transaction(db) {
             ForespoerselEntitet.insert {
@@ -48,6 +48,8 @@ class ForespoerselRepository(
                 it[this.eksponertForespoerselId] = eksponertForespoerselId
                 it[vedtaksperiodeId] = forespoersel.vedtaksperiodeId
                 it[dokument] = jsonMapper.encodeToString(ForespoerselDokument.serializer(), forespoersel)
+                it[this.arbeidsgiverperiodePaakrevd] = arbeidsgiverperiodePaakrevd
+                it[this.inntektPaakrevd] = inntektPaakrevd
             }
         }
         logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
@@ -76,7 +78,6 @@ class ForespoerselRepository(
 
     fun hentForespoersler(filter: ForespoerselFilter): List<Forespoersel> =
         transaction(db) {
-            addLogger(StdOutSqlLogger)
             val query =
                 ForespoerselEntitet
                     .selectAll()
@@ -143,8 +144,8 @@ class ForespoerselRepository(
             sykmeldingsperioder = dokument.sykmeldingsperioder,
             egenmeldingsperioder = dokument.egenmeldingsperioder,
             inntektsdato = dokument.forslagInntektsdato(),
-            arbeidsgiverperiodePaakrevd = dokument.forespurtData.arbeidsgiverperiode.paakrevd,
-            inntektPaakrevd = dokument.forespurtData.inntekt.paakrevd,
+            arbeidsgiverperiodePaakrevd = this[ForespoerselEntitet.arbeidsgiverperiodePaakrevd],
+            inntektPaakrevd = this[ForespoerselEntitet.inntektPaakrevd],
             opprettetTid = this[opprettet],
             loepenr = this[ForespoerselEntitet.id],
         )
@@ -193,5 +194,15 @@ class ForespoerselRepository(
                         sykmeldingId = row[SoeknadEntitet.sykmeldingId],
                     )
                 }.firstOrNull()
+        }
+
+    fun hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =
+        transaction(db) {
+            ForespoerselEntitet
+                .selectAll()
+                .where {
+                    (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId) and
+                        (status neq Status.FORKASTET)
+                }.map { it.toExposedforespoersel() }
         }
 }

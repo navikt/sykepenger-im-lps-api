@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Refusjon
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.RefusjonEndring
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.til
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -22,6 +23,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.test.date.november
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
 import no.nav.helsearbeidsgiver.utils.test.date.september
@@ -46,6 +48,8 @@ private const val STATUS = "%%%STATUS%%%"
 
 const val DEFAULT_FNR = "16076006028"
 const val DEFAULT_ORG = "810007842"
+
+fun buildForespoerselFromJson(json: String): PriMessage = jsonMapper.decodeFromString<PriMessage>(PriMessage.serializer(), json)
 
 fun buildJournalfoertInntektsmelding(
     inntektsmeldingId: UUID = UUID.randomUUID(),
@@ -118,6 +122,8 @@ fun buildForespoerselOppdatertJson(
     eksponertForespoerselId: UUID = UUID.randomUUID(),
     vedtaksperiodeId: UUID = UUID.randomUUID(),
     orgnummer: String = DEFAULT_ORG,
+    agPaakrevd: Boolean = true,
+    inntektPaakrevd: Boolean = true,
 ): String {
     val filePath = "json/forespoersel_oppdatert.json"
     return readJsonFromResources(filePath)
@@ -125,6 +131,8 @@ fun buildForespoerselOppdatertJson(
         .replace(EKSPONERT_FORESPOERSEL_ID, eksponertForespoerselId.toString())
         .replace(ORGNUMMER, orgnummer)
         .replace(VEDTAKSPERIODE_ID, vedtaksperiodeId.toString())
+        .replace("%%%AG_PAAKREVD%%%", agPaakrevd.toString())
+        .replace("%%%INNTEKT_PAAKREVD%%%", inntektPaakrevd.toString())
 }
 
 fun buildForespoerselFraBacklog(
