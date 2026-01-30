@@ -8,7 +8,6 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -19,6 +18,36 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+
+@Serializable
+data class ForespoerselResponse(
+    val loepenr: Long,
+    val navReferanseId: UUID,
+    val orgnr: String,
+    val fnr: String,
+    val status: Status,
+    val sykmeldingsperioder: List<Periode>,
+    val egenmeldingsperioder: List<Periode>,
+    val inntektsdato: LocalDate,
+    val arbeidsgiverperiodePaakrevd: Boolean,
+    val inntektPaakrevd: Boolean,
+    val opprettetTid: LocalDateTime,
+)
+
+fun Forespoersel.toResponse() =
+    ForespoerselResponse(
+        loepenr = loepenr,
+        navReferanseId = navReferanseId,
+        orgnr = orgnr,
+        fnr = fnr,
+        status = status,
+        sykmeldingsperioder = sykmeldingsperioder,
+        egenmeldingsperioder = egenmeldingsperioder,
+        inntektsdato = inntektsdato,
+        arbeidsgiverperiodePaakrevd = arbeidsgiverperiodePaakrevd,
+        inntektPaakrevd = inntektPaakrevd,
+        opprettetTid = opprettetTid,
+    )
 
 @Serializable
 data class Forespoersel(
@@ -33,8 +62,7 @@ data class Forespoersel(
     val arbeidsgiverperiodePaakrevd: Boolean,
     val inntektPaakrevd: Boolean,
     val opprettetTid: LocalDateTime,
-    @Transient
-    val vedtaksperiodeId: UUID? = null,
+    val vedtaksperiodeId: UUID,
 )
 
 @Serializable

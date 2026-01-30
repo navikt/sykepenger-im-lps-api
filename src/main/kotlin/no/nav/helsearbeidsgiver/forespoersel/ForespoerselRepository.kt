@@ -204,7 +204,8 @@ class ForespoerselRepository(
                 .where {
                     (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId) and
                         (status neq Status.FORKASTET)
-                }.map { it.toExposedforespoersel() }
+                }.orderBy(opprettet, SortOrder.DESC)
+                .map { it.toExposedforespoersel() }
         }
 
     fun hentForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =

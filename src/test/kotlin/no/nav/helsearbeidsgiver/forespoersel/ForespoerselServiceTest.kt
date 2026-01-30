@@ -86,6 +86,7 @@ class ForespoerselServiceTest {
                     arbeidsgiverperiodePaakrevd = false,
                     inntektPaakrevd = false,
                     opprettetTid = LocalDateTime.now(),
+                    vedtaksperiodeId = vedtaksperiodeId,
                 ),
             )
         forespoerselService.lagreOppdatertForespoersel(priMessage)
@@ -111,6 +112,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
                 opprettetTid = LocalDateTime.now(),
+                vedtaksperiodeId = UUID.randomUUID(),
             ),
             Forespoersel(
                 loepenr = Random.nextLong(),
@@ -124,6 +126,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 arbeidsgiverperiodePaakrevd = true,
                 inntektPaakrevd = true,
                 opprettetTid = LocalDateTime.now(),
+                vedtaksperiodeId = UUID.randomUUID(),
             ),
         )
     return forespoersler

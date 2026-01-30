@@ -87,7 +87,7 @@ private fun Route.forespoersel(
             )
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.FORESPOERSEL)
 
-            call.respond(forespoersel)
+            call.respond(forespoersel.toResponse())
         } catch (e: Exception) {
             FEIL_VED_HENTING_FORESPOERSEL.also {
                 logger().error(it)
@@ -128,7 +128,7 @@ private fun Route.filtrerForespoersler(
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
-            val forespoersler = forespoerselService.filtrerForespoersler(filter)
+            val forespoersler = forespoerselService.filtrerForespoersler(filter).map { it.toResponse() }
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.FORESPOERSEL, forespoersler.size)
             call.respondWithMaxLimit(forespoersler)
             return@post

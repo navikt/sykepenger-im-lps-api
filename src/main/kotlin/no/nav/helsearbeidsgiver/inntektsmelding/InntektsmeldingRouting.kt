@@ -78,6 +78,19 @@ private fun Route.sendInntektsmelding(
                 services.forespoerselService.hentForespoersel(request.navReferanseId)
                     ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_NAV_REFERANSE_ID))
 
+            val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel)
+            if (sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
+                val feilmelding = "Det finnes en nyere forespørsel for vedtaksperioden. Nyeste forespørsel: ${sisteForespoersel.navReferanseId}"
+                MdcUtils.withLogFields(
+                    "hag_avsender_system_navn" to request.avsender.systemNavn,
+                    "hag_avsender_system_versjon" to request.avsender.systemVersjon,
+                    "hag_feilmelding" to feilmelding,
+                ) {
+                    sikkerLogger().warn("Mottatt ugyldig innsending. Request: $request")
+                    logger().warn("Mottatt ugyldig innsending: $feilmelding")
+                }
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(feilmelding))
+            }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
 
@@ -113,14 +126,13 @@ private fun Route.sendInntektsmelding(
             val sisteInntektsmelding =
                 services.inntektsmeldingService
                     .hentNyesteInntektsmeldingByNavReferanseId(request.navReferanseId)
-            val vedtaksperiodeId = services.forespoerselService.hentVedtaksperiodeId(request.navReferanseId)
 
             val inntektsmelding =
                 request.tilInntektsmelding(
                     sluttbrukerOrgnr = Orgnr(forespoersel.orgnr),
                     lpsOrgnr = Orgnr(lpsOrgnr),
                     forespoersel = forespoersel,
-                    vedtaksperiodeId = vedtaksperiodeId,
+                    vedtaksperiodeId = forespoersel.vedtaksperiodeId,
                 )
             val eksponertForespoerselId =
                 services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
