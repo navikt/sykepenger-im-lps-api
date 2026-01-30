@@ -6,8 +6,8 @@ import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Producer
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
@@ -194,7 +194,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                     url = "http://localhost:8080/v1/forespoersel/$id",
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007982"),
                 )
-            val forespoerselSvar = response.body<Forespoersel>()
+            val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.navReferanseId shouldBe UUID.fromString(id)
         }
     }
@@ -358,12 +358,12 @@ class ApplicationTest : LpsApiIntegrasjontest() {
     private suspend fun sjekkForespoerselStatus(
         forespoerselId: UUID?,
         status: Status,
-    ): Forespoersel =
+    ): ForespoerselResponse =
         fetchWithRetry(
             url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
             token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
-            betingelse = { it.body<Forespoersel>().status == status },
-        ).body<Forespoersel>()
+            betingelse = { it.body<ForespoerselResponse>().status == status },
+        ).body<ForespoerselResponse>()
 
     @Test
     fun `Mottar forespørsel fra backlog`() {
@@ -395,7 +395,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
         Producer.sendMelding(ProducerRecord(priTopic, "key", json))
     }
 
-    private suspend fun hentForespoerselFraApi(forespoerselId: UUID): Forespoersel {
+    private suspend fun hentForespoerselFraApi(forespoerselId: UUID): ForespoerselResponse {
         val response =
             fetchWithRetry(
                 url = "http://localhost:8080/v1/forespoersel/$forespoerselId",
@@ -445,7 +445,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
                 )
             response.status.value shouldBe 200
-            val forespoerselSvar = response.body<Forespoersel>()
+            val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.navReferanseId shouldBe forespoerselId
         }
 }
