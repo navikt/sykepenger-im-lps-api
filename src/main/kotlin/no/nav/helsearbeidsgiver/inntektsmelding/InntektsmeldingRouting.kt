@@ -80,7 +80,8 @@ private fun Route.sendInntektsmelding(
 
             val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel)
             if (sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
-                val feilmelding = "Det finnes en nyere forespørsel for vedtaksperioden. Nyeste forespørsel: ${sisteForespoersel.navReferanseId}"
+                val feilmelding =
+                    "Det finnes en nyere forespørsel for vedtaksperioden. Nyeste forespørsel: ${sisteForespoersel.navReferanseId}"
                 MdcUtils.withLogFields(
                     "hag_avsender_system_navn" to request.avsender.systemNavn,
                     "hag_avsender_system_versjon" to request.avsender.systemVersjon,
