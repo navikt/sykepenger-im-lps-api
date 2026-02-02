@@ -13,65 +13,6 @@ info:
 security:
   - bearerAuth: [ ]
 paths:
-  /intern/personbruker/sykmelding/{sykmeldingId}.pdf:
-    get:
-      description: ""
-      parameters:
-        - name: "sykmeldingId"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-      responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                Example#1:
-                  description: ""
-                  value:
-                    feilmelding: "Ikke tilgang til ressurs"
-                Example#2:
-                  description: ""
-                  value:
-                    feilmelding: "Mangler brukeridentifikasjon i token"
-                Example#3:
-                  description: ""
-                  value:
-                    feilmelding: "Uautorisert tilgang"
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                Example#1:
-                  description: ""
-                  value:
-                    feilmelding: "Ugyldig sykmeldingId"
-        "200":
-          description: "OK"
-          content:
-            application/pdf:
-              schema:
-                type: "string"
-                format: "byte"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
   /v1/forespoersel/{navReferanseId}:
     get:
       tags:
@@ -85,12 +26,6 @@ paths:
           schema:
             type: "string"
       responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "400":
           description: "Bad Request"
           content:
@@ -140,7 +75,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ForespoerselResponse"
+                $ref: "#/components/schemas/Forespoersel"
         "500":
           description: "Internal Server Error"
           content:
@@ -162,12 +97,6 @@ paths:
               $ref: "#/components/schemas/ForespoerselFilter"
         required: true
       responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "401":
           description: "Unauthorized"
           content:
@@ -208,7 +137,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/ForespoerselResponse"
+                  $ref: "#/components/schemas/Forespoersel"
         "400":
           description: "Bad Request"
           content:
@@ -252,12 +181,6 @@ paths:
               $ref: "#/components/schemas/InntektsmeldingRequest"
         required: true
       responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "400":
           description: "Bad Request"
           content:
@@ -332,12 +255,6 @@ paths:
           schema:
             type: "string"
       responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "400":
           description: "Bad Request"
           content:
@@ -408,12 +325,6 @@ paths:
               $ref: "#/components/schemas/InntektsmeldingFilter"
         required: true
       responses:
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "401":
           description: "Unauthorized"
           content:
@@ -648,7 +559,7 @@ paths:
       tags:
         - "Sykmelding"
       summary: "Hent sykmelding"
-      description: ""
+      description: "Hent sykmelding med sykmeldingId"
       parameters:
         - name: "sykmeldingId"
           in: "path"
@@ -670,7 +581,7 @@ paths:
                 Example#2:
                   description: ""
                   value:
-                    feilmelding: "Uautorisert tilgang"
+                    feilmelding: "Ikke tilgang til ressurs"
                 Example#3:
                   description: ""
                   value:
@@ -678,12 +589,8 @@ paths:
                 Example#4:
                   description: ""
                   value:
-                    feilmelding: "Ikke tilgang til ressurs"
-                Example#5:
-                  description: ""
-                  value:
                     feilmelding: "Uautorisert tilgang"
-                Example#6:
+                Example#5:
                   description: ""
                   value:
                     feilmelding: "Uautorisert tilgang"
@@ -710,80 +617,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Sykmelding"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /v1/sykmelding/{sykmeldingId}.pdf:
-    get:
-      tags:
-        - "Sykmelding"
-      summary: "Hent sykmelding"
-      description: ""
-      parameters:
-        - name: "sykmeldingId"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-      responses:
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                Example#1:
-                  description: ""
-                  value:
-                    feilmelding: "Uautorisert tilgang"
-                Example#2:
-                  description: ""
-                  value:
-                    feilmelding: "Uautorisert tilgang"
-                Example#3:
-                  description: ""
-                  value:
-                    feilmelding: "Uautorisert tilgang"
-                Example#4:
-                  description: ""
-                  value:
-                    feilmelding: "Ikke tilgang til ressurs"
-                Example#5:
-                  description: ""
-                  value:
-                    feilmelding: "Uautorisert tilgang"
-                Example#6:
-                  description: ""
-                  value:
-                    feilmelding: "Uautorisert tilgang"
-        "403":
-          description: "Forbidden"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                Example#1:
-                  description: ""
-                  value:
-                    feilmelding: "Ugyldig sykmeldingId"
-        "200":
-          description: "OK"
-          content:
-            application/pdf:
-              schema:
-                type: "string"
-                format: "byte"
         "500":
           description: "Internal Server Error"
           content:
@@ -911,7 +744,7 @@ components:
       required:
         - "fom"
         - "tom"
-    ForespoerselResponse:
+    Forespoersel:
       type: "object"
       properties:
         loepenr:
@@ -1261,12 +1094,12 @@ components:
       type: "object"
       properties:
         systemNavn:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
         systemVersjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1300,7 +1133,7 @@ components:
             - "Ny"
             - "Endring"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1332,7 +1165,7 @@ components:
         tlf:
           type: "string"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
