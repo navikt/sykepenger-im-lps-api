@@ -78,8 +78,8 @@ private fun Route.sendInntektsmelding(
                 services.forespoerselService.hentForespoersel(request.navReferanseId)
                     ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_NAV_REFERANSE_ID))
 
-            val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel)
-            if (sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
+            val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel.vedtaksperiodeId)
+            if (sisteForespoersel != null && sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
                 val feilmelding =
                     "Det finnes en nyere forespørsel for vedtaksperioden. Nyeste forespørsel: ${sisteForespoersel.navReferanseId}"
                 MdcUtils.withLogFields(
