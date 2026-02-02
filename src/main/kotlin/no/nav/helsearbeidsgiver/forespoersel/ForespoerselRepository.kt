@@ -204,7 +204,7 @@ class ForespoerselRepository(
                 .where {
                     (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId) and
                         (status neq Status.FORKASTET)
-                }.orderBy(opprettet, SortOrder.DESC)
+                }.orderBy(ForespoerselEntitet.id, SortOrder.DESC)
                 .map { it.toExposedforespoersel() }
         }
 }

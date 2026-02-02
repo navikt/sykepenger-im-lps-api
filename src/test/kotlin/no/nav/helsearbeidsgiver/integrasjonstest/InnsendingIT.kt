@@ -165,7 +165,8 @@ class InnsendingIT {
     @Test
     fun `innsending uten agp skal feile når merget forespørsel krever både agp og inntekt`() =
         runTest {
-            val (_, navReferanseId2) = lagTestdataForMergeFsp()
+            val navReferanseId2 = UUID.randomUUID()
+            lagTestdataForMergeFsp(navReferanseId1 = navReferanseId2)
             val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR, agp = null)
             val response =
                 client.post("/v1/inntektsmelding") {
@@ -179,7 +180,8 @@ class InnsendingIT {
     @Test
     fun `innsending av inntektsmelding med agp og inntekt  godtas når forespørsel er merget`() =
         runTest {
-            val (_, navReferanseId2) = lagTestdataForMergeFsp()
+            val navReferanseId2 = UUID.randomUUID()
+            lagTestdataForMergeFsp(navReferanseId2 = navReferanseId2)
             val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR)
             val response =
                 client.post("/v1/inntektsmelding") {
@@ -193,7 +195,9 @@ class InnsendingIT {
     @Test
     fun `innsending av inntektsmelding med agp og inntekt  nektes når det finnes en nyere forespørsel`() =
         runTest {
-            val (navReferanseId1, navReferanseId2) = lagTestdataForMergeFsp()
+            val navReferanseId1 = UUID.randomUUID()
+            val navReferanseId2 = UUID.randomUUID()
+            lagTestdataForMergeFsp(navReferanseId1, navReferanseId2)
             val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId1, sykmeldtFnr = DEFAULT_FNR)
             val response =
                 client.post("/v1/inntektsmelding") {
@@ -201,15 +205,15 @@ class InnsendingIT {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
+            println(response)
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<ErrorResponse>().feilmelding shouldBe
-                "Det finnes en nyere forespørsel for vedtaksperioden. Nyeste forespørsel: $navReferanseId2"
+            response.body<ErrorResponse>().feilmelding shouldBe navReferanseId2.toString()
         }
 
-    private fun lagTestdataForMergeFsp(): Pair<UUID, UUID> {
-        val navReferanseId1 = UUID.randomUUID()
-        val navReferanseId2 = UUID.randomUUID()
-        println("Lager testdata for merge fsp med forespørselIder:navReferanseId1= $navReferanseId1 og navReferanseId2= $navReferanseId2")
+    private fun lagTestdataForMergeFsp(
+        navReferanseId1: UUID = UUID.randomUUID(),
+        navReferanseId2: UUID = UUID.randomUUID(),
+    ) {
         val vedtaksperiodeId = UUID.randomUUID()
         val forespoersel1 =
             TestData
@@ -239,8 +243,6 @@ class InnsendingIT {
         services.forespoerselService.lagreOppdatertForespoersel(
             PriMessage(notis = NotisType.FORESPOERSEL_OPPDATERT, forespoersel2),
         )
-
-        return Pair(navReferanseId1, navReferanseId2)
     }
 
     @AfterAll

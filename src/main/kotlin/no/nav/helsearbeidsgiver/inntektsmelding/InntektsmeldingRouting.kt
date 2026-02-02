@@ -81,16 +81,20 @@ private fun Route.sendInntektsmelding(
             val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel.vedtaksperiodeId)
             if (sisteForespoersel != null && sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
                 val feilmelding =
-                    "Det finnes en nyere forespørsel for vedtaksperioden. Nyeste forespørsel: ${sisteForespoersel.navReferanseId}"
+                    "Mottatt innsending på gammel forespørsel: ${forespoersel.navReferanseId}, må sendes inn på på ${sisteForespoersel.navReferanseId}"
                 MdcUtils.withLogFields(
                     "hag_avsender_system_navn" to request.avsender.systemNavn,
                     "hag_avsender_system_versjon" to request.avsender.systemVersjon,
                     "hag_feilmelding" to feilmelding,
                 ) {
-                    sikkerLogger().warn("Mottatt ugyldig innsending. Request: $request")
-                    logger().warn("Mottatt ugyldig innsending: $feilmelding")
+                    sikkerLogger().warn(
+                        feilmelding,
+                    )
+                    logger().warn(
+                        feilmelding,
+                    )
                 }
-                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(feilmelding))
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(sisteForespoersel.navReferanseId.toString()))
             }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
