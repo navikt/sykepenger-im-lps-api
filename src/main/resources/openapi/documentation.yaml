@@ -1094,12 +1094,12 @@ components:
       type: "object"
       properties:
         systemNavn:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
         systemVersjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1133,7 +1133,7 @@ components:
             - "Ny"
             - "Endring"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1165,7 +1165,7 @@ components:
         tlf:
           type: "string"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9 _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
