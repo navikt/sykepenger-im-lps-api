@@ -73,7 +73,7 @@ class InntektsmeldingRepositoryTest {
 
         assertEquals(forventetSkjema.forespoerselId, result.navReferanseId)
         assertEquals(inntektsmeldingJson.id, result.id)
-        assertEquals(forventetSkjema.agp, result.agp)
+        assertEquals(forventetSkjema.agp, result.agp?.tilArbeidsgiverperiodeMedEgenmeldinger())
         assertEquals(forventetSkjema.inntekt, result.inntekt)
         assertEquals(forventetSkjema.refusjon, result.refusjon)
         assertEquals(DEFAULT_ORG, result.arbeidsgiver.orgnr)

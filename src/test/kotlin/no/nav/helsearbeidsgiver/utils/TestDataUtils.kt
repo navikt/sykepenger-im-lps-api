@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.utils
 
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Naturalytelse
@@ -17,6 +16,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
+import no.nav.helsearbeidsgiver.inntektsmelding.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
@@ -183,7 +183,7 @@ fun mockSkjemaInntektsmelding(): SkjemaInntektsmelding =
     SkjemaInntektsmelding(
         forespoerselId = UUID.randomUUID(),
         avsenderTlf = randomDigitString(8),
-        agp = mockArbeidsgiverperiode(),
+        agp = mockArbeidsgiverperiode().tilArbeidsgiverperiodeMedEgenmeldinger(),
         inntekt = mockInntekt(),
         naturalytelser = mockNaturalytelser(),
         refusjon = mockRefusjon(),
@@ -194,7 +194,7 @@ fun mockInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding()): I
         loepenr = Random.nextLong(),
         id = im.id,
         navReferanseId = im.id,
-        agp = im.agp,
+        agp = im.agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
         inntekt = im.inntekt,
         naturalytelser = im.naturalytelser,
         refusjon = im.refusjon,
@@ -269,13 +269,10 @@ private fun mockArbeidsgiverperiode(): Arbeidsgiverperiode =
     Arbeidsgiverperiode(
         perioder =
             listOf(
-                5.oktober til 15.oktober,
-                20.oktober til 22.oktober,
-            ),
-        egenmeldinger =
-            listOf(
                 28.september til 28.september,
                 30.september til 30.september,
+                5.oktober til 15.oktober,
+                20.oktober til 22.oktober,
             ),
         redusertLoennIAgp =
             RedusertLoennIAgp(

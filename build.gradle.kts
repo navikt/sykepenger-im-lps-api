@@ -4,6 +4,7 @@ val exposedVersion: String by project
 val flywayCoreVersion: String by project
 val hagDomeneInntektsmeldingVersion: String by project
 val hikariVersion: String by project
+val junitJupiterVersion: String by project
 val kafkaVersion: String by project
 val kotestVersion: String by project
 val kotlinVersion: String by project
@@ -26,7 +27,7 @@ val microMeterVersion: String by project
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "3.3.2"
+    id("io.ktor.plugin") version "3.4.0"
     id("org.jmailen.kotlinter")
 }
 
@@ -92,10 +93,11 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
-    testImplementation("org.testcontainers:junit-jupiter:$testContainerVersion")
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
     testImplementation("org.testcontainers:testcontainers:$testContainerVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 apply(from = "openApiTasks.gradle.kts")
 tasks {
@@ -111,6 +113,10 @@ tasks {
         environment(
             "MASKINPORTEN_WELL_KNOWN_URL",
             "http://localhost:33445/maskinporten/.well-known/openid-configuration",
+        )
+        environment(
+            "TOKENX_WELL_KNOWN_URL",
+            "http://localhost:33445/tokenx/.well-known/openid-configuration",
         )
         environment("ALTINN_IM_RESSURS", "nav_sykepenger_inntektsmelding")
         environment("ALTINN_SM_RESSURS", "nav_sykepenger_sykmelding")

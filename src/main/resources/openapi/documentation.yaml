@@ -860,16 +860,11 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Periode"
-        egenmeldinger:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Periode"
         redusertLoennIAgp:
           nullable: true
           $ref: "#/components/schemas/RedusertLoennIAgp"
       required:
         - "perioder"
-        - "egenmeldinger"
     InntektEndringAarsak:
       type: "object"
       oneOf:

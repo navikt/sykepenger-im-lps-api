@@ -355,6 +355,17 @@ fun Application.configureAuth(authClient: AuthClient) {
                     DEFAULT_HTTP_SIZE_LIMIT,
                 ),
         )
+        tokenValidationSupport(
+            name = "tokenx-config",
+            config =
+                TokenSupportConfig(
+                    IssuerConfig(
+                        name = "tokenx",
+                        discoveryUrl = getProperty("tokenx.wellknownUrl"),
+                        acceptedAudience = getPropertyAsList("tokenx.clientId"),
+                    ),
+                ),
+        )
     }
 }
 
