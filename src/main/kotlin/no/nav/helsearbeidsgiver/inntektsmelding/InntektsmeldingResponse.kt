@@ -5,7 +5,6 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
@@ -59,8 +58,14 @@ data class InntektsmeldingRequest(
     val avsender: Avsender, // avsendersystem
 ) {
     fun valider(): Set<String> =
-        SkjemaInntektsmelding(navReferanseId, arbeidsgiverTlf, agp, inntekt, naturalytelser, refusjon)
-            .valider() + validerAvsender() + validerKontaktInformasjon()
+        SkjemaInntektsmelding(
+            navReferanseId,
+            arbeidsgiverTlf,
+            agp?.tilArbeidsgiverperiodeMedEgenmeldinger(),
+            inntekt,
+            naturalytelser,
+            refusjon,
+        ).valider() + validerAvsender() + validerKontaktInformasjon()
 
     private fun validerAvsender(): Set<String> =
         runCatching { avsender.valider() }

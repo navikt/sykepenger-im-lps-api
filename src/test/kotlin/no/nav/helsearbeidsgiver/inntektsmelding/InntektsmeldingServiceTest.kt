@@ -80,7 +80,7 @@ class InntektsmeldingServiceTest {
                 avsender = Avsender("", ""),
                 status = InnsendingStatus.MOTTATT,
                 valideringsfeil = null,
-                agp = inntektsmelding.agp,
+                agp = inntektsmelding.agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
                 id = inntektsmelding.id,
             )
 
@@ -112,7 +112,7 @@ class InntektsmeldingServiceTest {
                 InntektsmeldingResponse(
                     loepenr = Random.nextLong(),
                     navReferanseId = navReferanseId,
-                    agp = skjema.agp,
+                    agp = skjema.agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
                     inntekt = skjema.inntekt,
                     naturalytelser = skjema.naturalytelser,
                     refusjon = skjema.refusjon,
@@ -182,7 +182,7 @@ class InntektsmeldingServiceTest {
                 InntektsmeldingResponse(
                     loepenr = 1,
                     navReferanseId = navReferanseId,
-                    agp = skjema.agp,
+                    agp = skjema.agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
                     inntekt = skjema.inntekt,
                     naturalytelser = skjema.naturalytelser,
                     refusjon = skjema.refusjon,
@@ -200,7 +200,7 @@ class InntektsmeldingServiceTest {
                 InntektsmeldingResponse(
                     loepenr = 2,
                     navReferanseId = navReferanseId,
-                    agp = skjema.agp,
+                    agp = skjema.agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
                     inntekt = skjema.inntekt,
                     naturalytelser = skjema.naturalytelser,
                     refusjon = skjema.refusjon,
