@@ -207,14 +207,4 @@ class ForespoerselRepository(
                 }.orderBy(opprettet, SortOrder.DESC)
                 .map { it.toExposedforespoersel() }
         }
-
-    fun hentForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =
-        transaction(db) {
-            ForespoerselEntitet
-                .selectAll()
-                .where {
-                    (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId)
-                }.sortedByDescending { opprettet }
-                .map { it.toExposedforespoersel() }
-        }
 }
