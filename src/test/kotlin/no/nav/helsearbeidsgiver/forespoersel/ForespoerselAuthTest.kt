@@ -6,12 +6,12 @@ import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import java.util.UUID
 
-class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselFilter, Forespoersel>() {
+class ForespoerselAuthTest : HentApiAuthTest<ForespoerselResponse, ForespoerselFilter, Forespoersel>() {
     override val filtreringEndepunkt = "/v1/forespoersler"
     override val enkeltDokumentEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
 
-    override val dokumentSerializer: KSerializer<Forespoersel> = Forespoersel.serializer()
+    override val dokumentSerializer: KSerializer<ForespoerselResponse> = ForespoerselResponse.serializer()
     override val filterSerializer: KSerializer<ForespoerselFilter> = ForespoerselFilter.serializer()
 
     override fun mockDokument(
@@ -40,5 +40,5 @@ class ForespoerselAuthTest : HentApiAuthTest<Forespoersel, ForespoerselFilter, F
         every { repositories.forespoerselRepository.hentForespoersel(id) } returns resultat
     }
 
-    override fun hentOrgnrFraDokument(dokument: Forespoersel): String = dokument.orgnr
+    override fun hentOrgnrFraDokument(dokument: ForespoerselResponse): String = dokument.orgnr
 }

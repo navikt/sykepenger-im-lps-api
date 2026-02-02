@@ -55,7 +55,7 @@ class ForespoerselRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
-            val forespoerselSvar = response.body<Forespoersel>()
+            val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.orgnr shouldBe DEFAULT_ORG
         }
     }
@@ -85,7 +85,7 @@ class ForespoerselRoutingTest : ApiTest() {
                 }
             response.status shouldBe HttpStatusCode.OK
             response.headers["X-Warning-limit-reached"] shouldBe null // Skal ikke settes så lenge vi er innenfor MAX_ANTALL_I_RESPONS
-            val forespoerslerSvar = response.body<List<Forespoersel>>()
+            val forespoerslerSvar = response.body<List<ForespoerselResponse>>()
             forespoerslerSvar.size shouldBe antallForventedeForespoersler
             forespoerslerSvar.forEach {
                 it.orgnr shouldBe DEFAULT_ORG
@@ -118,7 +118,7 @@ class ForespoerselRoutingTest : ApiTest() {
                 }
             response.status shouldBe HttpStatusCode.OK
             response.headers["X-Warning-limit-reached"]?.toInt() shouldBe MAX_ANTALL_I_RESPONS
-            val forespoerslerSvar = response.body<List<Forespoersel>>()
+            val forespoerslerSvar = response.body<List<ForespoerselResponse>>()
             forespoerslerSvar.size shouldBe MAX_ANTALL_I_RESPONS
         }
     }
