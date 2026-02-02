@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.dialogporten.DialogInntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
@@ -175,7 +176,7 @@ class InntektsmeldingRepository(
         InntektsmeldingResponse(
             loepenr = this[InntektsmeldingEntitet.id],
             navReferanseId = this[navReferanseId],
-            agp = this[skjema].agp?.let { Arbeidsgiverperiode(it.perioder, it.redusertLoennIAgp) },
+            agp = this[skjema].agp,
             inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
