@@ -248,28 +248,37 @@ class ForespoerselRepositoryTest {
     }
 
     @Test
-    fun `hentAlleForespoerselPaaVedtaksperiodeId skal returnere alle forespørsler for en vedtaksperiode`() {
+    fun `hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId returnerer alle forespørsler på en vedtaksperiode sortert på opprettetDato`() {
         val forespoerselRepository = ForespoerselRepository(db)
 
         val vedtaksperiodeId = UUID.randomUUID()
 
         val forespoerselId1 = UUID.randomUUID()
         val forespoerselId2 = UUID.randomUUID()
+        val forespoerselId3 = UUID.randomUUID()
 
         forespoerselRepository.lagreForespoersel(
             forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId1, vedtaksperiodeId),
-            Status.BESVART,
+            Status.FORKASTET,
             eksponertForespoerselId = forespoerselId1,
         )
         forespoerselRepository.lagreForespoersel(
             forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId2, vedtaksperiodeId),
+            Status.BESVART,
+            eksponertForespoerselId = forespoerselId1,
+        )
+
+        forespoerselRepository.lagreForespoersel(
+            forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId3, vedtaksperiodeId),
             Status.AKTIV,
-            eksponertForespoerselId = forespoerselId2,
+            eksponertForespoerselId = forespoerselId3,
         )
 
         val forespoersler = forespoerselRepository.hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId)
+
         assertEquals(2, forespoersler.size)
-        assert(forespoersler.any { it.navReferanseId == forespoerselId1 })
-        assert(forespoersler.any { it.navReferanseId == forespoerselId2 })
+
+        assertEquals(forespoerselId3, forespoersler.first().navReferanseId)
+        assertEquals(forespoerselId2, forespoersler.last().navReferanseId)
     }
 }

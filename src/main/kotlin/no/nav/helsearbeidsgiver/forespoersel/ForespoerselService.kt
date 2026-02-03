@@ -101,7 +101,13 @@ class ForespoerselService(
 
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
 
-    fun hentVedtaksperiodeId(navReferanseId: UUID): UUID? = forespoerselRepository.hentVedtaksperiodeId(navReferanseId)
+    fun hentSisteForespoersel(vedtaksperiodeId: UUID): Forespoersel? {
+        val forespoerslerPaaVedtaksperiodeId =
+            forespoerselRepository
+                .hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId)
+
+        return forespoerslerPaaVedtaksperiodeId.firstOrNull()
+    }
 
     fun settBesvart(navReferanseId: UUID) {
         val forespoersel =

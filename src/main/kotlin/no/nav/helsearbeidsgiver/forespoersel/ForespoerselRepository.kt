@@ -148,6 +148,7 @@ class ForespoerselRepository(
             inntektPaakrevd = this[ForespoerselEntitet.inntektPaakrevd],
             opprettetTid = this[opprettet],
             loepenr = this[ForespoerselEntitet.id],
+            vedtaksperiodeId = this[ForespoerselEntitet.vedtaksperiodeId],
         )
     }
 
@@ -203,6 +204,7 @@ class ForespoerselRepository(
                 .where {
                     (ForespoerselEntitet.vedtaksperiodeId eq vedtaksperiodeId) and
                         (status neq Status.FORKASTET)
-                }.map { it.toExposedforespoersel() }
+                }.orderBy(ForespoerselEntitet.id, SortOrder.DESC)
+                .map { it.toExposedforespoersel() }
         }
 }

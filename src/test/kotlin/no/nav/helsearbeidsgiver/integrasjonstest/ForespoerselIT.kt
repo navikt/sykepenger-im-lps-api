@@ -21,14 +21,13 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselFilter
+import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.getTestLeaderConfig
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -102,7 +101,7 @@ class ForespoerselIT {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnr.toString()))
                 }
             response.status.value shouldBe 200
-            val forespoerselSvar = response.body<List<Forespoersel>>()
+            val forespoerselSvar = response.body<List<ForespoerselResponse>>()
             forespoerselSvar.size shouldBe 1
             forespoerselSvar[0].status shouldBe Status.AKTIV
             forespoerselSvar[0].orgnr shouldBe orgnr.toString()

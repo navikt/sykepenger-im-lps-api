@@ -20,6 +20,36 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable
+data class ForespoerselResponse(
+    val loepenr: Long,
+    val navReferanseId: UUID,
+    val orgnr: String,
+    val fnr: String,
+    val status: Status,
+    val sykmeldingsperioder: List<Periode>,
+    val egenmeldingsperioder: List<Periode>,
+    val inntektsdato: LocalDate,
+    val arbeidsgiverperiodePaakrevd: Boolean,
+    val inntektPaakrevd: Boolean,
+    val opprettetTid: LocalDateTime,
+)
+
+fun Forespoersel.toResponse() =
+    ForespoerselResponse(
+        loepenr = loepenr,
+        navReferanseId = navReferanseId,
+        orgnr = orgnr,
+        fnr = fnr,
+        status = status,
+        sykmeldingsperioder = sykmeldingsperioder,
+        egenmeldingsperioder = egenmeldingsperioder,
+        inntektsdato = inntektsdato,
+        arbeidsgiverperiodePaakrevd = arbeidsgiverperiodePaakrevd,
+        inntektPaakrevd = inntektPaakrevd,
+        opprettetTid = opprettetTid,
+    )
+
+@Serializable
 data class Forespoersel(
     val loepenr: Long,
     val navReferanseId: UUID,
@@ -32,6 +62,7 @@ data class Forespoersel(
     val arbeidsgiverperiodePaakrevd: Boolean,
     val inntektPaakrevd: Boolean,
     val opprettetTid: LocalDateTime,
+    val vedtaksperiodeId: UUID,
 )
 
 @Serializable

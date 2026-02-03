@@ -32,6 +32,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -164,8 +165,9 @@ class InnsendingIT {
     @Test
     fun `innsending uten agp skal feile når merget forespørsel krever både agp og inntekt`() =
         runTest {
-            val navReferanseId = lagTestdataForMergeFsp()
-            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId, sykmeldtFnr = DEFAULT_FNR, agp = null)
+            val navReferanseId2 = UUID.randomUUID()
+            lagTestdataForMergeFsp(navReferanseId1 = navReferanseId2)
+            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR, agp = null)
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -178,8 +180,9 @@ class InnsendingIT {
     @Test
     fun `innsending av inntektsmelding med agp og inntekt  godtas når forespørsel er merget`() =
         runTest {
-            val navReferanseId = lagTestdataForMergeFsp()
-            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId, sykmeldtFnr = DEFAULT_FNR)
+            val navReferanseId2 = UUID.randomUUID()
+            lagTestdataForMergeFsp(navReferanseId2 = navReferanseId2)
+            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR)
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -189,13 +192,33 @@ class InnsendingIT {
             response.status shouldBe HttpStatusCode.Created
         }
 
-    private fun lagTestdataForMergeFsp(): UUID {
-        val navReferanseId = UUID.randomUUID()
+    @Test
+    fun `innsending av inntektsmelding med agp og inntekt  nektes når det finnes en nyere forespørsel`() =
+        runTest {
+            val navReferanseId1 = UUID.randomUUID()
+            val navReferanseId2 = UUID.randomUUID()
+            lagTestdataForMergeFsp(navReferanseId1, navReferanseId2)
+            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId1, sykmeldtFnr = DEFAULT_FNR)
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    contentType(ContentType.Application.Json)
+                    setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
+                }
 
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.body<ErrorResponse>().feilmelding shouldBe navReferanseId2.toString()
+        }
+
+    private fun lagTestdataForMergeFsp(
+        navReferanseId1: UUID = UUID.randomUUID(),
+        navReferanseId2: UUID = UUID.randomUUID(),
+    ) {
         val vedtaksperiodeId = UUID.randomUUID()
         val forespoersel1 =
             TestData
                 .forespoerselDokument(
+                    forespoerselId = navReferanseId1,
                     orgnr = DEFAULT_ORG,
                     fnr = DEFAULT_FNR,
                     vedtaksperiodeId = vedtaksperiodeId,
@@ -209,7 +232,7 @@ class InnsendingIT {
         val forespoersel2 =
             TestData
                 .forespoerselDokument(
-                    forespoerselId = navReferanseId,
+                    forespoerselId = navReferanseId2,
                     orgnr = DEFAULT_ORG,
                     fnr = DEFAULT_FNR,
                     vedtaksperiodeId = vedtaksperiodeId,
@@ -220,7 +243,6 @@ class InnsendingIT {
         services.forespoerselService.lagreOppdatertForespoersel(
             PriMessage(notis = NotisType.FORESPOERSEL_OPPDATERT, forespoersel2),
         )
-        return navReferanseId
     }
 
     @AfterAll

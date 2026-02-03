@@ -235,6 +235,7 @@ fun mockForespoersel(): Forespoersel =
         arbeidsgiverperiodePaakrevd = true,
         inntektPaakrevd = true,
         opprettetTid = LocalDateTime.now(),
+        vedtaksperiodeId = UUID.randomUUID(),
     )
 
 fun mockAvvistInntektsmelding(): AvvistInntektsmelding =
