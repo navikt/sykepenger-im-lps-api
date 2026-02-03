@@ -81,7 +81,7 @@ private fun Route.sendInntektsmelding(
             val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel.vedtaksperiodeId)
             if (sisteForespoersel != null && sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
                 val feilmelding =
-                    "Mottatt innsending på gammel forespørsel: ${forespoersel.navReferanseId}, må sendes inn på på ${sisteForespoersel.navReferanseId}"
+                    "Mottatt innsending på gammel forespørsel: ${forespoersel.navReferanseId}, må sendes inn på ${sisteForespoersel.navReferanseId}"
                 MdcUtils.withLogFields(
                     "hag_avsender_system_navn" to request.avsender.systemNavn,
                     "hag_avsender_system_versjon" to request.avsender.systemVersjon,

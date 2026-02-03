@@ -205,7 +205,7 @@ class InnsendingIT {
                     contentType(ContentType.Application.Json)
                     setBody(requestBody.toJson(serializer = InntektsmeldingRequest.serializer()))
                 }
-            println(response)
+
             response.status shouldBe HttpStatusCode.BadRequest
             response.body<ErrorResponse>().feilmelding shouldBe navReferanseId2.toString()
         }
