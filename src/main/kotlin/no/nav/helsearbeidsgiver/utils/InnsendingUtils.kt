@@ -49,7 +49,7 @@ fun InntektsmeldingRequest.tilInntektsmelding(
                 tlf = arbeidsgiverTlf,
             ),
         sykmeldingsperioder = forespoersel.sykmeldingsperioder,
-        agp = agp?.tilArbeidsgiverperiodeMedEgenmeldinger(),
+        agp = agp,
         inntekt = inntekt,
         naturalytelser = naturalytelser,
         refusjon = refusjon,
@@ -68,7 +68,7 @@ fun InntektsmeldingRequest.tilInnsending(
         SkjemaInntektsmelding(
             forespoerselId = eksponertForespoerselId,
             avsenderTlf = arbeidsgiverTlf,
-            agp = agp?.tilArbeidsgiverperiodeMedEgenmeldinger(),
+            agp = agp,
             inntekt = inntekt,
             naturalytelser = naturalytelser,
             refusjon = refusjon,
@@ -88,7 +88,7 @@ fun InntektsmeldingResponse.tilSkjemaInntektsmelding(eksponertForespoerselId: UU
     SkjemaInntektsmelding(
         forespoerselId = eksponertForespoerselId,
         avsenderTlf = arbeidsgiver.tlf,
-        agp = agp?.tilArbeidsgiverperiodeMedEgenmeldinger(),
+        agp = agp,
         inntekt = inntekt,
         naturalytelser = naturalytelser,
         refusjon = refusjon,
@@ -102,7 +102,7 @@ fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): S
         !forespoersel.inntektPaakrevd && this.inntekt != null -> Feilmelding.INNTEKT_ER_IKKE_PAAKREVD
         forespoersel.arbeidsgiverperiodePaakrevd && this.agp == null -> Feilmelding.AGP_ER_PAAKREVD
         !forespoersel.arbeidsgiverperiodePaakrevd && agp != null &&
-            !agp.tilArbeidsgiverperiodeMedEgenmeldinger().erGyldigHvisIkkeForespurt(
+            !agp.erGyldigHvisIkkeForespurt(
                 false,
                 forespoersel.sykmeldingsperioder,
             )

@@ -5,6 +5,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntekt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Kanal
@@ -61,7 +62,7 @@ data class InntektsmeldingRequest(
         SkjemaInntektsmelding(
             navReferanseId,
             arbeidsgiverTlf,
-            agp?.tilArbeidsgiverperiodeMedEgenmeldinger(),
+            agp,
             inntekt,
             naturalytelser,
             refusjon,
