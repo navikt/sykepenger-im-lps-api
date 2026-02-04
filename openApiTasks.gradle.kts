@@ -10,6 +10,11 @@ tasks.register("modifyOpenApi") {
 
         var content = openApiFile.readText()
 
+        fun removeGroup(path: String): Pair<Regex, String> {
+            val escapedPath = Regex.escape(path)
+            return Regex("""  $escapedPath[\s\S]*?(?=^  \S|\z)""", RegexOption.MULTILINE) to ""
+        }
+
         var modified = false
         val targetRegex =
             Regex(
@@ -167,6 +172,8 @@ tags:
                 Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
                 // Fjern metrics-endepunkt
                 Regex("""  /metrics:[\s\S]*?(?=  /[^/]|$)""") to "",
+                // Fjern intern personbruker sykmelding PDF-endepunkt
+                removeGroup("/intern/personbruker/sykmelding/{sykmeldingId}.pdf:"),
             )
 
         var newContent = content
