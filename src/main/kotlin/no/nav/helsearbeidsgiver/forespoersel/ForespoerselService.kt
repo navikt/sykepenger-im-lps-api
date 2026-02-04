@@ -237,4 +237,16 @@ class ForespoerselService(
 
         logger().info("import fsp: Forespørsel med id: ${forespoersel.forespoerselId} finnes, ingen oppdatering nødvendig.")
     }
+
+    fun oppdaterPaakrevdeFelter(vedtaksperiodeId: UUID) {
+        val sisteForespoersel = hentSisteForespoersel(vedtaksperiodeId)
+        if (sisteForespoersel != null) {
+            val (inntektPaakrevd, arbeidsgiverperiodePaakrevd) = finnPaakrevdeFelter(sisteForespoersel.forespoerselDokument)
+            forespoerselRepository.oppdaterPaakrevdeFelter(
+                sisteForespoersel.navReferanseId,
+                inntektPaakrevd,
+                arbeidsgiverperiodePaakrevd,
+            )
+        }
+    }
 }

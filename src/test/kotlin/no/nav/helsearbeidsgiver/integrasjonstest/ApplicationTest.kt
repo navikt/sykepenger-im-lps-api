@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.integrasjonstest
 
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
@@ -13,11 +14,13 @@ import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
+import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.buildForespoerselFraBacklog
@@ -29,6 +32,7 @@ import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.json.toJsonStr
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -36,6 +40,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 import java.util.UUID
 
 class ApplicationTest : LpsApiIntegrasjontest() {
@@ -448,4 +453,67 @@ class ApplicationTest : LpsApiIntegrasjontest() {
             val forespoerselSvar = response.body<ForespoerselResponse>()
             forespoerselSvar.navReferanseId shouldBe forespoerselId
         }
+
+    @Test
+    fun testOppdaterPaakrevdFelter() {
+        val navReferanseId2 = UUID.randomUUID()
+        lagTestdataForMergeFsp(navReferanseId2 = navReferanseId2)
+
+        val priMessage =
+            PriMessage(
+                notis = NotisType.OPPDATER_PAAKREVDE_FELTER,
+                forespoerselId = navReferanseId2,
+            )
+        val json = priMessage.toJsonStr(PriMessage.serializer())
+        sendKafkaMelding(
+            json,
+        )
+        runBlocking {
+            fetchWithRetry(
+                url = "http://localhost:8080/v1/forespoersel/$navReferanseId2",
+                token = mockOAuth2Server.gyldigSystembrukerAuthToken("810007842"),
+                betingelse = { it.body<ForespoerselResponse>().arbeidsgiverperiodePaakrevd },
+            ).body<ForespoerselResponse>()
+            val forespoersel = services.forespoerselService.hentForespoersel(navReferanseId2)
+            forespoersel shouldNotBe null
+            assertNotNull(forespoersel)
+            forespoersel.arbeidsgiverperiodePaakrevd shouldBe true
+            forespoersel.inntektPaakrevd shouldBe true
+        }
+    }
+
+    fun lagTestdataForMergeFsp(
+        navReferanseId1: UUID = UUID.randomUUID(),
+        navReferanseId2: UUID = UUID.randomUUID(),
+    ) {
+        val vedtaksperiodeId = UUID.randomUUID()
+        val forespoersel1 =
+            TestData
+                .forespoerselDokument(
+                    forespoerselId = navReferanseId1,
+                    orgnr = DEFAULT_ORG,
+                    fnr = DEFAULT_FNR,
+                    vedtaksperiodeId = vedtaksperiodeId,
+                    agpPaakrevd = true,
+                    inntektPaakrevd = false,
+                )
+
+        services.forespoerselService.lagreNyForespoersel(
+            forespoersel1,
+        )
+        val forespoersel2 =
+            TestData
+                .forespoerselDokument(
+                    forespoerselId = navReferanseId2,
+                    orgnr = DEFAULT_ORG,
+                    fnr = DEFAULT_FNR,
+                    vedtaksperiodeId = vedtaksperiodeId,
+                    agpPaakrevd = false,
+                    inntektPaakrevd = true,
+                )
+
+        services.forespoerselService.lagreNyForespoersel(
+            forespoersel2,
+        )
+    }
 }

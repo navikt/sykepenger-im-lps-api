@@ -1,9 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.forespoersel
 
 import no.nav.helsearbeidsgiver.config.Services
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.BehovMessage
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.NotisType
@@ -127,6 +124,14 @@ class ForespoerselTolker(
                             "import fsp: Eksponert forespørsel ID er null for forespørsel med id: ${forespoersel.forespoerselId}",
                         )
                 }
+            }
+
+            NotisType.OPPDATER_PAAKREVDE_FELTER -> {
+                val forespoerselId =
+                    obj.forespoerselId
+                        ?: return
+                val forespoersel = services.forespoerselService.hentForespoersel(forespoerselId) ?: return
+                services.forespoerselService.oppdaterPaakrevdeFelter(forespoersel.vedtaksperiodeId)
             }
         }
     }
