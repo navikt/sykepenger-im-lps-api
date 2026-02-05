@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.til
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
+import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
@@ -23,6 +24,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
+import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.utils.test.date.november
 import no.nav.helsearbeidsgiver.utils.test.date.oktober
@@ -236,6 +238,26 @@ fun mockForespoersel(): Forespoersel =
         inntektPaakrevd = true,
         opprettetTid = LocalDateTime.now(),
         vedtaksperiodeId = UUID.randomUUID(),
+        forespoerselDokument = mockForespoerselDokument(),
+    )
+
+fun mockForespoerselDokument(): ForespoerselDokument =
+    ForespoerselDokument(
+        orgnr = DEFAULT_ORG,
+        fnr = Fnr.genererGyldig().toString(),
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        egenmeldingsperioder = emptyList(),
+        sykmeldingsperioder = emptyList(),
+        forespurtData =
+            ForespurtData(
+                inntekt =
+                    no.nav.helsearbeidsgiver.forespoersel
+                        .Inntekt(true),
+                arbeidsgiverperiode =
+                    no.nav.helsearbeidsgiver.forespoersel
+                        .Arbeidsgiverperiode(true),
+            ),
     )
 
 fun mockAvvistInntektsmelding(): AvvistInntektsmelding =
