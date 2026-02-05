@@ -146,7 +146,6 @@ private fun Route.sendInntektsmelding(
                 )
             val eksponertForespoerselId =
                 services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
-                    ?: request.navReferanseId
 
             val innsending =
                 request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
