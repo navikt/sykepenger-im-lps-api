@@ -149,6 +149,7 @@ class ForespoerselRepository(
             opprettetTid = this[opprettet],
             loepenr = this[ForespoerselEntitet.id],
             vedtaksperiodeId = this[ForespoerselEntitet.vedtaksperiodeId],
+            forespoerselDokument = dokument,
         )
     }
 
@@ -207,4 +208,22 @@ class ForespoerselRepository(
                 }.orderBy(ForespoerselEntitet.id, SortOrder.DESC)
                 .map { it.toExposedforespoersel() }
         }
+
+    fun oppdaterPaakrevdeFelter(
+        navReferanseId: UUID,
+        inntektPaakrevd: Boolean,
+        arbeidsgiverperiodePaakrevd: Boolean,
+    ) {
+        val transaction =
+            transaction(db) {
+                ForespoerselEntitet.update(
+                    where = {
+                        (ForespoerselEntitet.navReferanseId eq navReferanseId)
+                    },
+                ) {
+                    it[ForespoerselEntitet.inntektPaakrevd] = inntektPaakrevd
+                    it[ForespoerselEntitet.arbeidsgiverperiodePaakrevd] = arbeidsgiverperiodePaakrevd
+                }
+            }
+    }
 }
