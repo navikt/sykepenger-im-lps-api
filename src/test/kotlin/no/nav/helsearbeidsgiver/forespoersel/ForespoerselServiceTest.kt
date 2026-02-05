@@ -9,6 +9,8 @@ import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildForespoerselFromJson
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
+import no.nav.helsearbeidsgiver.utils.mockForespoersel
+import no.nav.helsearbeidsgiver.utils.mockForespoerselDokument
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -87,6 +89,7 @@ class ForespoerselServiceTest {
                     inntektPaakrevd = false,
                     opprettetTid = LocalDateTime.now(),
                     vedtaksperiodeId = vedtaksperiodeId,
+                    forespoerselDokument = mockForespoersel().forespoerselDokument,
                 ),
             )
         forespoerselService.lagreOppdatertForespoersel(priMessage)
@@ -113,6 +116,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 inntektPaakrevd = true,
                 opprettetTid = LocalDateTime.now(),
                 vedtaksperiodeId = UUID.randomUUID(),
+                forespoerselDokument = mockForespoerselDokument(),
             ),
             Forespoersel(
                 loepenr = Random.nextLong(),
@@ -127,6 +131,7 @@ private fun getForespoerslerTestdata(): List<Forespoersel> {
                 inntektPaakrevd = true,
                 opprettetTid = LocalDateTime.now(),
                 vedtaksperiodeId = UUID.randomUUID(),
+                forespoerselDokument = mockForespoerselDokument(),
             ),
         )
     return forespoersler
