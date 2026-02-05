@@ -247,6 +247,9 @@ class ForespoerselService(
                 inntektPaakrevd,
                 arbeidsgiverperiodePaakrevd,
             )
+            logger().info(
+                "Oppdaterte påkrevde felter for forespørsel med id: ${sisteForespoersel.navReferanseId} til inntektPåkrevd=$inntektPaakrevd, arbeidsgiverperiodePåkrevd=$arbeidsgiverperiodePaakrevd",
+            )
         }
     }
 }

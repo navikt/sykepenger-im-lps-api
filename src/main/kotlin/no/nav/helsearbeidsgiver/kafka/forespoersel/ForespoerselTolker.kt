@@ -128,9 +128,15 @@ class ForespoerselTolker(
 
             NotisType.OPPDATER_PAAKREVDE_FELTER -> {
                 val forespoerselId =
-                    obj.forespoerselId
-                        ?: return
-                val forespoersel = services.forespoerselService.hentForespoersel(forespoerselId) ?: return
+                    obj.forespoerselId ?: run {
+                        logger().warn("forespoerselId er null for notistype OPPDATER_PAAKREVDE_FELTER")
+                        return
+                    }
+                val forespoersel =
+                    services.forespoerselService.hentForespoersel(forespoerselId) ?: run {
+                        logger().warn("Forespoersel ikke funnet for id $forespoerselId ved oppdatering av påkrevde felter")
+                        return
+                    }
                 services.forespoerselService.oppdaterPaakrevdeFelter(forespoersel.vedtaksperiodeId)
             }
         }

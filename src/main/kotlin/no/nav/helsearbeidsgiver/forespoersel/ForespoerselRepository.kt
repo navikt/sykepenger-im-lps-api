@@ -225,9 +225,5 @@ class ForespoerselRepository(
                     it[ForespoerselEntitet.arbeidsgiverperiodePaakrevd] = arbeidsgiverperiodePaakrevd
                 }
             }
-
-        logger().info(
-            "Oppdaterte påkrevde felter for forespørsel med id: $navReferanseId til inntektPåkrevd=$inntektPaakrevd, arbeidsgiverperiodePåkrevd=$arbeidsgiverperiodePaakrevd",
-        )
     }
 }
