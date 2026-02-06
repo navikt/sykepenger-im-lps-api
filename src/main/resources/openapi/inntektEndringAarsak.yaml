@@ -86,7 +86,7 @@
             - Nyansatt
     NyStilling:
       title: "NyStilling"
-      requred:
+      required:
         - gjelderFra
       properties:
         aarsak:

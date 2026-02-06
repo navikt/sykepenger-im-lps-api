@@ -18,10 +18,12 @@ import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
+import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.EN_FEIL_OPPSTOD
+import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_INNSENDING_STATUS
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_INNTEKTSMELDING
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_INNTEKTSMELDINGER
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.IKKE_TILGANG_TIL_RESSURS
@@ -132,6 +134,9 @@ private fun Route.sendInntektsmelding(
                 services.inntektsmeldingService
                     .hentNyesteInntektsmeldingByNavReferanseId(request.navReferanseId)
 
+            if (sisteInntektsmelding?.status == InnsendingStatus.MOTTATT) {
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(FEIL_INNSENDING_STATUS))
+            }
             val inntektsmelding =
                 request.tilInntektsmelding(
                     sluttbrukerOrgnr = Orgnr(forespoersel.orgnr),
@@ -141,7 +146,6 @@ private fun Route.sendInntektsmelding(
                 )
             val eksponertForespoerselId =
                 services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
-                    ?: request.navReferanseId
 
             val innsending =
                 request.tilInnsending(inntektsmelding.id, eksponertForespoerselId, inntektsmelding.type, VERSJON_1)
