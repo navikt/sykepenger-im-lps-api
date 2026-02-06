@@ -23,6 +23,7 @@ object ErrorMessages {
     const val FEIL_VED_HENTING_FORESPOERSLER = "Feil ved henting av forespørsler"
 
     const val UGYLDIG_INNSENDING_ID = "Ugyldig innsendingId"
+    const val FEIL_INNSENDING_STATUS = "Kan ikke motta ny inntektsmelding, forrige innsending er ikke ferdig behandlet"
     const val FEIL_VED_HENTING_INNTEKTSMELDING = "Feil ved henting av inntektsmelding"
     const val FEIL_VED_HENTING_INNTEKTSMELDINGER = "Feil ved henting av inntektsmeldinger"
 

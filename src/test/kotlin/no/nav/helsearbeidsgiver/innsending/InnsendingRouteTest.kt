@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
+import no.nav.helsearbeidsgiver.plugins.ErrorMessages
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -35,6 +36,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.UUID
 
 class InnsendingRouteTest : ApiTest() {
@@ -96,8 +98,8 @@ class InnsendingRouteTest : ApiTest() {
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    inntektsmelding = any(),
+                    innsending = any(),
                 )
             }
         }
@@ -121,15 +123,12 @@ class InnsendingRouteTest : ApiTest() {
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
             verify(exactly = 0) {
-                services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
-                )
+                services.opprettImTransaction(inntektsmelding = any(), innsending = any())
             }
         }
 
     @Test
-    fun `innsending av inntektsmelding med aarsak ending uten tidligere innsending gir bad request`() =
+    fun `innsending av inntektsmelding med aarsak endring uten tidligere innsending gir bad request`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = InnsendingMockData.forespoersel
@@ -142,6 +141,51 @@ class InnsendingRouteTest : ApiTest() {
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
             verify(exactly = 0) {
+                services.opprettImTransaction(
+                    inntektsmelding = any(),
+                    innsending = any(),
+                )
+            }
+        }
+
+    @Test
+    fun `innsending av inntektsmelding med aarsak endring gir feil hvis forrige innsending har status mottatt (ikke ferdig behandlet)`() =
+        runTest {
+            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
+                listOf(
+                    InnsendingMockData.imResponse.copy(status = InnsendingStatus.MOTTATT),
+                )
+            val response = sendInnInntektsmelding(requestBody)
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.body<ErrorResponse>().feilmelding shouldBe ErrorMessages.FEIL_INNSENDING_STATUS
+
+            verify(exactly = 0) {
+                services.opprettImTransaction(
+                    inntektsmelding = any(),
+                    innsending = any(),
+                )
+            }
+        }
+
+    @Test
+    fun `innsending av inntektsmelding med aarsak endring er OK hvis forrige innsending har status feilet`() =
+        runTest {
+            val endretInntekt = InnsendingMockData.requestBody.inntekt?.copy(beloep = 666.0)
+            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
+                listOf(
+                    InnsendingMockData.imResponse.copy(status = InnsendingStatus.FEILET),
+                )
+            val response = sendInnInntektsmelding(requestBody)
+            response.status shouldBe HttpStatusCode.Created
+            verify(exactly = 1) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
                     match { it.type.id == requestBody.navReferanseId },
@@ -184,6 +228,7 @@ class InnsendingRouteTest : ApiTest() {
                 naturalytelser = requestBody.naturalytelser,
                 refusjon = requestBody.refusjon,
                 agp = requestBody.agp,
+                status = InnsendingStatus.GODKJENT,
             )
     }
 }
