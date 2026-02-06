@@ -98,8 +98,8 @@ class InnsendingRouteTest : ApiTest() {
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    inntektsmelding = any(),
+                    innsending = any(),
                 )
             }
         }
@@ -123,10 +123,7 @@ class InnsendingRouteTest : ApiTest() {
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
             verify(exactly = 0) {
-                services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
-                )
+                services.opprettImTransaction(inntektsmelding = any(), innsending = any())
             }
         }
 
@@ -145,8 +142,8 @@ class InnsendingRouteTest : ApiTest() {
             response.status shouldBe HttpStatusCode.BadRequest
             verify(exactly = 0) {
                 services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    inntektsmelding = any(),
+                    innsending = any(),
                 )
             }
         }
@@ -168,8 +165,8 @@ class InnsendingRouteTest : ApiTest() {
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
-                    match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    inntektsmelding = any(),
+                    innsending = any(),
                 )
             }
         }
