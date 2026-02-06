@@ -675,7 +675,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /v1/sykmelding/{sykmeldingId}.pdf:
+  /v1/sykmelding/{sykmeldingId}/pdf:
     get:
       tags:
         - "Sykmelding"

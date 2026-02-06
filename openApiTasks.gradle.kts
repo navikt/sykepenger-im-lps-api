@@ -174,6 +174,9 @@ tags:
                 Regex("""  /metrics:[\s\S]*?(?=  /[^/]|$)""") to "",
                 // Fjern intern personbruker sykmelding PDF-endepunkt
                 removeGroup("/intern/personbruker/sykmelding/{sykmeldingId}.pdf:"),
+                // Fjern depricated endepunkt
+                removeGroup("/v1/sykmelding/{sykmeldingId}.pdf:"),
+
             )
 
         var newContent = content
