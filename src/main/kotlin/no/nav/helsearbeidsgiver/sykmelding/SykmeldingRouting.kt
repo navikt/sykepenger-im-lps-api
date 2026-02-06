@@ -185,7 +185,7 @@ fun Route.sykmeldingTokenX(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/intern/personbruker") {
-        get("/sykmelding/{sykmeldingId}.pdf") {
+        get("/sykmelding/{sykmeldingId}/pdf") {
             try {
                 if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF()) {
                     call.respond(HttpStatusCode.Forbidden)
