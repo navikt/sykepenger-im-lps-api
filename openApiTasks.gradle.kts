@@ -176,7 +176,6 @@ tags:
                 removeGroup("/intern/personbruker/sykmelding/{sykmeldingId}/pdf:"),
                 // Fjern depricated endepunkt
                 removeGroup("/v1/sykmelding/{sykmeldingId}.pdf:"),
-
             )
 
         var newContent = content
