@@ -71,7 +71,7 @@ private fun Route.sykmelding(
     get("/sykmelding/{sykmeldingId}.pdf") {
         call.respondText(
             text = "Endepunktet har blitt flyttet. Bruk v1/sykmelding/{SYKMELDING_ID}/pdf i stedet.",
-            status = HttpStatusCode.MovedPermanently,
+            status = HttpStatusCode.Gone,
         )
     }
     get("/sykmelding/{sykmeldingId}/pdf") {

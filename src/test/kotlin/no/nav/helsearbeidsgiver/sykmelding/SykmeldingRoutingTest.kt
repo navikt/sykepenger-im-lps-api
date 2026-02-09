@@ -91,7 +91,7 @@ class SykmeldingRoutingTest : ApiTest() {
                 client.get("/v1/sykmelding/${UUID.randomUUID()}.pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
-            response.status shouldBe HttpStatusCode.MovedPermanently
+            response.status shouldBe HttpStatusCode.Gone
             response.bodyAsText() shouldBe "Endepunktet har blitt flyttet. Bruk v1/sykmelding/{SYKMELDING_ID}/pdf i stedet."
         }
     }
