@@ -82,20 +82,30 @@ private fun List<SykmeldingsperiodeAGDTO>.tilPerioderAG(): List<SykmeldingPeriod
         )
     }
 
-private fun SykmeldingsperiodeAGDTO.tilAktivitet(): Aktivitet =
+fun SykmeldingsperiodeAGDTO.tilAktivitet(): Aktivitet =
     Aktivitet(
         avventendeSykmelding = innspillTilArbeidsgiver,
         gradertSykmelding = gradert?.tilGradertSykmelding(),
-        aktivitetIkkeMulig = aktivitetIkkeMulig?.arbeidsrelatertArsak?.tilAktivitetIkkeMulig(),
+        aktivitetIkkeMulig = aktivitetIkkeMulig?.tilAktivitetIkkeMulig(),
         harReisetilskudd = reisetilskudd,
         antallBehandlingsdagerUke = behandlingsdager,
     )
 
-private fun ArbeidsrelatertArsakDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
-    AktivitetIkkeMulig(
-        manglendeTilretteleggingPaaArbeidsplassen = arsak.any { it == MANGLENDE_TILRETTELEGGING },
-        beskrivelse = beskrivelse,
-    )
+fun SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
+    when {
+        arbeidsrelatertArsak == null ->
+            AktivitetIkkeMulig(
+                manglendeTilretteleggingPaaArbeidsplassen = false,
+                beskrivelse = null,
+            )
+
+        else -> {
+            AktivitetIkkeMulig(
+                manglendeTilretteleggingPaaArbeidsplassen = arbeidsrelatertArsak.arsak.any { it == MANGLENDE_TILRETTELEGGING },
+                beskrivelse = arbeidsrelatertArsak.beskrivelse,
+            )
+        }
+    }
 
 private fun GradertDTO.tilGradertSykmelding(): GradertSykmelding = GradertSykmelding(grad, reisetilskudd)
 

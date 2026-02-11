@@ -96,12 +96,7 @@ object TestData {
                         "tom": "2020-04-15",
                         "type": "AKTIVITET_IKKE_MULIG",
                         "aktivitetIkkeMulig": {
-                            "arbeidsrelatertArsak": {
-                                "beskrivelse": "andre årsaker til sykefravær",
-                                "arsak": [
-                                    "ANNET"
-                                ]
-                            }
+                            "arbeidsrelatertArsak": null
                         },
                         "reisetilskudd": false
                     }
@@ -193,7 +188,7 @@ object TestData {
                         "gradertSykmelding": null,
                         "aktivitetIkkeMulig": {
                             "manglendeTilretteleggingPaaArbeidsplassen": false,
-                            "beskrivelse": "andre årsaker til sykefravær"
+                            "beskrivelse": null
                         },
                         "antallBehandlingsdagerUke": null,
                         "harReisetilskudd": false
