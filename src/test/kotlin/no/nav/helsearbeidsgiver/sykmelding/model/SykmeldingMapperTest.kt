@@ -9,8 +9,10 @@ import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.Sykmeldin
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.ArbeidsrelatertArsakDTO.ArbeidsrelatertArsakTypeDTO
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO
 import no.nav.helsearbeidsgiver.sykmelding.tilSykmeldingDTO
+import no.nav.helsearbeidsgiver.utils.TestData.aktivitetMock
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingModelMock
+import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingsperiodeMock
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -57,61 +59,40 @@ class SykmeldingMapperTest {
     }
 
     @Test
-    fun `tilAktivitetIkkeMulig returnerer `() {
+    fun `når aktivitetIkkeMulig i kafka er null er aktivitetIkkeMulig i api model null`() {
         val bareGradert =
-            ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO(
-                fom = LocalDate.now(),
-                tom = LocalDate.now(),
-                reisetilskudd = false,
-                innspillTilArbeidsgiver = null,
-                gradert = ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.GradertDTO(50, false),
+            sykmeldingsperiodeMock.copy(
                 aktivitetIkkeMulig = null,
-                behandlingsdager = null,
+                gradert = ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.GradertDTO(50, false),
                 type = ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.PeriodetypeDTO.GRADERT,
             )
 
-        bareGradert.tilAktivitet() shouldBe
-            Aktivitet(
-                gradertSykmelding = GradertSykmelding(50, false),
-                harReisetilskudd = false,
-                avventendeSykmelding = null,
-                aktivitetIkkeMulig = null,
-                antallBehandlingsdagerUke = null,
-            )
+        bareGradert.tilAktivitet() shouldBe aktivitetMock.copy(aktivitetIkkeMulig = null, gradertSykmelding = GradertSykmelding(50, false))
+    }
 
+    @Test
+    fun `når arbeidsrelatertArsak i kafka er null blir manglendeTilrettelegging satt til false og beskrivelse til null`() {
         val arbeidsrelatertArsakErNull =
-            ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO(
-                fom = LocalDate.now(),
-                tom = LocalDate.now(),
-                reisetilskudd = false,
-                innspillTilArbeidsgiver = null,
-                gradert = null,
-                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(null),
-                behandlingsdager = null,
+            sykmeldingsperiodeMock.copy(
+                aktivitetIkkeMulig = AktivitetIkkeMuligAGDTO(arbeidsrelatertArsak = null),
                 type = ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
             )
 
         arbeidsrelatertArsakErNull.tilAktivitet() shouldBe
-            Aktivitet(
-                gradertSykmelding = null,
-                harReisetilskudd = false,
-                avventendeSykmelding = null,
+            aktivitetMock.copy(
                 aktivitetIkkeMulig =
                     AktivitetIkkeMulig(
                         manglendeTilretteleggingPaaArbeidsplassen = false,
                         beskrivelse = null,
                     ),
-                antallBehandlingsdagerUke = null,
             )
+    }
 
+    @Test
+    fun `når arbeidsrelatertArsak i kafka er definert blir manglendeTilrettelegging og beskrivelse satt`() {
         val beskrivelse = "Veldig god beskrivelse her"
         val arbeidsrelatertArsakErDefinert =
-            ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO(
-                fom = LocalDate.now(),
-                tom = LocalDate.now(),
-                reisetilskudd = false,
-                innspillTilArbeidsgiver = null,
-                gradert = null,
+            sykmeldingsperiodeMock.copy(
                 aktivitetIkkeMulig =
                     AktivitetIkkeMuligAGDTO(
                         ArbeidsrelatertArsakDTO(
@@ -119,21 +100,16 @@ class SykmeldingMapperTest {
                             beskrivelse = beskrivelse,
                         ),
                     ),
-                behandlingsdager = null,
                 type = ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
             )
 
         arbeidsrelatertArsakErDefinert.tilAktivitet() shouldBe
-            Aktivitet(
-                gradertSykmelding = null,
-                harReisetilskudd = false,
-                avventendeSykmelding = null,
+            aktivitetMock.copy(
                 aktivitetIkkeMulig =
                     AktivitetIkkeMulig(
                         manglendeTilretteleggingPaaArbeidsplassen = true,
                         beskrivelse = beskrivelse,
                     ),
-                antallBehandlingsdagerUke = null,
             )
     }
 }
