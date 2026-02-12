@@ -171,6 +171,7 @@ object TestData {
             "loepenr": 1,
             "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
             "mottattAvNav": "2020-03-14T23:00",
+            "sendtTilArbeidsgiver": "2025-03-14T23:00",
             "sykmeldt": {
                 "fnr": "01447842099",
                 "navn": "Ola Nordmann"
