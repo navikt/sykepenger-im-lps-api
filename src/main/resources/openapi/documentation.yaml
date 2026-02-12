@@ -81,7 +81,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Forespoersel"
+                $ref: "#/components/schemas/ForespoerselResponse"
         "500":
           description: "Internal Server Error"
           content:
@@ -149,7 +149,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Forespoersel"
+                  $ref: "#/components/schemas/ForespoerselResponse"
         "400":
           description: "Bad Request"
           content:
@@ -207,6 +207,11 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
                 Example#1:
+                  description: ""
+                  value:
+                    feilmelding: "Kan ikke motta ny inntektsmelding, forrige innsending\
+                      \ er ikke ferdig behandlet"
+                Example#2:
                   description: ""
                   value:
                     feilmelding: "Ugyldig navReferanseId"
@@ -683,8 +688,8 @@ paths:
       description: ""
       parameters:
         - name: "sykmeldingId"
-          in: "query"
-          required: false
+          in: "path"
+          required: true
           schema:
             type: "string"
       responses:
@@ -876,7 +881,7 @@ components:
       required:
         - "fom"
         - "tom"
-    Forespoersel:
+    ForespoerselResponse:
       type: "object"
       properties:
         loepenr:
@@ -1694,6 +1699,9 @@ components:
         mottattAvNav:
           type: "string"
           format: "date-time"
+        sendtTilArbeidsgiver:
+          type: "string"
+          format: "date-time"
         sykmeldt:
           $ref: "#/components/schemas/Sykmeldt"
         egenmeldingsdager:
@@ -1722,6 +1730,7 @@ components:
         - "loepenr"
         - "sykmeldingId"
         - "mottattAvNav"
+        - "sendtTilArbeidsgiver"
         - "sykmeldt"
         - "egenmeldingsdager"
         - "sykmeldingPerioder"

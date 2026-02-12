@@ -17,6 +17,6 @@ object SykmeldingEntitet : Table("sykmelding") {
             jsonConfig = jsonConfig,
             kSerializer = SendSykmeldingAivenKafkaMessage.serializer(),
         )
-    val opprettet = datetime("opprettet")
-    val mottattAvNav = datetime("mottatt_av_nav")
+    val opprettet = datetime("opprettet") // Når sykmelding blir sendt til arbeidsgiver av den sykmeldte (vi oppretter i APIet)
+    val mottattAvNav = datetime("mottatt_av_nav") // Når sykmelding blir mottatt i Nav mottak (sendt fra behandler)
 }

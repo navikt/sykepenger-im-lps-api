@@ -3,7 +3,6 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -39,7 +38,6 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -432,6 +430,7 @@ fun SendSykmeldingAivenKafkaMessage.tilSykmeldingDTO(loepenr: Long = Random.next
         sendSykmeldingAivenKafkaMessage = this,
         sykmeldtNavn = "Ola Nordmann",
         mottattAvNav = sykmelding.mottattTidspunkt.toLocalDateTime(),
+        sendtTilArbeidsgiver = sykmelding.mottattTidspunkt.toLocalDateTime().plusDays(1),
     )
 
 @Serializable
