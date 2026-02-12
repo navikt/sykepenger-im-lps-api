@@ -6,6 +6,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
@@ -66,7 +67,14 @@ private fun Route.sykmelding(
             call.respond(sykmelding)
         }
     }
+    // TODO: Fjern denne når den ikke lenger er nødvendig
     get("/sykmelding/{sykmeldingId}.pdf") {
+        call.respondText(
+            text = "Endepunktet har blitt flyttet. Bruk v1/sykmelding/{SYKMELDING_ID}/pdf i stedet.",
+            status = HttpStatusCode.Gone,
+        )
+    }
+    get("/sykmelding/{sykmeldingId}/pdf") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
         if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr)) ||
             !unleashFeatureToggles.skalEksponereSykmeldingerPDF()
@@ -177,7 +185,7 @@ fun Route.sykmeldingTokenX(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/intern/personbruker") {
-        get("/sykmelding/{sykmeldingId}.pdf") {
+        get("/sykmelding/{sykmeldingId}/pdf") {
             try {
                 if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF()) {
                     call.respond(HttpStatusCode.Forbidden)

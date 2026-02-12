@@ -83,6 +83,19 @@ class SykmeldingRoutingTest : ApiTest() {
         }
     }
 
+    // TODO: Fjern denne når den ikke lenger er nødvendig
+    @Test
+    fun `hent en sykmelding med id i PDF format på depricated endepukt returnerer feilmelding`() {
+        runBlocking {
+            val response =
+                client.get("/v1/sykmelding/${UUID.randomUUID()}.pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.Gone
+            response.bodyAsText() shouldBe "Endepunktet har blitt flyttet. Bruk v1/sykmelding/{SYKMELDING_ID}/pdf i stedet."
+        }
+    }
+
     @Test
     fun `hent en sykmelding med id i PDF format`() {
         val sykmeldingId = UUID.randomUUID()
@@ -96,7 +109,7 @@ class SykmeldingRoutingTest : ApiTest() {
 
         runBlocking {
             val response =
-                client.get("/v1/sykmelding/$sykmeldingId.pdf") {
+                client.get("/v1/sykmelding/$sykmeldingId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -120,7 +133,7 @@ class SykmeldingRoutingTest : ApiTest() {
 
         runBlocking {
             val response =
-                client.get("/intern/personbruker/sykmelding/$sykmeldingId.pdf") {
+                client.get("/intern/personbruker/sykmelding/$sykmeldingId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -139,7 +152,7 @@ class SykmeldingRoutingTest : ApiTest() {
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
         runBlocking {
             val response =
-                client.get("/intern/personbruker/sykmelding/$sykmeldingId.pdf") {
+                client.get("/intern/personbruker/sykmelding/$sykmeldingId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -161,7 +174,7 @@ class SykmeldingRoutingTest : ApiTest() {
             sykmeldingMock().medId(sykmeldingId).medOrgnr(DEFAULT_ORG).tilSykmeldingDTO()
         runBlocking {
             val response =
-                client.get("/intern/personbruker/sykmelding/$sykmeldingId.pdf") {
+                client.get("/intern/personbruker/sykmelding/$sykmeldingId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -176,7 +189,7 @@ class SykmeldingRoutingTest : ApiTest() {
         every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns false
         runBlocking {
             val response =
-                client.get("/v1/sykmelding/$sykmeldingId.pdf") {
+                client.get("/v1/sykmelding/$sykmeldingId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.Forbidden
@@ -190,7 +203,7 @@ class SykmeldingRoutingTest : ApiTest() {
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns false
         runBlocking {
             val response =
-                client.get("/v1/sykmelding/$sykmeldingId.pdf") {
+                client.get("/v1/sykmelding/$sykmeldingId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.Forbidden
