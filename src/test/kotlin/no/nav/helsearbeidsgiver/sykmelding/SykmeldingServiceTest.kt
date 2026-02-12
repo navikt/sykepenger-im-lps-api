@@ -1,9 +1,11 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
+import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingEntitet.sendSykmeldingAivenKafkaMessage
+import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
@@ -100,7 +102,11 @@ class SykmeldingServiceTest {
         requireNotNull(hentSykmelding)
         hentSykmelding shouldNotBe null
         hentSykmelding.loepenr shouldNotBe null
-        hentSykmelding shouldBe sykmeldingKafkaMessage.tilSykmeldingDTO(hentSykmelding.loepenr).tilSykmelding()
+        // sendtTilArbeidsgiver fins ikke i kafkamelding, settes av repository til now() ved lagring, så ignorerer dette feltet i sammenligning
+        hentSykmelding.shouldBeEqualToIgnoringFields(
+            sykmeldingKafkaMessage.tilSykmeldingDTO(hentSykmelding.loepenr).tilSykmelding(),
+            Sykmelding::sendtTilArbeidsgiver,
+        )
     }
 
     @Test
