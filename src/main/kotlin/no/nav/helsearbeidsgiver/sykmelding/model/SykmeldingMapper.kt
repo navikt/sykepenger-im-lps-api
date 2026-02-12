@@ -29,6 +29,7 @@ fun SykmeldingDTO.tilSykmelding(): Sykmelding {
         loepenr = loepenr,
         sykmeldingId = sykmelding.id,
         mottattAvNav = mottattAvNav,
+        sendtTilArbeidsgiver = sendtTilArbeidsgiver,
         arbeidsgiver = sendSykmeldingAivenKafkaMessage.tilArbeidsgiver(),
         egenmeldingsdager = event.sporsmals.tilEgenmeldingsdager(),
         behandler = sykmelding.behandler?.tilBehandler(),

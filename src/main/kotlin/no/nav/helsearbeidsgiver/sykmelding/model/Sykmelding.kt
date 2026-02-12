@@ -22,6 +22,7 @@ data class Sykmelding(
     val loepenr: Long,
     val sykmeldingId: String,
     val mottattAvNav: LocalDateTime,
+    val sendtTilArbeidsgiver: LocalDateTime,
     val sykmeldt: Sykmeldt,
     val egenmeldingsdager: List<Periode>,
     @field:Schema(description = "Når startet syketilfellet")
