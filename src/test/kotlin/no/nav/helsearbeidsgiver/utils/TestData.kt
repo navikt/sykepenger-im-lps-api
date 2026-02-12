@@ -6,10 +6,13 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
+import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
+import no.nav.helsearbeidsgiver.sykmelding.model.Aktivitet
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.test.date.januar
+import java.time.LocalDate
 import java.util.UUID
 
 object TestData {
@@ -96,12 +99,7 @@ object TestData {
                         "tom": "2020-04-15",
                         "type": "AKTIVITET_IKKE_MULIG",
                         "aktivitetIkkeMulig": {
-                            "arbeidsrelatertArsak": {
-                                "beskrivelse": "andre årsaker til sykefravær",
-                                "arsak": [
-                                    "ANNET"
-                                ]
-                            }
+                            "arbeidsrelatertArsak": null
                         },
                         "reisetilskudd": false
                     }
@@ -193,7 +191,7 @@ object TestData {
                         "gradertSykmelding": null,
                         "aktivitetIkkeMulig": {
                             "manglendeTilretteleggingPaaArbeidsplassen": false,
-                            "beskrivelse": "andre årsaker til sykefravær"
+                            "beskrivelse": null
                         },
                         "antallBehandlingsdagerUke": null,
                         "harReisetilskudd": false
@@ -947,5 +945,26 @@ object TestData {
                     this.arbeidsgiver?.navn,
                     orgnr,
                 ),
+        )
+
+    val aktivitetMock =
+        Aktivitet(
+            gradertSykmelding = null,
+            harReisetilskudd = false,
+            avventendeSykmelding = null,
+            aktivitetIkkeMulig = null,
+            antallBehandlingsdagerUke = null,
+        )
+
+    val sykmeldingsperiodeMock =
+        ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO(
+            fom = LocalDate.now(),
+            tom = LocalDate.now(),
+            reisetilskudd = false,
+            innspillTilArbeidsgiver = null,
+            gradert = null,
+            aktivitetIkkeMulig = null,
+            behandlingsdager = null,
+            type = ArbeidsgiverSykmeldingKafka.SykmeldingsperiodeAGDTO.PeriodetypeDTO.AKTIVITET_IKKE_MULIG,
         )
 }
