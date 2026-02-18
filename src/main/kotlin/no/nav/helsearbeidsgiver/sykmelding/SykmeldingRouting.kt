@@ -83,9 +83,9 @@ private fun Route.sykmelding(
             call.respond(HttpStatusCode.Forbidden)
             return@get
         }
-        val sykmelding = hentSykmeldingMedId(sykmeldingService)?.kapitaliserSykmeldtNavn()
+        val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
-            val pdfBytes = genererSykmeldingPdf(sykmelding)
+            val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
             call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
         }
     }

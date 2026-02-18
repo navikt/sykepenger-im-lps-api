@@ -34,6 +34,7 @@ class SykmeldingUtilsTest {
     @Test
     fun `kapitaliserNavn kapitaliserer som forventet med ulike navn`() {
         "OLA NORDMANN".kapitaliserNavn() shouldBe "Ola Nordmann"
+        "ÅGE ØRRET".kapitaliserNavn() shouldBe "Åge Ørret"
         "JAN-ERIK OLA".kapitaliserNavn() shouldBe "Jan-Erik Ola"
         // aksepterer at disse edge case "McDonald" og "Vincent van Gogh" ikke kapitaliseres riktig
         "MCDONALD".kapitaliserNavn() shouldBe "Mcdonald"
