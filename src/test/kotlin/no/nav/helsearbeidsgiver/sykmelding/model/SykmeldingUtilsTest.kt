@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.utils.tilPerioder
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import no.nav.helsearbeidsgiver.utils.kapitaliserNavn
 
 class SykmeldingUtilsTest {
     @Test
@@ -28,6 +29,15 @@ class SykmeldingUtilsTest {
     @Test
     fun `List av LocalDate tilPerioder uten dager returnerer tom set`() {
         emptySet<LocalDate>().tilPerioder() shouldBe emptySet()
+    }
+
+    @Test
+    fun `kapitaliserNavn kapitaliserer som forventet med ulike navn`() {
+        "OLA NORDMANN".kapitaliserNavn() shouldBe "Ola Nordmann"
+        "JAN-ERIK OLA".kapitaliserNavn() shouldBe "Jan-Erik Ola"
+        // aksepterer at disse edge case "McDonald" og "Vincent van Gogh" ikke kapitaliseres riktig
+        "MCDONALD".kapitaliserNavn() shouldBe "Mcdonald"
+        "VINCENT VAN GOGH".kapitaliserNavn() shouldBe "Vincent Van Gogh"
     }
 }
 
