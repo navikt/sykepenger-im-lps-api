@@ -34,6 +34,7 @@ import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
+import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.respondMedPDF
@@ -84,7 +85,7 @@ private fun Route.sykmelding(
         }
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
-            val pdfBytes = genererSykmeldingPdf(sykmelding)
+            val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
             call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
         }
     }
