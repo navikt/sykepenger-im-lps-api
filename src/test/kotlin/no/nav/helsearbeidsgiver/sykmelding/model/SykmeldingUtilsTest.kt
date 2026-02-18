@@ -2,10 +2,10 @@ package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
+import no.nav.helsearbeidsgiver.utils.kapitaliserNavn
 import no.nav.helsearbeidsgiver.utils.tilPerioder
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import no.nav.helsearbeidsgiver.utils.kapitaliserNavn
 
 class SykmeldingUtilsTest {
     @Test
