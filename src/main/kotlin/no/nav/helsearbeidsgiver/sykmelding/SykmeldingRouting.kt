@@ -34,6 +34,7 @@ import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
+import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.respondMedPDF
@@ -82,7 +83,7 @@ private fun Route.sykmelding(
             call.respond(HttpStatusCode.Forbidden)
             return@get
         }
-        val sykmelding = hentSykmeldingMedId(sykmeldingService)
+        val sykmelding = hentSykmeldingMedId(sykmeldingService)?.kapitaliserSykmeldtNavn()
         if (sykmelding != null) {
             val pdfBytes = genererSykmeldingPdf(sykmelding)
             call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
