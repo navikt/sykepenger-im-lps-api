@@ -6,6 +6,7 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -26,8 +27,10 @@ import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_SOEKNAD_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.respondMedPDF
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
@@ -49,49 +52,72 @@ private fun Route.soeknad(
 ) {
     // Hent én sykepengesøknad basert på søknadId
     get("/sykepengesoeknad/{soeknadId}") {
-        try {
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
-            if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
-                call.respond(HttpStatusCode.Forbidden)
-                return@get
-            }
-
-            val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
-            if (soeknadId == null) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SOEKNAD_ID))
-                return@get
-            }
-
-            val soeknad = soeknadService.hentSoeknad(soeknadId)
-
-            if (soeknad == null) {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse("Fant ingen søknad for id $soeknadId"))
-                return@get
-            }
-
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = SOEKNAD_RESSURS,
-                    orgnr = soeknad.arbeidsgiver.orgnr,
-                )
-            ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
-                return@get
-            }
-            tellApiRequest()
-            sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
-            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
-
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
+        val soeknad = hentSoeknadMedId(soeknadService)
+        if (soeknad != null) {
             call.respond(soeknad)
-        } catch (e: Exception) {
-            FEIL_VED_HENTING_SYKEPENGESOEKNAD.also {
-                logger().error(it)
-                sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
-            }
         }
     }
+
+    get("/sykepengesoeknad/{soeknadId}/pdf") {
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr)) ||
+            !unleashFeatureToggles.skalEksponereSykepengesoeknaderPDF()
+        ) {
+            call.respond(HttpStatusCode.Forbidden)
+            return@get
+        }
+        val soeknad = hentSoeknadMedId(soeknadService)
+        if (soeknad != null) {
+            val pdfBytes = genererSoeknadPdf(soeknad)
+            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
+        }
+    }
+}
+
+private suspend fun RoutingContext.hentSoeknadMedId(soeknadService: SoeknadService): Sykepengesoeknad? {
+    try {
+        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+
+        val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
+        if (soeknadId == null) {
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SOEKNAD_ID))
+            return null
+        }
+
+        val soeknad = soeknadService.hentSoeknad(soeknadId)
+        if (soeknad == null) {
+            call.respond(HttpStatusCode.NotFound, ErrorResponse("Fant ingen søknad for id $soeknadId"))
+            return null
+        }
+
+        if (!tokenValidationContext().harTilgangTilRessurs(
+                ressurs = SOEKNAD_RESSURS,
+                orgnr = soeknad.arbeidsgiver.orgnr,
+            )
+        ) {
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+            return null
+        }
+
+        tellApiRequest()
+        sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
+        tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
+
+        return soeknad
+    } catch (e: Exception) {
+        FEIL_VED_HENTING_SYKEPENGESOEKNAD.also {
+            logger().error(it)
+            sikkerLogger().error(it, e)
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+        }
+    }
+    return null
 }
 
 private fun Route.filtrerSoeknader(

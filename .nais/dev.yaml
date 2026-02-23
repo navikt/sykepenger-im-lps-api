@@ -114,3 +114,5 @@ spec:
       value: "api://dev-fss.pdl.pdl-api/.default"
     - name: PDFGEN_SYKMELDING_URL
       value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
+    - name: PDFGEN_SOKNAD_URL
+      value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/soknad/soknad"
