@@ -26,6 +26,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_SOEKNAD_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -38,16 +39,18 @@ private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
 
 fun Route.soeknadV1(
     soeknadService: SoeknadService,
+    sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/v1") {
-        soeknad(soeknadService, unleashFeatureToggles)
+        soeknad(soeknadService, sykmeldingService, unleashFeatureToggles)
         filtrerSoeknader(soeknadService, unleashFeatureToggles)
     }
 }
 
 private fun Route.soeknad(
     soeknadService: SoeknadService,
+    sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     // Hent én sykepengesøknad basert på søknadId
@@ -73,7 +76,11 @@ private fun Route.soeknad(
         }
         val soeknad = hentSoeknadMedId(soeknadService)
         if (soeknad != null) {
-            val pdfBytes = genererSoeknadPdf(soeknad)
+            // TODO: proof of concept implementasjon, forberdring muligheter her for henting av navn
+            val sykmelding = soeknad.sykmeldingId?.let { sykmeldingService.hentSykmelding(it) }
+            val sykmeldtNavn = sykmelding?.sykmeldt?.navn
+            val soeknadMedNavn = soeknad.copy(sykmeldtNavn = sykmeldtNavn)
+            val pdfBytes = genererSoeknadPdf(soeknadMedNavn)
             call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
         }
     }

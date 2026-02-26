@@ -22,6 +22,7 @@ import java.util.UUID
 data class Sykepengesoeknad(
     val loepenr: Long,
     val soeknadId: UUID,
+    val sykmeldtNavn: String? = null,
     val fnr: String,
     val sykmeldingId: UUID?,
     val type: Soeknadstype,
