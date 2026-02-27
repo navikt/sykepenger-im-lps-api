@@ -39,18 +39,16 @@ private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
 
 fun Route.soeknadV1(
     soeknadService: SoeknadService,
-    sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/v1") {
-        soeknad(soeknadService, sykmeldingService, unleashFeatureToggles)
+        soeknad(soeknadService, unleashFeatureToggles)
         filtrerSoeknader(soeknadService, unleashFeatureToggles)
     }
 }
 
 private fun Route.soeknad(
     soeknadService: SoeknadService,
-    sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     // Hent én sykepengesøknad basert på søknadId
@@ -77,14 +75,14 @@ private fun Route.soeknad(
         val soeknad = hentSoeknadMedId(soeknadService)
         if (soeknad != null) {
             // TODO: proof of concept implementasjon, forberdring muligheter her for henting av navn
-            val sykmelding = soeknad.sykmeldingId?.let { sykmeldingService.hentSykmelding(it) }
-            val sykmeldtNavn = sykmelding?.sykmeldt?.navn
-            val soeknadMedNavn = soeknad.copy(sykmeldtNavn = sykmeldtNavn)
+            val soeknadMedNavn = soeknadService.tilSoeknadMedNavn(soeknad)
             val pdfBytes = genererSoeknadPdf(soeknadMedNavn)
             call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
         }
     }
 }
+
+
 
 private suspend fun RoutingContext.hentSoeknadMedId(soeknadService: SoeknadService): Sykepengesoeknad? {
     try {

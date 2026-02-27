@@ -10,9 +10,11 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
+    val sykmeldingService: SykmeldingService,
     val dialogportenService: DialogportenService,
     val dokumentkoblingService: DokumentkoblingService,
 ) {
@@ -33,6 +35,17 @@ class SoeknadService(
                     .whitelistetForArbeidsgiver()
                     ?.konverter(soeknad.loepenr)
             }
+
+    fun tilSoeknadMedNavn(soeknad: Sykepengesoeknad): Sykepengesoeknad {
+        if (soeknad.sykmeldingId == null){
+            return soeknad
+        }
+        val sykmelding = sykmeldingService.hentSykmelding(soeknad.sykmeldingId)
+        if (sykmelding == null) {
+            return soeknad
+        }
+        return soeknad.copy(sykmeldtNavn = sykmelding.sykmeldt.navn)
+    }
 
     fun behandleSoeknad(soeknad: SykepengeSoeknadKafkaMelding) {
         if (!soeknad.skalLagres()) {

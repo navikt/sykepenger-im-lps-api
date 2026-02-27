@@ -83,6 +83,7 @@ class SoeknadRoutingTest : ApiTest() {
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
         every { repositories.soeknadRepository.hentSoeknad(soeknadId) } returns
             SykepengeSoeknadDto(Random.nextLong(), TestData.soeknadMock().medId(soeknadId).medOrgnr(DEFAULT_ORG))
+        every { repositories.sykmeldingRepository.hentSykmelding(any()) } returns null
 
         coEvery { genererSoeknadPdf(any()) } returns mockPdfBytes
 

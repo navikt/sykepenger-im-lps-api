@@ -36,7 +36,7 @@ fun Application.configureRouting(
                 unleashFeatureToggles = unleashFeatureToggles,
             )
             sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
-            soeknadV1(soeknadService = services.soeknadService, sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
+            soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)

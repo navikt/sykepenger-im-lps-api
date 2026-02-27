@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 
 @WithPostgresContainer
 class SoeknadServiceTest {
@@ -37,6 +38,7 @@ class SoeknadServiceTest {
     private lateinit var soeknadRepository: SoeknadRepository
     private lateinit var dialogportenService: DialogportenService
     private lateinit var dokumentkoblingService: DokumentkoblingService
+    private lateinit var sykmeldingService: SykmeldingService
 
     private val orgnr = Orgnr.genererGyldig()
 
@@ -52,7 +54,8 @@ class SoeknadServiceTest {
         dokumentkoblingService = mockk<DokumentkoblingService>()
         dialogportenService = mockk<DialogportenService>()
         dokumentkoblingService = mockk<DokumentkoblingService>()
-        soeknadService = SoeknadService(soeknadRepository, dialogportenService, dokumentkoblingService)
+        sykmeldingService = mockk<SykmeldingService>()
+        soeknadService = SoeknadService(soeknadRepository, sykmeldingService, dialogportenService, dokumentkoblingService)
     }
 
     @BeforeEach
