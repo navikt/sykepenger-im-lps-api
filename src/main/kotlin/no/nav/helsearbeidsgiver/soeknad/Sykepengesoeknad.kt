@@ -22,7 +22,6 @@ import java.util.UUID
 data class Sykepengesoeknad(
     val loepenr: Long,
     val soeknadId: UUID,
-    val sykmeldtNavn: String? = null,
     val fnr: String,
     val sykmeldingId: UUID?,
     val type: Soeknadstype,
@@ -87,3 +86,9 @@ data class Sykepengesoeknad(
         UTLANDSOPPHOLD, // Skal vi fjerne denne?
     }
 }
+
+@Serializable
+data class SykepengesoeknadForPDF(
+    val sykepengesoeknad: Sykepengesoeknad,
+    val sykmeldtNavn: String? = null,
+)

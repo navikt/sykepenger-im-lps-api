@@ -12,6 +12,7 @@ import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.RoutingCall
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
+import no.nav.helsearbeidsgiver.soeknad.SykepengesoeknadForPDF
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
@@ -35,7 +36,7 @@ suspend fun genererSykmeldingPdf(sykmelding: Sykmelding): ByteArray {
 }
 
 // TODO: Kombiner til en felles utils funksjon for generer PDF
-suspend fun genererSoeknadPdf(soeknad: Sykepengesoeknad): ByteArray {
+suspend fun genererSoeknadPdf(soeknad: SykepengesoeknadForPDF): ByteArray {
     val response =
         PdfgenHttpClient.httpClient.post(PDFGEN_SOEKNAD_URL) {
             contentType(ContentType.Application.Json)

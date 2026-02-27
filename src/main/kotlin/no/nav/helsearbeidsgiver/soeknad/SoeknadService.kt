@@ -37,15 +37,16 @@ class SoeknadService(
                     ?.konverter(soeknad.loepenr)
             }
 
-    fun tilSoeknadMedNavn(soeknad: Sykepengesoeknad): Sykepengesoeknad {
-        if (soeknad.sykmeldingId == null){
-            return soeknad
+    fun tilSoeknadForPdf(soeknad: Sykepengesoeknad): SykepengesoeknadForPDF {
+        if (soeknad.sykmeldingId == null) {
+            return SykepengesoeknadForPDF(soeknad, null)
         }
         val sykmelding = sykmeldingService.hentSykmelding(soeknad.sykmeldingId)
         if (sykmelding == null) {
-            return soeknad
+            return SykepengesoeknadForPDF(soeknad, null)
         }
-        return soeknad.copy(sykmeldtNavn = sykmelding.kapitaliserSykmeldtNavn().sykmeldt.navn)
+        val navn = sykmelding.kapitaliserSykmeldtNavn().sykmeldt.navn
+        return SykepengesoeknadForPDF(soeknad, navn)
     }
 
     fun behandleSoeknad(soeknad: SykepengeSoeknadKafkaMelding) {
