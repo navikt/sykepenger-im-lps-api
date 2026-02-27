@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
+import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
@@ -44,7 +45,7 @@ class SoeknadService(
         if (sykmelding == null) {
             return soeknad
         }
-        return soeknad.copy(sykmeldtNavn = sykmelding.sykmeldt.navn)
+        return soeknad.copy(sykmeldtNavn = sykmelding.kapitaliserSykmeldtNavn().sykmeldt.navn)
     }
 
     fun behandleSoeknad(soeknad: SykepengeSoeknadKafkaMelding) {
