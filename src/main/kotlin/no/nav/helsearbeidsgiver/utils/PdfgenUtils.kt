@@ -40,7 +40,7 @@ private suspend fun hentPdf(
     if (response.status != HttpStatusCode.OK) {
         "En feil oppstod ved generering av PDF med pdfgen til $url: ${response.status}\nBody: ${response.bodyAsText()}"
             .also { sikkerLogger().error(it) }
-        throw RuntimeException("Intern feil ved generering av PDF")
+        throw RuntimeException("Intern feil oppstod ved generering av PDF")
     }
     return response.readRawBytes()
 }
