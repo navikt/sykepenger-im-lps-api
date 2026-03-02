@@ -45,7 +45,6 @@ class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
     fun beforeEach() {
         every { unleashFeatureToggles.skalEksponereSykepengesoeknader(TIGERSYS_ORGNR) } returns true
-        every { unleashFeatureToggles.skalEksponereSykepengesoeknaderPDF() } returns true
     }
 
     @AfterEach
@@ -97,21 +96,6 @@ class SoeknadRoutingTest : ApiTest() {
             respons.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"sykepengesoeknad-$soeknadId.pdf\""
             val pdfBytes = respons.body<ByteArray>()
             pdfBytes shouldBe mockPdfBytes
-        }
-    }
-
-    @Test
-    fun `gir 403 Forbidden error om eksponer-soeknad-PDF-i-api er skrudd av`() {
-        val soeknadId = UUID.randomUUID()
-
-        every { unleashFeatureToggles.skalEksponereSykepengesoeknaderPDF() } returns false
-
-        runBlocking {
-            val respons =
-                client.get("/v1/sykepengesoeknad/$soeknadId/pdf") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            respons.status shouldBe HttpStatusCode.Forbidden
         }
     }
 

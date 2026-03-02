@@ -87,12 +87,6 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalEksponereSykepengesoeknaderPDF(): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-soeknad-PDF-i-api",
-            false,
-        )
-
     fun skalEksponereInntektsmeldinger(): Boolean =
         unleashClient.isEnabled(
             "eksponer-inntektsmeldinger-i-api",

@@ -66,9 +66,7 @@ private fun Route.soeknad(
 
     get("/sykepengesoeknad/{soeknadId}/pdf") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr)) ||
-            !unleashFeatureToggles.skalEksponereSykepengesoeknaderPDF()
-        ) {
+        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
             call.respond(HttpStatusCode.Forbidden)
             return@get
         }
