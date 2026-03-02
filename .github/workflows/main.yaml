@@ -37,6 +37,7 @@ jobs:
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
+        salsa: false
         with:
           team: helsearbeidsgiver
 
