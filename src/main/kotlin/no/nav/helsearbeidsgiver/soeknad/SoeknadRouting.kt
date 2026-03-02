@@ -74,7 +74,6 @@ private fun Route.soeknad(
         }
         val soeknad = hentSoeknadMedId(soeknadService)
         if (soeknad != null) {
-            // TODO: proof of concept implementasjon, forberdring muligheter her for henting av navn
             val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
             val pdfBytes = genererSoeknadPdf(soeknadForPDF)
             call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
