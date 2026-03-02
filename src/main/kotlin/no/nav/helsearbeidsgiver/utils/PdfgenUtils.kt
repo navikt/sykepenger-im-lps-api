@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.soeknad.SykepengesoeknadForPDF
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
 val PDFGEN_URL = getPropertyOrNull("PDFGEN_SYKMELDING_URL").orDefault { throw RuntimeException("PDFGEN_SYKMELDING_URL ikke satt") }
@@ -39,7 +40,8 @@ private suspend fun pdfgenKall(
         }
     if (response.status != HttpStatusCode.OK) {
         "En feil oppstod ved generering av PDF med pdfgen til $url: ${response.status}\nBody: ${response.bodyAsText()}"
-            .also { throw RuntimeException(it) }
+            .also { sikkerLogger().error(it) }
+        throw RuntimeException("Intern feil ved generering av PDF")
     }
     return response.readRawBytes()
 }
