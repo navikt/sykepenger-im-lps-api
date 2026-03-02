@@ -9,10 +9,13 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.mockk.clearMocks
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -24,6 +27,7 @@ import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.medOrgnr
+import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -41,6 +45,7 @@ class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
     fun beforeEach() {
         every { unleashFeatureToggles.skalEksponereSykepengesoeknader(TIGERSYS_ORGNR) } returns true
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknaderPDF() } returns true
     }
 
     @AfterEach
@@ -67,6 +72,61 @@ class SoeknadRoutingTest : ApiTest() {
             val soeknadRespons = respons.body<Sykepengesoeknad>()
             soeknadRespons.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
             soeknadRespons.soeknadId shouldBe soeknad.sykepengeSoeknadKafkaMelding.id
+        }
+    }
+
+    @Test
+    fun `hent en søknad med id i PDF format`() {
+        val soeknadId = UUID.randomUUID()
+        val mockPdfBytes = "Mock PDF innhold".toByteArray()
+
+        mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
+        every { repositories.soeknadRepository.hentSoeknad(soeknadId) } returns
+            SykepengeSoeknadDto(Random.nextLong(), TestData.soeknadMock().medId(soeknadId).medOrgnr(DEFAULT_ORG))
+        every { repositories.sykmeldingRepository.hentSykmelding(any()) } returns null
+
+        coEvery { genererSoeknadPdf(any()) } returns mockPdfBytes
+
+        runBlocking {
+            val respons =
+                client.get("/v1/sykepengesoeknad/$soeknadId/pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            respons.status shouldBe HttpStatusCode.OK
+            respons.contentType() shouldBe ContentType.Application.Pdf
+            respons.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"sykepengesoeknad-$soeknadId.pdf\""
+            val pdfBytes = respons.body<ByteArray>()
+            pdfBytes shouldBe mockPdfBytes
+        }
+    }
+
+    @Test
+    fun `gir 403 Forbidden error om eksponer-soeknad-PDF-i-api er skrudd av`() {
+        val soeknadId = UUID.randomUUID()
+
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknaderPDF() } returns false
+
+        runBlocking {
+            val respons =
+                client.get("/v1/sykepengesoeknad/$soeknadId/pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            respons.status shouldBe HttpStatusCode.Forbidden
+        }
+    }
+
+    @Test
+    fun `gir 403 Forbidden error om eksponer-soeknad-i-api er skrudd av for PDF endepunkt`() {
+        val soeknadId = UUID.randomUUID()
+
+        every { unleashFeatureToggles.skalEksponereSykepengesoeknader(TIGERSYS_ORGNR) } returns false
+
+        runBlocking {
+            val respons =
+                client.get("/v1/sykepengesoeknad/$soeknadId/pdf") {
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            respons.status shouldBe HttpStatusCode.Forbidden
         }
     }
 

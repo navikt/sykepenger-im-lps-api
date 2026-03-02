@@ -4,6 +4,8 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
+import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.konverter
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -13,6 +15,7 @@ import java.util.UUID
 
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
+    val sykmeldingService: SykmeldingService,
     val dialogportenService: DialogportenService,
     val dokumentkoblingService: DokumentkoblingService,
 ) {
@@ -33,6 +36,18 @@ class SoeknadService(
                     .whitelistetForArbeidsgiver()
                     ?.konverter(soeknad.loepenr)
             }
+
+    fun tilSoeknadForPdf(soeknad: Sykepengesoeknad): SykepengesoeknadForPDF {
+        if (soeknad.sykmeldingId == null) {
+            return SykepengesoeknadForPDF(soeknad, null)
+        }
+        val sykmelding = sykmeldingService.hentSykmelding(soeknad.sykmeldingId)
+        if (sykmelding == null) {
+            return SykepengesoeknadForPDF(soeknad, null)
+        }
+        val navn = sykmelding.kapitaliserSykmeldtNavn().sykmeldt.navn
+        return SykepengesoeknadForPDF(soeknad, navn)
+    }
 
     fun behandleSoeknad(soeknad: SykepengeSoeknadKafkaMelding) {
         if (!soeknad.skalLagres()) {
