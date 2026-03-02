@@ -14,7 +14,6 @@ import io.ktor.server.routing.RoutingCall
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.soeknad.SykepengesoeknadForPDF
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
@@ -25,11 +24,11 @@ object PdfgenHttpClient {
     val httpClient = createHttpClient()
 }
 
-suspend fun genererSykmeldingPdf(sykmelding: Sykmelding) = pdfgenKall(sykmelding, PDFGEN_URL)
+suspend fun genererSykmeldingPdf(sykmelding: Sykmelding) = hentPdf(sykmelding, PDFGEN_URL)
 
-suspend fun genererSoeknadPdf(soeknad: SykepengesoeknadForPDF) = pdfgenKall(soeknad, PDFGEN_SOEKNAD_URL)
+suspend fun genererSoeknadPdf(soeknad: SykepengesoeknadForPDF) = hentPdf(soeknad, PDFGEN_SOEKNAD_URL)
 
-private suspend fun pdfgenKall(
+private suspend fun hentPdf(
     body: Any?,
     url: String,
 ): ByteArray {
