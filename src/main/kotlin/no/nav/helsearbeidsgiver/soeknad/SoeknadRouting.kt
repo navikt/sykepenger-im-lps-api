@@ -51,26 +51,15 @@ private fun Route.soeknad(
     soeknadService: SoeknadService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Hent én sykepengesøknad basert på søknadId
     get("/sykepengesoeknad/{soeknadId}") {
-        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
-        val soeknad = hentSoeknadMedId(soeknadService)
+        val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
         if (soeknad != null) {
             call.respond(soeknad)
         }
     }
 
     get("/sykepengesoeknad/{soeknadId}/pdf") {
-        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
-        val soeknad = hentSoeknadMedId(soeknadService)
+        val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
         if (soeknad != null) {
             val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
             val pdfBytes = genererSoeknadPdf(soeknadForPDF)
@@ -79,9 +68,16 @@ private fun Route.soeknad(
     }
 }
 
-private suspend fun RoutingContext.hentSoeknadMedId(soeknadService: SoeknadService): Sykepengesoeknad? {
+private suspend fun RoutingContext.hentSoeknadMedId(
+    soeknadService: SoeknadService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+): Sykepengesoeknad? {
     try {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
+            call.respond(HttpStatusCode.Forbidden)
+            return null
+        }
         val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
 
         val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()

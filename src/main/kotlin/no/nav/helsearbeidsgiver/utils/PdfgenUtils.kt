@@ -17,7 +17,8 @@ import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
-val PDFGEN_SYKMELDING_URL = getPropertyOrNull("PDFGEN_SYKMELDING_URL").orDefault { throw RuntimeException("PDFGEN_SYKMELDING_URL ikke satt") }
+val PDFGEN_SYKMELDING_URL =
+    getPropertyOrNull("PDFGEN_SYKMELDING_URL").orDefault { throw RuntimeException("PDFGEN_SYKMELDING_URL ikke satt") }
 val PDFGEN_SOEKNAD_URL = getPropertyOrNull("PDFGEN_SOEKNAD_URL").orDefault { throw RuntimeException("PDFGEN_SOEKNAD_URL ikke satt") }
 
 object PdfgenHttpClient {
