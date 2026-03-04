@@ -1,10 +1,12 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
+import io.mockk.coEvery
 import io.mockk.every
 import kotlinx.serialization.KSerializer
 import no.nav.helsearbeidsgiver.authorization.HentApiAuthTest
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import java.util.UUID
 
 class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilter, SykmeldingDTO>() {
@@ -12,6 +14,7 @@ class SykmeldingAuthTest : HentApiAuthTest<Sykmelding, SykmeldingFilter, Sykmeld
     override val enkeltDokumentEndepunkt = "/v1/sykmelding"
     override val utfasetEndepunkt = "/v1/sykmeldinger"
 
+    override val harPdfEndepunkt = true
     override val dokumentSerializer: KSerializer<Sykmelding> = Sykmelding.serializer()
     override val filterSerializer: KSerializer<SykmeldingFilter> = SykmeldingFilter.serializer()
 
