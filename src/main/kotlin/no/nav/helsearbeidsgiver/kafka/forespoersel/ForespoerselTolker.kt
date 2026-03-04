@@ -139,6 +139,11 @@ class ForespoerselTolker(
                     }
                 services.forespoerselService.oppdaterPaakrevdeFelter(forespoersel.vedtaksperiodeId)
             }
+
+            NotisType.FORESPOERSEL_MANUELT_FORKASTET -> {
+                // TODO: bør vi logge noe her?
+                // ikke-håndtert notistype (Manuelt forkastet..)
+            }
         }
     }
 
