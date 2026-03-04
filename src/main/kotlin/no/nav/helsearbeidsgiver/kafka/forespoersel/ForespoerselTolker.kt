@@ -141,7 +141,7 @@ class ForespoerselTolker(
             }
 
             else -> {
-                // ikke-håndtert notistype (Manuel forkastet..)
+                // ikke-håndtert notistype (Manuelt forkastet..)
             }
         }
     }
