@@ -139,6 +139,10 @@ class ForespoerselTolker(
                     }
                 services.forespoerselService.oppdaterPaakrevdeFelter(forespoersel.vedtaksperiodeId)
             }
+
+            else -> {
+                // ikke-håndtert notistype (Manuel forkastet..)
+            }
         }
     }
 
