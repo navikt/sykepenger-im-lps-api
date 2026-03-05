@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
@@ -37,6 +38,7 @@ class SoeknadServiceTest {
     private lateinit var soeknadRepository: SoeknadRepository
     private lateinit var dialogportenService: DialogportenService
     private lateinit var dokumentkoblingService: DokumentkoblingService
+    private lateinit var sykmeldingService: SykmeldingService
 
     private val orgnr = Orgnr.genererGyldig()
 
@@ -52,7 +54,8 @@ class SoeknadServiceTest {
         dokumentkoblingService = mockk<DokumentkoblingService>()
         dialogportenService = mockk<DialogportenService>()
         dokumentkoblingService = mockk<DokumentkoblingService>()
-        soeknadService = SoeknadService(soeknadRepository, dialogportenService, dokumentkoblingService)
+        sykmeldingService = mockk<SykmeldingService>()
+        soeknadService = SoeknadService(soeknadRepository, sykmeldingService, dialogportenService, dokumentkoblingService)
     }
 
     @BeforeEach

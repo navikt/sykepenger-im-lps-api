@@ -111,4 +111,8 @@ spec:
       value: "api://prod-fss.pdl.pdl-api/.default"
     - name: JDK_JAVA_OPTIONS
       value: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
+    - name: PDFGEN_SYKMELDING_URL
+      value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
+    - name: PDFGEN_SOEKNAD_URL
+      value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/soknad/soknad"
 

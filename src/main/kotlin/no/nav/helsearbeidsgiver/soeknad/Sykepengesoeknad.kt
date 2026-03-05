@@ -86,3 +86,9 @@ data class Sykepengesoeknad(
         UTLANDSOPPHOLD, // Skal vi fjerne denne?
     }
 }
+
+@Serializable
+data class SykepengesoeknadForPDF(
+    val sykepengesoeknad: Sykepengesoeknad,
+    val sykmeldtNavn: String? = null,
+)
