@@ -39,7 +39,6 @@ jobs:
         id: docker-build-push
         with:
           team: helsearbeidsgiver
-          salsa: false
 
       - name: deploy new Unleash Apikey to dev
         uses: nais/deploy/actions/deploy@v2
