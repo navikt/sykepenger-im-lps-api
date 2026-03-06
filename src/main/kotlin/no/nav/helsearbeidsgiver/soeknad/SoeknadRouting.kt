@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKEPENGESOEKNADER
+import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_PDF_GENERERING
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.IKKE_TILGANG_TIL_RESSURS
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_FILTERPARAMETER
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
@@ -29,6 +30,8 @@ import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
+import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
+import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.respondMedPDF
@@ -61,9 +64,17 @@ private fun Route.soeknad(
     get("/sykepengesoeknad/{soeknadId}/pdf") {
         val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
         if (soeknad != null) {
-            val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
-            val pdfBytes = genererSoeknadPdf(soeknadForPDF)
-            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
+            try {
+                val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
+                val pdfBytes = genererSoeknadPdf(soeknadForPDF)
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
+            } catch (e: Exception) {
+                FEIL_VED_PDF_GENERERING.also {
+                    logger().error(it)
+                    sikkerLogger().error(it, e)
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+                }
+            }
         }
     }
 }

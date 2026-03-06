@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKMELDING
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKMELDINGER
+import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_PDF_GENERERING
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.IKKE_TILGANG_TIL_RESSURS
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_FILTERPARAMETER
 import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_IDENTIFIKATOR
@@ -85,8 +86,16 @@ private fun Route.sykmelding(
         }
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
-            val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
-            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
+            try {
+                val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
+            } catch (e: Exception) {
+                FEIL_VED_PDF_GENERERING.also {
+                    logger().error(it)
+                    sikkerLogger().error(it, e)
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
+                }
+            }
         }
     }
 }

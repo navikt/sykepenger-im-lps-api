@@ -2,6 +2,8 @@ package no.nav.helsearbeidsgiver.utils
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
@@ -15,6 +17,14 @@ fun createHttpClient() =
         expectSuccess = true
         install(ContentNegotiation) {
             json(jsonConfig)
+        }
+        install(HttpRequestRetry) {
+            retryOnException(maxRetries = 5)
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 5000
+            connectTimeoutMillis = 5000
+            socketTimeoutMillis = 5000
         }
     }
 

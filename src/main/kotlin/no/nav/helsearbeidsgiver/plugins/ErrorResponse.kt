@@ -14,6 +14,8 @@ object ErrorMessages {
     const val IKKE_TILGANG_TIL_RESSURS = "Ikke tilgang til ressurs"
     const val EN_FEIL_OPPSTOD = "En feil oppstod"
 
+    const val FEIL_VED_PDF_GENERERING = "Feil ved generering av pdf"
+
     const val UGYLDIG_SYKMELDING_ID = "Ugyldig sykmeldingId"
     const val FEIL_VED_HENTING_SYKMELDING = "Feil ved henting av sykmelding"
     const val FEIL_VED_HENTING_SYKMELDINGER = "Feil ved henting av sykmeldinger"
