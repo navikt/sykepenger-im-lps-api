@@ -52,6 +52,7 @@ spec:
         - host: pdl-api.prod-fss-pub.nais.io
         - host: platform.altinn.no
       rules:
+        - application: helsearbeidsgiver-pdfgen
         - application: logging
           namespace: nais-system
   tokenx:
