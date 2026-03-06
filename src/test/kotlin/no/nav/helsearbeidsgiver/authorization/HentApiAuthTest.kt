@@ -49,6 +49,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
         every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns true
     }
 
     @AfterAll
@@ -154,7 +155,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     @Test
     fun `gir 401 Unauthorized når systembruker mangler i token ved henting av dokumenter`() {
         // enkelt dokument endepunkt
-        val suffixer = listOf("") // if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
+        val suffixer = if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
         suffixer.forEach { suffix ->
             runBlocking {
                 client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}$suffix") {
@@ -187,7 +188,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
             id = dokumentIdIkkeTilgang,
             resultat = mockDokument(dokumentIdTilgang, orgnrUtenPdpTilgang),
         )
-        val suffixer = listOf("") // if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
+        val suffixer = if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
         suffixer.forEach { suffix ->
             // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
             // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
