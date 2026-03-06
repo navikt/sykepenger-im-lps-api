@@ -13,6 +13,7 @@ class InntektsmeldingAuthTest : HentApiAuthTest<InntektsmeldingResponse, Inntekt
     override val enkeltDokumentEndepunkt = "/v1/inntektsmelding"
     override val utfasetEndepunkt = "/v1/inntektsmeldinger"
 
+    override val harPdfEndepunkt = false
     override val dokumentSerializer: KSerializer<InntektsmeldingResponse> = InntektsmeldingResponse.serializer()
     override val filterSerializer: KSerializer<InntektsmeldingFilter> = InntektsmeldingFilter.serializer()
 
