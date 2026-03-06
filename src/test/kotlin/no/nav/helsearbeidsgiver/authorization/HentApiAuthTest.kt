@@ -6,7 +6,6 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -138,31 +137,29 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
     @Test
     fun `gir 401 Unauthorized når token mangler ved henting av dokumenter`() {
-        val respons1 = runBlocking { client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") }
-        respons1.status shouldBe HttpStatusCode.Unauthorized
+        forHvertEndepunktMedDokumentId(UUID.randomUUID()) { url ->
+            client.get(url).status shouldBe HttpStatusCode.Unauthorized
+        }
 
         val requestBody = lagFilter(underenhetOrgnrMedPdpTilgang)
-        val respons2 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(filterSerializer))
-                }
+
+        runBlocking {
+            client.post(filtreringEndepunkt) {
+                contentType(ContentType.Application.Json)
+                setBody(requestBody.toJson(filterSerializer))
             }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
+        }.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test
     fun `gir 401 Unauthorized når systembruker mangler i token ved henting av dokumenter`() {
         // enkelt dokument endepunkt
-        val suffixer = if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
-        suffixer.forEach { suffix ->
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}$suffix") {
+        forHvertEndepunktMedDokumentId(UUID.randomUUID()) { url ->
+            val respons =
+                client.get(url) {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
-            }.status shouldBe
-                HttpStatusCode.Unauthorized
+            respons.status shouldBe HttpStatusCode.Unauthorized
         }
         // Filtrerings endepunkt
         runBlocking {
@@ -188,24 +185,23 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
             id = dokumentIdIkkeTilgang,
             resultat = mockDokument(dokumentIdTilgang, orgnrUtenPdpTilgang),
         )
-        val suffixer = if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
-        suffixer.forEach { suffix ->
-            // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
-            // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang$suffix") {
+        // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
+        // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
+        forHvertEndepunktMedDokumentId(dokumentIdIkkeTilgang) { url ->
+            val respons =
+                client.get(url) {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
-            }.status shouldBe
-                HttpStatusCode.Unauthorized
+            respons.status shouldBe HttpStatusCode.Unauthorized
+        }
 
-            // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
-            runBlocking {
-                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang$suffix") {
+        // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
+        forHvertEndepunktMedDokumentId(dokumentIdIkkeTilgang) { url ->
+            val respons =
+                client.get(url) {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
-            }.status shouldBe
-                HttpStatusCode.Unauthorized
+            respons.status shouldBe HttpStatusCode.Unauthorized
         }
     }
 
@@ -233,5 +229,18 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                 }
             }
         respons2.status shouldBe HttpStatusCode.Unauthorized
+    }
+
+    private val endepunktSuffixer: List<String> get() = if (harPdfEndepunkt) listOf("", "/pdf") else listOf("")
+
+    private fun forHvertEndepunktMedDokumentId(
+        id: UUID,
+        block: suspend (url: String) -> Unit,
+    ) {
+        runBlocking {
+            endepunktSuffixer.forEach { suffix ->
+                block("$enkeltDokumentEndepunkt/$id$suffix")
+            }
+        }
     }
 }
