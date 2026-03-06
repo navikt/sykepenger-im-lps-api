@@ -33,8 +33,7 @@ class PdfgenUtilsTest {
 
             val mockEngine =
                 MockEngine { request ->
-                    PDFGEN_SYKMELDING_URL shouldBe getPropertyOrNull("PDFGEN_SYKMELDING_URL")
-                    request.url.toString() shouldBe PDFGEN_SYKMELDING_URL
+                    request.url.toString() shouldBe getPropertyOrNull("PDFGEN_SYKMELDING_URL")
 
                     respond(
                         content = ByteReadChannel(forventetBytes),
