@@ -215,7 +215,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
         runBlocking {
             val respons =
-                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") {
+                client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
             respons.status shouldBe HttpStatusCode.Unauthorized
@@ -231,7 +231,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
             }
             runBlocking {
                 val respons =
-                    client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}/pdf") {
+                    client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang/pdf") {
                         bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                     }
                 respons.status shouldBe HttpStatusCode.Unauthorized
