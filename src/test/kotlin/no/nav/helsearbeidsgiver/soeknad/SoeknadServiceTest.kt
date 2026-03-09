@@ -11,7 +11,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
@@ -36,7 +35,7 @@ class SoeknadServiceTest {
     private lateinit var db: Database
     private lateinit var soeknadService: SoeknadService
     private lateinit var soeknadRepository: SoeknadRepository
-    private lateinit var dialogportenService: DialogportenService
+
     private lateinit var dokumentkoblingService: DokumentkoblingService
     private lateinit var sykmeldingService: SykmeldingService
 
@@ -52,10 +51,10 @@ class SoeknadServiceTest {
             ).init()
         soeknadRepository = SoeknadRepository(db)
         dokumentkoblingService = mockk<DokumentkoblingService>()
-        dialogportenService = mockk<DialogportenService>()
+
         dokumentkoblingService = mockk<DokumentkoblingService>()
         sykmeldingService = mockk<SykmeldingService>()
-        soeknadService = SoeknadService(soeknadRepository, sykmeldingService, dialogportenService, dokumentkoblingService)
+        soeknadService = SoeknadService(soeknadRepository, sykmeldingService, dokumentkoblingService)
     }
 
     @BeforeEach
@@ -63,7 +62,6 @@ class SoeknadServiceTest {
         transaction(db) { SoeknadEntitet.deleteAll() }
 
         clearAllMocks()
-        every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just Runs
         every { dokumentkoblingService.produserSykepengesoeknadKobling(any(), any(), orgnr) } just Runs
     }
 
@@ -98,7 +96,6 @@ class SoeknadServiceTest {
                     ),
             )
 
-        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoeknad(forventetDialogSykepengesoeknad) }
         verify(exactly = 1) {
             dokumentkoblingService.produserSykepengesoeknadKobling(
                 soeknad.id,
@@ -119,7 +116,6 @@ class SoeknadServiceTest {
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
         lagretSoeknad shouldBe null
 
-        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
         verify { dokumentkoblingService wasNot Called }
     }
 
@@ -139,7 +135,7 @@ class SoeknadServiceTest {
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoeknad shouldBe null
-        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+
         verify { dokumentkoblingService wasNot Called }
     }
 
@@ -165,7 +161,7 @@ class SoeknadServiceTest {
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoeknad shouldBe null
-        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+
         verify { dokumentkoblingService wasNot Called }
     }
 
@@ -219,11 +215,6 @@ class SoeknadServiceTest {
         lagredeSoeknader.map { it?.id }.toSet() shouldBe setOf(idSomSkalLagres1, idSomSkalLagres2)
 
         verify(exactly = 2) {
-            dialogportenService.oppdaterDialogMedSykepengesoeknad(
-                match { it.soeknadId == idSomSkalLagres1 || it.soeknadId == idSomSkalLagres2 },
-            )
-        }
-        verify(exactly = 2) {
             dokumentkoblingService.produserSykepengesoeknadKobling(
                 match { it == idSomSkalLagres1 || it == idSomSkalLagres2 },
                 any(),
@@ -245,7 +236,7 @@ class SoeknadServiceTest {
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoeknad shouldBe null
-        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+
         verify { dokumentkoblingService wasNot Called }
     }
 
@@ -265,7 +256,7 @@ class SoeknadServiceTest {
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoeknad shouldBe null
-        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+
         verify { dokumentkoblingService wasNot Called }
     }
 
@@ -282,7 +273,7 @@ class SoeknadServiceTest {
             transaction(db) { SoeknadEntitet.selectAll().firstOrNull()?.getOrNull(sykepengesoeknad) }
 
         lagretSoeknad shouldBe soeknadSomSkalLagresMenIkkeVideresendes
-        verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+
         verify { dokumentkoblingService wasNot Called }
     }
 
@@ -304,7 +295,7 @@ class SoeknadServiceTest {
 
         lagredeSoeknader.size shouldBe 1
         lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
-        verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoeknad(match { it.soeknadId == soeknadSomSkalLagres.id }) }
+
         verify(exactly = 1) {
             dokumentkoblingService.produserSykepengesoeknadKobling(
                 soeknadSomSkalLagres.id,

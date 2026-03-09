@@ -5,7 +5,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -15,12 +14,10 @@ import java.util.UUID
 
 class AvvistInntektsmeldingServiceTest {
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
-    private val dialogportenService = mockk<DialogportenService>()
     private val dokumentKoblingService = mockk<DokumentkoblingService>()
     private val avvistInntektsmeldingService =
         AvvistInntektsmeldingService(
             inntektsmeldingRepository = inntektsmeldingRepository,
-            dialogportenService = dialogportenService,
             dokumentkoblingService = dokumentKoblingService,
         )
 
@@ -41,12 +38,6 @@ class AvvistInntektsmeldingServiceTest {
                 any(),
             )
         } returns 1
-
-        every {
-            dialogportenService.oppdaterDialogMedInntektsmelding(
-                inntektsmeldingId,
-            )
-        } just Runs
 
         every {
             dokumentKoblingService.produserInntektsmeldingAvvistKobling(

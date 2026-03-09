@@ -52,7 +52,6 @@ class ForespoerselTolker(
                         try {
                             services.forespoerselService.lagreNyForespoersel(forespoersel)
                             mottakRepository.opprett(ExposedMottak(melding))
-                            services.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(forespoersel)
                             services.dokumentkoblingService.produserForespoerselKobling(forespoersel)
                         } catch (e: Exception) {
                             rollback()
@@ -73,7 +72,6 @@ class ForespoerselTolker(
                         if (obj.forespoersel != null) {
                             services.forespoerselService.lagreOppdatertForespoersel(obj)
                             mottakRepository.opprett(ExposedMottak(melding))
-                            services.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(obj.forespoersel)
                             services.dokumentkoblingService.produserForespoerselKobling(obj.forespoersel)
                         }
                     } catch (e: Exception) {

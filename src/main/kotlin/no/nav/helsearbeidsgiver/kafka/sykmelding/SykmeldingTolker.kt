@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.sykmelding
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogSykmelding
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
@@ -17,7 +16,6 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
-    private val dialogportenService: DialogportenService,
     private val dokumentkoblingService: DokumentkoblingService,
     private val pdlService: PdlService,
 ) : MeldingTolker {
@@ -50,7 +48,6 @@ class SykmeldingTolker(
                                 )
                             },
                     )
-                dialogportenService.opprettNyDialogMedSykmelding(dialogSykmelding)
 
                 dokumentkoblingService.produserSykmeldingKobling(
                     sykmeldingId = sykmeldingId,

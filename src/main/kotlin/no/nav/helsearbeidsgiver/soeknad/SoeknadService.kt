@@ -1,7 +1,5 @@
 package no.nav.helsearbeidsgiver.soeknad
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
@@ -16,7 +14,6 @@ import java.util.UUID
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
     val sykmeldingService: SykmeldingService,
-    val dialogportenService: DialogportenService,
     val dokumentkoblingService: DokumentkoblingService,
 ) {
     private val logger = logger()
@@ -66,15 +63,6 @@ class SoeknadService(
             logger.info("Lagret søknad med id: ${soeknad.id}")
 
             if (soeknad.skalSendesTilArbeidsgiver()) {
-                dialogportenService.oppdaterDialogMedSykepengesoeknad(
-                    soeknad =
-                        DialogSykepengesoeknad(
-                            soeknadId = validertSoeknad.soeknadId,
-                            sykmeldingId = validertSoeknad.sykmeldingId,
-                            orgnr = Orgnr(validertSoeknad.orgnr),
-                        ),
-                )
-
                 dokumentkoblingService.produserSykepengesoeknadKobling(
                     soeknadId = validertSoeknad.soeknadId,
                     sykmeldingId = validertSoeknad.sykmeldingId,

@@ -15,7 +15,6 @@ import no.nav.helsearbeidsgiver.config.Repositories
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.config.Tolkere
 import no.nav.helsearbeidsgiver.config.configureTolkere
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
@@ -93,12 +92,10 @@ class MeldingTolkerTest {
                 forespoerselService =
                     ForespoerselService(
                         repositories.forespoerselRepository,
-                        dialogportenService = mockk<DialogportenService>(),
                         dokumentkoblinService = mockk<DokumentkoblingService>(),
                     ),
                 inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository),
                 innsendingService = mockk<InnsendingService>(),
-                dialogportenService = mockk<DialogportenService>(),
                 dokumentkoblingService = mockk<DokumentkoblingService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
                 pdlService = mockk<PdlService>(),
@@ -117,9 +114,8 @@ class MeldingTolkerTest {
 
     @Test
     fun kunLagreEventerSomMatcher() {
-        every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
         every { service.dokumentkoblingService.produserForespoerselKobling(any()) } just Runs
-        every { service.dialogportenService.oppdaterDialogMedInntektsmelding(any()) } just Runs
+
         every { service.dokumentkoblingService.produserInntektsmeldingGodkjentKobling(any()) } just Runs
         // Test at kjente payloads ikke kræsjer:
         tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
@@ -147,13 +143,12 @@ class MeldingTolkerTest {
                 foedselsdato = LocalDate.now().minusYears(1),
             )
 
-        every { service.dialogportenService.opprettNyDialogMedSykmelding(any()) } just Runs
         every { service.dokumentkoblingService.produserSykmeldingKobling(any(), any(), any()) } just Runs
 
         tolkere.sykmeldingTolker.lesMelding(SYKMELDING_MOTTATT)
         verifySequence {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
-            service.dialogportenService.opprettNyDialogMedSykmelding(any())
+
             service.dokumentkoblingService.produserSykmeldingKobling(any(), any(), any())
         }
     }
@@ -171,14 +166,13 @@ class MeldingTolkerTest {
         }
         verify(exactly = 0) {
             service.sykmeldingService.lagreSykmelding(any(), any(), any())
-            service.dialogportenService.opprettNyDialogMedSykmelding(any())
+
             service.dokumentkoblingService.produserSykmeldingKobling(any(), any(), any())
         }
     }
 
     @Test
     fun `forespoerselTolker håndterer duplikater`() {
-        every { service.dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
         every { service.dokumentkoblingService.produserForespoerselKobling(any()) } just Runs
         assertDoesNotThrow {
             tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_MOTTATT)
