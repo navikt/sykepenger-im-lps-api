@@ -10,7 +10,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
-import no.nav.helsearbeidsgiver.dialogporten.DialogSykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
@@ -83,24 +82,11 @@ class SoeknadServiceTest {
 
         soeknadService.behandleSoeknad(soeknad)
 
-        val forventetDialogSykepengesoeknad =
-            DialogSykepengesoeknad(
-                soeknadId = soeknad.id,
-                sykmeldingId = soeknad.sykmeldingId.shouldNotBeNull(),
-                orgnr =
-                    Orgnr(
-                        soeknad.arbeidsgiver
-                            .shouldNotBeNull()
-                            .orgnummer
-                            .shouldNotBeNull(),
-                    ),
-            )
-
         verify(exactly = 1) {
             dokumentkoblingService.produserSykepengesoeknadKobling(
                 soeknad.id,
                 soeknad.sykmeldingId.shouldNotBeNull(),
-                forventetDialogSykepengesoeknad.orgnr,
+                orgnr,
             )
         }
     }

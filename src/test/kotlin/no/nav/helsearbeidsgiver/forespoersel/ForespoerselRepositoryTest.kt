@@ -23,7 +23,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -239,12 +238,6 @@ class ForespoerselRepositoryTest {
             forespoersel = forespoerselDokument(DEFAULT_ORG, DEFAULT_FNR, forespoerselId, vedtaksperiodeId),
             eksponertForespoerselId = forespoerselId,
         )
-
-        val dialogMelding = forespoerselRepository.hentUtgaattForespoerselDialogMelding(forespoerselId)
-        assertNotNull(dialogMelding)
-        assertEquals(DEFAULT_ORG, dialogMelding.orgnr)
-        assertEquals(forespoerselId, dialogMelding.forespoerselId)
-        assertEquals(sykmeldingId, dialogMelding.sykmeldingId)
     }
 
     @Test

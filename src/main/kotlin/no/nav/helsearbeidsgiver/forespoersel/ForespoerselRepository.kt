@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.forespoersel
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.dialogporten.DialogUtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.dokument
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.fnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.navReferanseId
@@ -9,14 +8,12 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.opprettet
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.orgnr
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet.status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
-import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
@@ -177,26 +174,6 @@ class ForespoerselRepository(
         }
         logger().info("Oppdaterte eksponertForespoerselId for forespørsel med id: $forespoerselId til $eksponertForespoerselId")
     }
-
-    fun hentUtgaattForespoerselDialogMelding(forespoerselId: UUID): DialogUtgaattInntektsmeldingForespoersel? =
-        transaction(db) {
-            ForespoerselEntitet
-                .join(
-                    otherTable = SoeknadEntitet,
-                    joinType = JoinType.INNER,
-                    onColumn = ForespoerselEntitet.vedtaksperiodeId,
-                    otherColumn = SoeknadEntitet.vedtaksperiodeId,
-                ).select(navReferanseId, orgnr, SoeknadEntitet.sykmeldingId)
-                .where({ navReferanseId eq forespoerselId })
-                .limit(1)
-                .map { row ->
-                    DialogUtgaattInntektsmeldingForespoersel(
-                        orgnr = row[orgnr],
-                        forespoerselId = row[navReferanseId],
-                        sykmeldingId = row[SoeknadEntitet.sykmeldingId],
-                    )
-                }.firstOrNull()
-        }
 
     fun hentIkkeForkastedeForespoerslerPaaVedtaksperiodeId(vedtaksperiodeId: UUID): List<Forespoersel> =
         transaction(db) {

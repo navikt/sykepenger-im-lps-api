@@ -15,7 +15,6 @@ import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
-import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
 import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingProducer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
@@ -191,15 +190,6 @@ fun configureServices(
             registrer(InnsendingProcessor(innsendingService))
             startAsync(true)
         }
-
-    val dialogProducer =
-        DialogProducer(
-            KafkaProducer(
-                createKafkaProducerConfig(producerName = "dialog-producer"),
-                StringSerializer(),
-                DialogSerializer(),
-            ),
-        )
 
     val dokumentkoblingProducer =
         DokumentkoblingProducer(
