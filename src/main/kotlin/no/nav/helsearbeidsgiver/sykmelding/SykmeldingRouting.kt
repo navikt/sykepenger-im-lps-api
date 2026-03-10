@@ -232,7 +232,7 @@ fun Route.sykmeldingTokenX(
                 // TODO: Legg til Prometheus metrikk telling
                 sikkerLogger().info("Bruker med PID: $pid henter sykmelding PDF: $sykmeldingId")
 
-                val pdfBytes = genererSykmeldingPdf(sykmelding)
+                val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
                 call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
             } catch (e: Exception) {
                 FEIL_VED_HENTING_SYKMELDING.also {
