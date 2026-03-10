@@ -11,6 +11,7 @@ class ForespoerselAuthTest : HentApiAuthTest<ForespoerselResponse, ForespoerselF
     override val enkeltDokumentEndepunkt = "/v1/forespoersel"
     override val utfasetEndepunkt = "/v1/forespoersler"
 
+    override val harPdfEndepunkt = false
     override val dokumentSerializer: KSerializer<ForespoerselResponse> = ForespoerselResponse.serializer()
     override val filterSerializer: KSerializer<ForespoerselFilter> = ForespoerselFilter.serializer()
 
