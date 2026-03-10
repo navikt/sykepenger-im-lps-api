@@ -15,9 +15,7 @@ import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
-import no.nav.helsearbeidsgiver.dialogporten.DialogProducer
 import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingProducer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
@@ -84,7 +82,6 @@ data class Services(
     val forespoerselService: ForespoerselService,
     val inntektsmeldingService: InntektsmeldingService,
     val innsendingService: InnsendingService,
-    val dialogportenService: DialogportenService,
     val dokumentkoblingService: DokumentkoblingService,
     val sykmeldingService: SykmeldingService,
     val pdlService: PdlService,
@@ -119,7 +116,6 @@ fun configureTolkere(
     val sykmeldingTolker =
         SykmeldingTolker(
             sykmeldingService = services.sykmeldingService,
-            dialogportenService = services.dialogportenService,
             dokumentkoblingService = services.dokumentkoblingService,
             pdlService = services.pdlService,
         )
@@ -195,23 +191,6 @@ fun configureServices(
             startAsync(true)
         }
 
-    val dialogProducer =
-        DialogProducer(
-            KafkaProducer(
-                createKafkaProducerConfig(producerName = "dialog-producer"),
-                StringSerializer(),
-                DialogSerializer(),
-            ),
-        )
-    val dialogportenService =
-        DialogportenService(
-            dialogProducer = dialogProducer,
-            soeknadRepository = repositories.soeknadRepository,
-            unleashFeatureToggles = unleashFeatureToggles,
-            inntektsmeldingRepository = repositories.inntektsmeldingRepository,
-            forespoerselRepository = repositories.forespoerselRepository,
-        )
-
     val dokumentkoblingProducer =
         DokumentkoblingProducer(
             KafkaProducer(
@@ -228,22 +207,20 @@ fun configureServices(
             repositories = repositories,
         )
 
-    val soeknadService = SoeknadService(repositories.soeknadRepository, sykmeldingService, dialogportenService, dokumentkoblingService)
+    val soeknadService = SoeknadService(repositories.soeknadRepository, sykmeldingService, dokumentkoblingService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
         AvvistInntektsmeldingService(
             repositories.inntektsmeldingRepository,
-            dialogportenService,
             dokumentkoblingService,
         )
     val forespoerselService =
-        ForespoerselService(repositories.forespoerselRepository, dialogportenService, dokumentkoblingService)
+        ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
 
     return Services(
         forespoerselService,
         inntektsmeldingService,
         innsendingService,
-        dialogportenService,
         dokumentkoblingService,
         sykmeldingService,
         pdlService,

@@ -1,9 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka.sykmelding
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogSykmelding
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
 import no.nav.helsearbeidsgiver.pdl.PdlService
@@ -13,11 +10,9 @@ import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class SykmeldingTolker(
     private val sykmeldingService: SykmeldingService,
-    private val dialogportenService: DialogportenService,
     private val dokumentkoblingService: DokumentkoblingService,
     private val pdlService: PdlService,
 ) : MeldingTolker {
@@ -36,22 +31,6 @@ class SykmeldingTolker(
                 sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
 
             if (harLagretSykmelding) {
-                val dialogSykmelding =
-                    DialogSykmelding(
-                        sykmeldingId = sykmeldingId,
-                        orgnr = Orgnr(sykmeldingMessage.event.arbeidsgiver.orgnummer),
-                        foedselsdato = fullPerson.foedselsdato,
-                        fulltNavn = fullPerson.navn.fulltNavn(),
-                        sykmeldingsperioder =
-                            sykmeldingMessage.sykmelding.sykmeldingsperioder.map {
-                                Periode(
-                                    it.fom,
-                                    it.tom,
-                                )
-                            },
-                    )
-                dialogportenService.opprettNyDialogMedSykmelding(dialogSykmelding)
-
                 dokumentkoblingService.produserSykmeldingKobling(
                     sykmeldingId = sykmeldingId,
                     sykmeldingMessage = sykmeldingMessage,

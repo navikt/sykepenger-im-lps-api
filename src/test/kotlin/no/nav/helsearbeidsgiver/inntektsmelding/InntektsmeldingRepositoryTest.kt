@@ -27,7 +27,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -335,14 +334,6 @@ class InntektsmeldingRepositoryTest {
         val inntektsmeldingJson =
             buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
         inntektsmeldingRepository.opprettInntektsmelding(inntektsmeldingJson)
-
-        val inntektsmeldingDialogMelding = inntektsmeldingRepository.hentInntektsmeldingDialogMelding(inntektsmeldingId)
-        assertNotNull(inntektsmeldingDialogMelding)
-        assertEquals(DEFAULT_ORG, inntektsmeldingDialogMelding.orgnr)
-        assertEquals(inntektsmeldingId, inntektsmeldingDialogMelding.innsendingId)
-        assertEquals(sykmeldingId, inntektsmeldingDialogMelding.sykmeldingId)
-        assertEquals(forespoerselId, inntektsmeldingDialogMelding.forespoerselId)
-        assertEquals(InnsendingStatus.GODKJENT, inntektsmeldingDialogMelding.status)
     }
 
     private fun generateTestData(

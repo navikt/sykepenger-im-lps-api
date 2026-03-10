@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.forespoersel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -20,9 +19,8 @@ import kotlin.test.assertEquals
 
 class ForespoerselServiceTest {
     private val forespoerselRepository = mockk<ForespoerselRepository>(relaxed = true)
-    private val dialogportenService = mockk<DialogportenService>()
     private val dokumentkoblingService = mockk<DokumentkoblingService>()
-    private val forespoerselService = ForespoerselService(forespoerselRepository, dialogportenService, dokumentkoblingService)
+    private val forespoerselService = ForespoerselService(forespoerselRepository, dokumentkoblingService)
 
     @Test
     fun hentForespoerslerForOrgnr() {
