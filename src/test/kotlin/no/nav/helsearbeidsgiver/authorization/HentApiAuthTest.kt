@@ -143,7 +143,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
         if (harPdfEndepunkt) {
             runBlocking {
-                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}").status shouldBe HttpStatusCode.Unauthorized
+                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}/pdf").status shouldBe HttpStatusCode.Unauthorized
             }
         }
 
@@ -159,8 +159,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
     @Test
     fun `gir 401 Unauthorized når systembruker mangler i token ved henting av dokumenter`() {
-        // enkelt dokument endepunkt
-
         runBlocking {
             val respons =
                 client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") {
@@ -178,7 +176,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
                 respons.status shouldBe HttpStatusCode.Unauthorized
             }
         }
-        // Filtrerings endepunkt
+
         runBlocking {
             client.post(filtreringEndepunkt) {
                 contentType(ContentType.Application.Json)
