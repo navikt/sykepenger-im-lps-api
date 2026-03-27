@@ -34,6 +34,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -208,7 +209,7 @@ class InnsendingIT {
                 }
 
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<ErrorResponse>().feil shouldBe Feil.INNSENDING_PAA_GAMMEL_FORESPOERSEL
+            response.body<ErrorResponse>().feil shouldBe FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL.name
             response.body<ErrorResponse>().referanseId shouldBe navReferanseId2.toString()
         }
 

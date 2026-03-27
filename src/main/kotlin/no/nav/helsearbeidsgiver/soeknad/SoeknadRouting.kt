@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
@@ -90,7 +91,7 @@ private suspend fun RoutingContext.hentSoeknadMedId(
 
         val soeknad = soeknadService.hentSoeknad(soeknadId)
         if (soeknad == null) {
-            call.respond(HttpStatusCode.NotFound, ErrorResponse(Feil.SOEKNAD_IKKE_FUNNET, referanseId = soeknadId.toString()))
+            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId.toString()))
             return null
         }
 

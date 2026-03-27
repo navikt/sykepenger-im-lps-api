@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.erDuplikat
@@ -86,7 +87,7 @@ private fun Route.sendInntektsmelding(
                 }
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(Feil.INNSENDING_PAA_GAMMEL_FORESPOERSEL, referanseId = sisteForespoersel.navReferanseId.toString()),
+                    ErrorResponse(FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL, sisteForespoersel.navReferanseId.toString()),
                 )
             }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -109,7 +110,7 @@ private fun Route.sendInntektsmelding(
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(feil = Feil.UGYLDIG_INNSENDING, feilmelding = it.joinToString("; ")),
+                    ErrorResponse(feil = Feil.UGYLDIG_INNSENDING.name, feilmelding = it.joinToString("; ")),
                 )
             }
 
@@ -124,7 +125,7 @@ private fun Route.sendInntektsmelding(
                 }
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(feil = Feil.UGYLDIG_INNSENDING, feilmelding = it),
+                    ErrorResponse(feil = Feil.UGYLDIG_INNSENDING.name, feilmelding = it),
                 )
             }
             val sisteInntektsmelding =
@@ -155,7 +156,7 @@ private fun Route.sendInntektsmelding(
             ) {
                 return@post call.respond(
                     HttpStatusCode.Conflict,
-                    ErrorResponse(Feil.DUPLIKAT_INNSENDING, referanseId = sisteInntektsmelding.id.toString()),
+                    ErrorResponse(FeilMedReferanse.DUPLIKAT_INNSENDING, sisteInntektsmelding.id.toString()),
                 )
             }
 
@@ -238,7 +239,7 @@ private fun Route.hentInntektsmelding(
             if (inntektsmelding == null) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    ErrorResponse(Feil.INNTEKTSMELDING_IKKE_FUNNET, referanseId = innsendingId.toString()),
+                    ErrorResponse(FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET, innsendingId.toString()),
                 )
                 return@get
             }

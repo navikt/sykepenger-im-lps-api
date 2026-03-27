@@ -24,6 +24,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -101,7 +102,7 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
 
         val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
         if (sykmelding == null) {
-            call.respond(NotFound, ErrorResponse(Feil.SYKMELDING_IKKE_FUNNET, referanseId = sykmeldingId.toString()))
+            call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId.toString()))
             return null
         }
 
@@ -206,7 +207,7 @@ fun Route.sykmeldingTokenX(
 
                 val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
                 if (sykmelding == null) {
-                    call.respond(NotFound, ErrorResponse(Feil.SYKMELDING_IKKE_FUNNET, referanseId = sykmeldingId.toString()))
+                    call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId.toString()))
                     return@get
                 }
                 if (!tokenContext.personHarTilgangTilRessurs(

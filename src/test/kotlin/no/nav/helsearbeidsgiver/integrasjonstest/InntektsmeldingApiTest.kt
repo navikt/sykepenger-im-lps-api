@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -42,7 +43,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
-            notFound.body<ErrorResponse>().feil shouldBe Feil.INNTEKTSMELDING_IKKE_FUNNET
+            notFound.body<ErrorResponse>().feil shouldBe FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET.name
             notFound.body<ErrorResponse>().referanseId shouldBe missingId.toString()
 
             // Ugyldig UUID:
@@ -52,7 +53,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             ugyldig.status shouldBe HttpStatusCode.BadRequest
-            ugyldig.body<ErrorResponse>().feil shouldBe Feil.UGYLDIG_INNSENDING_ID
+            ugyldig.body<ErrorResponse>().feil shouldBe Feil.UGYLDIG_INNSENDING_ID.name
         }
     }
 }
