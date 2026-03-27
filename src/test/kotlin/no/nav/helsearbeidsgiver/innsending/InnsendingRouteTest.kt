@@ -22,8 +22,9 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -36,7 +37,6 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
 import java.util.UUID
 
 class InnsendingRouteTest : ApiTest() {
@@ -94,7 +94,8 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
-            response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id.toString()
+            response.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.DUPLIKAT_INNSENDING.name
+            response.body<ErrorResponse>().referanseId shouldBe InnsendingMockData.imResponse.id.toString()
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
@@ -161,7 +162,7 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<ErrorResponse>().feilmelding shouldBe ErrorMessages.FEIL_INNSENDING_STATUS
+            response.body<ErrorResponse>().feilkode shouldBe Feil.FEIL_INNSENDING_STATUS.name
 
             verify(exactly = 0) {
                 services.opprettImTransaction(

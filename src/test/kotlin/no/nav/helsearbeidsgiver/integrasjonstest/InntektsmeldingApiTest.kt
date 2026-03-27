@@ -6,6 +6,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingResponse
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.testcontainer.LpsApiIntegrasjontest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
@@ -41,7 +43,8 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
-            notFound.body<ErrorResponse>().feilmelding shouldBe "Inntektsmelding med innsendingId: $missingId ikke funnet."
+            notFound.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET.name
+            notFound.body<ErrorResponse>().referanseId shouldBe missingId.toString()
 
             // Ugyldig UUID:
             val ugyldig =
@@ -50,7 +53,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             ugyldig.status shouldBe HttpStatusCode.BadRequest
-            ugyldig.body<ErrorResponse>().feilmelding shouldBe "Ugyldig innsendingId"
+            ugyldig.body<ErrorResponse>().feilkode shouldBe Feil.UGYLDIG_INNSENDING_ID.name
         }
     }
 }
