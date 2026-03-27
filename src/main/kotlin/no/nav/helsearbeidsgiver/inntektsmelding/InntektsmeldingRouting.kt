@@ -87,7 +87,7 @@ private fun Route.sendInntektsmelding(
                 }
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL, sisteForespoersel.navReferanseId.toString()),
+                    ErrorResponse(FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL, sisteForespoersel.navReferanseId),
                 )
             }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -110,7 +110,7 @@ private fun Route.sendInntektsmelding(
             request.valider().takeIf { it.isNotEmpty() }?.let {
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(feil = Feil.UGYLDIG_INNSENDING.name, feilmelding = it.joinToString("; ")),
+                    ErrorResponse(feilkode = Feil.UGYLDIG_INNSENDING.name, feilmelding = it.joinToString("; ")),
                 )
             }
 
@@ -125,7 +125,7 @@ private fun Route.sendInntektsmelding(
                 }
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(feil = Feil.UGYLDIG_INNSENDING.name, feilmelding = it),
+                    ErrorResponse(feilkode = Feil.UGYLDIG_INNSENDING.name, feilmelding = it),
                 )
             }
             val sisteInntektsmelding =
@@ -156,7 +156,7 @@ private fun Route.sendInntektsmelding(
             ) {
                 return@post call.respond(
                     HttpStatusCode.Conflict,
-                    ErrorResponse(FeilMedReferanse.DUPLIKAT_INNSENDING, sisteInntektsmelding.id.toString()),
+                    ErrorResponse(FeilMedReferanse.DUPLIKAT_INNSENDING, sisteInntektsmelding.id),
                 )
             }
 
@@ -239,7 +239,7 @@ private fun Route.hentInntektsmelding(
             if (inntektsmelding == null) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    ErrorResponse(FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET, innsendingId.toString()),
+                    ErrorResponse(FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET, innsendingId),
                 )
                 return@get
             }

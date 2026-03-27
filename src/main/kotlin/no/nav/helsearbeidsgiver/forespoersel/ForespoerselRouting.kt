@@ -58,7 +58,7 @@ private fun Route.forespoersel(
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)
             if (forespoersel == null) {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.FORESPOERSEL_IKKE_FUNNET, navReferanseId.toString()))
+                call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.FORESPOERSEL_IKKE_FUNNET, navReferanseId))
                 return@get
             }
 

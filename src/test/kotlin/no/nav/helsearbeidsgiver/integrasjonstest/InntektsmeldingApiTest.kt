@@ -43,7 +43,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
-            notFound.body<ErrorResponse>().feil shouldBe FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET.name
+            notFound.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET.name
             notFound.body<ErrorResponse>().referanseId shouldBe missingId.toString()
 
             // Ugyldig UUID:
@@ -53,7 +53,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG),
                 )
             ugyldig.status shouldBe HttpStatusCode.BadRequest
-            ugyldig.body<ErrorResponse>().feil shouldBe Feil.UGYLDIG_INNSENDING_ID.name
+            ugyldig.body<ErrorResponse>().feilkode shouldBe Feil.UGYLDIG_INNSENDING_ID.name
         }
     }
 }

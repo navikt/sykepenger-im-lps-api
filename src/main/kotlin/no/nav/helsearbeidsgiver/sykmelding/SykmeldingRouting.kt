@@ -102,7 +102,7 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
 
         val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
         if (sykmelding == null) {
-            call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId.toString()))
+            call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId))
             return null
         }
 
@@ -207,7 +207,7 @@ fun Route.sykmeldingTokenX(
 
                 val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
                 if (sykmelding == null) {
-                    call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId.toString()))
+                    call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId))
                     return@get
                 }
                 if (!tokenContext.personHarTilgangTilRessurs(

@@ -1,28 +1,31 @@
 package no.nav.helsearbeidsgiver.plugins
 
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import java.util.UUID
 
 @Serializable
 data class ErrorResponse(
-    val feil: String,
+    val feilkode: String,
     val feilmelding: String,
-    val referanseId: String? = null,
+    @Serializable(UuidSerializer::class)
+    val referanseId: UUID? = null,
 )
 
 fun ErrorResponse(feil: Feil) =
     ErrorResponse(
-        feil = feil.name,
+        feilkode = feil.name,
         feilmelding = feil.feilmelding,
     )
 
-fun ErrorResponse(feil: FeilMedReferanse, referanseId: String) =
-    ErrorResponse(
-        feil = feil.name,
-        feilmelding = feil.feilmelding,
-        referanseId = referanseId,
-    )
+fun ErrorResponse(
+    feil: FeilMedReferanse,
+    referanseId: UUID,
+) = ErrorResponse(
+    feilkode = feil.name,
+    feilmelding = feil.feilmelding,
+    referanseId = referanseId,
+)
 
 enum class Feil(
     val feilmelding: String,

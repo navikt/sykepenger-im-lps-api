@@ -24,8 +24,6 @@ import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
-import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
-import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.respondMedPDF
@@ -91,7 +89,7 @@ private suspend fun RoutingContext.hentSoeknadMedId(
 
         val soeknad = soeknadService.hentSoeknad(soeknadId)
         if (soeknad == null) {
-            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId.toString()))
+            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId))
             return null
         }
 
