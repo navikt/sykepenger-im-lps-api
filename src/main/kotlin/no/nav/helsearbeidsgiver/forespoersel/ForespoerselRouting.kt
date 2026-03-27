@@ -17,14 +17,8 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_FORESPOERSEL
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_FORESPOERSLER
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.IKKE_TILGANG_TIL_RESSURS
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_FILTERPARAMETER
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_IDENTIFIKATOR
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_NAV_REFERANSE_ID
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -57,13 +51,13 @@ private fun Route.forespoersel(
         try {
             val navReferanseId = call.parameters["navReferanseId"]?.toUuidOrNull()
             if (navReferanseId == null) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_NAV_REFERANSE_ID))
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_NAV_REFERANSE_ID))
                 return@get
             }
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)
             if (forespoersel == null) {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse("Forespørsel med navReferanseId: $navReferanseId ikke funnet."))
+                call.respond(HttpStatusCode.NotFound, ErrorResponse(Feil.FORESPOERSEL_IKKE_FUNNET, referanseId = navReferanseId.toString()))
                 return@get
             }
 
@@ -75,7 +69,7 @@ private fun Route.forespoersel(
                     orgnr = forespoersel.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                 return@get
             }
 
@@ -89,11 +83,9 @@ private fun Route.forespoersel(
 
             call.respond(forespoersel.toResponse())
         } catch (e: Exception) {
-            FEIL_VED_HENTING_FORESPOERSEL.also {
-                logger().error(it)
-                sikkerLogger().error(it, e)
-                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
-            }
+            logger().error(Feil.FEIL_VED_HENTING_FORESPOERSEL.feilmelding)
+            sikkerLogger().error(Feil.FEIL_VED_HENTING_FORESPOERSEL.feilmelding, e)
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_FORESPOERSEL))
         }
     }
 }
@@ -117,7 +109,7 @@ private fun Route.filtrerForespoersler(
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                 return@post
             }
 
@@ -133,14 +125,14 @@ private fun Route.filtrerForespoersler(
             call.respondWithMaxLimit(forespoersler)
             return@post
         } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_IDENTIFIKATOR))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_IDENTIFIKATOR))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_REQUEST_BODY))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_FILTERPARAMETER))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
         } catch (e: Exception) {
-            sikkerLogger().error(FEIL_VED_HENTING_FORESPOERSLER, e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(FEIL_VED_HENTING_FORESPOERSLER))
+            sikkerLogger().error(Feil.FEIL_VED_HENTING_FORESPOERSLER.feilmelding, e)
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_FORESPOERSLER))
         }
     }
 }

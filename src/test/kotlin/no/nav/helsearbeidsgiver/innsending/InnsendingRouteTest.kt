@@ -22,8 +22,8 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -94,7 +94,8 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
-            response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id.toString()
+            response.body<ErrorResponse>().feil shouldBe Feil.DUPLIKAT_INNSENDING
+            response.body<ErrorResponse>().referanseId shouldBe InnsendingMockData.imResponse.id.toString()
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
@@ -161,7 +162,7 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<ErrorResponse>().feilmelding shouldBe ErrorMessages.FEIL_INNSENDING_STATUS
+            response.body<ErrorResponse>().feil shouldBe Feil.FEIL_INNSENDING_STATUS
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
