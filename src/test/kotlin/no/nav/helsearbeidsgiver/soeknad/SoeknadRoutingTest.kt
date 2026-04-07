@@ -22,6 +22,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData
@@ -294,6 +296,21 @@ class SoeknadRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL dersom request body inneholder ugyldig JSON`() {
+        runBlocking {
+            val respons =
+                client.post("/v1/sykepengesoeknader") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"orgnr": 123}""")
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            respons.status shouldBe HttpStatusCode.BadRequest
+            val errorResponse = respons.body<ErrorResponse>()
+            errorResponse.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
         }
     }
 

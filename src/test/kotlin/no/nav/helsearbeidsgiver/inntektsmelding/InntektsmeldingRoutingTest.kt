@@ -22,6 +22,8 @@ import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -360,6 +362,36 @@ class InntektsmeldingRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL dersom inntektsmeldinger request body inneholder ugyldig JSON`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmeldinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"orgnr": 123}""")
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+            val errorResponse = response.body<ErrorResponse>()
+            errorResponse.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL dersom inntektsmelding innsending request body inneholder ugyldig JSON`() {
+        runBlocking {
+            val response =
+                client.post("/v1/inntektsmelding") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"dette": "er ikke en gyldig inntektsmelding"}""")
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            response.status shouldBe HttpStatusCode.BadRequest
+            val errorResponse = response.body<ErrorResponse>()
+            errorResponse.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
         }
     }
 

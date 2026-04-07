@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
+import no.nav.helsearbeidsgiver.plugins.serialiseringsfeilResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
@@ -150,10 +151,10 @@ private fun Route.filtrerSoeknader(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD, soeknader.size)
             call.respondWithMaxLimit(soeknader)
             return@post
+        } catch (e: ContentTransformationException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
-        } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER))

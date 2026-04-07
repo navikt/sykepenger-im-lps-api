@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
+import no.nav.helsearbeidsgiver.plugins.serialiseringsfeilResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.erDuplikat
@@ -162,6 +163,12 @@ private fun Route.sendInntektsmelding(
 
             services.opprettImTransaction(inntektsmelding, innsending)
             call.respond(HttpStatusCode.Created, InnsendingResponse(inntektsmelding.id.toString()))
+        } catch (e: ContentTransformationException) {
+            sikkerLogger().warn("Serialiseringsfeil ved innsending av inntektsmelding", e)
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
+        } catch (e: BadRequestException) {
+            sikkerLogger().warn("Ugyldig request ved innsending av inntektsmelding", e)
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
@@ -202,10 +209,10 @@ private fun Route.filtrerInntektsmeldinger(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
+        } catch (e: ContentTransformationException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (_: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
-        } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER))

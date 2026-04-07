@@ -37,6 +37,7 @@ enum class Feil(
     EN_FEIL_OPPSTOD("En feil oppstod"),
     UAUTORISERT("Uautorisert tilgang"),
     MANGLER_BRUKERIDENTIFIKASJON("Mangler brukeridentifikasjon i token"),
+    SERIALISERINGSFEIL("Feil ved deserialisering av request body"),
 
     FEIL_VED_PDF_GENERERING("Feil ved generering av pdf"),
 
@@ -57,6 +58,14 @@ enum class Feil(
     UGYLDIG_SOEKNAD_ID("Ugyldig soeknadId"),
     FEIL_VED_HENTING_SYKEPENGESOEKNAD("Feil ved henting av sykepengesøknad"),
     FEIL_VED_HENTING_SYKEPENGESOEKNADER("Feil ved henting av sykepengesøknader"),
+}
+
+fun serialiseringsfeilResponse(exception: Exception): ErrorResponse {
+    val detaljertMelding = exception.cause?.message ?: exception.message ?: Feil.SERIALISERINGSFEIL.feilmelding
+    return ErrorResponse(
+        feilkode = Feil.SERIALISERINGSFEIL.name,
+        feilmelding = detaljertMelding,
+    )
 }
 
 enum class FeilMedReferanse(
