@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.forespoersel
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -20,8 +19,8 @@ import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
-import no.nav.helsearbeidsgiver.plugins.serialiseringsfeilResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.plugins.serialiseringsfeilResponse
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -128,10 +127,8 @@ private fun Route.filtrerForespoersler(
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_IDENTIFIKATOR))
-        } catch (e: ContentTransformationException) {
+        } catch (e: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
         } catch (e: Exception) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_FORESPOERSLER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_FORESPOERSLER))

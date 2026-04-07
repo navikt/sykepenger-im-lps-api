@@ -4,7 +4,6 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -25,8 +24,8 @@ import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
-import no.nav.helsearbeidsgiver.plugins.serialiseringsfeilResponse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.plugins.serialiseringsfeilResponse
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -163,12 +162,9 @@ private fun Route.sendInntektsmelding(
 
             services.opprettImTransaction(inntektsmelding, innsending)
             call.respond(HttpStatusCode.Created, InnsendingResponse(inntektsmelding.id.toString()))
-        } catch (e: ContentTransformationException) {
+        } catch (e: BadRequestException) {
             sikkerLogger().warn("Serialiseringsfeil ved innsending av inntektsmelding", e)
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
-        } catch (e: BadRequestException) {
-            sikkerLogger().warn("Ugyldig request ved innsending av inntektsmelding", e)
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
@@ -209,10 +205,8 @@ private fun Route.filtrerInntektsmeldinger(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
-        } catch (e: ContentTransformationException) {
+        } catch (e: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
         } catch (e: Exception) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER))
