@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.soeknad
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -150,6 +151,8 @@ private fun Route.filtrerSoeknader(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD, soeknader.size)
             call.respondWithMaxLimit(soeknader)
             return@post
+        } catch (e: ContentTransformationException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: Exception) {

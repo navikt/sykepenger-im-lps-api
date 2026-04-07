@@ -4,6 +4,7 @@ package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -162,6 +163,9 @@ private fun Route.sendInntektsmelding(
 
             services.opprettImTransaction(inntektsmelding, innsending)
             call.respond(HttpStatusCode.Created, InnsendingResponse(inntektsmelding.id.toString()))
+        } catch (e: ContentTransformationException) {
+            sikkerLogger().warn("Serialiseringsfeil ved innsending av inntektsmelding", e)
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: BadRequestException) {
             sikkerLogger().warn("Serialiseringsfeil ved innsending av inntektsmelding", e)
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
@@ -205,6 +209,8 @@ private fun Route.filtrerInntektsmeldinger(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
+        } catch (e: ContentTransformationException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: Exception) {

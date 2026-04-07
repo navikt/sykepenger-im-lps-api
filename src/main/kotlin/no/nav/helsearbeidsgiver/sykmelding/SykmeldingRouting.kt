@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -169,6 +170,8 @@ private fun Route.filtrerSykmeldinger(
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_IDENTIFIKATOR))
+        } catch (e: ContentTransformationException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: BadRequestException) {
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: Exception) {
