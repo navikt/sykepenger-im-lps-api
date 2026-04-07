@@ -168,7 +168,7 @@ private fun Route.sendInntektsmelding(
             call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
         } catch (e: BadRequestException) {
             sikkerLogger().warn("Ugyldig request ved innsending av inntektsmelding", e)
-            call.respond(HttpStatusCode.BadRequest, serialiseringsfeilResponse(e))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
