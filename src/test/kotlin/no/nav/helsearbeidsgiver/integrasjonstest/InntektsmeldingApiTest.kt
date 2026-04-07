@@ -44,7 +44,7 @@ class InntektsmeldingApiTest : LpsApiIntegrasjontest() {
                 )
             notFound.status shouldBe HttpStatusCode.NotFound
             notFound.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.INNTEKTSMELDING_IKKE_FUNNET.name
-            notFound.body<ErrorResponse>().referanseId shouldBe missingId.toString()
+            notFound.body<ErrorResponse>().referanseId shouldBe missingId
 
             // Ugyldig UUID:
             val ugyldig =

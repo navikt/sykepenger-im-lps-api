@@ -95,7 +95,7 @@ class InnsendingRouteTest : ApiTest() {
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
             response.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.DUPLIKAT_INNSENDING.name
-            response.body<ErrorResponse>().referanseId shouldBe InnsendingMockData.imResponse.id.toString()
+            response.body<ErrorResponse>().referanseId shouldBe InnsendingMockData.imResponse.id
 
             verify(exactly = 0) {
                 services.opprettImTransaction(

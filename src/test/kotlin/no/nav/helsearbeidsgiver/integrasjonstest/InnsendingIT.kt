@@ -209,7 +209,7 @@ class InnsendingIT {
 
             response.status shouldBe HttpStatusCode.BadRequest
             response.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL.name
-            response.body<ErrorResponse>().referanseId shouldBe navReferanseId2.toString()
+            response.body<ErrorResponse>().referanseId shouldBe navReferanseId2
         }
 
     private fun lagTestdataForMergeFsp(
