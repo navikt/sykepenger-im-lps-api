@@ -176,6 +176,8 @@ tags:
                 removeGroup("/intern/personbruker/sykmelding/{sykmeldingId}/pdf:"),
                 // Fjern depricated endepunkt
                 removeGroup("/v1/sykmelding/{sykmeldingId}.pdf:"),
+                // Endre PDF format fra byte til binary
+                Regex("""(application/pdf:\s*schema:\s*type:\s*"string"\s*format:\s*)"byte"""") to """$1"binary"""",
             )
 
         var newContent = content

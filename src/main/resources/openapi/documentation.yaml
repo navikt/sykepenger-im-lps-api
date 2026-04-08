@@ -363,7 +363,7 @@ paths:
             application/pdf:
               schema:
                 type: "string"
-                format: "byte"
+                format: "binary"
   /v1/sykepengesoeknader:
     post:
       tags:
@@ -496,7 +496,7 @@ paths:
             application/pdf:
               schema:
                 type: "string"
-                format: "byte"
+                format: "binary"
         "500":
           description: "Internal Server Error"
           content:
