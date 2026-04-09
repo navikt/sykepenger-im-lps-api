@@ -903,7 +903,8 @@ object TestData {
                     "feil": {
                         "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN", 
                         "feilmelding": "feilmelding"
-                    }
+                    },
+                    "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
                 }
             }
         }

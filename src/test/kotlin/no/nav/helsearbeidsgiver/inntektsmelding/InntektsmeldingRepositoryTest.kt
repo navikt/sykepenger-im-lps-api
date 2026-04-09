@@ -239,7 +239,8 @@ class InntektsmeldingRepositoryTest {
                 forespoerselId = forespoerselId,
                 vedtaksperiodeId = inntektsmelding1.vedtaksperiodeId!!,
                 orgnr = inntektsmelding1.avsender.orgnr,
-                feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "whatever")
+                feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "whatever"),
+                feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             ),
         )
         val oppdatertInntektsmelding =

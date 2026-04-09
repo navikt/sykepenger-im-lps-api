@@ -140,8 +140,8 @@ class InntektsmeldingRepository(
                 },
             ) {
                 it[status] = InnsendingStatus.FEILET
-                it[feilkode] = avvistInntektsmelding.feil.feilkode
-                it[feilmelding] = avvistInntektsmelding.feil.feilmelding
+                it[feilkode] = avvistInntektsmelding.feil?.feilkode ?: avvistInntektsmelding.feilkode
+                it[feilmelding] = avvistInntektsmelding.feil?.feilmelding
             }
         }
 

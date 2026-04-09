@@ -266,7 +266,8 @@ fun mockAvvistInntektsmelding(): AvvistInntektsmelding =
         forespoerselId = UUID.randomUUID(),
         vedtaksperiodeId = UUID.randomUUID(),
         orgnr = Orgnr(DEFAULT_ORG),
-        feil  = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "generisk feil")
+        feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "generisk feil"),
+        feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
     )
 
 fun mockInntektsmeldingRequest(): InntektsmeldingRequest =
