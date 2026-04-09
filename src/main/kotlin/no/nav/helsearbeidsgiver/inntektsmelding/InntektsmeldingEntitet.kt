@@ -31,5 +31,6 @@ object InntektsmeldingEntitet : Table("inntektsmelding") {
     val versjon = integer("versjon")
     val status = enumerationByName("status", 15, InnsendingStatus::class)
     val feilkode = enumerationByName("feilkode", 255, Valideringsfeil.Feilkode::class).nullable()
+    val feilmelding = varchar("feilmelding", length = 255).nullable()
     override val primaryKey = PrimaryKey(id)
 }

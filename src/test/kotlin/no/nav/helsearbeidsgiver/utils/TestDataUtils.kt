@@ -216,7 +216,7 @@ fun mockAvvistInntektsmeldingResponse(im: Inntektsmelding = buildInntektsmelding
         status = InnsendingStatus.FEILET,
         valideringsfeil =
             Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN.let {
-                Valideringsfeil(feilkode = it, feilmelding = it.feilmelding)
+                Valideringsfeil(feilkode = it, feilmelding = "generisk feil")
             },
     )
 
@@ -266,6 +266,7 @@ fun mockAvvistInntektsmelding(): AvvistInntektsmelding =
         forespoerselId = UUID.randomUUID(),
         vedtaksperiodeId = UUID.randomUUID(),
         orgnr = Orgnr(DEFAULT_ORG),
+        feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "generisk feil"),
         feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
     )
 

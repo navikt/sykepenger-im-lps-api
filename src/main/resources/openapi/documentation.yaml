@@ -1031,9 +1031,9 @@ components:
             - "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
         feilmelding:
           type: "string"
+          nullable: true
       required:
         - "feilkode"
-        - "feilmelding"
     InntektsmeldingResponse:
       type: "object"
       properties:
