@@ -152,7 +152,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                 forespoerselId = inntektsmelding1.type.id,
                 vedtaksperiodeId = vedtaksperiodeId,
                 orgnr = inntektsmelding1.avsender.orgnr,
-                feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
+                feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "")
             )
 
         val melding =

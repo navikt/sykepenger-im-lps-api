@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendingId
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.innsendt
@@ -139,7 +140,8 @@ class InntektsmeldingRepository(
                 },
             ) {
                 it[status] = InnsendingStatus.FEILET
-                it[feilkode] = avvistInntektsmelding.feilkode
+                it[feilkode] = avvistInntektsmelding.feil.feilkode
+                it[feilmelding] = avvistInntektsmelding.feil.feilmelding
             }
         }
 
@@ -164,7 +166,7 @@ class InntektsmeldingRepository(
                 ),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
-            valideringsfeil = this[feilkode]?.let { Valideringsfeil(feilkode = it, feilmelding = it.feilmelding) },
+            valideringsfeil = this[feilkode]?.let { Valideringsfeil(feilkode = it, feilmelding = this[feilmelding]) },
             id = this[innsendingId],
         )
 }

@@ -15,5 +15,5 @@ data class AvvistInntektsmelding(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
-    val feilkode: Valideringsfeil.Feilkode,
+    val feil: Valideringsfeil,
 )
