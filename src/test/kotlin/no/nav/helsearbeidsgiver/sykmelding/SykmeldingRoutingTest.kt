@@ -2,7 +2,9 @@
 
 package no.nav.helsearbeidsgiver.sykmelding
 
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -45,6 +47,10 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class SykmeldingRoutingTest : ApiTest() {
     @BeforeEach
@@ -392,6 +398,53 @@ class SykmeldingRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL for ugyldige request bodies`() {
+        data class Case(
+            val body: String?,
+            val feilmeldingInneholder: String,
+        )
+
+        val cases =
+            listOf(
+                Case("""ikke json i det hele tatt""", "Illegal input: Unexpected JSON token at offset 0: Expected start of the object '{', but had 'i' instead at path: \$"),
+                Case("""{"orgnr": {}}""", "Illegal input: Unexpected JSON token at offset 10: Expected beginning of the string, but got { at path: \$.orgnr"),
+                Case("""{"a": "123"}""", "Illegal input: Encountered an unknown key 'a' at offset 2 at path: \$"),
+                Case("""{}""", "Illegal input: Field 'orgnr' is required, but it was missing at path: \$"),
+                Case("""{"orgnr": "123456789", "fom": "ikke-dato"}""", "Illegal input: Text 'ikke-dato' could not be parsed at index 0"),
+                Case("""{"orgnr": 123}""", "Illegal input: ikke et gyldig orgnr"),
+                //Case("""{"orgnr": null}""", "TODO: null for non-nullable field"), DUPLICATE: //Unexpected JSON token at offset 14: Unexpected 'null' value instead of string literal at path: $.orgnr
+                //Case("""{"orgnr": "123", "fraLoepenr": "ikke-tall"}""", "TODO: string instead of Long"), KEEP: Illegal input: Unexpected JSON token at offset 31: Unexpected symbol 'i' in numeric literal at path: $.fraLoepenr
+                //Case("""{"orgnr": "123", "fraLoepenr": 1.5}""", "TODO: float instead of Long"),
+                Case("""{"orgnr": "240520834", "fnr": true}""", "TODO: boolean instead of string"),
+                Case("""{"orgnr": "123", "fom": "2024-13-01"}""", "Illegal input: Text '2024-13-01' could not be parsed: Invalid value for MonthOfYear (valid values 1 - 12): 13"),
+                Case("""{"orgnr": "123", "fom": ""}""", "Illegal input: Text '' could not be parsed at index 0"), // Aksepterer
+                //Case("""[{"orgnr": "123"}]""", "TODO: array instead of object"), //samme som annen
+                //Case(null, "TODO: null/empty body"),
+               // Case("""{"orgnr": "123", "fraLoepenr": 9999999999999999999}""", "TODO: Long overflow"), boring
+            )
+
+//        ${Orgnr.genererGyldig()}
+
+        runBlocking {
+            cases.forEach { case ->
+                val response =
+                    client.post("/v1/sykmeldinger") {
+                        contentType(ContentType.Application.Json)
+                        setBody(case.body)
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    }
+                val errorResponse = response.body<ErrorResponse>()
+
+                withClue("Body: ${case.body}") {
+                    response.status shouldBe HttpStatusCode.BadRequest
+                    errorResponse.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
+                    errorResponse.feilmelding shouldBe case.feilmeldingInneholder
+                }
+            }
         }
     }
 

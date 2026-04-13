@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.serialization.JsonConvertException
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
@@ -26,6 +27,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
@@ -169,8 +171,8 @@ private fun Route.filtrerSykmeldinger(
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_IDENTIFIKATOR))
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
+        } catch (e: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
         } catch (_: ContentTransformationException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {

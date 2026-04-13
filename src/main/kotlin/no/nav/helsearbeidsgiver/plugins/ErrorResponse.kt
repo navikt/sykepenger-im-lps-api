@@ -1,8 +1,10 @@
 package no.nav.helsearbeidsgiver.plugins
 
+import java.time.format.DateTimeParseException
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import java.util.UUID
+import kotlinx.serialization.MissingFieldException
 
 @Serializable
 data class ErrorResponse(
@@ -27,12 +29,51 @@ fun ErrorResponse(
     referanseId = referanseId,
 )
 
+
+fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
+    val rawMessage =
+        exception
+            .cause
+            ?.message
+            ?.lines()
+            ?.firstOrNull()
+            ?: "Ukjent"
+
+    val sanitizedMessage = rawMessage
+        .replace(Regex(""" for type with serial name '[^']+'"""), "")
+        .replace(Regex("""java\.\S+:\s*"""), "")
+
+    val allowedPatterns = listOf(
+        Regex("""Unexpected JSON token at offset \d+:.*"""),
+        Regex("""Encountered an unknown key '.*' at offset \d+.*"""),
+        Regex("""Field '.*' is required, but it was missing.*"""),
+        Regex("""Text '.*' could not be parsed at index \d+"""),
+    )
+
+//    Regex("""Field '.*' is required, but it was missing.*"""), -> .replace(Regex(""" for type with serial name '[^']+'"""), "")
+
+//    Regex("""Text '.*' could not be parsed at index \d+"""), -> .replace(Regex("""java\.\S+:\s*"""), "")
+
+    val feilmelding = if (allowedPatterns.any { it.containsMatchIn(sanitizedMessage) }) {
+        sanitizedMessage
+    } else {
+        "Ugyldig request body"
+    }
+
+    return ErrorResponse(
+        feilkode = Feil.SERIALISERINGSFEIL.name,
+        feilmelding = sanitizedMessage,
+    )
+}
+
+
 enum class Feil(
     val feilmelding: String,
 ) {
     UGYLDIG_FILTERPARAMETER("Ugyldig filterparameter"),
     UGYLDIG_IDENTIFIKATOR("Ugyldig identifikator"),
     UGYLDIG_REQUEST_BODY("Ugyldig request"),
+    SERIALISERINGSFEIL("Feil ved serialisering av json body"),
     IKKE_TILGANG_TIL_RESSURS("Ikke tilgang til ressurs"),
     EN_FEIL_OPPSTOD("En feil oppstod"),
     UAUTORISERT("Uautorisert tilgang"),
