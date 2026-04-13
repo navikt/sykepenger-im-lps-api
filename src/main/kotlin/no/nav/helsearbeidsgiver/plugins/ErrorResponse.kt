@@ -49,7 +49,7 @@ fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
             Regex("""Illegal input: Text '.*' could not be parsed.*"""),
             Regex("""Illegal input: .{0,100} does not contain element with name '.{0,10}' at path .*"""),
             Regex("""Illegal input: ikke et gyldig orgnr"""),
-            Regex("""Illegal input: .{0,50} må være.*"""),
+            Regex("""Illegal input: .{0,50} kan ikke være.*"""),
         )
 
     val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
@@ -65,7 +65,7 @@ enum class Feil(
 ) {
     UGYLDIG_IDENTIFIKATOR("Ugyldig identifikator"),
     UGYLDIG_REQUEST_BODY("Ugyldig content type"),
-    SERIALISERINGSFEIL("Ugylding request"),
+    SERIALISERINGSFEIL("Ugyldig request"),
     IKKE_TILGANG_TIL_RESSURS("Ikke tilgang til ressurs"),
     EN_FEIL_OPPSTOD("En feil oppstod"),
     UAUTORISERT("Uautorisert tilgang"),
