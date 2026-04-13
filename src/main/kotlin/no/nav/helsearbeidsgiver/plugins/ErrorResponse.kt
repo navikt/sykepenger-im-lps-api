@@ -52,8 +52,7 @@ fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
             Regex("""Illegal input: .{0,50} må være.*"""),
         )
 
-//    val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
-    val erTilattException = exceptionMelding != null
+    val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
 
     return ErrorResponse(
         feilkode = Feil.SERIALISERINGSFEIL.name,
