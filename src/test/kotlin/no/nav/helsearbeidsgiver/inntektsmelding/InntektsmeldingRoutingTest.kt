@@ -21,18 +21,22 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
+import no.nav.helsearbeidsgiver.utils.buildInntektsmeldingJson
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockAvvistInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingResponse
+import no.nav.helsearbeidsgiver.utils.mockSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -425,6 +429,8 @@ class InntektsmeldingRoutingTest : ApiTest() {
                     "Illegal input: Unexpected JSON token at offset 23: Unexpected 'null' value instead of string literal at path: \$.navReferanseId",
                 """{"navReferanseId": {}}""" to
                     "Illegal input: Unexpected JSON token at offset 19: Expected beginning of the string, but got { at path: \$.navReferanseId",
+                mockInntektsmeldingRequest().toJson(InntektsmeldingRequest.serializer()).toString().replace("BEDRIFTSBARNEHAGEPLASS", "") to
+                    "Illegal input: Naturalytelse.Kode does not contain element with name '' at path \$.naturalytelser[0].naturalytelse",
             )
 
         runBlocking {
@@ -439,8 +445,8 @@ class InntektsmeldingRoutingTest : ApiTest() {
 
                 withClue("Body: $body") {
                     respons.status shouldBe HttpStatusCode.BadRequest
-                    feilrespons.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
                     feilrespons.feilmelding shouldBe feilmeldingInneholder
+                    feilrespons.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
                 }
             }
         }

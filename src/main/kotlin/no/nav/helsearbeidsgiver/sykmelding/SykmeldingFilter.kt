@@ -21,6 +21,6 @@ data class SykmeldingFilter(
         fom?.year?.let { require(it >= 0) { "fom må være før år 0" } }
         tom?.year?.let { require(it <= 9999) { "tom må være før år 9999" } } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
-        fraLoepenr?.let { require(it >= 0) { "fom må være mer den 0" } }
+        fraLoepenr?.let { require(it >= 0) { "fraLoepenr må være mer den 0" } }
     }
 }

@@ -38,6 +38,7 @@ fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
             ?.take(300)
             ?.replace(Regex(""" for type with serial name '[^']+'"""), "")
             ?.replace(Regex("""java\.\S+:\s*"""), "")
+            ?.replace(Regex("""no\.nav\.\S+\.([^.\s]+\.[^.\s]+)"""), "$1")
 
     val tillatteRegex =
         listOf(
@@ -46,25 +47,26 @@ fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
             Regex("""Illegal input: Field '.{0,100}' is required, but it was missing.*"""),
             Regex("""Illegal input: Fields \[.{0,300}] are required, but they were missing.*"""),
             Regex("""Illegal input: Text '.*' could not be parsed.*"""),
+            Regex("""Illegal input: .{0,100} does not contain element with name '.{0,10}' at path .*"""),
             Regex("""Illegal input: ikke et gyldig orgnr"""),
             Regex("""Illegal input: .{0,50} må være.*"""),
         )
 
-    val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
+//    val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
+    val erTilattException = exceptionMelding != null
 
     return ErrorResponse(
         feilkode = Feil.SERIALISERINGSFEIL.name,
-        feilmelding = if (erTilattException) exceptionMelding else "Feil ved serialisering av json body",
+        feilmelding = if (erTilattException) exceptionMelding else Feil.SERIALISERINGSFEIL.feilmelding,
     )
 }
 
 enum class Feil(
     val feilmelding: String,
 ) {
-    UGYLDIG_FILTERPARAMETER("Ugyldig filterparameter"),
     UGYLDIG_IDENTIFIKATOR("Ugyldig identifikator"),
-    UGYLDIG_REQUEST_BODY("Ugyldig request"),
-    SERIALISERINGSFEIL("Feil ved serialisering av json body"),
+    UGYLDIG_REQUEST_BODY("Ugyldig content type"),
+    SERIALISERINGSFEIL("Ugylding request"),
     IKKE_TILGANG_TIL_RESSURS("Ikke tilgang til ressurs"),
     EN_FEIL_OPPSTOD("En feil oppstod"),
     UAUTORISERT("Uautorisert tilgang"),
