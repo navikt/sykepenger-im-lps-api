@@ -1,10 +1,10 @@
 package no.nav.helsearbeidsgiver.plugins
 
-import java.time.format.DateTimeParseException
+import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import java.time.format.DateTimeParseException
 import java.util.UUID
-import kotlinx.serialization.MissingFieldException
 
 @Serializable
 data class ErrorResponse(
@@ -29,43 +29,32 @@ fun ErrorResponse(
     referanseId = referanseId,
 )
 
-
 fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
-    val rawMessage =
-        exception
-            .cause
+    val exceptionMelding =
+        exception.cause
             ?.message
             ?.lines()
             ?.firstOrNull()
-            ?: "Ukjent"
+            ?.take(300)
+            ?.replace(Regex(""" for type with serial name '[^']+'"""), "")
+            ?.replace(Regex("""java\.\S+:\s*"""), "")
 
-    val sanitizedMessage = rawMessage
-        .replace(Regex(""" for type with serial name '[^']+'"""), "")
-        .replace(Regex("""java\.\S+:\s*"""), "")
+    val tillatteRegex =
+        listOf(
+            Regex("""Illegal input: Unexpected JSON token at offset \d+:.*"""),
+            Regex("""Illegal input: Encountered an unknown key '.*' at offset \d+.*"""),
+            Regex("""Illegal input: Field '.*' is required, but it was missing.*"""),
+            Regex("""Illegal input: Text '.*' could not be parsed.*"""),
+            Regex("""Illegal input: ikke et gyldig orgnr"""),
+        )
 
-    val allowedPatterns = listOf(
-        Regex("""Unexpected JSON token at offset \d+:.*"""),
-        Regex("""Encountered an unknown key '.*' at offset \d+.*"""),
-        Regex("""Field '.*' is required, but it was missing.*"""),
-        Regex("""Text '.*' could not be parsed at index \d+"""),
-    )
-
-//    Regex("""Field '.*' is required, but it was missing.*"""), -> .replace(Regex(""" for type with serial name '[^']+'"""), "")
-
-//    Regex("""Text '.*' could not be parsed at index \d+"""), -> .replace(Regex("""java\.\S+:\s*"""), "")
-
-    val feilmelding = if (allowedPatterns.any { it.containsMatchIn(sanitizedMessage) }) {
-        sanitizedMessage
-    } else {
-        "Ugyldig request body"
-    }
+    val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
 
     return ErrorResponse(
         feilkode = Feil.SERIALISERINGSFEIL.name,
-        feilmelding = sanitizedMessage,
+        feilmelding = if (erTilattException) exceptionMelding else "Feil ved serialisering av json body",
     )
 }
-
 
 enum class Feil(
     val feilmelding: String,
