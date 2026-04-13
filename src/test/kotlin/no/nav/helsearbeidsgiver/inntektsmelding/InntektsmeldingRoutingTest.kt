@@ -2,6 +2,7 @@
 
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -22,6 +23,8 @@ import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -380,4 +383,39 @@ class InntektsmeldingRoutingTest : ApiTest() {
         val orgnr: String? = null,
         val fraLoepenr: ULong? = null,
     )
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL for ugyldige request bodies på inntektsmelding`() {
+        val tilfeller =
+            listOf(
+                """{}""" to
+                    "Illegal input: Fields [navReferanseId, agp, inntekt, refusjon, naturalytelser, sykmeldtFnr, aarsakInnsending, arbeidsgiverTlf, avsender] are required, but they were missing at path: \$",
+                """{"a": "123"}""" to
+                    "Illegal input: Encountered an unknown key 'a' at offset 2 at path: \$",
+                """ikke json i det hele tatt""" to
+                    "Illegal input: Unexpected JSON token at offset 0: Expected start of the object '{', but had 'i' instead at path: \$",
+                """{"navReferanseId": null}""" to
+                    "Illegal input: Unexpected JSON token at offset 23: Unexpected 'null' value instead of string literal at path: \$.navReferanseId",
+                """{"navReferanseId": {}}""" to
+                    "Illegal input: Unexpected JSON token at offset 19: Expected beginning of the string, but got { at path: \$.navReferanseId",
+            )
+
+        runBlocking {
+            tilfeller.forEach { (body, feilmeldingInneholder) ->
+                val respons =
+                    client.post("/v1/inntektsmelding") {
+                        contentType(ContentType.Application.Json)
+                        setBody(body)
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    }
+                val feilrespons = respons.body<ErrorResponse>()
+
+                withClue("Body: $body") {
+                    respons.status shouldBe HttpStatusCode.BadRequest
+                    feilrespons.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
+                    feilrespons.feilmelding shouldBe feilmeldingInneholder
+                }
+            }
+        }
+    }
 }
