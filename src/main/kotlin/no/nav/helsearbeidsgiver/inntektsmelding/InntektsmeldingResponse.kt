@@ -135,11 +135,11 @@ data class InntektsmeldingFilter(
     val fraLoepenr: Long? = null,
 ) {
     init {
-        require(erGyldig(orgnr))
-        fom?.year?.let { require(it >= 0) }
-        tom?.year?.let { require(it <= 9999) } // Om man tillater alt opp til LocalDate.MAX
+        require(erGyldig(orgnr)) { "ikke et gyldig orgnr" }
+        fom?.year?.let { require(it >= 0) { "fom kan ikke være mindre enn år 0" } }
+        tom?.year?.let { require(it <= 9999) { "tom kan ikke være etter år 9999" } } // Om man tillater alt opp til LocalDate.MAX
         // vil det bli long-overflow ved konvertering til exposed sql-javadate i db-spørring
-        fraLoepenr?.let { require(it >= 0) }
+        fraLoepenr?.let { require(it >= 0) { "fraLoepenr kan ikke være mindre enn 0" } }
     }
 }
 
