@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -127,10 +128,10 @@ private fun Route.filtrerForespoersler(
             return@post
         } catch (_: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_IDENTIFIKATOR))
+        } catch (e: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
         } catch (_: ContentTransformationException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
         } catch (e: Exception) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_FORESPOERSLER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_FORESPOERSLER))

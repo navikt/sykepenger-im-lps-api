@@ -378,6 +378,33 @@ class InntektsmeldingRoutingTest : ApiTest() {
         val fraLoepenr: Long? = null,
     )
 
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL for ugyldige request bodies på inntektsmeldinger filter`() {
+        val tilfeller =
+            listOf(
+                """{}""",
+                """{"a": "123"}""",
+                """ikke json i det hele tatt""",
+            )
+
+        runBlocking {
+            tilfeller.forEach { body ->
+                val respons =
+                    client.post("/v1/inntektsmeldinger") {
+                        contentType(ContentType.Application.Json)
+                        setBody(body)
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    }
+                val feilrespons = respons.body<ErrorResponse>()
+
+                withClue("Body: $body") {
+                    respons.status shouldBe HttpStatusCode.BadRequest
+                    feilrespons.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
+                }
+            }
+        }
+    }
+
     @Serializable
     data class InntektsmeldingFilterSomTillaterLoepenrOverMaxLong(
         val orgnr: String? = null,

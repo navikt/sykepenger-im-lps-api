@@ -2,6 +2,7 @@
 
 package no.nav.helsearbeidsgiver.soeknad
 
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -22,6 +23,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.TestData
@@ -294,6 +297,33 @@ class SoeknadRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL for ugyldige request bodies på sykepengesoeknader filter`() {
+        val tilfeller =
+            listOf(
+                """{}""",
+                """{"a": "123"}""",
+                """ikke json i det hele tatt""",
+            )
+
+        runBlocking {
+            tilfeller.forEach { body ->
+                val respons =
+                    client.post("/v1/sykepengesoeknader") {
+                        contentType(ContentType.Application.Json)
+                        setBody(body)
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    }
+                val feilrespons = respons.body<ErrorResponse>()
+
+                withClue("Body: $body") {
+                    respons.status shouldBe HttpStatusCode.BadRequest
+                    feilrespons.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
+                }
+            }
         }
     }
 

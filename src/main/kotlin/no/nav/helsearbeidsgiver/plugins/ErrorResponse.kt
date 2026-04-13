@@ -42,11 +42,12 @@ fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
     val tillatteRegex =
         listOf(
             Regex("""Illegal input: Unexpected JSON token at offset \d+:.*"""),
-            Regex("""Illegal input: Encountered an unknown key '.*' at offset \d+.*"""),
-            Regex("""Illegal input: Field '.*' is required, but it was missing.*"""),
-            Regex("""Illegal input: Fields \[.*] are required, but they were missing.*"""),
+            Regex("""Illegal input: Encountered an unknown key '.{0,100}' at offset \d+.*"""),
+            Regex("""Illegal input: Field '.{0,100}' is required, but it was missing.*"""),
+            Regex("""Illegal input: Fields \[.{0,300}] are required, but they were missing.*"""),
             Regex("""Illegal input: Text '.*' could not be parsed.*"""),
             Regex("""Illegal input: ikke et gyldig orgnr"""),
+            Regex("""Illegal input: .{0,50} må være.*"""),
         )
 
     val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }

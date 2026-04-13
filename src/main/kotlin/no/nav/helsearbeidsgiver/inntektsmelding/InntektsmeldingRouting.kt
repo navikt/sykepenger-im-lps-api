@@ -207,8 +207,8 @@ private fun Route.filtrerInntektsmeldinger(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
             call.respondWithMaxLimit(inntektsmeldinger)
             return@post
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_FILTERPARAMETER))
+        } catch (e: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
         } catch (_: ContentTransformationException) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
