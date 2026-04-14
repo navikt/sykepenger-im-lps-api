@@ -19,6 +19,8 @@ import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
@@ -26,6 +28,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
@@ -61,10 +64,16 @@ class InnsendingRouteTest : ApiTest() {
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
+            val innsendingTypeMedEksponertForespoerselId =
+                Inntektsmelding.Type.ForespurtEkstern(
+                    eksponertForespoerselId,
+                    forespoersel.arbeidsgiverperiodePaakrevd,
+                    AvsenderSystem(TIGERSYS_ORGNR, requestBody.avsender.systemNavn, requestBody.avsender.systemVersjon),
+                )
             verify(exactly = 1) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == eksponertForespoerselId },
+                    match { it.type == innsendingTypeMedEksponertForespoerselId },
                 )
             }
         }
