@@ -168,6 +168,8 @@ class InnsendingAuthTest : ApiTest() {
         } returns forespoersel
 
         every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+        every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+            forespoersel.navReferanseId
         every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
     }
 }

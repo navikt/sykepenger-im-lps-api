@@ -52,16 +52,19 @@ class InnsendingRouteTest : ApiTest() {
         runTest {
             val requestBody = InnsendingMockData.requestBody
             val forespoersel = InnsendingMockData.forespoersel
+            val eksponertForespoerselId = UUID.randomUUID()
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns
                 forespoersel
             every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+                eksponertForespoerselId
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
             verify(exactly = 1) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == eksponertForespoerselId },
                 )
             }
         }
@@ -179,6 +182,8 @@ class InnsendingRouteTest : ApiTest() {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+                forespoersel.navReferanseId
             every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
