@@ -1,7 +1,9 @@
 package no.nav.helsearbeidsgiver.plugins
 
+import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import java.time.format.DateTimeParseException
 import java.util.UUID
 
 @Serializable
@@ -27,12 +29,43 @@ fun ErrorResponse(
     referanseId = referanseId,
 )
 
+fun serialiseringsErrorResponse(exception: Exception): ErrorResponse {
+    val exceptionMelding =
+        exception.cause
+            ?.message
+            ?.lines()
+            ?.firstOrNull()
+            ?.take(300)
+            ?.replace(Regex(""" for type with serial name '[^']+'"""), "")
+            ?.replace(Regex("""java\.\S+:\s*"""), "")
+            ?.replace(Regex("""no\.nav\.\S+\.([^.\s]+\.[^.\s]+)"""), "$1")
+
+    val tillatteRegex =
+        listOf(
+            Regex("""Illegal input: Unexpected JSON token at offset \d+:.*"""),
+            Regex("""Illegal input: Encountered an unknown key '.{0,100}' at offset \d+.*"""),
+            Regex("""Illegal input: Field '.{0,100}' is required, but it was missing.*"""),
+            Regex("""Illegal input: Fields \[.{0,300}] are required, but they were missing.*"""),
+            Regex("""Illegal input: Text '.*' could not be parsed.*"""),
+            Regex("""Illegal input: .{0,100} does not contain element with name '.{0,10}' at path .*"""),
+            Regex("""Illegal input: ikke et gyldig orgnr"""),
+            Regex("""Illegal input: .{0,50} kan ikke være.*"""),
+        )
+
+    val erTilattException = exceptionMelding != null && tillatteRegex.any { it.matches(exceptionMelding) }
+
+    return ErrorResponse(
+        feilkode = Feil.SERIALISERINGSFEIL.name,
+        feilmelding = if (erTilattException) exceptionMelding else Feil.SERIALISERINGSFEIL.feilmelding,
+    )
+}
+
 enum class Feil(
     val feilmelding: String,
 ) {
-    UGYLDIG_FILTERPARAMETER("Ugyldig filterparameter"),
     UGYLDIG_IDENTIFIKATOR("Ugyldig identifikator"),
-    UGYLDIG_REQUEST_BODY("Ugyldig request"),
+    UGYLDIG_REQUEST_BODY("Ugyldig content type"),
+    SERIALISERINGSFEIL("Ugyldig request"),
     IKKE_TILGANG_TIL_RESSURS("Ikke tilgang til ressurs"),
     EN_FEIL_OPPSTOD("En feil oppstod"),
     UAUTORISERT("Uautorisert tilgang"),
