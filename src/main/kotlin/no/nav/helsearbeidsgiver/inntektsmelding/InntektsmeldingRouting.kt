@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding.Type
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -147,14 +148,22 @@ private fun Route.sendInntektsmelding(
             val eksponertForespoerselId =
                 services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
 
-            // OBS: Lager innsending med Type.Forespurt med eksponertForespørselID, slik at denne plukkes opp korrekt i Simba!
+            // OBS: Lager innsending med Type.ForespurtEkstern med eksponertForespørselID, slik at denne plukkes opp korrekt i Simba!
             // Dette betyr at inntektsmelding.navReferanseId ikke alltid er lik Innsending.type.id !!!!
             val innsending =
                 request.tilInnsending(
                     inntektsmelding.id,
                     eksponertForespoerselId,
-                    Type.Forespurt(eksponertForespoerselId, forespoersel.arbeidsgiverperiodePaakrevd),
-                    VERSJON_1,
+                    Type.ForespurtEkstern(
+                        eksponertForespoerselId,
+                        forespoersel.arbeidsgiverperiodePaakrevd,
+                        AvsenderSystem(
+                            Orgnr(lpsOrgnr),
+                            request.avsender.systemNavn,
+                            request.avsender.systemVersjon,
+                        ),
+                    ),
+                    versjon = VERSJON_1,
                 )
 
             if (
