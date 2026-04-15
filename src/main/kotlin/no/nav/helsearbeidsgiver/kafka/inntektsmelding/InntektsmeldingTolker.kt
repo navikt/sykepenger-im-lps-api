@@ -28,7 +28,8 @@ class InntektsmeldingTolker(
             }
         transaction {
             try {
-                if (innsendtFraNavPortal(obj.inntektsmelding.type)) { // TODO: flytt denne sjekken inn i Service
+                if (innsendtFraNavPortal(obj.inntektsmelding.type)) {
+                    // TODO ^: flytt denne sjekken inn i Service - kan evt bare matche på innsendingID i basen???
                     sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
                     services.inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                 } else {
