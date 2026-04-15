@@ -12,8 +12,10 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
+import no.nav.helsearbeidsgiver.auth.getPidFromTokenX
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
+import no.nav.helsearbeidsgiver.auth.personHarTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -158,6 +160,54 @@ private fun Route.filtrerSoeknader(
         } catch (e: Exception) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER))
+        }
+    }
+}
+
+fun Route.soeknadTokenX(soeknadService: SoeknadService) {
+    route("/intern/personbruker") {
+        get("/sykepengesoeknad/{soeknadId}/pdf") {
+            try {
+                val tokenContext = tokenValidationContext()
+                val pid = tokenContext.getPidFromTokenX()
+
+                if (pid == null) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.MANGLER_BRUKERIDENTIFIKASJON))
+                    return@get
+                }
+
+                val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
+                if (soeknadId == null) {
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_SOEKNAD_ID))
+                    return@get
+                }
+
+                val soeknad = soeknadService.hentSoeknad(soeknadId)
+                if (soeknad == null) {
+                    call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId))
+                    return@get
+                }
+
+                if (!tokenContext.personHarTilgangTilRessurs(
+                        ressurs = SOEKNAD_RESSURS,
+                        orgnr = soeknad.arbeidsgiver.orgnr,
+                        pid = pid,
+                    )
+                ) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+                    return@get
+                }
+
+                sikkerLogger().info("Bruker med PID: $pid henter sykepengesoeknad PDF: $soeknadId")
+
+                val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
+                val pdfBytes = genererSoeknadPdf(soeknadForPDF)
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
+            } catch (e: Exception) {
+                logger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNAD.feilmelding)
+                sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNAD.feilmelding, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNAD))
+            }
         }
     }
 }

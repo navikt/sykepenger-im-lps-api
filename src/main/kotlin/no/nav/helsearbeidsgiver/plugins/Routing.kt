@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
+import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
@@ -39,7 +40,8 @@ fun Application.configureRouting(
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
         authenticate("tokenx-config") {
-            sykmeldingTokenX(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
+            sykmeldingTokenX(sykmeldingService = services.sykmeldingService)
+            soeknadTokenX(soeknadService = services.soeknadService)
         }
     }
 }

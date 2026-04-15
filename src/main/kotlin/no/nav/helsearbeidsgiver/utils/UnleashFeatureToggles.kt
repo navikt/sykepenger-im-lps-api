@@ -106,12 +106,6 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalEksponereSykmeldingerPDF(): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-sykmelding-PDF-i-api",
-            false,
-        )
-
     fun skalKonsumereStatusISpeil(): Boolean =
         unleashClient.isEnabled(
             "konsumer-status-i-speil",

@@ -182,17 +182,10 @@ private fun Route.filtrerSykmeldinger(
     }
 }
 
-fun Route.sykmeldingTokenX(
-    sykmeldingService: SykmeldingService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Route.sykmeldingTokenX(sykmeldingService: SykmeldingService) {
     route("/intern/personbruker") {
         get("/sykmelding/{sykmeldingId}/pdf") {
             try {
-                if (!unleashFeatureToggles.skalEksponereSykmeldingerPDF()) {
-                    call.respond(HttpStatusCode.Forbidden)
-                    return@get
-                }
                 val tokenContext = tokenValidationContext()
                 val pid = tokenContext.getPidFromTokenX()
 
