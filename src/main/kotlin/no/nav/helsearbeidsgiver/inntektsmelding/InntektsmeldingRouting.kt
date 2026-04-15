@@ -19,7 +19,6 @@ import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding.Type
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
@@ -154,15 +153,7 @@ private fun Route.sendInntektsmelding(
                 request.tilInnsending(
                     inntektsmelding.id,
                     eksponertForespoerselId,
-                    Type.ForespurtEkstern(
-                        eksponertForespoerselId,
-                        forespoersel.arbeidsgiverperiodePaakrevd,
-                        AvsenderSystem(
-                            Orgnr(lpsOrgnr),
-                            request.avsender.systemNavn,
-                            request.avsender.systemVersjon,
-                        ),
-                    ),
+                    (inntektsmelding.type as Type.ForespurtEkstern).copy(id = eksponertForespoerselId),
                     versjon = VERSJON_1,
                 )
 
