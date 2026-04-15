@@ -166,7 +166,7 @@ private fun Route.filtrerSoeknader(
 
 fun Route.soeknadTokenX(soeknadService: SoeknadService) {
     route("/intern/personbruker") {
-        get("/sykepengesoeknad/{soknad}/pdf") {
+        get("/soknad/{soknadId}/pdf") {
             try {
                 val tokenContext = tokenValidationContext()
                 val pid = tokenContext.getPidFromTokenX()
@@ -176,7 +176,7 @@ fun Route.soeknadTokenX(soeknadService: SoeknadService) {
                     return@get
                 }
 
-                val soeknadId = call.parameters["soknad"]?.toUuidOrNull()
+                val soeknadId = call.parameters["soknadId"]?.toUuidOrNull()
                 if (soeknadId == null) {
                     call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_SOEKNAD_ID))
                     return@get
