@@ -74,9 +74,7 @@ private fun Route.sykmelding(
     }
     get("/sykmelding/{sykmeldingId}/pdf") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr)) ||
-            !unleashFeatureToggles.skalEksponereSykmeldingerPDF()
-        ) {
+        if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr))) {
             call.respond(HttpStatusCode.Forbidden)
             return@get
         }
