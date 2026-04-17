@@ -28,6 +28,7 @@ class SoeknadAuthTest : HentApiAuthTest<Sykepengesoeknad, SykepengesoeknadFilter
     override val enkeltDokumentEndepunkt = "/v1/sykepengesoeknad"
     override val utfasetEndepunkt = "/v1/sykepengesoeknader"
 
+    override val harPdfEndepunkt = true
     override val dokumentSerializer: KSerializer<Sykepengesoeknad> = Sykepengesoeknad.serializer()
     override val filterSerializer: KSerializer<SykepengesoeknadFilter> = SykepengesoeknadFilter.serializer()
 

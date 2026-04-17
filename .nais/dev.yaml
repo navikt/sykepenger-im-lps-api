@@ -60,6 +60,7 @@ spec:
     inbound:
       rules:
         - application: im-dokument-proxy
+        - application: hag-dokument-proxy
         # TODO: Fjern om vi ikke trenger tokenx-token-generator lenger
         - application: tokenx-token-generator
           namespace: nais

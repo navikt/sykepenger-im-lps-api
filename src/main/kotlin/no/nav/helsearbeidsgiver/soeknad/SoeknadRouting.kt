@@ -18,15 +18,11 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKEPENGESOEKNAD
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKEPENGESOEKNADER
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.IKKE_TILGANG_TIL_RESSURS
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_FILTERPARAMETER
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_SOEKNAD_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
-import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
+import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -61,9 +57,15 @@ private fun Route.soeknad(
     get("/sykepengesoeknad/{soeknadId}/pdf") {
         val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
         if (soeknad != null) {
-            val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
-            val pdfBytes = genererSoeknadPdf(soeknadForPDF)
-            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
+            try {
+                val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
+                val pdfBytes = genererSoeknadPdf(soeknadForPDF)
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykepengesoeknad-${soeknad.soeknadId}.pdf")
+            } catch (e: Exception) {
+                logger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding)
+                sikkerLogger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
+            }
         }
     }
 }
@@ -82,13 +84,13 @@ private suspend fun RoutingContext.hentSoeknadMedId(
 
         val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
         if (soeknadId == null) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SOEKNAD_ID))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_SOEKNAD_ID))
             return null
         }
 
         val soeknad = soeknadService.hentSoeknad(soeknadId)
         if (soeknad == null) {
-            call.respond(HttpStatusCode.NotFound, ErrorResponse("Fant ingen søknad for id $soeknadId"))
+            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId))
             return null
         }
 
@@ -97,7 +99,7 @@ private suspend fun RoutingContext.hentSoeknadMedId(
                 orgnr = soeknad.arbeidsgiver.orgnr,
             )
         ) {
-            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
             return null
         }
 
@@ -107,11 +109,9 @@ private suspend fun RoutingContext.hentSoeknadMedId(
 
         return soeknad
     } catch (e: Exception) {
-        FEIL_VED_HENTING_SYKEPENGESOEKNAD.also {
-            logger().error(it)
-            sikkerLogger().error(it, e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
-        }
+        logger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNAD.feilmelding)
+        sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNAD.feilmelding, e)
+        call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNAD))
     }
     return null
 }
@@ -138,7 +138,7 @@ private fun Route.filtrerSoeknader(
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                 return@post
             }
 
@@ -151,13 +151,13 @@ private fun Route.filtrerSoeknader(
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD, soeknader.size)
             call.respondWithMaxLimit(soeknader)
             return@post
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_FILTERPARAMETER))
+        } catch (e: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_REQUEST_BODY))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
-            sikkerLogger().error(FEIL_VED_HENTING_SYKEPENGESOEKNADER, e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(FEIL_VED_HENTING_SYKEPENGESOEKNADER))
+            sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER.feilmelding, e)
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER))
         }
     }
 }

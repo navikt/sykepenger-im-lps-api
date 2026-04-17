@@ -36,7 +36,6 @@ class KafkaErrorHandlingTest {
             forespoerselService = mockForespoerselService,
             inntektsmeldingService = mockk(),
             innsendingService = mockk(),
-            dialogportenService = mockk(),
             dokumentkoblingService = mockk(),
             sykmeldingService = mockk(),
             pdlService = mockk(),

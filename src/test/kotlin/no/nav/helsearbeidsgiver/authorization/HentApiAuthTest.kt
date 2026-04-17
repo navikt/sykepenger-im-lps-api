@@ -1,25 +1,32 @@
 package no.nav.helsearbeidsgiver.authorization
 
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
+import no.nav.helsearbeidsgiver.sykmelding.tilSykmeldingDTO
+import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
+import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
+import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.ugyldigTokenManglerSystembruker
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -41,6 +48,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
         every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
+        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns true
     }
 
     @AfterAll
@@ -52,6 +60,7 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     abstract val filtreringEndepunkt: String
     abstract val utfasetEndepunkt: String
 
+    abstract val harPdfEndepunkt: Boolean
     abstract val dokumentSerializer: KSerializer<Dokument>
     abstract val filterSerializer: KSerializer<Filter>
 
@@ -128,39 +137,54 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
 
     @Test
     fun `gir 401 Unauthorized når token mangler ved henting av dokumenter`() {
-        val respons1 = runBlocking { client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") }
-        respons1.status shouldBe HttpStatusCode.Unauthorized
+        runBlocking {
+            client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}").status shouldBe HttpStatusCode.Unauthorized
+        }
+
+        if (harPdfEndepunkt) {
+            runBlocking {
+                client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}/pdf").status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
 
         val requestBody = lagFilter(underenhetOrgnrMedPdpTilgang)
-        val respons2 =
-            runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(requestBody.toJson(filterSerializer))
-                }
+
+        runBlocking {
+            client.post(filtreringEndepunkt) {
+                contentType(ContentType.Application.Json)
+                setBody(requestBody.toJson(filterSerializer))
             }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
+        }.status shouldBe HttpStatusCode.Unauthorized
     }
 
     @Test
     fun `gir 401 Unauthorized når systembruker mangler i token ved henting av dokumenter`() {
-        val respons1 =
-            runBlocking {
+        runBlocking {
+            val respons =
                 client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}") {
                     bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
                 }
-            }
-        respons1.status shouldBe HttpStatusCode.Unauthorized
+            respons.status shouldBe HttpStatusCode.Unauthorized
+        }
 
-        val respons2 =
+        if (harPdfEndepunkt) {
             runBlocking {
-                client.post(filtreringEndepunkt) {
-                    contentType(ContentType.Application.Json)
-                    setBody(lagFilter(underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
-                    bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
-                }
+                val respons =
+                    client.get("$enkeltDokumentEndepunkt/${UUID.randomUUID()}/pdf") {
+                        bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
+                    }
+                respons.status shouldBe HttpStatusCode.Unauthorized
             }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
+        }
+
+        runBlocking {
+            client.post(filtreringEndepunkt) {
+                contentType(ContentType.Application.Json)
+                setBody(lagFilter(underenhetOrgnrMedPdpTilgang).toJson(filterSerializer))
+                bearerAuth(mockOAuth2Server.ugyldigTokenManglerSystembruker())
+            }
+        }.status shouldBe
+            HttpStatusCode.Unauthorized
     }
 
     @Test
@@ -176,25 +200,41 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
             id = dokumentIdIkkeTilgang,
             resultat = mockDokument(dokumentIdTilgang, orgnrUtenPdpTilgang),
         )
-
         // Systembruker _har_ tilgang til hovedenhetorgnr (fra token), men har _ikke_ tilgang til underenhetorgnr (fra dokument).
         // Det vil si at man forsøker å hente en dokument som systembrukeren ikke skal ha tilgang til.
-        val respons1 =
-            runBlocking {
+        runBlocking {
+            val respons =
                 client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
                 }
-            }
-        respons1.status shouldBe HttpStatusCode.Unauthorized
+            respons.status shouldBe HttpStatusCode.Unauthorized
+        }
 
         // Systembruker har hverken tilgang til orgnr i token eller orgnr fra dokument.
-        val respons2 =
-            runBlocking {
+        runBlocking {
+            val respons =
                 client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
                 }
+            respons.status shouldBe HttpStatusCode.Unauthorized
+        }
+
+        if (harPdfEndepunkt) {
+            runBlocking {
+                val respons =
+                    client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang/pdf") {
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(hovedenhetOrgnrMedPdpTilgang))
+                    }
+                respons.status shouldBe HttpStatusCode.Unauthorized
             }
-        respons2.status shouldBe HttpStatusCode.Unauthorized
+            runBlocking {
+                val respons =
+                    client.get("$enkeltDokumentEndepunkt/$dokumentIdIkkeTilgang/pdf") {
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(orgnrUtenPdpTilgang))
+                    }
+                respons.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
     }
 
     @Test

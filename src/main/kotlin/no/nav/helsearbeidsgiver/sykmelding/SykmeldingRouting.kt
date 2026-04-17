@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
+import io.ktor.serialization.JsonConvertException
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
@@ -22,15 +23,11 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.metrikk.MetrikkDokumentType
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.metrikk.tellDokumenterHentet
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKMELDING
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.FEIL_VED_HENTING_SYKMELDINGER
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.IKKE_TILGANG_TIL_RESSURS
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_FILTERPARAMETER
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_IDENTIFIKATOR
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_REQUEST_BODY
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages.UGYLDIG_SYKMELDING_ID
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
@@ -85,8 +82,14 @@ private fun Route.sykmelding(
         }
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
-            val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
-            call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
+            try {
+                val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
+                call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
+            } catch (e: Exception) {
+                logger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding)
+                sikkerLogger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
+            }
         }
     }
 }
@@ -95,13 +98,13 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
     try {
         val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
         if (sykmeldingId == null) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_SYKMELDING_ID))
             return null
         }
 
         val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
         if (sykmelding == null) {
-            call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
+            call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId))
             return null
         }
 
@@ -110,7 +113,7 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
                 orgnr = sykmelding.arbeidsgiver.orgnr.verdi,
             )
         ) {
-            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
             return null
         }
         tellApiRequest()
@@ -124,11 +127,9 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
 
         return sykmelding
     } catch (e: Exception) {
-        FEIL_VED_HENTING_SYKMELDING.also {
-            logger().error(it)
-            sikkerLogger().error(it, e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
-        }
+        logger().error(Feil.FEIL_VED_HENTING_SYKMELDING.feilmelding)
+        sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKMELDING.feilmelding, e)
+        call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKMELDING))
     }
     return null
 }
@@ -155,7 +156,7 @@ private fun Route.filtrerSykmeldinger(
                     orgnr = filter.orgnr,
                 )
             ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                 return@post
             }
 
@@ -169,14 +170,14 @@ private fun Route.filtrerSykmeldinger(
             call.respondWithMaxLimit(sykemeldinger)
             return@post
         } catch (_: IllegalArgumentException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_IDENTIFIKATOR))
-        } catch (_: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_FILTERPARAMETER))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_IDENTIFIKATOR))
+        } catch (e: BadRequestException) {
+            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
         } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_REQUEST_BODY))
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
         } catch (e: Exception) {
-            sikkerLogger().error(FEIL_VED_HENTING_SYKMELDINGER, e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(FEIL_VED_HENTING_SYKMELDINGER))
+            sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKMELDINGER.feilmelding, e)
+            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKMELDINGER))
         }
     }
 }
@@ -196,19 +197,19 @@ fun Route.sykmeldingTokenX(
                 val pid = tokenContext.getPidFromTokenX()
 
                 if (pid == null) {
-                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse("Mangler brukeridentifikasjon i token"))
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.MANGLER_BRUKERIDENTIFIKASJON))
                     return@get
                 }
 
                 val sykmeldingId = call.parameters["sykmeldingId"]?.toUuidOrNull()
                 if (sykmeldingId == null) {
-                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(UGYLDIG_SYKMELDING_ID))
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_SYKMELDING_ID))
                     return@get
                 }
 
                 val sykmelding = sykmeldingService.hentSykmelding(sykmeldingId)
                 if (sykmelding == null) {
-                    call.respond(NotFound, ErrorResponse("Sykmelding med id: $sykmeldingId ikke funnet."))
+                    call.respond(NotFound, ErrorResponse(FeilMedReferanse.SYKMELDING_IKKE_FUNNET, sykmeldingId))
                     return@get
                 }
                 if (!tokenContext.personHarTilgangTilRessurs(
@@ -217,20 +218,18 @@ fun Route.sykmeldingTokenX(
                         pid = pid,
                     )
                 ) {
-                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(IKKE_TILGANG_TIL_RESSURS))
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                     return@get
                 }
                 // TODO: Legg til Prometheus metrikk telling
                 sikkerLogger().info("Bruker med PID: $pid henter sykmelding PDF: $sykmeldingId")
 
-                val pdfBytes = genererSykmeldingPdf(sykmelding)
+                val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
                 call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
             } catch (e: Exception) {
-                FEIL_VED_HENTING_SYKMELDING.also {
-                    logger().error(it)
-                    sikkerLogger().error(it, e)
-                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(it))
-                }
+                logger().error(Feil.FEIL_VED_HENTING_SYKMELDING.feilmelding)
+                sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKMELDING.feilmelding, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKMELDING))
             }
         }
     }

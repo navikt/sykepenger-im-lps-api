@@ -15,5 +15,6 @@ data class AvvistInntektsmelding(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
+    val feil: Valideringsfeil?, // TODO : bakoverkampatibelitet: fjern feilkode, gjør feil ikke-nullable når simba-main er oppdatert
     val feilkode: Valideringsfeil.Feilkode,
 )

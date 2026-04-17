@@ -19,12 +19,16 @@ import kotlinx.coroutines.test.runTest
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
-import no.nav.helsearbeidsgiver.plugins.ErrorMessages
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
+import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
@@ -36,7 +40,6 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
 import java.util.UUID
 
 class InnsendingRouteTest : ApiTest() {
@@ -52,16 +55,25 @@ class InnsendingRouteTest : ApiTest() {
         runTest {
             val requestBody = InnsendingMockData.requestBody
             val forespoersel = InnsendingMockData.forespoersel
+            val eksponertForespoerselId = UUID.randomUUID()
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns
                 forespoersel
             every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+                eksponertForespoerselId
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
+            val innsendingTypeMedEksponertForespoerselId =
+                Inntektsmelding.Type.ForespurtEkstern(
+                    eksponertForespoerselId,
+                    forespoersel.arbeidsgiverperiodePaakrevd,
+                    AvsenderSystem(TIGERSYS_ORGNR, requestBody.avsender.systemNavn, requestBody.avsender.systemVersjon),
+                )
             verify(exactly = 1) {
                 services.opprettImTransaction(
                     match { it.type.id == requestBody.navReferanseId },
-                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type == innsendingTypeMedEksponertForespoerselId },
                 )
             }
         }
@@ -94,7 +106,8 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Conflict
-            response.body<ErrorResponse>().feilmelding shouldBe InnsendingMockData.imResponse.id.toString()
+            response.body<ErrorResponse>().feilkode shouldBe FeilMedReferanse.DUPLIKAT_INNSENDING.name
+            response.body<ErrorResponse>().referanseId shouldBe InnsendingMockData.imResponse.id
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
@@ -161,7 +174,7 @@ class InnsendingRouteTest : ApiTest() {
                 )
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<ErrorResponse>().feilmelding shouldBe ErrorMessages.FEIL_INNSENDING_STATUS
+            response.body<ErrorResponse>().feilkode shouldBe Feil.FEIL_INNSENDING_STATUS.name
 
             verify(exactly = 0) {
                 services.opprettImTransaction(
@@ -178,6 +191,8 @@ class InnsendingRouteTest : ApiTest() {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+                forespoersel.navReferanseId
             every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(

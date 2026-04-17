@@ -2,7 +2,9 @@
 
 package no.nav.helsearbeidsgiver.sykmelding
 
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -25,6 +27,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -36,6 +40,8 @@ import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.gyldigTokenxToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -392,6 +398,53 @@ class SykmeldingRoutingTest : ApiTest() {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
+
+    @Test
+    fun `gir 400 Bad Request med SERIALISERINGSFEIL for ugyldige request bodies`() {
+        val orgnr = Orgnr.genererGyldig()
+        val tilfeller =
+            listOf(
+                """{}""" to
+                    "Illegal input: Field 'orgnr' is required, but it was missing at path: \$",
+                """{"a": "123"}""" to
+                    "Illegal input: Encountered an unknown key 'a' at offset 2 at path: \$",
+                """{"orgnr": 123}""" to
+                    "Illegal input: ikke et gyldig orgnr",
+                """{"orgnr": "123", "fom": ""}""" to
+                    "Illegal input: Text '' could not be parsed at index 0",
+                """{"orgnr": $orgnr, "fom": "ikke-dato"}""" to
+                    "Illegal input: Text 'ikke-dato' could not be parsed at index 0",
+                """ikke json i det hele tatt""" to
+                    "Illegal input: Unexpected JSON token at offset 0: Expected start of the object '{', but had 'i' instead at path: \$",
+                """{"orgnr": {}}""" to
+                    "Illegal input: Unexpected JSON token at offset 10: Expected beginning of the string, but got { at path: \$.orgnr",
+                """{"orgnr": null}""" to
+                    "Illegal input: Unexpected JSON token at offset 14: Unexpected 'null' value instead of string literal at path: $.orgnr",
+                """{"orgnr": "123", "fom": "2024-13-01"}""" to
+                    "Illegal input: Text '2024-13-01' could not be parsed: Invalid value for MonthOfYear (valid values 1 - 12): 13",
+                """{"orgnr": "123", "fraLoepenr": 1.5}""" to
+                    "Illegal input: Unexpected JSON token at offset 31: Unexpected symbol '.' in numeric literal at path: \$.fraLoepenr",
+                // """{"orgnr": "240520834", "fnr": true}""" to "?", // json boolean blir parset som string, gir ikke feil
+            )
+
+        runBlocking {
+            tilfeller.forEach { (body, feilmeldingInneholder) ->
+                val respons =
+                    client.post("/v1/sykmeldinger") {
+                        contentType(ContentType.Application.Json)
+                        setBody(body)
+                        bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                    }
+                val feilrespons = respons.body<ErrorResponse>()
+
+                withClue("Body: $body") {
+                    respons.status shouldBe HttpStatusCode.BadRequest
+                    feilrespons.feilkode shouldBe Feil.SERIALISERINGSFEIL.name
+                    feilrespons.feilmelding shouldBe feilmeldingInneholder
+                }
+            }
         }
     }
 

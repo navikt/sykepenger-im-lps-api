@@ -1,12 +1,9 @@
 package no.nav.helsearbeidsgiver.kafka.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.Services
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.JournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
@@ -31,7 +28,8 @@ class InntektsmeldingTolker(
             }
         transaction {
             try {
-                if (innsendtFraNavPortal(obj.inntektsmelding.type)) { // TODO: flytt denne sjekken inn i Service
+                if (innsendtFraNavPortal(obj.inntektsmelding.type)) {
+                    // TODO ^: flytt denne sjekken inn i Service - kan evt bare matche på innsendingID i basen???
                     sikkerLogger.info("Mottok im sendt fra NAV PORTAL - lagrer")
                     services.inntektsmeldingService.opprettInntektsmelding(obj.inntektsmelding)
                 } else {
@@ -39,7 +37,6 @@ class InntektsmeldingTolker(
                     services.inntektsmeldingService.oppdaterStatus(obj.inntektsmelding, InnsendingStatus.GODKJENT)
                 }
                 mottakRepository.opprett(ExposedMottak(melding))
-                services.dialogportenService.oppdaterDialogMedInntektsmelding(obj.inntektsmelding.id)
                 services.dokumentkoblingService.produserInntektsmeldingGodkjentKobling(obj.inntektsmelding)
             } catch (e: Exception) {
                 rollback()
