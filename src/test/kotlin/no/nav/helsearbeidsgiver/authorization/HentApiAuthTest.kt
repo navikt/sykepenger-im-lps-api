@@ -48,7 +48,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
         every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
         every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
-        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns true
     }
 
     @AfterAll
