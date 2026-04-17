@@ -216,7 +216,7 @@ class InntektsmeldingRepositoryTest {
     }
 
     @Test
-    fun `oppdater inntektsmelding med feilet status`() {
+    fun `oppdater inntektsmelding med feilet status og klipper feilmelding hvis den er for lang`() {
         val repository = InntektsmeldingRepository(db)
         val inntektsmeldingId = UUID.randomUUID()
         val forespoerselId = UUID.randomUUID()
@@ -231,6 +231,7 @@ class InntektsmeldingRepositoryTest {
             im = inntektsmelding2,
             innsendingStatus = InnsendingStatus.MOTTATT,
         )
+        val langFeilmelding = "Veldig stor feil: " + ("A").repeat(255)
         val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
         result[0].status shouldBe InnsendingStatus.MOTTATT
         repository.oppdaterFeilstatusOgFeilkode(
@@ -239,8 +240,11 @@ class InntektsmeldingRepositoryTest {
                 forespoerselId = forespoerselId,
                 vedtaksperiodeId = inntektsmelding1.vedtaksperiodeId!!,
                 orgnr = inntektsmelding1.avsender.orgnr,
-                feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, "whatever"),
-                feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
+                feil =
+                    Valideringsfeil(
+                        feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
+                        feilmelding = langFeilmelding,
+                    ),
             ),
         )
         val oppdatertInntektsmelding =

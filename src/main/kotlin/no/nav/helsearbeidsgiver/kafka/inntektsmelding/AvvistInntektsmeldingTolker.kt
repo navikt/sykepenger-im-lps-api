@@ -35,7 +35,7 @@ class AvvistInntektsmeldingTolker(
                     ) ?: throw IllegalArgumentException("Mangler avvist inntektsmelding i melding.")
 
                 logger.info(
-                    "Mottok melding om avvist inntektsmelding med id ${avvistInntektsmelding.inntektsmeldingId} med feilkode ${avvistInntektsmelding.feilkode}.",
+                    "Mottok melding om avvist inntektsmelding med id ${avvistInntektsmelding.inntektsmeldingId} med feilkode ${avvistInntektsmelding.feil.feilkode}.",
                 )
 
                 avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(avvistInntektsmelding)
