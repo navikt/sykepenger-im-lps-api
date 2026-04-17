@@ -141,7 +141,7 @@ class InntektsmeldingRepository(
             ) {
                 it[status] = InnsendingStatus.FEILET
                 it[feilkode] = avvistInntektsmelding.feil.feilkode
-                it[feilmelding] = avvistInntektsmelding.feil.feilmelding?.substring(0, 255)
+                it[feilmelding] = avvistInntektsmelding.feil.feilmelding?.take(255)
             }
         }
 
