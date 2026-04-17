@@ -55,7 +55,7 @@ class SoeknadTokenXRoutingTest : ApiTest() {
 
         runBlocking {
             val response =
-                client.get("/intern/personbruker/soknad/$soeknadId/pdf") {
+                client.get("/intern/personbruker/sykepengesoeknad/$soeknadId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.OK
@@ -74,7 +74,7 @@ class SoeknadTokenXRoutingTest : ApiTest() {
             SykepengeSoeknadDto(Random.nextLong(), soeknadMock().medId(soeknadId).medOrgnr(DEFAULT_ORG))
         runBlocking {
             val response =
-                client.get("/intern/personbruker/soknad/$soeknadId/pdf") {
+                client.get("/intern/personbruker/sykepengesoeknad/$soeknadId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -96,7 +96,7 @@ class SoeknadTokenXRoutingTest : ApiTest() {
             SykepengeSoeknadDto(Random.nextLong(), soeknadMock().medId(soeknadId).medOrgnr(DEFAULT_ORG))
         runBlocking {
             val response =
-                client.get("/intern/personbruker/soknad/$soeknadId/pdf") {
+                client.get("/intern/personbruker/sykepengesoeknad/$soeknadId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized

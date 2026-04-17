@@ -166,7 +166,7 @@ private fun Route.filtrerSoeknader(
 
 fun Route.soeknadTokenX(soeknadService: SoeknadService) {
     route("/intern/personbruker") {
-        get("/soknad/{soknadId}/pdf") {
+        get("/sykepengesoeknad/{soknadId}/pdf") {
             try {
                 val tokenContext = tokenValidationContext()
                 val pid = tokenContext.getPidFromTokenX()
