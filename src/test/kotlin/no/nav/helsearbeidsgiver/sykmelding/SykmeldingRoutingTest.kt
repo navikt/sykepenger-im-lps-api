@@ -56,7 +56,6 @@ class SykmeldingRoutingTest : ApiTest() {
     @BeforeEach
     fun setup() {
         every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
-        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns true
     }
 
     @AfterEach
@@ -184,20 +183,6 @@ class SykmeldingRoutingTest : ApiTest() {
             response.status shouldBe HttpStatusCode.Unauthorized
         }
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-    }
-
-    @Test
-    fun `gir 403 Forbidden error om eksponer-sykmelding-PDF-i-api er skrudd av`() {
-        val sykmeldingId = UUID.randomUUID()
-
-        every { unleashFeatureToggles.skalEksponereSykmeldingerPDF() } returns false
-        runBlocking {
-            val response =
-                client.get("/v1/sykmelding/$sykmeldingId/pdf") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            response.status shouldBe HttpStatusCode.Forbidden
-        }
     }
 
     @Test

@@ -31,7 +31,6 @@ class AvvistInntektsmeldingServiceTest {
                 vedtaksperiodeId = UUID.randomUUID(),
                 orgnr = Orgnr.genererGyldig(),
                 feil = Valideringsfeil(Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN, null),
-                feilkode = Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
             )
 
         every {

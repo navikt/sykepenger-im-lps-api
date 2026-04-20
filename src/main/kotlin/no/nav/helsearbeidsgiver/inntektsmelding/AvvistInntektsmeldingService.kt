@@ -16,14 +16,14 @@ class AvvistInntektsmeldingService(
             0 -> {
                 logger.error(
                     "Klarte ikke å oppdatere inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
-                        "med feilkode ${avvistInntektsmelding.feilkode} fordi den ikke finnes i databasen.",
+                        "med feilkode ${avvistInntektsmelding.feil.feilkode} fordi den ikke finnes i databasen.",
                 )
             }
 
             else -> {
                 logger.info(
                     "Oppdaterte inntektsmelding ${avvistInntektsmelding.inntektsmeldingId} til status FEILET " +
-                        "med feilkode ${avvistInntektsmelding.feilkode}.",
+                        "med feilkode ${avvistInntektsmelding.feil.feilkode}.",
                 )
                 dokumentkoblingService.produserInntektsmeldingAvvistKobling(
                     avvistInntektsmelding,
