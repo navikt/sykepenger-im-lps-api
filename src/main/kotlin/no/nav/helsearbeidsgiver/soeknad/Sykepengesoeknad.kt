@@ -33,7 +33,7 @@ data class Sykepengesoeknad(
     val soektUtenlandsopphold: Boolean?,
     val korrigerer: UUID?,
     val soeknadsperioder: List<Soeknadsperiode>,
-    // val behandlingsdager: List<LocalDate>,
+    val behandlingsdager: List<LocalDate>,
     val fravaer: List<Fravaer>,
 ) {
     @Serializable

@@ -43,6 +43,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
+import no.nav.helsearbeidsgiver.utils.test.date.mai
 
 class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
@@ -74,6 +75,7 @@ class SoeknadRoutingTest : ApiTest() {
             val soeknadRespons = respons.body<Sykepengesoeknad>()
             soeknadRespons.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
             soeknadRespons.soeknadId shouldBe soeknad.sykepengeSoeknadKafkaMelding.id
+            soeknadRespons.behandlingsdager shouldBe listOf(5.mai)
         }
     }
 

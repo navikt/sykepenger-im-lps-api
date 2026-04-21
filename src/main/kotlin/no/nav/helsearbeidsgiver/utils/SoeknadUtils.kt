@@ -18,7 +18,7 @@ fun SykepengeSoeknadKafkaMelding.konverter(loepenr: Long): Sykepengesoeknad =
         tom = tom,
         arbeidGjenopptattDato = arbeidGjenopptatt,
         mottatTid = utledSendtTid(),
-        // behandlingsdager = behandlingsdager ?: emptyList(), TODO: skal vi ta med denne videre til ag?
+        behandlingsdager = behandlingsdager ?: emptyList(),
         fravaer = fravar?.map { it.konverter() }.orEmpty(),
         soeknadsperioder = soknadsperioder?.map { it.konverter() }.orEmpty(),
     )
