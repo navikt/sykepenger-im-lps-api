@@ -34,6 +34,7 @@ import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.test.date.mai
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -43,7 +44,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.random.Random
-import no.nav.helsearbeidsgiver.utils.test.date.mai
 
 class SoeknadRoutingTest : ApiTest() {
     @BeforeEach
