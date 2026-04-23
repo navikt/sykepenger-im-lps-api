@@ -158,7 +158,7 @@ private fun Route.sendInntektsmelding(
                 )
 
             if (
-                sisteInntektsmelding != null &&
+                sisteInntektsmelding != null && sisteInntektsmelding.status != InnsendingStatus.FEILET &&
                 innsending.skjema.erDuplikat(
                     sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
                 )

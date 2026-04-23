@@ -118,6 +118,28 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     @Test
+    fun `innsending av duplikat inntektsmelding er tillatt hvis forrige innsendte har status FEILET`() =
+        runTest {
+            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
+                listOf(
+                    InnsendingMockData.imResponse.copy(status = InnsendingStatus.FEILET),
+                )
+            val response = sendInnInntektsmelding(requestBody)
+            response.status shouldBe HttpStatusCode.Created
+
+            verify(exactly = 1) {
+                services.opprettImTransaction(
+                    inntektsmelding = any(),
+                    innsending = any(),
+                )
+            }
+        }
+
+    @Test
     fun `innsending av inntektsmelding med aarsak Ny der tidligere innsending finnes gir bad request`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Ny)
