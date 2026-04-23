@@ -34,6 +34,7 @@ import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.test.date.mai
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -74,6 +75,7 @@ class SoeknadRoutingTest : ApiTest() {
             val soeknadRespons = respons.body<Sykepengesoeknad>()
             soeknadRespons.arbeidsgiver.orgnr shouldBe DEFAULT_ORG
             soeknadRespons.soeknadId shouldBe soeknad.sykepengeSoeknadKafkaMelding.id
+            soeknadRespons.behandlingsdager shouldBe listOf(5.mai)
         }
     }
 

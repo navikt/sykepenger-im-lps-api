@@ -1256,6 +1256,11 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Soeknadsperiode"
+        behandlingsdager:
+          type: "array"
+          items:
+            type: "string"
+            format: "date"
         fravaer:
           type: "array"
           items:
@@ -1268,6 +1273,7 @@ components:
         - "mottatTid"
         - "arbeidsgiver"
         - "soeknadsperioder"
+        - "behandlingsdager"
         - "fravaer"
     SykepengesoeknadFilter:
       type: "object"
