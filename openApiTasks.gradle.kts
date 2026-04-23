@@ -172,8 +172,9 @@ tags:
                 Regex("""  /health/is-(?:alive|ready):[\s\S]*?(?=  /[^/]|$)""") to "",
                 // Fjern metrics-endepunkt
                 Regex("""  /metrics:[\s\S]*?(?=  /[^/]|$)""") to "",
-                // Fjern intern personbruker sykmelding PDF-endepunkt
+                // Fjern intern personbruker PDF-endepunkt
                 removeGroup("/intern/personbruker/sykmelding/{sykmeldingId}/pdf:"),
+                removeGroup("/intern/personbruker/sykepengesoeknad/{soknadId}/pdf:"),
                 // Fjern depricated endepunkt
                 removeGroup("/v1/sykmelding/{sykmeldingId}.pdf:"),
                 // Endre PDF format fra byte til binary
