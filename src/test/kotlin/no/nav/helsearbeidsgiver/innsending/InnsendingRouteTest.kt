@@ -231,6 +231,27 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     @Test
+    fun `innsending av inntektsmelding med aarsak endring er OK hvis forespørsel er besvart via Altinn2`() =
+        runTest {
+            val endretInntekt = InnsendingMockData.requestBody.inntekt?.copy(beloep = 666.0)
+            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+                forespoersel.navReferanseId
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList() // ingen IM
+            val response = sendInnInntektsmelding(requestBody)
+            response.status shouldBe HttpStatusCode.Created
+            verify(exactly = 1) {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
+        }
+
+    @Test
     fun `innsending av inntektsmelding på forespoersel som ikke finnes gir feil`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody
