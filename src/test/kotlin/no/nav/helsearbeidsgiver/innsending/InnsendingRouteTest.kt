@@ -28,6 +28,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.Feilmelding.FORESPOERSEL_FORKASTET
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -231,12 +232,35 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     @Test
-    fun `innsending av inntektsmelding på forespoersel som ikke finnes gir feil`() =
+    fun `innsending av inntektsmelding med aarsak endring er OK hvis forespørsel er besvart via Altinn2`() =
+        runTest {
+            val endretInntekt = InnsendingMockData.requestBody.inntekt?.copy(beloep = 666.0)
+            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
+            every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
+            every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
+                forespoersel.navReferanseId
+            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
+            every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList() // ingen IM
+            val response = sendInnInntektsmelding(requestBody)
+            response.status shouldBe HttpStatusCode.Created
+            verify(exactly = 1) {
+                services.opprettImTransaction(
+                    match { it.type.id == requestBody.navReferanseId },
+                    match { it.type.id == requestBody.navReferanseId },
+                )
+            }
+        }
+
+    @Test
+    fun `innsending av inntektsmelding på forkastet forespoersel gir feil`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody
-            every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns null
+            val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.FORKASTET)
+            every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns forespoersel
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
+            response.body<ErrorResponse>() shouldBe ErrorResponse(Feil.UGYLDIG_INNSENDING.name, FORESPOERSEL_FORKASTET, null)
         }
 
     @AfterEach
