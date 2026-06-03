@@ -95,7 +95,7 @@ fun <K, V> KafkaConsumer<K, V>.toggleConsumer(
 
 fun <K, V> KafkaConsumer<K, V>.asFlow(
     toggleSjekk: () -> Unit,
-    timeout: Duration = Duration.ofMillis(10),
+    timeout: Duration = Duration.ofMillis(100),
 ): Flow<ConsumerRecord<K, V>> =
     flow {
         while (true) {
