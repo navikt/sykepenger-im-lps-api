@@ -48,13 +48,16 @@ spec:
   accessPolicy:
     outbound:
       external:
+        - host: platform.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
-        - host: platform.altinn.no
       rules:
         - application: helsearbeidsgiver-pdfgen
         - application: logging
           namespace: nais-system
+    inbound:
+      rules:
+        - application: hag-dokument-proxy
   tokenx:
     enabled: true
   maskinporten:
