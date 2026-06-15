@@ -264,7 +264,7 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal _ikke_ lagre eller videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
+    fun `skal _ikke_ lagre, kun videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
         val soeknad = soeknadMock().medOrgnr(orgnr)
         val soeknadId = UUID.randomUUID()
 
@@ -282,7 +282,8 @@ class SoeknadServiceTest {
         lagredeSoeknader.size shouldBe 1
         lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
 
-        verify(exactly = 1) {
+        // Vi sender til dialog-app hver gang - dialog-app har egen duplikatsjekk.
+        verify(exactly = 2) {
             dokumentkoblingService.produserSykepengesoeknadKobling(
                 soeknadSomSkalLagres.id,
                 soeknadSomSkalLagres.sykmeldingId.shouldNotBeNull(),
