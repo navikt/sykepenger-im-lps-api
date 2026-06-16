@@ -31,7 +31,6 @@ data class ArbeidsgiverSykmeldingKafka(
     val behandler: BehandlerAGDTO? = null,
     val egenmeldt: Boolean,
     val papirsykmelding: Boolean,
-    val harRedusertArbeidsgiverperiode: Boolean,
     val merknader: List<Merknad>? = null,
     val utenlandskSykmelding: UtenlandskSykmeldingAGDTO? = null,
     val signaturDato: OffsetDateTime? = null,
