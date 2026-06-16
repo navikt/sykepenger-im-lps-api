@@ -783,7 +783,6 @@ object TestData {
             "egenmeldtSykmelding": false,
             "yrkesskade": null,
             "arbeidUtenforNorge": null,
-            "harRedusertVenteperiode": null,
             "behandlingsdager": ["2018-05-05"],
             "permitteringer": [],
             "merknaderFraSykmelding": null,
