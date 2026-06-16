@@ -51,16 +51,14 @@ class SoeknadService(
             logger.info("Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
             return
         }
-
-        if (soeknad.erAlleredeLagret()) {
-            logger.info("Søknad med id ${soeknad.id} ignoreres fordi den allerede er lagret.")
-            return
-        }
-
         try {
             val validertSoeknad = soeknad.validerPaakrevdeFelter()
-            soeknadRepository.lagreSoeknad(validertSoeknad)
-            logger.info("Lagret søknad med id: ${soeknad.id}")
+            if (soeknad.erAlleredeLagret()) {
+                logger.info("Søknad med id ${soeknad.id} er allerede lagret.")
+            } else {
+                soeknadRepository.lagreSoeknad(validertSoeknad)
+                logger.info("Lagret søknad med id: ${soeknad.id}")
+            }
 
             if (soeknad.skalSendesTilArbeidsgiver()) {
                 dokumentkoblingService.produserSykepengesoeknadKobling(

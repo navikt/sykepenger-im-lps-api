@@ -27,21 +27,13 @@ class SykmeldingTolker(
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
             val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr, sykmeldingId)
-            val harLagretSykmelding =
-                sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
 
-            if (harLagretSykmelding) {
-                dokumentkoblingService.produserSykmeldingKobling(
-                    sykmeldingId = sykmeldingId,
-                    sykmeldingMessage = sykmeldingMessage,
-                    fullPerson = fullPerson,
-                )
-            } else {
-                logger
-                    .info(
-                        "Oppretter ikke dialog for sykmelding $sykmeldingId, fordi sykmeldingen ikke ble lagret.",
-                    )
-            }
+            sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
+            dokumentkoblingService.produserSykmeldingKobling(
+                sykmeldingId = sykmeldingId,
+                sykmeldingMessage = sykmeldingMessage,
+                fullPerson = fullPerson,
+            )
         } catch (e: FantIkkePersonException) {
             logger.error("Fant ikke person i PDL, ignorerer sykmelding!")
             sikkerLogger.error(
@@ -49,7 +41,8 @@ class SykmeldingTolker(
                 e,
             )
         } catch (e: Exception) {
-            "Klarte ikke å lagre sykmelding og opprette Dialogporten-dialog!".also {
+            // TODO: Skille på exception fra db og kafka
+            "En feil oppstod, avbryter og forsøker igjen".also {
                 logger.error(it)
                 sikkerLogger.error(it, e)
             }
