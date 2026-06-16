@@ -5,7 +5,6 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import org.jetbrains.exposed.sql.transactions.transaction
 
 class SoeknadTolker(
     private val soeknadService: SoeknadService,
@@ -14,20 +13,17 @@ class SoeknadTolker(
     private val logger = logger()
 
     override fun lesMelding(melding: String) {
-        transaction {
-            try {
-                val soeknadMessage = melding.fromJson(SykepengeSoeknadKafkaMelding.serializer())
-                sikkerLogger.info(
-                    "Mottok søknad med id ${soeknadMessage.id}, sykmeldingId ${soeknadMessage.sykmeldingId} og sendtNav ${soeknadMessage.sendtNav}.",
-                )
-                soeknadService.behandleSoeknad(soeknadMessage)
-            } catch (e: Exception) {
-                val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
-                logger.error(errorMsg)
-                sikkerLogger.error(errorMsg, e)
-                rollback()
-                throw e
-            }
+        try {
+            val soeknadMessage = melding.fromJson(SykepengeSoeknadKafkaMelding.serializer())
+            sikkerLogger.info(
+                "Mottok søknad med id ${soeknadMessage.id}, sykmeldingId ${soeknadMessage.sykmeldingId} og sendtNav ${soeknadMessage.sendtNav}.",
+            )
+            soeknadService.behandleSoeknad(soeknadMessage)
+        } catch (e: Exception) {
+            val errorMsg = "Klarte ikke å lagre søknad om sykepenger!"
+            logger.error(errorMsg)
+            sikkerLogger.error(errorMsg, e)
+            throw e
         }
     }
 }
