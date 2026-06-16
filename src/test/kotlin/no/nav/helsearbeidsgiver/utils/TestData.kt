@@ -123,8 +123,7 @@ object TestData {
                     "tlf": "tel:1234678"
                 },
                 "egenmeldt": false,
-                "papirsykmelding": false,
-                "harRedusertArbeidsgiverperiode": false
+                "papirsykmelding": false
             },
             "kafkaMetadata": {
                 "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
