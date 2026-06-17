@@ -88,7 +88,6 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")

@@ -6,8 +6,8 @@ pluginManagement {
         val kotlinVersion: String by settings
         val ktorVersion: String by settings
 
-        kotlin("jvm") version  kotlinVersion
-        kotlin("plugin.serialization") version "1.9.23"
+        kotlin("jvm") version kotlinVersion
+        kotlin("plugin.serialization") version kotlinVersion
         id("org.jmailen.kotlinter") version kotlinterVersion
         id("io.ktor.plugin") version ktorVersion
     }
