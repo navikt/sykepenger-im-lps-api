@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 private val log = LoggerFactory.getLogger("NattligCsvJobb")
-private val KJORETIDSPUNKT: LocalTime = LocalTime.of(15, 0)
+private val KJORETIDSPUNKT: LocalTime = LocalTime.of(23, 0)
 
 class NattligCsvJobb(
     private val forespoerselRepository: ForespoerselRepository,

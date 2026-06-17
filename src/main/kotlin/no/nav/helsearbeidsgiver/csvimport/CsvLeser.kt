@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.csvimport
 
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
@@ -36,7 +37,7 @@ class CsvLeser(
         logger.info("Fant ${aktiveIder.size} unike aktive NAV referanse-IDer i $ressurssti")
         aktiveIder.forEach { id ->
             logger.info("Aktiverer NAV referanse-ID: $id")
-            // forespoerselRepository.oppdaterStatus(id, Status.AKTIV)
+            forespoerselRepository.oppdaterStatus(id, Status.AKTIV)
         }
 
         return aktiveIder
