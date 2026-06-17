@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import java.time.LocalDateTime
 
 fun main() {
     startServer()
@@ -55,6 +56,7 @@ fun startServer() {
 
     if (Env.getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp") {
         sikkerLogger.info("Starter applikasjon i Dev!")
+        sikkerLogger.info(LocalDateTime.now().toString())
         NattligCsvJobb(forespoerselRepository = repositories.forespoerselRepository).startAsync(true)
     } else {
         sikkerLogger.info("Starter applikasjon i Prod!")
