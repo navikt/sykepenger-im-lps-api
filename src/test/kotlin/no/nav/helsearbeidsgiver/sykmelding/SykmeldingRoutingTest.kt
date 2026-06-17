@@ -394,7 +394,7 @@ class SykmeldingRoutingTest : ApiTest() {
                 """{}""" to
                     "Illegal input: Field 'orgnr' is required, but it was missing at path: \$",
                 """{"a": "123"}""" to
-                    "Illegal input: Encountered an unknown key 'a' at offset 2 at path: \$",
+                    "Illegal input: Unexpected JSON token at offset 2: Encountered an unknown key 'a' at path: \$",
                 """{"orgnr": 123}""" to
                     "Illegal input: ikke et gyldig orgnr",
                 """{"orgnr": "123", "fom": ""}""" to
@@ -410,7 +410,7 @@ class SykmeldingRoutingTest : ApiTest() {
                 """{"orgnr": "123", "fom": "2024-13-01"}""" to
                     "Illegal input: Text '2024-13-01' could not be parsed: Invalid value for MonthOfYear (valid values 1 - 12): 13",
                 """{"orgnr": "123", "fraLoepenr": 1.5}""" to
-                    "Illegal input: Unexpected JSON token at offset 31: Unexpected symbol '.' in numeric literal at path: \$.fraLoepenr",
+                    "Illegal input: Unexpected JSON token at offset 32: Unexpected symbol '.' in numeric literal at path: \$.fraLoepenr",
                 // """{"orgnr": "240520834", "fnr": true}""" to "?", // json boolean blir parset som string, gir ikke feil
             )
 
