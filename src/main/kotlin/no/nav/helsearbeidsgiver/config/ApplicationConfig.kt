@@ -207,7 +207,7 @@ fun configureServices(
             repositories = repositories,
         )
 
-    val soeknadService = SoeknadService(repositories.soeknadRepository, sykmeldingService, dokumentkoblingService)
+    val soeknadService = SoeknadService(repositories.soeknadRepository, sykmeldingService, dokumentkoblingService, pdlService)
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService =
         AvvistInntektsmeldingService(
