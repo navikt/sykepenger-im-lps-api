@@ -8,7 +8,13 @@ import java.util.UUID
 class SykmeldingService(
     private val sykmeldingRepository: SykmeldingRepository,
 ) {
-    fun hentSykmelding(id: UUID): Sykmelding? = sykmeldingRepository.hentSykmelding(id)?.tilSykmelding()
+    fun hentSykmelding(id: UUID): Sykmelding? = hentInternSykmelding(id)?.tilSykmelding()
+
+    // Midlertidig hack ifbm workaround:
+    // Legger til denne metoden for å kunne hente sykmeldingKafkaMessage.
+    // Denne metoden / DTO-objektet skal ikke brukes for ekstern visning og bør slettes når vi
+    // fjerner workaround!
+    fun hentInternSykmelding(id: UUID): SykmeldingDTO? = sykmeldingRepository.hentSykmelding(id)
 
     fun hentSykmeldinger(filter: SykmeldingFilter): List<Sykmelding> =
         sykmeldingRepository.hentSykmeldinger(filter).map {
