@@ -64,25 +64,7 @@ class SoeknadService(
             }
 
             if (soeknad.skalSendesTilArbeidsgiver()) {
-                // Vi mangler noen sykmeldinger i dialog-appen, for disse tilfellene får vi ikke sendt ut søknad.
-                // WORKAROUND: Send sykmelding også, hvis vi har fått den! Kan sikkert fjernes 01.01.2027, eller enda tidligere
-                try {
-                    val sykmeldingMedOrginalMelding = sykmeldingService.hentInternSykmelding(validertSoeknad.sykmeldingId)
-
-                    sykmeldingMedOrginalMelding?.let {
-                        val fullPerson = pdlService.hentFullPerson(validertSoeknad.fnr, validertSoeknad.sykmeldingId)
-                        dokumentkoblingService.produserSykmeldingKobling(
-                            sykmeldingId = validertSoeknad.sykmeldingId,
-                            sykmeldingMessage = sykmeldingMedOrginalMelding.sendSykmeldingAivenKafkaMessage,
-                            fullPerson = fullPerson,
-                        )
-                    }
-                } catch (e: Exception) {
-                    sikkerLogger().warn("Klarte ikke å slå opp sykmeldingdata for sykmelding: ${validertSoeknad.sykmeldingId}", e)
-                    // Ikke sikkert at vi har mottatt sykmeldingen enda, og PDL-oppslaget kan feile
-                    // - ikke veldig kritisk, så bare logger det og går videre uten å sende sykmelding i disse tilfellene.
-                }
-                // end WORKAROUND
+                slaaOppOgSendTilhoerendeSykmeldingTilDialog(validertSoeknad)
 
                 dokumentkoblingService.produserSykepengesoeknadKobling(
                     soeknadId = validertSoeknad.soeknadId,
@@ -100,6 +82,27 @@ class SoeknadService(
                 logger.warn(it)
                 sikkerLogger().warn(it, e)
             }
+        }
+    }
+
+    // Vi mangler noen sykmeldinger i dialog-appen, for disse tilfellene får vi ikke sendt ut søknad.
+    // WORKAROUND: Send sykmelding også, hvis vi har fått den! Kan sikkert fjernes 01.01.2027, eller enda tidligere
+    private fun slaaOppOgSendTilhoerendeSykmeldingTilDialog(validertSoeknad: LagreSoeknad) {
+        try {
+            val sykmeldingMedOrginalMelding = sykmeldingService.hentInternSykmelding(validertSoeknad.sykmeldingId)
+
+            sykmeldingMedOrginalMelding?.let {
+                val fullPerson = pdlService.hentFullPerson(validertSoeknad.fnr, validertSoeknad.sykmeldingId)
+                dokumentkoblingService.produserSykmeldingKobling(
+                    sykmeldingId = validertSoeknad.sykmeldingId,
+                    sykmeldingMessage = sykmeldingMedOrginalMelding.sendSykmeldingAivenKafkaMessage,
+                    fullPerson = fullPerson,
+                )
+            }
+        } catch (e: Exception) {
+            sikkerLogger().warn("Klarte ikke å slå opp sykmeldingdata for sykmelding: ${validertSoeknad.sykmeldingId}", e)
+            // Ikke sikkert at vi har mottatt sykmeldingen enda, og PDL-oppslaget kan feile
+            // - ikke veldig kritisk, så bare logger det og går videre uten å sende sykmelding i disse tilfellene.
         }
     }
 
