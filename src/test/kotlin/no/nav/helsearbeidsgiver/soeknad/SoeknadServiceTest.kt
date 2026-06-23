@@ -283,7 +283,7 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal _ikke_ lagre, kun videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
+    fun `skal _ikke_ lagre, kun videresende søknad dersom det allerede finnes en søknad med samme ID og sendtArbeidsgiver allerede er satt`() {
         val soeknad = soeknadMock().medOrgnr(orgnr)
         val soeknadId = UUID.randomUUID()
 
@@ -311,6 +311,40 @@ class SoeknadServiceTest {
                 orgnr = orgnr,
             )
             dokumentkoblingService.produserSykmeldingKobling(soeknadSomSkalLagres.sykmeldingId, any(), fullPerson)
+        }
+    }
+
+    @Test
+    fun `skal erstatte eksisterende søknad med ny loepenr dersom sendtArbeidsgiver er null i eksisterende og satt i ny`() {
+        val soeknad = soeknadMock().medOrgnr(orgnr)
+        val soeknadId = UUID.randomUUID()
+
+        val soeknadUtenSendtArbeidsgiver = soeknad.copy(id = soeknadId, sendtArbeidsgiver = null)
+        val soeknadMedSendtArbeidsgiver = soeknad.copy(id = soeknadId, sendtArbeidsgiver = LocalDateTime.now())
+
+        every { sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!) } returns sykmeldingMock().tilSykmeldingDTO()
+
+        soeknadService.behandleSoeknad(soeknadUtenSendtArbeidsgiver)
+
+        val foersteLoepenr =
+            transaction(db) { SoeknadEntitet.selectAll().first()[SoeknadEntitet.id] }
+
+        soeknadService.behandleSoeknad(soeknadMedSendtArbeidsgiver)
+
+        val lagredeSoeknader =
+            transaction(db) { SoeknadEntitet.selectAll().map { it[SoeknadEntitet.id] to it[sykepengesoeknad] } }
+
+        lagredeSoeknader.size shouldBe 1
+        val (nyLoepenr, lagretSoeknad) = lagredeSoeknader.first()
+        lagretSoeknad.sendtArbeidsgiver shouldBe soeknadMedSendtArbeidsgiver.sendtArbeidsgiver
+        nyLoepenr shouldBe foersteLoepenr + 1
+
+        verify(exactly = 1) {
+            dokumentkoblingService.produserSykepengesoeknadKobling(
+                soeknadId = soeknadId,
+                sykmeldingId = soeknad.sykmeldingId.shouldNotBeNull(),
+                orgnr = orgnr,
+            )
         }
     }
 

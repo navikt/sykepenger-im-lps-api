@@ -55,9 +55,14 @@ class SoeknadService(
         }
         try {
             val validertSoeknad = soeknad.validerPaakrevdeFelter()
-            if (soeknad.erAlleredeLagret()) {
-                // TODO: Vi må håndtere at søknad kan ettersendes!
-                logger.info("Søknad med id ${soeknad.id} er allerede lagret.")
+            val eksisterendeSoeknad = soeknadRepository.hentSoeknad(soeknad.id)
+            if (eksisterendeSoeknad != null) {
+                if (soeknad.skalErstattEksisterende(eksisterendeSoeknad)) {
+                    soeknadRepository.erstattSoeknad(validertSoeknad)
+                    logger.info("Erstattet søknad med id: ${soeknad.id} fordi sendtArbeidsgiver er oppdatert.")
+                } else {
+                    logger.info("Søknad med id ${soeknad.id} er allerede lagret.")
+                }
             } else {
                 soeknadRepository.lagreSoeknad(validertSoeknad)
                 logger.info("Lagret søknad med id: ${soeknad.id}")
@@ -138,7 +143,8 @@ class SoeknadService(
         this.arbeidssituasjon == SykepengeSoeknadKafkaMelding.ArbeidssituasjonDTO.ARBEIDSTAKER &&
             this.type == SykepengeSoeknadKafkaMelding.SoknadstypeDTO.BEHANDLINGSDAGER
 
-    private fun SykepengeSoeknadKafkaMelding.erAlleredeLagret(): Boolean = soeknadRepository.hentSoeknad(id) != null
+    private fun SykepengeSoeknadKafkaMelding.skalErstattEksisterende(eksisterende: SykepengeSoeknadDto): Boolean =
+        this.sendtArbeidsgiver != null && eksisterende.sykepengeSoeknadKafkaMelding.sendtArbeidsgiver == null
 
     private fun SykepengeSoeknadKafkaMelding.erEttersendtTilNAV() = sendtNav != null && sendtArbeidsgiver?.isBefore(sendtNav) ?: false
 }
