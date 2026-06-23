@@ -283,7 +283,7 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal _ikke_ lagre, kun videresende søknad dersom det allerede finnes en søknad med samme ID og sendtArbeidsgiver allerede er satt`() {
+    fun `Kun videresend søknad dersom det allerede finnes en søknad med samme ID og sendtArbeidsgiver allerede er satt`() {
         val soeknad = soeknadMock().medOrgnr(orgnr)
         val soeknadId = UUID.randomUUID()
 
