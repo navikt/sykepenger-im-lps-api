@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.soeknad
 
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
+import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.konverter
@@ -15,6 +16,7 @@ class SoeknadService(
     val soeknadRepository: SoeknadRepository,
     val sykmeldingService: SykmeldingService,
     val dokumentkoblingService: DokumentkoblingService,
+    val pdlService: PdlService,
 ) {
     private val logger = logger()
 
@@ -51,18 +53,19 @@ class SoeknadService(
             logger.info("Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres eller sendes til arbeidsgiver.")
             return
         }
-
-        if (soeknad.erAlleredeLagret()) {
-            logger.info("Søknad med id ${soeknad.id} ignoreres fordi den allerede er lagret.")
-            return
-        }
-
         try {
             val validertSoeknad = soeknad.validerPaakrevdeFelter()
-            soeknadRepository.lagreSoeknad(validertSoeknad)
-            logger.info("Lagret søknad med id: ${soeknad.id}")
+            if (soeknad.erAlleredeLagret()) {
+                // TODO: Vi må håndtere at søknad kan ettersendes!
+                logger.info("Søknad med id ${soeknad.id} er allerede lagret.")
+            } else {
+                soeknadRepository.lagreSoeknad(validertSoeknad)
+                logger.info("Lagret søknad med id: ${soeknad.id}")
+            }
 
             if (soeknad.skalSendesTilArbeidsgiver()) {
+                slaaOppOgSendTilhoerendeSykmeldingTilDialog(validertSoeknad)
+
                 dokumentkoblingService.produserSykepengesoeknadKobling(
                     soeknadId = validertSoeknad.soeknadId,
                     sykmeldingId = validertSoeknad.sykmeldingId,
@@ -79,6 +82,27 @@ class SoeknadService(
                 logger.warn(it)
                 sikkerLogger().warn(it, e)
             }
+        }
+    }
+
+    // Vi mangler noen sykmeldinger i dialog-appen, for disse tilfellene får vi ikke sendt ut søknad.
+    // WORKAROUND: Send sykmelding også, hvis vi har fått den! Kan sikkert fjernes 01.01.2027, eller enda tidligere
+    private fun slaaOppOgSendTilhoerendeSykmeldingTilDialog(validertSoeknad: LagreSoeknad) {
+        try {
+            val sykmeldingMedOrginalMelding = sykmeldingService.hentInternSykmelding(validertSoeknad.sykmeldingId)
+
+            sykmeldingMedOrginalMelding?.let {
+                val fullPerson = pdlService.hentFullPerson(validertSoeknad.fnr, validertSoeknad.sykmeldingId)
+                dokumentkoblingService.produserSykmeldingKobling(
+                    sykmeldingId = validertSoeknad.sykmeldingId,
+                    sykmeldingMessage = sykmeldingMedOrginalMelding.sendSykmeldingAivenKafkaMessage,
+                    fullPerson = fullPerson,
+                )
+            }
+        } catch (e: Exception) {
+            sikkerLogger().warn("Klarte ikke å slå opp sykmeldingdata for sykmelding: ${validertSoeknad.sykmeldingId}", e)
+            // Ikke sikkert at vi har mottatt sykmeldingen enda, og PDL-oppslaget kan feile
+            // - ikke veldig kritisk, så bare logger det og går videre uten å sende sykmelding i disse tilfellene.
         }
     }
 

@@ -12,11 +12,17 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
+import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
+import no.nav.helsearbeidsgiver.pdl.PdlService
+import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
+import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.sykepengesoeknad
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
+import no.nav.helsearbeidsgiver.sykmelding.tilSykmeldingDTO
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.medId
 import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
+import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
@@ -26,6 +32,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -37,8 +44,19 @@ class SoeknadServiceTest {
 
     private lateinit var dokumentkoblingService: DokumentkoblingService
     private lateinit var sykmeldingService: SykmeldingService
+    private lateinit var pdlService: PdlService
 
     private val orgnr = Orgnr.genererGyldig()
+    private val fullPerson =
+        FullPerson(
+            navn =
+                PersonNavn(
+                    fornavn = "Test",
+                    mellomnavn = "",
+                    etternavn = "Testesen",
+                ),
+            foedselsdato = LocalDate.of(2000, 1, 1),
+        )
 
     @BeforeAll
     fun setup() {
@@ -50,10 +68,9 @@ class SoeknadServiceTest {
             ).init()
         soeknadRepository = SoeknadRepository(db)
         dokumentkoblingService = mockk<DokumentkoblingService>()
-
-        dokumentkoblingService = mockk<DokumentkoblingService>()
         sykmeldingService = mockk<SykmeldingService>()
-        soeknadService = SoeknadService(soeknadRepository, sykmeldingService, dokumentkoblingService)
+        pdlService = mockk<PdlService>()
+        soeknadService = SoeknadService(soeknadRepository, sykmeldingService, dokumentkoblingService, pdlService)
     }
 
     @BeforeEach
@@ -62,6 +79,8 @@ class SoeknadServiceTest {
 
         clearAllMocks()
         every { dokumentkoblingService.produserSykepengesoeknadKobling(any(), any(), orgnr) } just Runs
+
+        every { pdlService.hentFullPerson(any(), any()) } returns fullPerson
     }
 
     @Test
@@ -264,7 +283,7 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal _ikke_ lagre eller videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
+    fun `skal _ikke_ lagre, kun videresende søknad dersom det allerede finnes en søknad i databasen med den IDen`() {
         val soeknad = soeknadMock().medOrgnr(orgnr)
         val soeknadId = UUID.randomUUID()
 
@@ -273,6 +292,7 @@ class SoeknadServiceTest {
         val soeknadSomIkkeSkalLagres =
             soeknad.copy(id = soeknadId, fom = soeknad.fom?.minusDays(1))
 
+        every { sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!) } returns sykmeldingMock().tilSykmeldingDTO()
         soeknadService.behandleSoeknad(soeknadSomSkalLagres)
         soeknadService.behandleSoeknad(soeknadSomIkkeSkalLagres)
 
@@ -282,12 +302,88 @@ class SoeknadServiceTest {
         lagredeSoeknader.size shouldBe 1
         lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
 
-        verify(exactly = 1) {
+        // Vi sender til dialog-app hver gang, selv om vi ikke lagrer duplikat søknad - dialog-app har egen duplikatsjekk.
+        verify(exactly = 2) {
+            pdlService.hentFullPerson(soeknadSomIkkeSkalLagres.fnr, soeknadSomIkkeSkalLagres.sykmeldingId!!)
             dokumentkoblingService.produserSykepengesoeknadKobling(
-                soeknadSomSkalLagres.id,
-                soeknadSomSkalLagres.sykmeldingId.shouldNotBeNull(),
-                orgnr,
+                soeknadId = soeknadSomSkalLagres.id,
+                sykmeldingId = soeknadSomSkalLagres.sykmeldingId.shouldNotBeNull(),
+                orgnr = orgnr,
             )
+            dokumentkoblingService.produserSykmeldingKobling(soeknadSomSkalLagres.sykmeldingId, any(), fullPerson)
+        }
+    }
+
+    @Test
+    fun `forsøker å finne sykmelding og opprette sykmelding-dialog når vi mottar søknad på kafka, ignorerer at sykmelding mangler`() {
+        // midlertidig fix i søknad-mottak: Dialog-app mangler noen sykmeldinger pga tidligere feil, derfor søker vi opp sykmelding og
+        // ber om å opprette dialog for sikkerhets skyld
+        // Hvis vi allerede har dialog, ignoreres dette av dialog-appen.
+        // Hvis vi ikke har mottatt sykmeldingen enda, eller feiler ved pdl-oppslag, ignorerer vi dette, og sender søknad til dialog-app likevel,
+        // siden vi mest sannsynlig har sendt sykmelding tidligere, eller så kommer sykmelding faktisk senere og da løser dialog-app dette selv.
+
+        val soeknad = soeknadMock().medOrgnr(orgnr)
+        val soeknadId = UUID.randomUUID()
+        val soeknadSomSkalLagres = soeknad.medId(id = soeknadId)
+
+        every { sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!) } returns null
+
+        soeknadService.behandleSoeknad(soeknadSomSkalLagres)
+
+        val lagredeSoeknader =
+            transaction(db) { SoeknadEntitet.selectAll().map { it.getOrNull(sykepengesoeknad) } }
+
+        lagredeSoeknader.size shouldBe 1
+        lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
+
+        verify(exactly = 1) {
+            sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!)
+            dokumentkoblingService.produserSykepengesoeknadKobling(
+                soeknadId = soeknadSomSkalLagres.id,
+                sykmeldingId = soeknadSomSkalLagres.sykmeldingId.shouldNotBeNull(),
+                orgnr = orgnr,
+            )
+        }
+        verify(exactly = 0) {
+            pdlService.hentFullPerson(soeknadSomSkalLagres.fnr, soeknadSomSkalLagres.sykmeldingId!!)
+            dokumentkoblingService.produserSykmeldingKobling(any(), any(), any())
+        }
+    }
+
+    @Test
+    fun `forsøker å finne sykmelding og opprette sykmelding-dialog når vi mottar søknad på kafka, ignorerer PDL-feil`() {
+        // midlertidig fix i søknad-mottak: Dialog-app mangler noen sykmeldinger pga tidligere feil, derfor søker vi opp sykmelding og
+        // ber om å opprette dialog for sikkerhets skyld
+        // Hvis vi allerede har dialog, ignoreres dette av dialog-appen.
+        // Hvis vi ikke har mottatt sykmeldingen enda, eller feiler ved pdl-oppslag, ignorerer vi dette, og sender søknad til dialog-app likevel,
+        // siden vi mest sannsynlig har sendt sykmelding tidligere, eller så kommer sykmelding faktisk senere og da løser dialog-app dette selv.
+
+        val soeknad = soeknadMock().medOrgnr(orgnr)
+        val soeknadId = UUID.randomUUID()
+
+        val soeknadSomSkalLagres = soeknad.medId(id = soeknadId)
+
+        every { sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!) } returns sykmeldingMock().tilSykmeldingDTO()
+        every { pdlService.hentFullPerson(any(), any()) } throws (FantIkkePersonException(soeknad.fnr, soeknad.sykmeldingId!!))
+        soeknadService.behandleSoeknad(soeknadSomSkalLagres)
+
+        val lagredeSoeknader =
+            transaction(db) { SoeknadEntitet.selectAll().map { it.getOrNull(sykepengesoeknad) } }
+
+        lagredeSoeknader.size shouldBe 1
+        lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
+
+        verify(exactly = 1) {
+            sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!)
+            pdlService.hentFullPerson(soeknadSomSkalLagres.fnr, soeknadSomSkalLagres.sykmeldingId!!)
+            dokumentkoblingService.produserSykepengesoeknadKobling(
+                soeknadId = soeknadSomSkalLagres.id,
+                sykmeldingId = soeknadSomSkalLagres.sykmeldingId.shouldNotBeNull(),
+                orgnr = orgnr,
+            )
+        }
+        verify(exactly = 0) {
+            dokumentkoblingService.produserSykmeldingKobling(any(), any(), any())
         }
     }
 

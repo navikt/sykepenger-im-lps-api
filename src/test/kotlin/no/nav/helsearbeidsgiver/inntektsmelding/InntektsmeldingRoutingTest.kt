@@ -422,7 +422,7 @@ class InntektsmeldingRoutingTest : ApiTest() {
                 """{}""" to
                     "Illegal input: Fields [navReferanseId, agp, inntekt, refusjon, naturalytelser, sykmeldtFnr, aarsakInnsending, arbeidsgiverTlf, avsender] are required, but they were missing at path: \$",
                 """{"a": "123"}""" to
-                    "Illegal input: Encountered an unknown key 'a' at offset 2 at path: \$",
+                    "Illegal input: Unexpected JSON token at offset 2: Encountered an unknown key 'a' at path: \$",
                 """ikke json i det hele tatt""" to
                     "Illegal input: Unexpected JSON token at offset 0: Expected start of the object '{', but had 'i' instead at path: \$",
                 """{"navReferanseId": null}""" to
