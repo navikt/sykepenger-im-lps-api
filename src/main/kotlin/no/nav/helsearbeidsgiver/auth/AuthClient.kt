@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.felles.auth
+package no.nav.helsearbeidsgiver.auth
 
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -9,6 +9,15 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.parameters
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider
+import no.nav.helsearbeidsgiver.felles.auth.AuthErrorResponse
+import no.nav.helsearbeidsgiver.felles.auth.TokenIntrospectionResponse
+import no.nav.helsearbeidsgiver.felles.auth.TokenResponse
+import no.nav.helsearbeidsgiver.felles.auth.createHttpClient
+import no.nav.helsearbeidsgiver.felles.auth.identityProvider
+import no.nav.helsearbeidsgiver.felles.auth.target
+import no.nav.helsearbeidsgiver.felles.auth.token
+import no.nav.helsearbeidsgiver.felles.auth.userToken
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 
@@ -100,13 +109,13 @@ class DefaultAuthClient : AuthClient {
                     },
             ).body()
 
-    override suspend fun altinnExchange(token: String): String {
+    override suspend fun altinnExchange(maskinportenTokenGetter: String): String {
         val tokenAltinn3ExchangeEndpoint =
             "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
 
         return httpClient
             .get(tokenAltinn3ExchangeEndpoint) {
-                bearerAuth(token)
+                bearerAuth(maskinportenTokenGetter)
             }.bodyAsText()
             .replace("\"", "")
     }

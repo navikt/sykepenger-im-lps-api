@@ -2,7 +2,7 @@ package no.nav.helsearbeidsgiver.pdl
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache

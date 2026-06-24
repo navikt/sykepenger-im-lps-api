@@ -374,7 +374,7 @@ class SoeknadServiceTest {
         lagredeSoeknader.first()?.fom shouldBe soeknadSomSkalLagres.fom
 
         verify(exactly = 1) {
-            sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId!!)
+            sykmeldingService.hentInternSykmelding(soeknad.sykmeldingId)
             pdlService.hentFullPerson(soeknadSomSkalLagres.fnr, soeknadSomSkalLagres.sykmeldingId!!)
             dokumentkoblingService.produserSykepengesoeknadKobling(
                 soeknadId = soeknadSomSkalLagres.id,

@@ -11,6 +11,9 @@ import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyAsList
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
+import no.nav.helsearbeidsgiver.auth.AuthClient
+import no.nav.helsearbeidsgiver.auth.DefaultAuthClient
+import no.nav.helsearbeidsgiver.auth.NoOpAuthClient
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
@@ -18,9 +21,6 @@ import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingProducer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.felles.auth.AuthClient
-import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
-import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
