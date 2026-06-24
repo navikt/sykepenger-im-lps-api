@@ -62,9 +62,14 @@ class SoeknadService(
             }
             val validertSoeknad = soeknad.validerPaakrevdeFelter()
             val eksisterendeSoeknad = soeknadRepository.hentSoeknad(soeknad.id)
-            if (eksisterendeSoeknad != null && soeknad.skalErstattEksisterende(eksisterendeSoeknad)) {
-                // soeknadRepository.erstattSoeknad(validertSoeknad)
-                logger.info("Dry run: Erstattet søknad med id: ${soeknad.id} fordi den er ettersendt til NAV.")
+            if (eksisterendeSoeknad != null) {
+                if (soeknad.skalErstattEksisterende(eksisterendeSoeknad)) {
+                    // soeknadRepository.erstattSoeknad(validertSoeknad)
+
+                    logger.info("Dry run: Erstattet søknad med id: ${soeknad.id} fordi den er ettersendt til NAV.")
+                } else {
+                    logger.info("Dry run: Søknad med id ${soeknad.id} er allerede lagret med sendtTilArbeidsgiver.")
+                }
             } else {
                 logger.warn("Dry run: Ettersendt søknad med id: ${soeknad.id} finnes ikke i databasen.")
             }
