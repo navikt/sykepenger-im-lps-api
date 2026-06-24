@@ -16,7 +16,9 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -39,6 +41,24 @@ class SoeknadRepository(
             }
         } catch (e: ExposedSQLException) {
             sikkerLogger().error("Klarte ikke å lagre sykepengesøknad  med id ${soeknad.soeknadId} i databasen", e)
+            throw e
+        }
+    }
+
+    fun erstattSoeknad(soeknad: LagreSoeknad) {
+        try {
+            transaction(db) {
+                SoeknadEntitet.deleteWhere { soeknadId eq soeknad.soeknadId }
+                SoeknadEntitet.insert {
+                    it[soeknadId] = soeknad.soeknadId
+                    it[sykmeldingId] = soeknad.sykmeldingId
+                    it[fnr] = soeknad.fnr
+                    it[orgnr] = soeknad.orgnr
+                    it[sykepengesoeknad] = soeknad.sykepengesoeknad
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å erstatte sykepengesøknad med id ${soeknad.soeknadId} i databasen", e)
             throw e
         }
     }
