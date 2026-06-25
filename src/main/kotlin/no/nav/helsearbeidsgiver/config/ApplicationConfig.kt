@@ -289,7 +289,7 @@ fun Application.configureKafkaConsumers(
         KafkaConsumer<String, String>(
             createKafkaConsumerMultiPollerConfig(
                 consumerName = "ettersendt-so",
-                groupId = "helsearbeidsgiver-ettersendt-soeknad-v2-dryrun",
+                groupId = "helsearbeidsgiver-ettersendt-soeknad-v2",
             ),
         )
     launch(Dispatchers.Default) {
