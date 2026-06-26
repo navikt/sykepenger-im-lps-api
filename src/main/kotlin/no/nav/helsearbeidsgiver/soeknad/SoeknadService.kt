@@ -51,30 +51,30 @@ class SoeknadService(
 
     fun behandleEttersendtSoeknad(soeknad: SykepengeSoeknadKafkaMelding) {
         if (!soeknad.skalLagres()) {
-            logger.debug("Ettersending: Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres.")
+            logger.debug("Dry run: Søknad med id ${soeknad.id} ignoreres fordi den ikke skal lagres.")
             return
         }
         if (!soeknad.skalSendesTilArbeidsgiver()) return
         try {
             if (soeknad.sendtArbeidsgiver != null && soeknad.sendtArbeidsgiver.isAfter(LocalDateTime.of(2026, 6, 24, 10, 30))) {
-                logger.info("Ettersending: FERDIG Søknad med id ${soeknad.id} ignoreres fordi den er ettersendt til NAV før 24.06.2026.")
+                logger.info("Dry run(FERDIG): Søknad med id ${soeknad.id} ignoreres fordi den er ettersendt til NAV før 24.06.2026.")
                 return
             }
             val validertSoeknad = soeknad.validerPaakrevdeFelter()
             val eksisterendeSoeknad = soeknadRepository.hentSoeknad(soeknad.id)
             if (eksisterendeSoeknad != null) {
                 if (soeknad.skalErstattEksisterende(eksisterendeSoeknad)) {
-                    soeknadRepository.erstattSoeknad(validertSoeknad)
+                    // soeknadRepository.erstattSoeknad(validertSoeknad)
 
-                    logger.info("Ettersending: Erstattet søknad med id: ${soeknad.id} fordi den er ettersendt til NAV.")
+                    logger.info("Dry run: Erstattet søknad med id: ${soeknad.id} fordi den er ettersendt til NAV.")
                 } else {
-                    logger.info("Ettersending: Søknad med id ${soeknad.id} er allerede lagret med sendtTilArbeidsgiver.")
+                    logger.info("Dry run: Søknad med id ${soeknad.id} er allerede lagret med sendtTilArbeidsgiver.")
                 }
             } else {
-                logger.warn("Ettersending: Ettersendt søknad med id: ${soeknad.id} finnes ikke i databasen.")
+                logger.warn("Dry run: Ettersendt søknad med id: ${soeknad.id} finnes ikke i databasen.")
             }
         } catch (e: IllegalArgumentException) {
-            "Ettersending: Ignorerer ettersendt sykepengesøknad med id ${soeknad.id} fordi søknaden mangler et påkrevd felt.".also {
+            "Dry run: Ignorerer ettersendt sykepengesøknad med id ${soeknad.id} fordi søknaden mangler et påkrevd felt.".also {
                 logger.warn(it)
                 sikkerLogger().warn(it, e)
             }
