@@ -10,16 +10,11 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.Properties
 
-// OBS! Ikke endre groupId uten å være klar over konsekvensene.
-// Dette vil føre til at alle offset for alle topics som konsumeres av denne applikasjonen nullstilles,
-// og alle meldinger vil bli konsumert på nytt.
 fun createKafkaConsumerSinglePollerConfig(consumerName: String): Properties =
-    createKafkaConsumerConfig(consumerName = consumerName, singlePoll = true, groupId = "helsearbeidsgiver-sykepenger-im-lps-api-v1")
+    createKafkaConsumerConfig(consumerName = consumerName, singlePoll = true)
 
-fun createKafkaConsumerMultiPollerConfig(
-    consumerName: String,
-    groupId: String = "helsearbeidsgiver-sykepenger-im-lps-api-v1",
-): Properties = createKafkaConsumerConfig(consumerName = consumerName, singlePoll = false, groupId = groupId)
+fun createKafkaConsumerMultiPollerConfig(consumerName: String): Properties =
+    createKafkaConsumerConfig(consumerName = consumerName, singlePoll = false)
 
 fun createKafkaProducerConfig(producerName: String): Properties {
     val producerKafkaProperties =
@@ -42,7 +37,6 @@ fun createKafkaProducerConfig(producerName: String): Properties {
 private fun createKafkaConsumerConfig(
     consumerName: String,
     singlePoll: Boolean,
-    groupId: String,
 ): Properties {
     val singlePollerProperties =
         if (singlePoll) {
@@ -57,7 +51,10 @@ private fun createKafkaConsumerConfig(
         mapOf(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to
                 resolveKafkaBrokers(),
-            ConsumerConfig.GROUP_ID_CONFIG to groupId,
+            ConsumerConfig.GROUP_ID_CONFIG to (
+                Env.getPropertyOrNull("KAFKA_GROUP_ID")
+                    ?: "helsearbeidsgiver-sykepenger-im-lps-api-v1"
+            ),
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java.name,
             ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
