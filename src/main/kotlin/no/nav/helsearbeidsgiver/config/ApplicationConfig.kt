@@ -37,7 +37,6 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.AvvistInntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.sis.StatusISpeilTolker
-import no.nav.helsearbeidsgiver.kafka.soeknad.EttersendtSoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
 import no.nav.helsearbeidsgiver.kafka.sykmelding.SykmeldingTolker
@@ -96,7 +95,6 @@ data class Tolkere(
     val forespoerselTolker: ForespoerselTolker,
     val sykmeldingTolker: SykmeldingTolker,
     val soeknadTolker: SoeknadTolker,
-    val ettersendtSoeknadTolker: EttersendtSoeknadTolker,
     val statusISpeilTolker: StatusISpeilTolker,
     val avvistInntektsmeldingTolker: AvvistInntektsmeldingTolker,
 )
@@ -122,7 +120,6 @@ fun configureTolkere(
             pdlService = services.pdlService,
         )
     val soeknadTolker = SoeknadTolker(services.soeknadService)
-    val ettersendtSoeknadTolker = EttersendtSoeknadTolker(services.soeknadService)
 
     val statusISpeilTolker =
         StatusISpeilTolker(
@@ -141,7 +138,6 @@ fun configureTolkere(
         forespoerselTolker,
         sykmeldingTolker,
         soeknadTolker,
-        ettersendtSoeknadTolker,
         statusISpeilTolker,
         avvistInntektsmeldingTolker,
     )
@@ -280,23 +276,6 @@ fun Application.configureKafkaConsumers(
             topic = getProperty("kafkaConsumer.soeknad.topic"),
             consumer = soeknadKafkaConsumer,
             meldingTolker = tolkere.soeknadTolker,
-            enabled = unleashFeatureToggles::skalKonsumereSykepengesoeknader,
-            isLeader = leaderConfig::isElectedLeader,
-        )
-    }
-
-    val soeknadEttersendKafkaConsumer =
-        KafkaConsumer<String, String>(
-            createKafkaConsumerMultiPollerConfig(
-                consumerName = "ettersendt-so",
-                groupId = "helsearbeidsgiver-ettersendt-soeknad-v2-dryrun",
-            ),
-        )
-    launch(Dispatchers.Default) {
-        startKafkaConsumer(
-            topic = getProperty("kafkaConsumer.soeknad.topic"),
-            consumer = soeknadEttersendKafkaConsumer,
-            meldingTolker = tolkere.ettersendtSoeknadTolker,
             enabled = unleashFeatureToggles::skalKonsumereSykepengesoeknader,
             isLeader = leaderConfig::isElectedLeader,
         )
