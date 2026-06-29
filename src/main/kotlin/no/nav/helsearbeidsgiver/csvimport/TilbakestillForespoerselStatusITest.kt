@@ -14,6 +14,10 @@ import java.time.LocalTime
 private val log = LoggerFactory.getLogger("TilbakestillForespoerselStatusITest")
 private val KJORETIDSPUNKT: LocalTime = LocalTime.of(23, 0)
 
+/*
+Midlertidig kode fordi noen LPSer ønsker å teste med samme fsp med status AKTIV over tid.
+Setter status til AKTIV hver kveld kl 23. Ta kontakt med LPS før dette fjernes.
+ */
 class TilbakestillForespoerselStatusITest(
     private val forespoerselRepository: ForespoerselRepository,
     private val leaderConfig: LeaderConfig = NaisLeaderConfig,
