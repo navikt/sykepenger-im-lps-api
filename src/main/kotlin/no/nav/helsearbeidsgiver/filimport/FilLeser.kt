@@ -1,21 +1,21 @@
-package no.nav.helsearbeidsgiver.csvimport
+package no.nav.helsearbeidsgiver.filimport
 
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
-class CsvLeser(
-    private val ressurssti: String = "/excel-input/fsp_tilbakestill.csv",
+class FilLeser(
+    private val ressurssti: String = "/excel-input/fsp_tilbakestill.txt",
     private val forespoerselRepository: ForespoerselRepository,
 ) {
     private val logger = logger()
 
     fun tilbakestillForespoerslerTilStatusAktiv(): List<UUID> {
         val inputStream =
-            CsvLeser::class.java.getResourceAsStream(ressurssti)
+            FilLeser::class.java.getResourceAsStream(ressurssti)
                 ?: run {
-                    logger.error("Fant ikke CSV-fil: $ressurssti")
+                    logger.error("Fant ikke fil: $ressurssti")
                     return emptyList()
                 }
 

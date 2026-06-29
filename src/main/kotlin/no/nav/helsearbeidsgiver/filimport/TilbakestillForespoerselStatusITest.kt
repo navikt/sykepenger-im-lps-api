@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.csvimport
+package no.nav.helsearbeidsgiver.filimport
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +38,7 @@ class TilbakestillForespoerselStatusITest(
 
         runCatching {
             log.info("Kjorer TilbakestillForespørsel-jobb")
-            CsvLeser(forespoerselRepository = forespoerselRepository).tilbakestillForespoerslerTilStatusAktiv()
+            FilLeser(forespoerselRepository = forespoerselRepository).tilbakestillForespoerslerTilStatusAktiv()
             sistKjortDato = iDag
             log.info("TilbakestillForespørsel-jobb fullført")
         }.onFailure {
