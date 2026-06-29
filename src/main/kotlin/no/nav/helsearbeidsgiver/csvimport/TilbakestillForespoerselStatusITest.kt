@@ -11,10 +11,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-private val log = LoggerFactory.getLogger("NattligCsvJobb")
+private val log = LoggerFactory.getLogger("TilbakestillForespoerselStatusITest")
 private val KJORETIDSPUNKT: LocalTime = LocalTime.of(23, 0)
 
-class NattligCsvJobb(
+class TilbakestillForespoerselStatusITest(
     private val forespoerselRepository: ForespoerselRepository,
     private val leaderConfig: LeaderConfig = NaisLeaderConfig,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO),
@@ -33,12 +33,12 @@ class NattligCsvJobb(
         if (na.toLocalTime().isBefore(KJORETIDSPUNKT)) return
 
         runCatching {
-            log.info("Kjorer nattlig CSV-jobb")
-            CsvLeser(forespoerselRepository = forespoerselRepository).reaktiveNavReferanseIder()
+            log.info("Kjorer TilbakestillForespørsel-jobb")
+            CsvLeser(forespoerselRepository = forespoerselRepository).tilbakestillForespoerslerTilStatusAktiv()
             sistKjortDato = iDag
-            log.info("Nattlig CSV-jobb fullfort")
+            log.info("TilbakestillForespørsel-jobb fullført")
         }.onFailure {
-            log.error("Feil i nattlig CSV-jobb", it)
+            log.error("Feil i TilbakestillForespørsel-jobb", it)
         }
     }
 }

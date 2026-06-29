@@ -15,7 +15,7 @@ import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
-import no.nav.helsearbeidsgiver.csvimport.NattligCsvJobb
+import no.nav.helsearbeidsgiver.csvimport.TilbakestillForespoerselStatusITest
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.plugins.configureRouting
@@ -57,7 +57,7 @@ fun startServer() {
     if (Env.getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp") {
         sikkerLogger.info("Starter applikasjon i Dev!")
         sikkerLogger.info(LocalDateTime.now().toString())
-        NattligCsvJobb(forespoerselRepository = repositories.forespoerselRepository).startAsync(true)
+        TilbakestillForespoerselStatusITest(forespoerselRepository = repositories.forespoerselRepository).startAsync(true)
     } else {
         sikkerLogger.info("Starter applikasjon i Prod!")
     }

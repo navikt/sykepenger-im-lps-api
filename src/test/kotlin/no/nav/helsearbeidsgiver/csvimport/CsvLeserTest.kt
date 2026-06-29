@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test
 
 class CsvLeserTest {
     @Test
-    fun reaktiveNavReferanseIder() {
+    fun tilbakestillForespoerslerTilStatusAktiv() {
         val forespoerselRepository: ForespoerselRepository = mockk()
         every { forespoerselRepository.oppdaterStatus(any(), Status.AKTIV) } returns 1
         val linjer =
             CsvLeser(
                 ressurssti = "/excel-input/fsp_tilbakestilles.csv",
                 forespoerselRepository = forespoerselRepository,
-            ).reaktiveNavReferanseIder()
+            ).tilbakestillForespoerslerTilStatusAktiv()
         assertEquals(19, linjer.size)
         verify(exactly = 19) { forespoerselRepository.oppdaterStatus(any(), Status.AKTIV) }
     }
