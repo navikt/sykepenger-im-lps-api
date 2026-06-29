@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.config.configureServices
 import no.nav.helsearbeidsgiver.config.configureTolkere
 import no.nav.helsearbeidsgiver.config.configureUnleashFeatureToggles
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.filimport.TilbakestillForespoerselStatusITest
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
@@ -51,6 +52,13 @@ fun startServer() {
             services = services,
             repositories = repositories,
         )
+
+    if (Env.getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp") {
+        sikkerLogger.info("Starter applikasjon i Dev!")
+        TilbakestillForespoerselStatusITest(forespoerselRepository = repositories.forespoerselRepository).startAsync(true)
+    } else {
+        sikkerLogger.info("Starter applikasjon i Prod!")
+    }
 
     embeddedServer(
         factory = Netty,
