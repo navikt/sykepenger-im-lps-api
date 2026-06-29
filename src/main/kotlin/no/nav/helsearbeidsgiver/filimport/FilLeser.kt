@@ -6,7 +6,7 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
 class FilLeser(
-    private val ressurssti: String = "/excel-input/fsp_tilbakestill.txt",
+    private val ressurssti: String = "/input/fsp_tilbakestill.txt",
     private val forespoerselRepository: ForespoerselRepository,
 ) {
     private val logger = logger()

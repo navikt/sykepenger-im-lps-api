@@ -15,7 +15,7 @@ class FilLeserTest {
         every { forespoerselRepository.oppdaterStatus(any(), Status.AKTIV) } returns 1
         val linjer =
             FilLeser(
-                ressurssti = "/excel-input/fsp_tilbakestilles.txt",
+                ressurssti = "/input/fsp_tilbakestilles.txt",
                 forespoerselRepository = forespoerselRepository,
             ).tilbakestillForespoerslerTilStatusAktiv()
         assertEquals(19, linjer.size)
