@@ -8,6 +8,8 @@ data class Valideringsfeil(
     val feilmelding: String? = null, // Spesifikk melding fra Simba
 ) {
     enum class Feilkode {
-        INNTEKT_AVVIKER_FRA_A_ORDNINGEN,
+        INNTEKT_AVVIKER_FRA_A_ORDNINGEN, // Kun denne er eksponert i API per i dag
+        DUPLIKAT,
+        UKJENT,
     }
 }

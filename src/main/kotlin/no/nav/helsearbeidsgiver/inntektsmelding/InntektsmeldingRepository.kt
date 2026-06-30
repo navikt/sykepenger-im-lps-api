@@ -166,7 +166,15 @@ class InntektsmeldingRepository(
                 ),
             avsender = Avsender(this[avsenderSystemNavn], this[avsenderSystemVersjon]),
             status = this[status],
-            valideringsfeil = this[feilkode]?.let { Valideringsfeil(feilkode = it, feilmelding = this[feilmelding]) },
+            valideringsfeil =
+                this[feilkode]?.let {
+                    // Vi kan foreløpig ikke vise nye Feilkoder, da vil klienter brekke. Så inkluder kun INNTEKT_AVVIK
+                    if (it == Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN) {
+                        Valideringsfeil(feilkode = it, feilmelding = this[feilmelding])
+                    } else {
+                        null
+                    }
+                },
             id = this[innsendingId],
         )
 }

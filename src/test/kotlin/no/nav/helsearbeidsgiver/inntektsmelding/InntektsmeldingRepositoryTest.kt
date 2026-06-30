@@ -252,12 +252,54 @@ class InntektsmeldingRepositoryTest {
                 filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
             )[0]
         oppdatertInntektsmelding.status shouldBe InnsendingStatus.FEILET
+        oppdatertInntektsmelding.valideringsfeil?.feilkode shouldBe Valideringsfeil.Feilkode.INNTEKT_AVVIKER_FRA_A_ORDNINGEN
 
         val ikkeOppdatertInntektsmelding =
             repository.hent(
                 filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = inntektsmelding2.type.id),
             )[0]
         ikkeOppdatertInntektsmelding.status shouldBe InnsendingStatus.MOTTATT
+    }
+
+    @Test
+    fun `oppdater inntektsmelding med feilet status (duplikat), viser ikke Feilkode Duplikat i API`() {
+        // Er foreløpig ikke støttet å utvide API med flere enums
+        val repository = InntektsmeldingRepository(db)
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
+        val inntektsmelding1 =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId)
+        val inntektsmelding2 = buildInntektsmelding()
+        repository.opprettInntektsmelding(
+            im = inntektsmelding1,
+            innsendingStatus = InnsendingStatus.MOTTATT,
+        )
+        repository.opprettInntektsmelding(
+            im = inntektsmelding2,
+            innsendingStatus = InnsendingStatus.MOTTATT,
+        )
+        val feilmelding = "Duplikat"
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))
+        result[0].status shouldBe InnsendingStatus.MOTTATT
+        repository.oppdaterFeilstatusOgFeilkode(
+            AvvistInntektsmelding(
+                inntektsmeldingId = inntektsmeldingId,
+                forespoerselId = forespoerselId,
+                vedtaksperiodeId = inntektsmelding1.vedtaksperiodeId!!,
+                orgnr = inntektsmelding1.avsender.orgnr,
+                feil =
+                    Valideringsfeil(
+                        feilkode = Valideringsfeil.Feilkode.DUPLIKAT,
+                        feilmelding = feilmelding,
+                    ),
+            ),
+        )
+        val oppdatertInntektsmelding =
+            repository.hent(
+                filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG, navReferanseId = forespoerselId),
+            )[0]
+        oppdatertInntektsmelding.status shouldBe InnsendingStatus.FEILET
+        oppdatertInntektsmelding.valideringsfeil shouldBe null
     }
 
     @Test
