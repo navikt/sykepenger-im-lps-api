@@ -121,4 +121,12 @@ tasks {
         environment("ALTINN_SM_RESSURS", "nav_sykepenger_sykmelding")
         environment("ALTINN_SOEKNAD_RESSURS", "nav_sykepenger_soeknad")
     }
+    listOf("soknadJson", "sykmeldingJson", "soknadPdfgenJson").forEach { navn ->
+        register<JavaExec>(navn) {
+            group = "tools"
+            classpath = sourceSets["test"].runtimeClasspath
+            mainClass.set("no.nav.helsearbeidsgiver.tools.${navn.replaceFirstChar(Char::uppercaseChar)}Kt")
+            standardInput = System.`in`
+        }
+    }
 }
