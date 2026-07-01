@@ -12,6 +12,7 @@ class InntektsmeldingRequestTest {
     @ValueSource(
         strings =
             arrayOf(
+                "Etternavn, Fornavn",
                 "Test testesen",
                 "Blah",
                 "HR-Avdelingen gruppe 4",

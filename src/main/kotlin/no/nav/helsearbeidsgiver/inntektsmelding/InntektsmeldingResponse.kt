@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-private val gyldigeFritekstTegn = "^[.A-Za-zæøåÆØÅ0-9 _-]{2,64}\$"
+private const val GYLDIGE_FRITEKST_TEGN = "^[.A-Za-zæøåÆØÅ0-9, _-]{2,64}\$"
 
 @Serializable
 data class InntektsmeldingResponse(
@@ -75,8 +75,8 @@ data class InntektsmeldingRequest(
             ?: emptySet()
 
     private fun validerKontaktInformasjon(): Set<String> =
-        if (!Regex(gyldigeFritekstTegn).matches(kontaktinformasjon.trim())) {
-            setOf("Ugyldig kontaktinformasjon - tillatte tegn er $gyldigeFritekstTegn")
+        if (!Regex(GYLDIGE_FRITEKST_TEGN).matches(kontaktinformasjon.trim())) {
+            setOf("Ugyldig kontaktinformasjon - tillatte tegn er $GYLDIGE_FRITEKST_TEGN")
         } else {
             emptySet()
         }
@@ -144,8 +144,8 @@ data class InntektsmeldingFilter(
 }
 
 fun Avsender.valider() {
-    require(this.systemNavn.trim().matches(Regex(gyldigeFritekstTegn))) { "Ugyldig systemNavn, tillatte tegn er $gyldigeFritekstTegn" }
+    require(this.systemNavn.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN))) { "Ugyldig systemNavn, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
     require(
-        this.systemVersjon.trim().matches(Regex(gyldigeFritekstTegn)),
-    ) { "Ugyldig systemVersjon, tillatte tegn er $gyldigeFritekstTegn" }
+        this.systemVersjon.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN)),
+    ) { "Ugyldig systemVersjon, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
 }
