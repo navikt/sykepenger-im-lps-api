@@ -91,8 +91,8 @@ class AvvistInntektsmeldingServiceTest {
         avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(alleredeFeilet)
 
         verify(exactly = 0) {
-            inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(alleredeGodkjent)
-            dokumentKoblingService.produserInntektsmeldingAvvistKobling(alleredeGodkjent)
+            inntektsmeldingRepository.oppdaterFeilstatusOgFeilkode(any())
+            dokumentKoblingService.produserInntektsmeldingAvvistKobling(any())
         }
     }
 }
