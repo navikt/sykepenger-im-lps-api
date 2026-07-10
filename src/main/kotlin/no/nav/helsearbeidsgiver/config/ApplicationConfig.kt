@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.inntekt.InntektService
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -81,6 +82,7 @@ data class Repositories(
 data class Services(
     val forespoerselService: ForespoerselService,
     val inntektsmeldingService: InntektsmeldingService,
+    val inntektService: InntektService,
     val innsendingService: InnsendingService,
     val dokumentkoblingService: DokumentkoblingService,
     val sykmeldingService: SykmeldingService,
@@ -162,6 +164,7 @@ fun configureServices(
     leaderConfig: LeaderConfig = NaisLeaderConfig,
 ): Services {
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
+    val inntektService = InntektService(repositories.forespoerselRepository)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =
@@ -220,6 +223,7 @@ fun configureServices(
     return Services(
         forespoerselService,
         inntektsmeldingService,
+        inntektService,
         innsendingService,
         dokumentkoblingService,
         sykmeldingService,

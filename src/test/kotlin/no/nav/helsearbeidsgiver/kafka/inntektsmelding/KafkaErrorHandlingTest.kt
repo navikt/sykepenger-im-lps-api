@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
+import no.nav.helsearbeidsgiver.inntekt.InntektService
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -35,6 +36,7 @@ class KafkaErrorHandlingTest {
         Services(
             forespoerselService = mockForespoerselService,
             inntektsmeldingService = mockk(),
+            inntektService = mockk<InntektService>(),
             innsendingService = mockk(),
             dokumentkoblingService = mockk(),
             sykmeldingService = mockk(),

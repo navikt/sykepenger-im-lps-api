@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
+import no.nav.helsearbeidsgiver.inntekt.inntektV1
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
@@ -32,6 +33,7 @@ fun Application.configureRouting(
                 services = services,
                 unleashFeatureToggles = unleashFeatureToggles,
             )
+            inntektV1(services.inntektService)
             forespoerselV1(
                 forespoerselService = services.forespoerselService,
                 unleashFeatureToggles = unleashFeatureToggles,

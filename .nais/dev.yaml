@@ -116,3 +116,10 @@ spec:
       value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
     - name: PDFGEN_SOEKNAD_URL
       value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/soknad/soknad"
+    - name: INNTEKT_URL
+      value: "https://ikomp-q2.dev-fss-pub.nais.io/rs"
+    - name: INNTEKT_SCOPE
+      value: "api://dev-fss.team-inntekt.ikomp-q2/.default"
+externalHosts:
+  - ikomp-q2.dev-fss-pub.nais.io
+entraIdEnabled: true
