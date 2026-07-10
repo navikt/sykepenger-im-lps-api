@@ -121,6 +121,3 @@ spec:
       value: "https://ikomp-q2.dev-fss-pub.nais.io/rs"
     - name: INNTEKT_SCOPE
       value: "api://dev-fss.team-inntekt.ikomp-q2/.default"
-azure:
-  application:
-    enabled: true
