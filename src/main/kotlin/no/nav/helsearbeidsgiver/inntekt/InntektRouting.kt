@@ -74,9 +74,7 @@ private fun Route.hentInntekt(inntektService: InntektService) {
                     .hentInntekter(
                         navReferanseId = navReferanseId,
                         inntektsdato = inntektsdato,
-                    ).mapValues { (_, perMaaned) ->
-                        perMaaned.mapKeys { (yearMonth, _) -> yearMonth.toString() }
-                    }
+                    )
 
             sikkerLogger().info(
                 "LPS: [$lpsOrgnr] henter inntekt for navReferanseId [$navReferanseId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
