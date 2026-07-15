@@ -30,20 +30,28 @@ class InntektService(
     fun hentInntekter(
         navReferanseId: UUID,
         inntektsdato: LocalDate,
-    ): Map<String, Map<YearMonth, Double>> {
+    ): Map<YearMonth, Double?> {
         val forespoersel =
             forespoerselRepository.hentForespoersel(navReferanseId)
                 ?: throw IllegalArgumentException("Forespørsel med id $navReferanseId finnes ikke")
 
         val fom = inntektsdato.minusMaaneder(3)
+        val middle = inntektsdato.minusMaaneder(2)
         val tom = inntektsdato.minusMaaneder(1)
 
-        return hentInntektPerOrgnrOgMaaned(
-            fnr = Fnr(forespoersel.fnr),
-            fom = fom,
-            tom = tom,
-            kontekstId = forespoersel.navReferanseId,
-        )
+        val inntektPerOrgnrOgMaaned =
+            hentInntektPerOrgnrOgMaaned(
+                fnr = Fnr(forespoersel.fnr),
+                fom = fom,
+                tom = tom,
+                kontekstId = forespoersel.navReferanseId,
+            )
+        val inntektPerMaaned = inntektPerOrgnrOgMaaned[forespoersel.orgnr].orEmpty()
+
+        val inntekt =
+            listOf(fom, middle, tom)
+                .associateWith { inntektPerMaaned[it] }
+        return inntekt
     }
 
     private fun hentInntektPerOrgnrOgMaaned(
