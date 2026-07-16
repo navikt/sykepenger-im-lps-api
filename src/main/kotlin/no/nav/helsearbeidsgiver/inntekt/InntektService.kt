@@ -30,7 +30,7 @@ class InntektService(
     fun hentInntekter(
         navReferanseId: UUID,
         inntektsdato: LocalDate,
-    ): Map<YearMonth, Double?> {
+    ): Inntekt {
         val forespoersel =
             forespoerselRepository.hentForespoersel(navReferanseId)
                 ?: throw IllegalArgumentException("Forespørsel med id $navReferanseId finnes ikke")
@@ -48,10 +48,10 @@ class InntektService(
             )
         val inntektPerMaaned = inntektPerOrgnrOgMaaned[forespoersel.orgnr].orEmpty()
 
-        val inntekt =
+        return Inntekt(
             listOf(fom, middle, tom)
-                .associateWith { inntektPerMaaned[it] }
-        return inntekt
+                .associateWith { inntektPerMaaned[it] },
+        )
     }
 
     private fun hentInntektPerOrgnrOgMaaned(
