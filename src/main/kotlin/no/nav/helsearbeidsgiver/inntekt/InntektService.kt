@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
@@ -17,6 +18,7 @@ import kotlin.time.Duration.Companion.minutes
 class InntektService(
     private val forespoerselRepository: ForespoerselRepository,
 ) {
+    val logger = LoggerFactory.getLogger(InntektService::class.java)
     private val tokenGetter = configureAuthClient().tokenGetter(AZURE_AD, Env.getProperty("INNTEKT_SCOPE"))
     private val inntektKlient =
         InntektKlient(
@@ -51,14 +53,18 @@ class InntektService(
         val inntekt =
             listOf(fom, middle, tom)
                 .associateWith { inntektPerMaaned[it] }
-
-        return InntektResponse(
-            inntekt,
+        val gjennomsnittInntekt =
             inntekt.values
                 .filterNotNull()
                 .average()
                 .takeIf { it.isFinite() }
-                ?: 0.0,
+                ?: 0.0
+        sikkerLogger().info(
+            "Hentet inntekt for forespørsel ${forespoersel.navReferanseId} for orgnr ${forespoersel.orgnr} i perioden $fom til $tom: $inntekt, gjennomsnitt: $gjennomsnittInntekt",
+        )
+        return InntektResponse(
+            inntekt,
+            gjennomsnittInntekt,
         )
     }
 
