@@ -30,7 +30,7 @@ class InntektService(
     fun hentInntekter(
         navReferanseId: UUID,
         inntektsdato: LocalDate,
-    ): Inntekt {
+    ): InntektResponse {
         val forespoersel =
             forespoerselRepository.hentForespoersel(navReferanseId)
                 ?: throw IllegalArgumentException("Forespørsel med id $navReferanseId finnes ikke")
@@ -48,9 +48,17 @@ class InntektService(
             )
         val inntektPerMaaned = inntektPerOrgnrOgMaaned[forespoersel.orgnr].orEmpty()
 
-        return Inntekt(
+        val inntekt =
             listOf(fom, middle, tom)
-                .associateWith { inntektPerMaaned[it] },
+                .associateWith { inntektPerMaaned[it] }
+
+        return InntektResponse(
+            inntekt,
+            inntekt.values
+                .filterNotNull()
+                .average()
+                .takeIf { it.isFinite() }
+                ?: 0.0,
         )
     }
 

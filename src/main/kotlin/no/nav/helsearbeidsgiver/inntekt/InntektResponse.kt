@@ -10,12 +10,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.YearMonthSerializer
 import java.time.YearMonth
 
 @Serializable
-data class Inntekt(
+data class InntektResponse(
     val inntekt: Map<YearMonth, Double?>,
-    val gjennomsnittInntekt: Double =
-        inntekt.values
-            .filterNotNull()
-            .average()
-            .takeIf { it.isFinite() }
-            ?: 0.0,
+    val gjennomsnittInntekt: Double,
 )
