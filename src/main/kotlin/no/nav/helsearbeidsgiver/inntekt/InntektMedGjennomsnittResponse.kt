@@ -11,21 +11,21 @@ import java.time.YearMonth
 
 @Serializable
 data class InntektMedGjennomsnittResponse private constructor(
-    val inntekt: Map<YearMonth, Double?>,
-    val gjennomsnittInntekt: Double,
+    val inntektPerMaaned: Map<YearMonth, Double?>,
+    val gjennomsnittAvMaaneder: Double,
 ) {
     companion object {
-        fun of(inntekt: Map<YearMonth, Double?> = emptyMap()): InntektMedGjennomsnittResponse =
+        fun of(inntektPerMaaned: Map<YearMonth, Double?> = emptyMap()): InntektMedGjennomsnittResponse =
             InntektMedGjennomsnittResponse(
-                inntekt = inntekt,
-                gjennomsnittInntekt = beregnGjennomsnitt(inntekt),
+                inntektPerMaaned = inntektPerMaaned,
+                gjennomsnittAvMaaneder = beregnGjennomsnitt(inntektPerMaaned),
             )
 
         private fun beregnGjennomsnitt(inntekt: Map<YearMonth, Double?>): Double =
-            inntekt.values
-                .filterNotNull()
-                .average()
-                .takeIf { it.isFinite() }
-                ?: 0.0
+            when {
+                inntekt.isEmpty() -> 0.0
+                inntekt.values.any { it == null || it == 0.0 } -> inntekt.values.filterNotNull().sum() / inntekt.size.toDouble()
+                else -> inntekt.values.filterNotNull().average()
+            }
     }
 }

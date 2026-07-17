@@ -55,7 +55,7 @@ class InntektService(
                 .associateWith { inntektPerMaaned[it] }
         val inntektMedGjennomsnittResponse = InntektMedGjennomsnittResponse.of(inntekt)
         sikkerLogger().info(
-            "Hentet inntekt for forespørsel ${forespoersel.navReferanseId} for orgnr ${forespoersel.orgnr} i perioden $fom til $tom: $inntekt, gjennomsnitt: ${inntektMedGjennomsnittResponse.gjennomsnittInntekt}",
+            "Hentet inntekt for forespørsel ${forespoersel.navReferanseId} for orgnr ${forespoersel.orgnr} i perioden $fom til $tom: $inntekt, gjennomsnitt: ${inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder}",
         )
         return inntektMedGjennomsnittResponse
     }
