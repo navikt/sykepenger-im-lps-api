@@ -32,7 +32,7 @@ class InntektService(
     fun hentInntekter(
         navReferanseId: UUID,
         inntektsdato: LocalDate,
-    ): InntektResponse {
+    ): InntektMedGjennomsnittResponse {
         val forespoersel =
             forespoerselRepository.hentForespoersel(navReferanseId)
                 ?: throw IllegalArgumentException("Forespørsel med id $navReferanseId finnes ikke")
@@ -53,19 +53,11 @@ class InntektService(
         val inntekt =
             listOf(fom, middle, tom)
                 .associateWith { inntektPerMaaned[it] }
-        val gjennomsnittInntekt =
-            inntekt.values
-                .filterNotNull()
-                .average()
-                .takeIf { it.isFinite() }
-                ?: 0.0
+        val inntektMedGjennomsnittResponse = InntektMedGjennomsnittResponse.of(inntekt)
         sikkerLogger().info(
-            "Hentet inntekt for forespørsel ${forespoersel.navReferanseId} for orgnr ${forespoersel.orgnr} i perioden $fom til $tom: $inntekt, gjennomsnitt: $gjennomsnittInntekt",
+            "Hentet inntekt for forespørsel ${forespoersel.navReferanseId} for orgnr ${forespoersel.orgnr} i perioden $fom til $tom: $inntekt, gjennomsnitt: ${inntektMedGjennomsnittResponse.gjennomsnittInntekt}",
         )
-        return InntektResponse(
-            inntekt,
-            gjennomsnittInntekt,
-        )
+        return inntektMedGjennomsnittResponse
     }
 
     private fun hentInntektPerOrgnrOgMaaned(
