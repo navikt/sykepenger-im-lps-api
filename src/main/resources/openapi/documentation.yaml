@@ -4,6 +4,7 @@ tags:
   - name: "Sykepengesøknad"
   - name: "Forespørsel om inntektsmelding"
   - name: "Inntektsmelding"
+  - name: "Inntekt"
 
 info:
   title: "Sykepenger API"
@@ -113,6 +114,57 @@ paths:
           description: "Internal Server Error"
           content:
             '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/inntekt:
+    get:
+      tags:
+        - "Inntekt"
+      summary: "Hent inntekt med gjennomsnitt"
+      description: "Henter inntekt per måned og beregnet gjennomsnitt for forespørsel."
+      parameters:
+        - name: "navReferanseId"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+        - name: "inntektsdato"
+          in: "query"
+          required: true
+          description: "Inntektsdato på format yyyyMMdd."
+          schema:
+            type: "string"
+            pattern: "^[0-9]{8}$"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InntektMedGjennomsnittResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/inntektsmelding:
@@ -878,6 +930,27 @@ components:
         - "beloep"
         - "inntektsdato"
         - "endringAarsaker"
+    InntektMedGjennomsnittResponse:
+      type: "object"
+      properties:
+        inntektPerMaaned:
+          type: "object"
+          additionalProperties:
+            type: "number"
+            format: "double"
+            nullable: true
+          description: "Inntekt per måned i perioden. Nøkkel er YearMonth serialisert som streng på format yyyy-MM."
+          example:
+            "2024-01": 50000.0
+            "2024-02": 51000.0
+            "2024-03": 52000.0
+        gjennomsnittAvMaaneder:
+          type: "number"
+          format: "double"
+          description: "Beregnet og avrundet gjennomsnitt av månedene."
+      required:
+        - "inntektPerMaaned"
+        - "gjennomsnittAvMaaneder"
     RefusjonEndring:
       type: "object"
       properties:
