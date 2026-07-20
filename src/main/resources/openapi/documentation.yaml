@@ -4,7 +4,6 @@ tags:
   - name: "Sykepengesøknad"
   - name: "Forespørsel om inntektsmelding"
   - name: "Inntektsmelding"
-  - name: "Inntekt"
 
 info:
   title: "Sykepenger API"
@@ -118,53 +117,47 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/inntekt:
     get:
-      tags:
-        - "Inntekt"
-      summary: "Hent inntekt med gjennomsnitt"
-      description: "Henter inntekt per måned og beregnet gjennomsnitt for forespørsel."
+      description: ""
       parameters:
         - name: "navReferanseId"
           in: "query"
-          required: true
+          required: false
           schema:
             type: "string"
-            format: "uuid"
         - name: "inntektsdato"
           in: "query"
-          required: true
-          description: "Inntektsdato på format yyyyMMdd."
+          required: false
           schema:
             type: "string"
-            pattern: "^[0-9]{8}$"
       responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InntektMedGjennomsnittResponse"
         "400":
           description: "Bad Request"
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: "Unauthorized"
-          content:
-            application/json:
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Not Found"
           content:
-            application/json:
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: "Unauthorized"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InntektMedGjennomsnittResponse"
         "500":
           description: "Internal Server Error"
           content:
-            application/json:
+            '*/*':
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/inntektsmelding:
@@ -726,6 +719,28 @@ components:
           nullable: true
       required:
         - "orgnr"
+    YearMonth:
+      type: "object"
+      properties:
+        year:
+          type: "integer"
+          format: "int32"
+          nullable: true
+        month:
+          type: "integer"
+          format: "int32"
+          nullable: true
+    InntektMedGjennomsnittResponse:
+      type: "object"
+      properties:
+        inntektPerMaaned:
+          $ref: "#/components/schemas/YearMonth"
+        gjennomsnittAvMaaneder:
+          type: "number"
+          format: "double"
+      required:
+        - "inntektPerMaaned"
+        - "gjennomsnittAvMaaneder"
     RedusertLoennIAgp:
       type: "object"
       properties:
@@ -930,27 +945,6 @@ components:
         - "beloep"
         - "inntektsdato"
         - "endringAarsaker"
-    InntektMedGjennomsnittResponse:
-      type: "object"
-      properties:
-        inntektPerMaaned:
-          type: "object"
-          additionalProperties:
-            type: "number"
-            format: "double"
-            nullable: true
-          description: "Inntekt per måned i perioden. Nøkkel er YearMonth serialisert som streng på format yyyy-MM."
-          example:
-            "2024-01": 50000.0
-            "2024-02": 51000.0
-            "2024-03": 52000.0
-        gjennomsnittAvMaaneder:
-          type: "number"
-          format: "double"
-          description: "Beregnet og avrundet gjennomsnitt av månedene."
-      required:
-        - "inntektPerMaaned"
-        - "gjennomsnittAvMaaneder"
     RefusjonEndring:
       type: "object"
       properties:
@@ -1015,12 +1009,12 @@ components:
       type: "object"
       properties:
         systemNavn:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
         systemVersjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1054,7 +1048,7 @@ components:
             - "Ny"
             - "Endring"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1086,7 +1080,7 @@ components:
         tlf:
           type: "string"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1102,6 +1096,8 @@ components:
           type: "string"
           enum:
             - "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
+            - "DUPLIKAT"
+            - "UKJENT"
         feilmelding:
           type: "string"
           nullable: true
