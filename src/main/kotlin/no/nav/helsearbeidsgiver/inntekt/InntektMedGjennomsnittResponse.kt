@@ -29,7 +29,9 @@ data class InntektMedGjennomsnittResponse private constructor(
             return roundToTwoDecimals(
                 when {
                     inntekt.isEmpty() -> 0.0
-                    normaliserteVerdier.any { it == null || it == 0.0 } -> normaliserteVerdier.filterNotNull().sum() / inntekt.size.toDouble()
+                    normaliserteVerdier.any { it == null || it == 0.0 } ->
+                        normaliserteVerdier.filterNotNull().sum() /
+                            inntekt.size.toDouble()
                     else -> normaliserteVerdier.filterNotNull().average()
                 },
             )
@@ -37,7 +39,8 @@ data class InntektMedGjennomsnittResponse private constructor(
 
         private fun roundToTwoDecimals(value: Double): Double =
             if (value.isFinite()) {
-                BigDecimal.valueOf(value)
+                BigDecimal
+                    .valueOf(value)
                     .setScale(2, RoundingMode.HALF_UP)
                     .toDouble()
             } else {
