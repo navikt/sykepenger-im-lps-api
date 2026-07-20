@@ -66,7 +66,7 @@ class InntektService(
         tom: YearMonth,
         kontekstId: UUID,
     ): Map<String, Map<YearMonth, Double>> {
-        val navConsumerId = "helsearbeidsgiver-im-inntekt"
+        val navConsumerId = "helsearbeidsgiver-im-lps-api"
         val callId = "$navConsumerId-$kontekstId"
 
         sikkerLogger().info("Henter inntekt for $fnr i perioden $fom til $tom (callId: $callId).")
