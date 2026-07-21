@@ -8,11 +8,12 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.config.Services
@@ -111,7 +112,7 @@ class InntektRoutingTest {
 
         every { services.forespoerselService.hentForespoersel(navReferanseId) } returns forespoersel
         every { pdpService.harTilgang(any(), DEFAULT_ORG, any()) } returns true
-        every {
+        coEvery {
             services.inntektService.hentInntekter(
                 navReferanseId = navReferanseId,
                 inntektsdato = LocalDate.of(2024, 4, 15),
@@ -127,7 +128,7 @@ class InntektRoutingTest {
 
         response.status shouldBe io.ktor.http.HttpStatusCode.OK
         runBlocking { response.body<InntektMedGjennomsnittResponse>() } shouldBe responseBody
-        verify(exactly = 1) { services.inntektService.hentInntekter(navReferanseId, LocalDate.of(2024, 4, 15)) }
+        coVerify(exactly = 1) { services.inntektService.hentInntekter(navReferanseId, LocalDate.of(2024, 4, 15)) }
     }
 
     @Test
@@ -189,6 +190,6 @@ class InntektRoutingTest {
 
         response.status shouldBe io.ktor.http.HttpStatusCode.Unauthorized
         runBlocking { response.body<ErrorResponse>().feilkode } shouldBe Feil.IKKE_TILGANG_TIL_RESSURS.name
-        verify(exactly = 0) { inntektService.hentInntekter(any(), any()) }
+        coVerify(exactly = 0) { inntektService.hentInntekter(any(), any()) }
     }
 }

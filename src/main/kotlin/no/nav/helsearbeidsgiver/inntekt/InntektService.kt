@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.inntekt
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -12,7 +11,7 @@ class InntektService(
     private val forespoerselRepository: ForespoerselRepository,
     private val inntektKlient: InntektKlient,
 ) {
-    fun hentInntekter(
+    suspend fun hentInntekter(
         navReferanseId: UUID,
         inntektsdato: LocalDate,
     ): InntektMedGjennomsnittResponse {
@@ -43,7 +42,7 @@ class InntektService(
         return inntektMedGjennomsnittResponse
     }
 
-    private fun hentInntektPerOrgnrOgMaaned(
+    private suspend fun hentInntektPerOrgnrOgMaaned(
         fnr: Fnr,
         fom: YearMonth,
         tom: YearMonth,
@@ -54,15 +53,13 @@ class InntektService(
 
         sikkerLogger().info("Henter inntekt for $fnr i perioden $fom til $tom (callId: $callId).")
 
-        return runBlocking {
-            inntektKlient.hentInntektPerOrgnrOgMaaned(
-                fnr = fnr.verdi,
-                fom = fom,
-                tom = tom,
-                navConsumerId = navConsumerId,
-                callId = callId,
-            )
-        }
+        return inntektKlient.hentInntektPerOrgnrOgMaaned(
+            fnr = fnr.verdi,
+            fom = fom,
+            tom = tom,
+            navConsumerId = navConsumerId,
+            callId = callId,
+        )
     }
 }
 

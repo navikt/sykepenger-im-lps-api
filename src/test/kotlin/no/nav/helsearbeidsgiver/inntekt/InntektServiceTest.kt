@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -59,7 +60,10 @@ class InntektServiceTest {
                     ),
             )
 
-        val result = inntektService.hentInntekter(navReferanseId, inntektsdato)
+        val result =
+            runBlocking {
+                inntektService.hentInntekter(navReferanseId, inntektsdato)
+            }
 
         assertEquals(
             mapOf(
@@ -97,7 +101,9 @@ class InntektServiceTest {
         } throws RuntimeException("inntektklient-feil")
 
         assertThrows<Exception> {
-            inntektService.hentInntekter(navReferanseId, inntektsdato)
+            runBlocking {
+                inntektService.hentInntekter(navReferanseId, inntektsdato)
+            }
         }
 
         coVerify(exactly = 1) {
