@@ -172,7 +172,7 @@ fun configureServices(
     val inntektKlient =
         InntektKlient(
             baseUrl = getProperty("INNTEKT_URL"),
-            cacheConfig = LocalCache.Config(entryDuration = 5.minutes, maxEntries = 10_000),
+            cacheConfig = LocalCache.Config(entryDuration = 10.minutes, maxEntries = 1000),
             getAccessToken = inntektTokenGetter,
         )
     val inntektService = InntektService(repositories.forespoerselRepository, inntektKlient)
