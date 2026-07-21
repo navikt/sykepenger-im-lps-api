@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
 import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
+import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.metrikk.tellApiRequest
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
@@ -23,13 +24,13 @@ import java.time.format.DateTimeFormatter
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 private val INNTEKTSDATO_FORMATTER = DateTimeFormatter.BASIC_ISO_DATE
 
-fun Route.inntektV1(inntektService: InntektService) {
+fun Route.inntektV1(services: Services) {
     route("/v1") {
-        hentInntekt(inntektService)
+        hentInntekt(services)
     }
 }
 
-private fun Route.hentInntekt(inntektService: InntektService) {
+private fun Route.hentInntekt(services: Services) {
     get("/inntekt") {
         val navReferanseId = call.request.queryParameters["navReferanseId"]?.toUuidOrNull()
         if (navReferanseId == null) {
@@ -49,7 +50,7 @@ private fun Route.hentInntekt(inntektService: InntektService) {
         }
 
         try {
-            val forespoersel = inntektService.hentForespoersel(navReferanseId)
+            val forespoersel = services.forespoerselService.hentForespoersel(navReferanseId)
             if (forespoersel == null) {
                 call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.FORESPOERSEL_IKKE_FUNNET, navReferanseId))
                 return@get
@@ -70,7 +71,7 @@ private fun Route.hentInntekt(inntektService: InntektService) {
             tellApiRequest()
 
             val inntekter =
-                inntektService
+                services.inntektService
                     .hentInntekter(
                         navReferanseId = navReferanseId,
                         inntektsdato = inntektsdato,

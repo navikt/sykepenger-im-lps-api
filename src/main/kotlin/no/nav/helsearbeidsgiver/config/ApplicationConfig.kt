@@ -19,12 +19,14 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingProducer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.felles.auth.AuthClient
+import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
 import no.nav.helsearbeidsgiver.felles.auth.DefaultAuthClient
 import no.nav.helsearbeidsgiver.felles.auth.NoOpAuthClient
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.inntekt.InntektKlient
 import no.nav.helsearbeidsgiver.inntekt.InntektService
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
@@ -54,6 +56,7 @@ import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
 import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.cache.LocalCache
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -66,6 +69,7 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.common.serialization.UUIDSerializer
 import org.jetbrains.exposed.sql.Database
+import kotlin.time.Duration.Companion.minutes
 
 val MAX_ANTALL_I_RESPONS = 1000 // Max antall entiteter som kan returneres i API-kall
 
@@ -164,7 +168,14 @@ fun configureServices(
     leaderConfig: LeaderConfig = NaisLeaderConfig,
 ): Services {
     val inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository)
-    val inntektService = InntektService(repositories.forespoerselRepository)
+    val inntektTokenGetter = configureAuthClient().tokenGetter(AZURE_AD, getProperty("INNTEKT_SCOPE"))
+    val inntektKlient =
+        InntektKlient(
+            baseUrl = getProperty("INNTEKT_URL"),
+            cacheConfig = LocalCache.Config(entryDuration = 5.minutes, maxEntries = 10_000),
+            getAccessToken = inntektTokenGetter,
+        )
+    val inntektService = InntektService(repositories.forespoerselRepository, inntektKlient)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =

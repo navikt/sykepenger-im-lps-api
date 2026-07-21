@@ -1,34 +1,17 @@
 package no.nav.helsearbeidsgiver.inntekt
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.config.configureAuthClient
-import no.nav.helsearbeidsgiver.felles.auth.AuthClientIdentityProvider.AZURE_AD
-import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.utils.cache.LocalCache
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
-import kotlin.time.Duration.Companion.minutes
 
 class InntektService(
     private val forespoerselRepository: ForespoerselRepository,
+    private val inntektKlient: InntektKlient,
 ) {
-    val logger = LoggerFactory.getLogger(InntektService::class.java)
-    private val tokenGetter = configureAuthClient().tokenGetter(AZURE_AD, Env.getProperty("INNTEKT_SCOPE"))
-    private val inntektKlient =
-        InntektKlient(
-            baseUrl = Env.getProperty("INNTEKT_URL"),
-            cacheConfig = LocalCache.Config(entryDuration = 5.minutes, maxEntries = 10_000),
-            getAccessToken = tokenGetter,
-        )
-
-    fun hentForespoersel(navReferanseId: UUID): Forespoersel? = forespoerselRepository.hentForespoersel(navReferanseId)
-
     fun hentInntekter(
         navReferanseId: UUID,
         inntektsdato: LocalDate,

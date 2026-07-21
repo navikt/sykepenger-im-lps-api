@@ -33,7 +33,7 @@ fun Application.configureRouting(
                 services = services,
                 unleashFeatureToggles = unleashFeatureToggles,
             )
-            inntektV1(services.inntektService)
+            inntektV1(services)
             forespoerselV1(
                 forespoerselService = services.forespoerselService,
                 unleashFeatureToggles = unleashFeatureToggles,
