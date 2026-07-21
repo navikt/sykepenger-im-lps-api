@@ -17,8 +17,6 @@ import java.time.YearMonth
 import java.util.UUID
 import kotlin.test.assertEquals
 
-private const val EPSILON = 1e-6
-
 class InntektServiceTest {
     private val forespoerselRepository = mockk<ForespoerselRepository>()
     private val inntektKlient = mockk<InntektKlient>()
@@ -71,7 +69,7 @@ class InntektServiceTest {
             ),
             result.inntektPerMaaned,
         )
-        assertEquals(133.33, result.gjennomsnittAvMaaneder, EPSILON)
+        assertEquals(133.33, result.gjennomsnittAvMaaneder)
     }
 
     @Test
