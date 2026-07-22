@@ -24,34 +24,16 @@ data class InntektMedGjennomsnittResponse private constructor(
             )
 
         private fun beregnGjennomsnitt(inntekt: Map<YearMonth, Double?>): Double {
-            val normaliserteVerdier = inntekt.values.map { it?.takeIf(Double::isFinite) }
+            if (inntekt.isEmpty()) return 0.0
 
-            return avrundTilToDesimaler(
-                when {
-                    inntekt.isEmpty() -> {
-                        0.0
-                    }
+            val sum =
+                inntekt.values
+                    .map { BigDecimal.valueOf(it?.takeIf(Double::isFinite) ?: 0.0) }
+                    .fold(BigDecimal.ZERO, BigDecimal::add)
 
-                    normaliserteVerdier.any { it == null || it == 0.0 } -> {
-                        normaliserteVerdier.filterNotNull().sum() /
-                            inntekt.size.toDouble()
-                    }
-
-                    else -> {
-                        normaliserteVerdier.filterNotNull().average()
-                    }
-                },
-            )
+            return sum
+                .divide(BigDecimal.valueOf(inntekt.size.toLong()), 2, RoundingMode.HALF_UP)
+                .toDouble()
         }
-
-        private fun avrundTilToDesimaler(value: Double): Double =
-            if (value.isFinite()) {
-                BigDecimal
-                    .valueOf(value)
-                    .setScale(2, RoundingMode.HALF_UP)
-                    .toDouble()
-            } else {
-                0.0
-            }
     }
 }
