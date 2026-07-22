@@ -59,4 +59,4 @@ class InntektService(
 
 private fun LocalDate.minusMaaneder(maanederTilbake: Long): YearMonth = toYearMonth().minusMonths(maanederTilbake)
 
-fun LocalDate.toYearMonth(): YearMonth = YearMonth.of(year, month)
+private fun LocalDate.toYearMonth(): YearMonth = YearMonth.of(year, month)

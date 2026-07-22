@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
 import io.mockk.clearMocks
@@ -22,6 +23,7 @@ import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -52,7 +54,7 @@ class InntektRoutingTest {
             helseSjekkService = mockk(relaxed = true),
             avvistInntektsmeldingService = mockk(relaxed = true),
         )
-    private val unleashFeatureToggles = mockk<no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles>(relaxed = true)
+    private val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
 
     private val mockOAuth2Server =
         MockOAuth2Server().apply {
@@ -79,7 +81,7 @@ class InntektRoutingTest {
 
     @BeforeAll
     fun setupStaticMocks() {
-        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        mockkStatic(::getPdpService)
     }
 
     @BeforeEach
@@ -93,7 +95,7 @@ class InntektRoutingTest {
         runBlocking {
             testApplication.stop()
             mockOAuth2Server.shutdown()
-            unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+            unmockkStatic(::getPdpService)
         }
 
     @Test
@@ -126,7 +128,7 @@ class InntektRoutingTest {
                 }
             }
 
-        response.status shouldBe io.ktor.http.HttpStatusCode.OK
+        response.status shouldBe HttpStatusCode.OK
         runBlocking { response.body<InntektMedGjennomsnittResponse>() } shouldBe responseBody
         coVerify(exactly = 1) { services.inntektService.hentInntekter(forespoersel, LocalDate.of(2024, 4, 15)) }
     }
@@ -140,7 +142,7 @@ class InntektRoutingTest {
                 }
             }
 
-        response.status shouldBe io.ktor.http.HttpStatusCode.BadRequest
+        response.status shouldBe HttpStatusCode.BadRequest
         runBlocking { response.body<ErrorResponse>().feilkode } shouldBe Feil.UGYLDIG_NAV_REFERANSE_ID.name
     }
 
@@ -155,7 +157,7 @@ class InntektRoutingTest {
                 }
             }
 
-        response.status shouldBe io.ktor.http.HttpStatusCode.BadRequest
+        response.status shouldBe HttpStatusCode.BadRequest
         runBlocking { response.body<ErrorResponse>().feilkode } shouldBe Feil.UGYLDIG_DATO.name
     }
 
@@ -171,7 +173,7 @@ class InntektRoutingTest {
                 }
             }
 
-        response.status shouldBe io.ktor.http.HttpStatusCode.NotFound
+        response.status shouldBe HttpStatusCode.NotFound
     }
 
     @Test
@@ -188,7 +190,7 @@ class InntektRoutingTest {
                 }
             }
 
-        response.status shouldBe io.ktor.http.HttpStatusCode.Unauthorized
+        response.status shouldBe HttpStatusCode.Unauthorized
         runBlocking { response.body<ErrorResponse>().feilkode } shouldBe Feil.IKKE_TILGANG_TIL_RESSURS.name
         coVerify(exactly = 0) { inntektService.hentInntekter(any(), any()) }
     }
