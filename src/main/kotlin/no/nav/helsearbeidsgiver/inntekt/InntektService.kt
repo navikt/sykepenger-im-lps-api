@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.inntekt
 
 import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
@@ -20,10 +19,10 @@ class InntektService(
 
         val inntektPerOrgnrOgMaaned =
             hentInntektPerOrgnrOgMaaned(
-                fnr = Fnr(forespoersel.fnr),
+                fnr = forespoersel.fnr,
                 fom = fom,
                 tom = tom,
-                kontekstId = forespoersel.navReferanseId,
+                navReferanseId = forespoersel.navReferanseId,
             )
         val inntektPerMaaned = inntektPerOrgnrOgMaaned[forespoersel.orgnr].orEmpty()
 
@@ -38,18 +37,18 @@ class InntektService(
     }
 
     private suspend fun hentInntektPerOrgnrOgMaaned(
-        fnr: Fnr,
+        fnr: String,
         fom: YearMonth,
         tom: YearMonth,
-        kontekstId: UUID,
+        navReferanseId: UUID,
     ): Map<String, Map<YearMonth, Double>> {
         val navConsumerId = "helsearbeidsgiver-im-lps-api"
-        val callId = "$navConsumerId-$kontekstId"
+        val callId = "$navConsumerId-$navReferanseId"
 
         sikkerLogger().info("Henter inntekt for $fnr i perioden $fom til $tom (callId: $callId).")
 
         return inntektKlient.hentInntektPerOrgnrOgMaaned(
-            fnr = fnr.verdi,
+            fnr = fnr,
             fom = fom,
             tom = tom,
             navConsumerId = navConsumerId,
