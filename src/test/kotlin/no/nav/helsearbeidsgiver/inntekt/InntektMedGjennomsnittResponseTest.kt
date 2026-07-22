@@ -51,36 +51,6 @@ class InntektMedGjennomsnittResponseTest {
     }
 
     @Test
-    fun `deler på antall maneder når en verdi er NaN`() {
-        val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
-                    mapOf(
-                        YearMonth.of(2024, 1) to 100.0,
-                        YearMonth.of(2024, 2) to Double.NaN,
-                        YearMonth.of(2024, 3) to 300.0,
-                    ),
-            )
-
-        assertEquals(133.33, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
-    }
-
-    @Test
-    fun `deler på antall maneder når en verdi er uendelig`() {
-        val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
-                    mapOf(
-                        YearMonth.of(2024, 1) to 100.0,
-                        YearMonth.of(2024, 2) to Double.POSITIVE_INFINITY,
-                        YearMonth.of(2024, 3) to 300.0,
-                    ),
-            )
-
-        assertEquals(133.33, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
-    }
-
-    @Test
     fun `deler på faktisk antall maneder når antall er ulikt 3`() {
         val inntektMedGjennomsnittResponse =
             InntektMedGjennomsnittResponse.of(

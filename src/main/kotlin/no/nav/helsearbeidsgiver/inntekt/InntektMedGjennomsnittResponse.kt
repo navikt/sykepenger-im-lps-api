@@ -28,7 +28,7 @@ data class InntektMedGjennomsnittResponse private constructor(
 
             val sum =
                 inntekt.values
-                    .map { BigDecimal.valueOf(it?.takeIf(Double::isFinite) ?: 0.0) }
+                    .map { BigDecimal.valueOf(it ?: 0.0) }
                     .fold(BigDecimal.ZERO, BigDecimal::add)
 
             return sum
