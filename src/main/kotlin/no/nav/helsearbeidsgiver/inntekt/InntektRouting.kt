@@ -31,7 +31,7 @@ fun Route.inntektV1(services: Services) {
 }
 
 private fun Route.hentInntekt(services: Services) {
-    // Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt GET /v1/inntekt?navReferanseId=<uuid>&inntektsdato=<yyyyMMdd>
+    // Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt GET /v1/inntekt?navReferanseId=UUID&inntektsdato=yyyyMMdd
     get("/inntekt") {
         val navReferanseId = call.request.queryParameters["navReferanseId"]?.toUuidOrNull()
         if (navReferanseId == null) {
