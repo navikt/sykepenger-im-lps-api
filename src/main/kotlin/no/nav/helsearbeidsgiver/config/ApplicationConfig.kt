@@ -175,7 +175,7 @@ fun configureServices(
             cacheConfig = LocalCache.Config(entryDuration = 10.minutes, maxEntries = 1000),
             getAccessToken = inntektTokenGetter,
         )
-    val inntektService = InntektService(repositories.forespoerselRepository, inntektKlient)
+    val inntektService = InntektService(inntektKlient)
     val sykmeldingService = SykmeldingService(repositories.sykmeldingRepository)
 
     val innsendingProducer =

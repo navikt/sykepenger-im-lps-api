@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.inntekt
 
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
+import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.time.LocalDate
@@ -8,17 +8,12 @@ import java.time.YearMonth
 import java.util.UUID
 
 class InntektService(
-    private val forespoerselRepository: ForespoerselRepository,
     private val inntektKlient: InntektKlient,
 ) {
     suspend fun hentInntekter(
-        navReferanseId: UUID,
+        forespoersel: Forespoersel,
         inntektsdato: LocalDate,
     ): InntektMedGjennomsnittResponse {
-        val forespoersel =
-            forespoerselRepository.hentForespoersel(navReferanseId)
-                ?: throw IllegalArgumentException("Forespørsel med id $navReferanseId finnes ikke")
-
         val fom = inntektsdato.minusMaaneder(3)
         val middle = inntektsdato.minusMaaneder(2)
         val tom = inntektsdato.minusMaaneder(1)

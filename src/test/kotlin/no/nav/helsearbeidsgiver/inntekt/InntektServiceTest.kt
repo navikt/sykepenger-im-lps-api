@@ -3,53 +3,48 @@ package no.nav.helsearbeidsgiver.inntekt
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class InntektServiceTest {
-    private val forespoerselRepository = mockk<ForespoerselRepository>()
     private val inntektKlient = mockk<InntektKlient>()
-    private val inntektService = InntektService(forespoerselRepository, inntektKlient)
+    private val inntektService = InntektService(inntektKlient)
 
     @BeforeEach
     fun resetMocks() {
-        clearMocks(forespoerselRepository, inntektKlient)
+        clearMocks(inntektKlient)
     }
 
     @Test
     fun `hentInntekter returnerer tre måneder og beregnet gjennomsnitt`() {
-        val navReferanseId = UUID.randomUUID()
         val inntektsdato = LocalDate.of(2024, 4, 15)
         val fom = YearMonth.of(2024, 1)
         val middle = YearMonth.of(2024, 2)
         val tom = YearMonth.of(2024, 3)
         val forespoersel =
             mockForespoersel().copy(
-                navReferanseId = navReferanseId,
+                navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
             )
 
-        every { forespoerselRepository.hentForespoersel(navReferanseId) } returns forespoersel
         coEvery {
             inntektKlient.hentInntektPerOrgnrOgMaaned(
                 fnr = DEFAULT_FNR,
                 fom = fom,
                 tom = tom,
                 navConsumerId = "helsearbeidsgiver-im-lps-api",
-                callId = "helsearbeidsgiver-im-lps-api-$navReferanseId",
+                callId = "helsearbeidsgiver-im-lps-api-${forespoersel.navReferanseId}",
             )
         } returns
             mapOf(
@@ -62,7 +57,7 @@ class InntektServiceTest {
 
         val result =
             runBlocking {
-                inntektService.hentInntekter(navReferanseId, inntektsdato)
+                inntektService.hentInntekter(forespoersel, inntektsdato)
             }
 
         assertEquals(
@@ -78,31 +73,29 @@ class InntektServiceTest {
 
     @Test
     fun `hentInntekter kaster feil når inntektklient feiler`() {
-        val navReferanseId = UUID.randomUUID()
         val inntektsdato = LocalDate.of(2024, 4, 15)
         val fom = YearMonth.of(2024, 1)
         val tom = YearMonth.of(2024, 3)
         val forespoersel =
             mockForespoersel().copy(
-                navReferanseId = navReferanseId,
+                navReferanseId = UUID.randomUUID(),
                 orgnr = DEFAULT_ORG,
                 fnr = DEFAULT_FNR,
             )
 
-        every { forespoerselRepository.hentForespoersel(navReferanseId) } returns forespoersel
         coEvery {
             inntektKlient.hentInntektPerOrgnrOgMaaned(
                 fnr = DEFAULT_FNR,
                 fom = fom,
                 tom = tom,
                 navConsumerId = "helsearbeidsgiver-im-lps-api",
-                callId = "helsearbeidsgiver-im-lps-api-$navReferanseId",
+                callId = "helsearbeidsgiver-im-lps-api-${forespoersel.navReferanseId}",
             )
         } throws RuntimeException("inntektklient-feil")
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             runBlocking {
-                inntektService.hentInntekter(navReferanseId, inntektsdato)
+                inntektService.hentInntekter(forespoersel, inntektsdato)
             }
         }
 
@@ -112,7 +105,7 @@ class InntektServiceTest {
                 fom = fom,
                 tom = tom,
                 navConsumerId = "helsearbeidsgiver-im-lps-api",
-                callId = "helsearbeidsgiver-im-lps-api-$navReferanseId",
+                callId = "helsearbeidsgiver-im-lps-api-${forespoersel.navReferanseId}",
             )
         }
     }

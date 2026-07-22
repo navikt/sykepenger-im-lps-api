@@ -73,7 +73,7 @@ private fun Route.hentInntekt(services: Services) {
             val inntekter =
                 services.inntektService
                     .hentInntekter(
-                        navReferanseId = navReferanseId,
+                        forespoersel = forespoersel,
                         inntektsdato = inntektsdato,
                     )
 

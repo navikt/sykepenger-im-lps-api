@@ -114,7 +114,7 @@ class InntektRoutingTest {
         every { pdpService.harTilgang(any(), DEFAULT_ORG, any()) } returns true
         coEvery {
             services.inntektService.hentInntekter(
-                navReferanseId = navReferanseId,
+                forespoersel = forespoersel,
                 inntektsdato = LocalDate.of(2024, 4, 15),
             )
         } returns responseBody
@@ -128,7 +128,7 @@ class InntektRoutingTest {
 
         response.status shouldBe io.ktor.http.HttpStatusCode.OK
         runBlocking { response.body<InntektMedGjennomsnittResponse>() } shouldBe responseBody
-        coVerify(exactly = 1) { services.inntektService.hentInntekter(navReferanseId, LocalDate.of(2024, 4, 15)) }
+        coVerify(exactly = 1) { services.inntektService.hentInntekter(forespoersel, LocalDate.of(2024, 4, 15)) }
     }
 
     @Test
