@@ -117,7 +117,8 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/inntekt:
     get:
-      description: ""
+      description: "Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt\
+        \ <br> GET /v1/inntekt?navReferanseId=<uuid>&inntektsdato=<yyyyMMdd>"
       parameters:
         - name: "navReferanseId"
           in: "query"
