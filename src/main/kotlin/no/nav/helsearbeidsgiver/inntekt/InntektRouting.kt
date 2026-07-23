@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
-private val INNTEKTSDATO_FORMATTER = DateTimeFormatter.BASIC_ISO_DATE
+private val INNTEKTSDATO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE
 
 fun Route.inntektV1(services: Services) {
     route("/v1") {
@@ -31,7 +31,7 @@ fun Route.inntektV1(services: Services) {
 }
 
 private fun Route.hentInntekt(services: Services) {
-    // Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt GET /v1/inntekt?navReferanseId=UUID&inntektsdato=yyyyMMdd
+    // Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt GET /v1/inntekt?navReferanseId=UUID&inntektsdato=yyyy-MM-dd
     get("/inntekt") {
         val navReferanseId = call.request.queryParameters["navReferanseId"]?.toUuidOrNull()
         if (navReferanseId == null) {

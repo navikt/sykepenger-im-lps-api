@@ -101,7 +101,7 @@ class InntektRoutingTest {
     @Test
     fun `hent inntekt returnerer 200 med inntekt og gjennomsnitt`() {
         val navReferanseId = UUID.randomUUID()
-        val inntektsdatoString = "20240415"
+        val inntektsdatoString = "2024-04-15"
         val forespoersel = mockForespoersel().copy(navReferanseId = navReferanseId, orgnr = DEFAULT_ORG)
         val responseBody =
             InntektMedGjennomsnittResponse.of(
@@ -137,7 +137,7 @@ class InntektRoutingTest {
     fun `hent inntekt returnerer 400 ved ugyldig navReferanseId`() {
         val response =
             runBlocking {
-                client.get("/v1/inntekt?navReferanseId=ugyldig&inntektsdato=20240415") {
+                client.get("/v1/inntekt?navReferanseId=ugyldig&inntektsdato=2024-04-15") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -152,7 +152,7 @@ class InntektRoutingTest {
 
         val response =
             runBlocking {
-                client.get("/v1/inntekt?navReferanseId=$navReferanseId&inntektsdato=2024-04-15") {
+                client.get("/v1/inntekt?navReferanseId=$navReferanseId&inntektsdato=20240415") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -168,7 +168,7 @@ class InntektRoutingTest {
 
         val response =
             runBlocking {
-                client.get("/v1/inntekt?navReferanseId=$navReferanseId&inntektsdato=20240415") {
+                client.get("/v1/inntekt?navReferanseId=$navReferanseId&inntektsdato=2024-04-15") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -185,7 +185,7 @@ class InntektRoutingTest {
 
         val response =
             runBlocking {
-                client.get("/v1/inntekt?navReferanseId=$navReferanseId&inntektsdato=20240415") {
+                client.get("/v1/inntekt?navReferanseId=$navReferanseId&inntektsdato=2024-04-15") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
