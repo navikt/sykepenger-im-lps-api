@@ -34,6 +34,10 @@ plugins {
 group = "no.nav.helsearbeidsgiver"
 version = "0.0.1"
 
+kotlin {
+    jvmToolchain(25)
+}
+
 application {
     mainClass.set("no.nav.helsearbeidsgiver.ApplicationKt")
 }
