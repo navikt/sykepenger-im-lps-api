@@ -115,52 +115,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /v1/inntekt:
-    get:
-      description: "Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt\
-        \ GET /v1/inntekt?navReferanseId=UUID&inntektsdato=yyyyMMdd"
-      parameters:
-        - name: "navReferanseId"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-        - name: "inntektsdato"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-      responses:
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: "Unauthorized"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/InntektMedGjennomsnittResponse"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
   /v1/inntektsmelding:
     post:
       tags:
@@ -720,28 +674,6 @@ components:
           nullable: true
       required:
         - "orgnr"
-    YearMonth:
-      type: "object"
-      properties:
-        year:
-          type: "integer"
-          format: "int32"
-          nullable: true
-        month:
-          type: "integer"
-          format: "int32"
-          nullable: true
-    InntektMedGjennomsnittResponse:
-      type: "object"
-      properties:
-        inntektPerMaaned:
-          $ref: "#/components/schemas/YearMonth"
-        gjennomsnittAvMaaneder:
-          type: "number"
-          format: "double"
-      required:
-        - "inntektPerMaaned"
-        - "gjennomsnittAvMaaneder"
     RedusertLoennIAgp:
       type: "object"
       properties:
@@ -1010,12 +942,12 @@ components:
       type: "object"
       properties:
         systemNavn:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
         systemVersjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1049,7 +981,7 @@ components:
             - "Ny"
             - "Endring"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1081,7 +1013,7 @@ components:
         tlf:
           type: "string"
         kontaktinformasjon:
-          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$" 
+          pattern: "^[.A-Za-zæøåÆØÅ0-9, _-]$"
           minLength: 2
           maxLength: 64
           type: "string"
@@ -1097,8 +1029,6 @@ components:
           type: "string"
           enum:
             - "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
-            - "DUPLIKAT"
-            - "UKJENT"
         feilmelding:
           type: "string"
           nullable: true
