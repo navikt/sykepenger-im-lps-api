@@ -4,6 +4,7 @@ tags:
   - name: "Sykepengesøknad"
   - name: "Forespørsel om inntektsmelding"
   - name: "Inntektsmelding"
+  - name: "Inntekt"
 
 info:
   title: "Sykepenger API"
@@ -268,7 +269,7 @@ paths:
   /v1/inntekt:
     get:
       tags:
-        - "Inntektsmelding"
+        - "Inntekt"
       summary: "Hent inntekt"
       description: "Hent inntekt for siste tre måneder og beregnet gjennomsnitt."
       parameters:
