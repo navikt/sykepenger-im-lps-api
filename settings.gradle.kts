@@ -2,9 +2,9 @@ rootProject.name = "sykepenger-im-lps-api"
 
 pluginManagement {
     plugins {
-        val kotlinterVersion: String by settings
-        val kotlinVersion: String by settings
-        val ktorVersion: String by settings
+        val kotlinterVersion = providers.gradleProperty("kotlinterVersion").get()
+        val kotlinVersion = providers.gradleProperty("kotlinVersion").get()
+        val ktorVersion = providers.gradleProperty("ktorVersion").get()
 
         kotlin("jvm") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
