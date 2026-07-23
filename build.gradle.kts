@@ -23,7 +23,7 @@ val unleashVersion = project.property("unleashVersion") as String
 val utilsVersion = project.property("utilsVersion") as String
 val pdlKlientVersion = project.property("pdlKlientVersion") as String
 val microMeterVersion = project.property("microMeterVersion") as String
-val inntektKlientVersion=project.property("inntektKlientVersion")
+val inntektKlientVersion = project.property("inntektKlientVersion")
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
