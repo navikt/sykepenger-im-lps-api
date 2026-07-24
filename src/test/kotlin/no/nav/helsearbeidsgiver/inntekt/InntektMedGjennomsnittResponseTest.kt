@@ -8,8 +8,8 @@ class InntektMedGjennomsnittResponseTest {
     @Test
     fun `beregner gjennomsnitt av verdier uten null`() {
         val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
+            InntektMedGjennomsnittResponse(
+                inntektPerMaaned =
                     mapOf(
                         YearMonth.of(2024, 1) to 100.0,
                         YearMonth.of(2024, 2) to 200.0,
@@ -23,8 +23,8 @@ class InntektMedGjennomsnittResponseTest {
     @Test
     fun `deler pa antall maneder når en verdi er null`() {
         val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
+            InntektMedGjennomsnittResponse(
+                inntektPerMaaned =
                     mapOf(
                         YearMonth.of(2024, 1) to 100.0,
                         YearMonth.of(2024, 2) to null,
@@ -38,8 +38,8 @@ class InntektMedGjennomsnittResponseTest {
     @Test
     fun `deler på antall maneder når en verdi er 0`() {
         val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
+            InntektMedGjennomsnittResponse(
+                inntektPerMaaned =
                     mapOf(
                         YearMonth.of(2024, 1) to 100.0,
                         YearMonth.of(2024, 2) to 0.0,
@@ -53,8 +53,8 @@ class InntektMedGjennomsnittResponseTest {
     @Test
     fun `deler på faktisk antall maneder når antall er ulikt 3`() {
         val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
+            InntektMedGjennomsnittResponse(
+                inntektPerMaaned =
                     mapOf(
                         YearMonth.of(2024, 1) to 100.0,
                         YearMonth.of(2024, 2) to null,
@@ -67,8 +67,8 @@ class InntektMedGjennomsnittResponseTest {
     @Test
     fun `setter gjennomsnitt til 0 når alle verdier er null`() {
         val inntektMedGjennomsnittResponse =
-            InntektMedGjennomsnittResponse.of(
-                inntekt =
+            InntektMedGjennomsnittResponse(
+                inntektPerMaaned =
                     mapOf(
                         YearMonth.of(2024, 1) to null,
                         YearMonth.of(2024, 2) to null,
@@ -81,7 +81,7 @@ class InntektMedGjennomsnittResponseTest {
 
     @Test
     fun `setter gjennomsnitt til 0 når map er tom`() {
-        val inntektMedGjennomsnittResponse = InntektMedGjennomsnittResponse.of()
+        val inntektMedGjennomsnittResponse = InntektMedGjennomsnittResponse(emptyMap())
 
         assertEquals(0.0, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
     }

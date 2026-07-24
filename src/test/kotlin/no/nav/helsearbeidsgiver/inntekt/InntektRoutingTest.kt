@@ -104,12 +104,13 @@ class InntektRoutingTest {
         val inntektsdatoString = "2024-04-15"
         val forespoersel = mockForespoersel().copy(navReferanseId = navReferanseId, orgnr = DEFAULT_ORG)
         val responseBody =
-            InntektMedGjennomsnittResponse.of(
-                mapOf(
-                    YearMonth.of(2024, 1) to 100.0,
-                    YearMonth.of(2024, 2) to null,
-                    YearMonth.of(2024, 3) to 300.0,
-                ),
+            InntektMedGjennomsnittResponse(
+                inntektPerMaaned =
+                    mapOf(
+                        YearMonth.of(2024, 1) to 100.0,
+                        YearMonth.of(2024, 2) to null,
+                        YearMonth.of(2024, 3) to 300.0,
+                    ),
             )
 
         every { services.forespoerselService.hentForespoersel(navReferanseId) } returns forespoersel
