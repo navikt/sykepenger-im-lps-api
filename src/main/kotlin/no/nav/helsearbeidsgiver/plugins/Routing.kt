@@ -1,11 +1,14 @@
 package no.nav.helsearbeidsgiver.plugins
 
+import io.ktor.http.ContentType
+import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.Services
@@ -27,7 +30,11 @@ fun Application.configureRouting(
     routing {
         metrikkRoutes()
         naisRoutes(services.helseSjekkService)
-        swaggerUI(path = "swagger")
+        swaggerUI(path = "swagger") {
+            info = OpenApiInfo(title = "Sykepenger API", version = "1.0.0")
+            remotePath = "openapi.json"
+            source = OpenApiDocSource.Routing(contentType = ContentType.Application.Json)
+        }
         authenticate("systembruker-config") {
             inntektsmeldingV1(
                 services = services,
