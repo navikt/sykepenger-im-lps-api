@@ -23,7 +23,7 @@ val unleashVersion = project.property("unleashVersion") as String
 val utilsVersion = project.property("utilsVersion") as String
 val pdlKlientVersion = project.property("pdlKlientVersion") as String
 val microMeterVersion = project.property("microMeterVersion") as String
-
+val inntektKlientVersion = project.property("inntektKlientVersion") as String
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
@@ -85,6 +85,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
+    implementation("no.nav.helsearbeidsgiver:inntekt-klient:$inntektKlientVersion")
     api("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")

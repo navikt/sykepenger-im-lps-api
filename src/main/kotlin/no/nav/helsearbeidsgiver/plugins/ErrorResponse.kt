@@ -1,9 +1,7 @@
 package no.nav.helsearbeidsgiver.plugins
 
-import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
-import java.time.format.DateTimeParseException
 import java.util.UUID
 
 @Serializable
@@ -90,6 +88,7 @@ enum class Feil(
     UGYLDIG_SOEKNAD_ID("Ugyldig soeknadId"),
     FEIL_VED_HENTING_SYKEPENGESOEKNAD("Feil ved henting av sykepengesøknad"),
     FEIL_VED_HENTING_SYKEPENGESOEKNADER("Feil ved henting av sykepengesøknader"),
+    UGYLDIG_DATO("Ugyldig dato"),
 }
 
 enum class FeilMedReferanse(

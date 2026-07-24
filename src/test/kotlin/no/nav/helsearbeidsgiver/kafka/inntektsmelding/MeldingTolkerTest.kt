@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselService
 import no.nav.helsearbeidsgiver.helsesjekker.HelseSjekkService
 import no.nav.helsearbeidsgiver.innsending.InnsendingService
+import no.nav.helsearbeidsgiver.inntekt.InntektService
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmeldingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingService
@@ -95,6 +96,7 @@ class MeldingTolkerTest {
                         dokumentkoblinService = mockk<DokumentkoblingService>(),
                     ),
                 inntektsmeldingService = InntektsmeldingService(repositories.inntektsmeldingRepository),
+                inntektService = mockk<InntektService>(),
                 innsendingService = mockk<InnsendingService>(),
                 dokumentkoblingService = mockk<DokumentkoblingService>(),
                 sykmeldingService = mockk<SykmeldingService>(relaxed = true),
