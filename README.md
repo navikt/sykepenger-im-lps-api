@@ -73,12 +73,10 @@ Konfigurasjonsfila `src/test/resources/application.conf` og test-bolken i `build
 
 # OpenApi dokumentasjon
 
-Prosjektet bruker Ktor OpenAPI-plugin i IntelliJ for å generere OpenAPI-dokumentasjon. 
-Siden den genererte filen trenger oppdatering, er det lagt til en Gradle-task som modifiserer denne filen. Kjør
-```shell
-./gradlew modifyOpenApi
-``` 
-for å modifisere OpenAPI-dokumentasjonen.
+Swagger på `/swagger` bruker nå Ktor sin runtime-generering av OpenAPI.
+Dokumentasjonen er aktivert via Ktor Gradle-pluginen med `onlyCommented = true`, så kun endepunkter med OpenAPI-kommentarer blir med.
+
+Per nå er dette brukt for inntekt-endepunktet (`GET /v1/inntekt`).
 
 # Henvendelser
 
@@ -87,5 +85,4 @@ Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på Git
 ## For NAV-ansatte
 
 Interne henvendelser kan sendes via Slack i kanalen #helse-arbeidsgiver.
-
 

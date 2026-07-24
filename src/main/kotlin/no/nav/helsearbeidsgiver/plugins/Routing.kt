@@ -27,7 +27,7 @@ fun Application.configureRouting(
     routing {
         metrikkRoutes()
         naisRoutes(services.helseSjekkService)
-        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
+        swaggerUI(path = "swagger")
         authenticate("systembruker-config") {
             inntektsmeldingV1(
                 services = services,
