@@ -59,7 +59,15 @@ class InntektServiceTest {
             runBlocking {
                 inntektService.hentInntekter(forespoersel, inntektsdato)
             }
-
+        coVerify(exactly = 1) {
+            inntektKlient.hentInntektPerOrgnrOgMaaned(
+                fnr = DEFAULT_FNR,
+                fom = fom,
+                tom = tom,
+                navConsumerId = "helsearbeidsgiver-im-lps-api",
+                callId = "helsearbeidsgiver-im-lps-api-${forespoersel.navReferanseId}",
+            )
+        }
         assertEquals(
             mapOf(
                 fom to 100.0,
