@@ -94,24 +94,28 @@ fun InntektsmeldingResponse.tilSkjemaInntektsmelding(eksponertForespoerselId: UU
         refusjon = refusjon,
     )
 
-fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): String? =
-    when {
+fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): String? {
+    val agpValideringsfeil =
+        agp
+            ?.validerMotSykmeldingsperioder(
+                erAgpForespurt = forespoersel.arbeidsgiverperiodePaakrevd,
+                egenmeldingerFraForespoersel = forespoersel.egenmeldingsperioder,
+                sykmeldingsperioder = forespoersel.sykmeldingsperioder,
+            ).orEmpty()
+
+    return when {
         forespoersel.navReferanseId != navReferanseId -> Feilmelding.UGYLDIG_REFERANSE // sjekker for sikkerhets skyld
         forespoersel.fnr != this.sykmeldtFnr -> Feilmelding.FEIL_FNR
+        forespoersel.arbeidsgiverperiodePaakrevd && this.agp == null -> Feilmelding.AGP_ER_PAAKREVD
+        agpValideringsfeil.isNotEmpty() -> "Ugyldig arbeidsgiverperiode. ${agpValideringsfeil.first()}"
         forespoersel.inntektPaakrevd && this.inntekt == null -> Feilmelding.INNTEKT_ER_PAAKREVD
         !forespoersel.inntektPaakrevd && this.inntekt != null -> Feilmelding.INNTEKT_ER_IKKE_PAAKREVD
-        forespoersel.arbeidsgiverperiodePaakrevd && this.agp == null -> Feilmelding.AGP_ER_PAAKREVD
-        !forespoersel.arbeidsgiverperiodePaakrevd && agp != null &&
-            !agp.erGyldigHvisIkkeForespurt(
-                false,
-                forespoersel.sykmeldingsperioder,
-            )
-        -> Feilmelding.AGP_IKKE_FORESPURT_ER_UGYLDIG
         forespoersel.status == Status.AKTIV && this.aarsakInnsending == AarsakInnsending.Endring -> Feilmelding.UGYLDIG_AARSAK
         forespoersel.status == Status.BESVART && this.aarsakInnsending == AarsakInnsending.Ny -> Feilmelding.UGYLDIG_AARSAK
         forespoersel.status == Status.FORKASTET -> Feilmelding.FORESPOERSEL_FORKASTET
         else -> null
     }
+}
 
 object Feilmelding {
     const val FEIL_ORGNR = "Feil organisasjonsnummer"
@@ -119,8 +123,6 @@ object Feilmelding {
     const val INNTEKT_ER_PAAKREVD = "Inntekt er paakrevd"
     const val AGP_ER_PAAKREVD = "AGP er paakrevd"
     const val INNTEKT_ER_IKKE_PAAKREVD = "Inntekt er ikke paakrevd"
-    const val AGP_IKKE_FORESPURT_ER_UGYLDIG =
-        "Ugyldig arbeidsgiverperiode. Oppgi arbeidsgiverperiode bare ved nytt sykefravær der første fraværsdag er mer enn 16 dager etter forrige sykefraværsdag."
     const val UGYLDIG_AARSAK = "Ugyldig aarsak innsending"
     const val FORESPOERSEL_FORKASTET = "Forespoersel er trukket tilbake"
     const val UGYLDIG_REFERANSE = "Ugyldig referanse"
