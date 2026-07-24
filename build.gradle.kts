@@ -1,28 +1,28 @@
-val bakgrunnsjobbVersion: String by project
-val coroutineVersion: String by project
-val exposedVersion: String by project
-val flywayCoreVersion: String by project
-val hagDomeneInntektsmeldingVersion: String by project
-val hikariVersion: String by project
-val junitJupiterVersion: String by project
-val kafkaVersion: String by project
-val kotestVersion: String by project
-val kotlinVersion: String by project
-val kotlinxSerializationVersion: String by project
-val ktorVersion: String by project
-val logbackEncoderVersion: String by project
-val logbackVersion: String by project
-val mockOauth2ServerVersion: String by project
-val mockkVersion: String by project
-val pdpClientVersion: String by project
-val postgresqlVersion: String by project
-val swaggerVersion: String by project
-val testContainerVersion: String by project
-val tokenSupportVersion: String by project
-val unleashVersion: String by project
-val utilsVersion: String by project
-val pdlKlientVersion: String by project
-val microMeterVersion: String by project
+val bakgrunnsjobbVersion = project.property("bakgrunnsjobbVersion") as String
+val coroutineVersion = project.property("coroutineVersion") as String
+val exposedVersion = project.property("exposedVersion") as String
+val flywayCoreVersion = project.property("flywayCoreVersion") as String
+val hagDomeneInntektsmeldingVersion = project.property("hagDomeneInntektsmeldingVersion") as String
+val hikariVersion = project.property("hikariVersion") as String
+val junitJupiterVersion = project.property("junitJupiterVersion") as String
+val kafkaVersion = project.property("kafkaVersion") as String
+val kotestVersion = project.property("kotestVersion") as String
+val kotlinVersion = project.property("kotlinVersion") as String
+val kotlinxSerializationVersion = project.property("kotlinxSerializationVersion") as String
+val ktorVersion = project.property("ktorVersion") as String
+val logbackEncoderVersion = project.property("logbackEncoderVersion") as String
+val logbackVersion = project.property("logbackVersion") as String
+val mockOauth2ServerVersion = project.property("mockOauth2ServerVersion") as String
+val mockkVersion = project.property("mockkVersion") as String
+val pdpClientVersion = project.property("pdpClientVersion") as String
+val postgresqlVersion = project.property("postgresqlVersion") as String
+val swaggerVersion = project.property("swaggerVersion") as String
+val testContainerVersion = project.property("testContainerVersion") as String
+val tokenSupportVersion = project.property("tokenSupportVersion") as String
+val unleashVersion = project.property("unleashVersion") as String
+val utilsVersion = project.property("utilsVersion") as String
+val pdlKlientVersion = project.property("pdlKlientVersion") as String
+val microMeterVersion = project.property("microMeterVersion") as String
 
 plugins {
     kotlin("jvm")
@@ -34,12 +34,16 @@ plugins {
 group = "no.nav.helsearbeidsgiver"
 version = "0.0.1"
 
+kotlin {
+    jvmToolchain(25)
+}
+
 application {
     mainClass.set("no.nav.helsearbeidsgiver.ApplicationKt")
 }
 
 repositories {
-    val githubPassword: String by project
+    val githubPassword = project.property("githubPassword") as String
     mavenCentral()
     maven {
         setUrl("https://maven.pkg.github.com/navikt/*")
