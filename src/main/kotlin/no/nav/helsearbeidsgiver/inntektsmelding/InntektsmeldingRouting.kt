@@ -116,6 +116,10 @@ private fun Route.sendInntektsmelding(
                 )
             }
 
+            if (request.avsender.systemNavn == "NAV_PORTAL") {
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_AVSENDER_NAV_PORTAL))
+            }
+
             request.validerMotForespoersel(forespoersel)?.let {
                 MdcUtils.withLogFields(
                     "hag_avsender_system_navn" to request.avsender.systemNavn,
