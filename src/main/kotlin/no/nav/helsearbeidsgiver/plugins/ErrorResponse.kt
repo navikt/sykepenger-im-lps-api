@@ -81,6 +81,7 @@ enum class Feil(
 
     UGYLDIG_INNSENDING("Ugyldig innsending"),
     UGYLDIG_INNSENDING_ID("Ugyldig innsendingId"),
+    UGYLDIG_AVSENDER_NAV_PORTAL("Ugyldig avsendersystem. 'NAV_PORTAL' brukes kun for inntektsmeldinger mottatt via Navs nettsider."),
     FEIL_INNSENDING_STATUS("Kan ikke motta ny inntektsmelding, forrige innsending er ikke ferdig behandlet"),
     FEIL_VED_HENTING_INNTEKTSMELDING("Feil ved henting av inntektsmelding"),
     FEIL_VED_HENTING_INNTEKTSMELDINGER("Feil ved henting av inntektsmeldinger"),

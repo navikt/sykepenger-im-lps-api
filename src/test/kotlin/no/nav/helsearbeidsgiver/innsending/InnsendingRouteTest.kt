@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
 import no.nav.helsearbeidsgiver.forespoersel.Status
+import no.nav.helsearbeidsgiver.inntektsmelding.Avsender
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingArbeidsgiver
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRequest
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
@@ -59,7 +60,6 @@ class InnsendingRouteTest : ApiTest() {
             val eksponertForespoerselId = UUID.randomUUID()
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns
                 forespoersel
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
                 eksponertForespoerselId
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
@@ -95,12 +95,38 @@ class InnsendingRouteTest : ApiTest() {
         }
 
     @Test
+    fun `innsending av inntektsmelding med 'NAV_PORTAL' som avsendersystem gir 400 BadRequest`() =
+        runTest {
+            val requestBody =
+                InnsendingMockData.requestBody.copy(
+                    avsender =
+                        Avsender(
+                            systemNavn = "NAV_PORTAL",
+                            systemVersjon = "1.0",
+                        ),
+                )
+
+            every {
+                repositories.forespoerselRepository.hentForespoersel(InnsendingMockData.forespoersel.navReferanseId)
+            } returns InnsendingMockData.forespoersel
+
+            val response = sendInnInntektsmelding(requestBody)
+
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.body<ErrorResponse>().feilkode shouldBe Feil.UGYLDIG_AVSENDER_NAV_PORTAL.name
+            response.body<ErrorResponse>().feilmelding shouldBe Feil.UGYLDIG_AVSENDER_NAV_PORTAL.feilmelding
+
+            verify(exactly = 0) {
+                services.opprettImTransaction(any(), any())
+            }
+        }
+
+    @Test
     fun `innsending av duplikat inntektsmelding gyldig forespørsel gir conflict med id til tidligere innsendt im`() =
         runTest {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse,
@@ -124,7 +150,6 @@ class InnsendingRouteTest : ApiTest() {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse.copy(status = InnsendingStatus.FEILET),
@@ -149,7 +174,6 @@ class InnsendingRouteTest : ApiTest() {
                 repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId)
             } returns
                 forespoersel
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse.copy(
@@ -172,7 +196,6 @@ class InnsendingRouteTest : ApiTest() {
                 repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId)
             } returns
                 forespoersel
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList()
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
@@ -190,7 +213,6 @@ class InnsendingRouteTest : ApiTest() {
             val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring)
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse.copy(status = InnsendingStatus.MOTTATT),
@@ -216,7 +238,6 @@ class InnsendingRouteTest : ApiTest() {
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
                 forespoersel.navReferanseId
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns
                 listOf(
                     InnsendingMockData.imResponse.copy(status = InnsendingStatus.FEILET),
@@ -240,7 +261,6 @@ class InnsendingRouteTest : ApiTest() {
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
                 forespoersel.navReferanseId
-            every { repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId) } returns UUID.randomUUID()
             every { repositories.inntektsmeldingRepository.hent(forespoersel.navReferanseId) } returns emptyList() // ingen IM
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.Created
