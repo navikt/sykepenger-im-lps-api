@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class OpenApiRoutingContractTest : ApiTest() {
     @Test
-    fun `openapi inneholder kritiske dokumenterte routes`() {
+    fun `openapi inneholder kun nødvendige routes`() {
         runBlocking {
             val response = client.get("/swagger/openapi.json")
 
@@ -40,8 +40,8 @@ class OpenApiRoutingContractTest : ApiTest() {
             assertPathOperation("/v1/sykmelding/{sykmeldingId}/pdf", "get")
 
             withClue("Ukommenterte tokenx-routes skal ikke med i openapi.json") {
-                paths.containsKey("/intern/personbruker/sykmelding/{sykmeldingId}/pdf") shouldBe false
-                paths.containsKey("/intern/personbruker/sykepengesoeknad/{soknadId}/pdf") shouldBe false
+                paths.keys.any { it.startsWith("/intern/personbruker/sykmelding/") } shouldBe false
+                paths.keys.any { it.startsWith("/intern/personbruker/sykepengesoeknad/") } shouldBe false
             }
 
             withClue("Health-routes skal ikke med i openapi.json") {

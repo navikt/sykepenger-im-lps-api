@@ -52,23 +52,16 @@ fun Application.configureRouting(
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)
             soeknadTokenX(soeknadService = services.soeknadService)
         }
-
-        val describedRoutesMemo =
-            lazy {
-                plugin(RoutingRoot.Plugin)
-                    .allRoutes()
-                    .filter { it.attributes.contains(OperationDescribeAttributeKey) }
-                    .toList()
-            }
-
         swaggerUI(path = "swagger") {
             info = OpenApiInfo(title = "Sykepenger API", version = "1.0.0")
             remotePath = "openapi.json"
-            source =
-                OpenApiDocSource.Routing(
-                    contentType = ContentType.Application.Json,
-                    routes = { describedRoutesMemo.value.asSequence() },
-                )
+            source = OpenApiDocSource.Routing(
+                contentType = ContentType.Application.Json,
+                routes = {
+                    plugin(RoutingRoot.Plugin).allRoutes()
+                        .filter { it.attributes.contains(OperationDescribeAttributeKey) }
+                },
+            )
         }
     }
 }

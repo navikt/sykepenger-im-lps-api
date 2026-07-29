@@ -31,11 +31,11 @@ fun Route.inntektV1(services: Services) {
 }
 
 private fun Route.hentInntekt(services: Services) {
-    /**
+    /*
      * Tag: Inntekt
      * Description: Henter inntekter for de siste tre månedene og beregnet gjennomsnittsinntekt.
-     * Query: [String] navReferanseId NAV referanse-ID (UUID).
-     * Query: [String] inntektsdato Inntektsdato på format yyyy-MM-dd.
+     * Query: navReferanseId NAV referanse-ID (UUID).
+     * Query: inntektsdato Inntektsdato på format yyyy-MM-dd.
      * Response: 200 application/json [InntektMedGjennomsnittResponse] Inntekt med gjennomsnitt.
      * Response: 400 application/json [ErrorResponse] Ugyldig navReferanseId eller inntektsdato.
      * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.

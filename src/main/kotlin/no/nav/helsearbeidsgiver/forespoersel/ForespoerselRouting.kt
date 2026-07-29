@@ -44,7 +44,16 @@ private fun Route.forespoersel(
     forespoerselService: ForespoerselService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Hent forespørsel med navReferanseId.
+    /*
+     * Tag: Forespørsel om inntektsmelding
+     * Description: Hent forespørsel med navReferanseId.
+     * Path: navReferanseId NAV referanse-ID (UUID).
+     * Response: 200 application/json [ForespoerselResponse] Forespørsel funnet.
+     * Response: 400 application/json [ErrorResponse] Ugyldig navReferanseId.
+     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
+     * Response: 404 application/json [ErrorResponse] Forespørsel ikke funnet.
+     * Response: 500 application/json [ErrorResponse] Uventet feil.
+     */
     get("/forespoersel/{navReferanseId}") {
         if (!unleashFeatureToggles.skalEksponereForespoersler()) {
             call.respond(HttpStatusCode.Forbidden)
@@ -96,7 +105,15 @@ private fun Route.filtrerForespoersler(
     forespoerselService: ForespoerselService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV.
+    /*
+     * Tag: Forespørsel om inntektsmelding
+     * Description: Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV.
+     * Body: [ForespoerselFilter] Filtreringsparametre.
+     * Response: 200 application/json [ForespoerselResponse] Liste med forespørsler.
+     * Response: 400 application/json [ErrorResponse] Ugyldig forespørsel.
+     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
+     * Response: 500 application/json [ErrorResponse] Uventet feil.
+     */
     post("/forespoersler") {
         if (!unleashFeatureToggles.skalEksponereForespoersler()) {
             call.respond(HttpStatusCode.Forbidden)
