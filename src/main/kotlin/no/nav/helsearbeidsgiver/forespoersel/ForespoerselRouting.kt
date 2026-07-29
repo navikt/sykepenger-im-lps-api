@@ -45,7 +45,7 @@ private fun Route.forespoersel(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     /*
-     * Tag: Forespørsel om inntektsmelding
+     * Tag: Forespørsel-om-inntektsmelding
      * Description: Hent forespørsel med navReferanseId.
      * Path: navReferanseId NAV referanse-ID (UUID).
      * Response: 200 application/json [ForespoerselResponse] Forespørsel funnet.
