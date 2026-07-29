@@ -55,13 +55,15 @@ fun Application.configureRouting(
         swaggerUI(path = "swagger") {
             info = OpenApiInfo(title = "Sykepenger API", version = "1.0.0")
             remotePath = "openapi.json"
-            source = OpenApiDocSource.Routing(
-                contentType = ContentType.Application.Json,
-                routes = {
-                    plugin(RoutingRoot.Plugin).allRoutes()
-                        .filter { it.attributes.contains(OperationDescribeAttributeKey) }
-                },
-            )
+            source =
+                OpenApiDocSource.Routing(
+                    contentType = ContentType.Application.Json,
+                    routes = {
+                        plugin(RoutingRoot.Plugin)
+                            .allRoutes()
+                            .filter { it.attributes.contains(OperationDescribeAttributeKey) }
+                    },
+                )
         }
     }
 }
