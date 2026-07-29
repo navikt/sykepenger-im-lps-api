@@ -53,7 +53,12 @@ fun Application.configureRouting(
             soeknadTokenX(soeknadService = services.soeknadService)
         }
         swaggerUI(path = "swagger") {
-            info = OpenApiInfo(title = "Sykepenger API", version = "1.0.0")
+            info =
+                OpenApiInfo(
+                    title = "Sykepenger API",
+                    version = "1.0.0",
+                    description = "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger",
+                )
             remotePath = "openapi.json"
             source =
                 OpenApiDocSource.Routing(
