@@ -62,8 +62,16 @@ private fun Route.sendInntektsmelding(
     services: Services,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Send inn inntektsmelding
-
+    /*
+     * Tag: Inntektsmelding
+     * Description: Send inn inntektsmelding.
+     * Body: [InntektsmeldingRequest] Inntektsmeldingsdata.
+     * Response: 201 application/json [InnsendingResponse] Inntektsmelding mottatt.
+     * Response: 400 application/json [ErrorResponse] Ugyldig inntektsmelding.
+     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
+     * Response: 409 application/json [ErrorResponse] Duplikat innsending.
+     * Response: 500 application/json [ErrorResponse] Uventet feil.
+     */
     post("/inntektsmelding") {
         if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
             call.respond(HttpStatusCode.Forbidden)
@@ -190,7 +198,15 @@ private fun Route.filtrerInntektsmeldinger(
     inntektsmeldingService: InntektsmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
+    /*
+     * Tag: Inntektsmelding
+     * Description: Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
+     * Body: [InntektsmeldingFilter] Filtreringsparametre.
+     * Response: 200 application/json [InntektsmeldingResponse] Liste med inntektsmeldinger.
+     * Response: 400 application/json [ErrorResponse] Ugyldig forespørsel.
+     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
+     * Response: 500 application/json [ErrorResponse] Uventet feil.
+     */
     post("/inntektsmeldinger") {
         if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
             call.respond(HttpStatusCode.Forbidden)
@@ -234,7 +250,16 @@ private fun Route.hentInntektsmelding(
     inntektsmeldingService: InntektsmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    // Hent inntektsmelding med id
+    /*
+     * Tag: Inntektsmelding
+     * Description: Hent inntektsmelding med id.
+     * Path: innsendingId Innsending-ID (UUID).
+     * Response: 200 application/json [InntektsmeldingResponse] Inntektsmelding funnet.
+     * Response: 400 application/json [ErrorResponse] Ugyldig innsendingId.
+     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
+     * Response: 404 application/json [ErrorResponse] Inntektsmelding ikke funnet.
+     * Response: 500 application/json [ErrorResponse] Uventet feil.
+     */
     get("/inntektsmelding/{innsendingId}") {
         if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
             call.respond(HttpStatusCode.Forbidden)
