@@ -106,7 +106,7 @@ private fun Route.filtrerForespoersler(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     /*
-     * Tag: Forespørsel om inntektsmelding
+     * Tag: Forespørsel-om-inntektsmelding
      * Description: Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV.
      * Body: [ForespoerselFilter] Filtreringsparametre.
      * Response: 200 application/json [ForespoerselResponse] Liste med forespørsler.
