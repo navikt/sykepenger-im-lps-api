@@ -66,6 +66,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-routing-openapi:$ktorVersion")
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
@@ -103,7 +104,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
-apply(from = "openApiTasks.gradle.kts")
+ktor {
+    openApi {
+        enabled = true
+        codeInferenceEnabled = false
+        onlyCommented = true
+    }
+}
 tasks {
     withType<Test> {
         useJUnitPlatform()
