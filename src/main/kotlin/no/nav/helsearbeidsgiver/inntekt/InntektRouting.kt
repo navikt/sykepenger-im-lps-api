@@ -31,23 +31,13 @@ fun Route.inntektV1(services: Services) {
 }
 
 private fun Route.hentInntekt(services: Services) {
-    /*
-     * Tag: Inntekt
-     * Description: Henter inntekter for de siste tre månedene og beregnet gjennomsnittsinntekt.
-     * Query: navReferanseId NAV referanse-ID (UUID).
-     * Query: inntektsdato Inntektsdato på format yyyy-MM-dd.
-     * Response: 200 application/json [InntektMedGjennomsnittResponse] Inntekt med gjennomsnitt.
-     * Response: 400 application/json [ErrorResponse] Ugyldig navReferanseId eller inntektsdato.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 404 application/json [ErrorResponse] Forespørsel ikke funnet.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     get("/inntekt") {
         val navReferanseId = call.request.queryParameters["navReferanseId"]?.toUuidOrNull()
         if (navReferanseId == null) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_NAV_REFERANSE_ID))
             return@get
         }
+
         val inntektsdato =
             runCatching {
                 call.request.queryParameters["inntektsdato"]
@@ -97,5 +87,5 @@ private fun Route.hentInntekt(services: Services) {
             sikkerLogger().error("Feil ved henting av inntekt", e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
         }
-    }
+    }.describeHentInntekt()
 }
