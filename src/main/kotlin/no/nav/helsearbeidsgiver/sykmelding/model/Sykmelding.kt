@@ -5,6 +5,7 @@
 
 package no.nav.helsearbeidsgiver.sykmelding.model
 
+import io.ktor.openapi.JsonSchema.Format
 import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -21,16 +22,20 @@ import java.time.LocalDateTime
 data class Sykmelding(
     val loepenr: Long,
     val sykmeldingId: String,
+    @Format("date-time")
     val mottattAvNav: LocalDateTime,
+    @Format("date-time")
     val sendtTilArbeidsgiver: LocalDateTime,
     val sykmeldt: Sykmeldt,
     val egenmeldingsdager: List<Periode>,
     @field:Schema(description = "Når startet syketilfellet")
+    @Format("date")
     val sykefravaerFom: LocalDate?,
     @field:Schema(description = "Sammenhengende, ikke overlappende perioder for denne sykmeldingen")
     val sykmeldingPerioder: List<SykmeldingPeriode>,
     val oppfoelging: Oppfoelging,
     @field:Schema(description = "Ved å oppgi informasjonen nedenfor bekreftes at personen er kjent eller har vist legitimasjon")
+    @Format("date-time")
     val kontaktMedPasient: LocalDateTime,
     val behandler: Behandler?,
     val arbeidsgiver: SykmeldingArbeidsgiver,

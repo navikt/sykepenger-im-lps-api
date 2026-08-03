@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.serialization.JsonConvertException
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.request.receive
@@ -54,15 +53,6 @@ private fun Route.sykmelding(
     sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    /*
-     * Tag: Sykmelding
-     * Description: Hent sykmelding med sykmeldingId.
-     * Path: sykmeldingId Sykmelding-ID (UUID).
-     * Response: 200 application/json [Sykmelding] Sykmelding funnet.
-     * Response: 400 application/json [ErrorResponse] Ugyldig sykmeldingId.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     get("/sykmelding/{sykmeldingId}") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
         if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
@@ -73,7 +63,8 @@ private fun Route.sykmelding(
         if (sykmelding != null) {
             call.respond(sykmelding)
         }
-    }
+    }.describeHentSykmelding()
+
     // TODO: Fjern denne når den ikke lenger er nødvendig
     get("/sykmelding/{sykmeldingId}.pdf") {
         call.respondText(
@@ -81,15 +72,6 @@ private fun Route.sykmelding(
             status = HttpStatusCode.Gone,
         )
     }
-    /*
-     * Tag: Sykmelding
-     * Description: Hent sykmelding som PDF.
-     * Path: sykmeldingId Sykmelding-ID (UUID).
-     * Response: 200 application/pdf PDF-fil med sykmelding.
-     * Response: 400 application/json [ErrorResponse] Ugyldig sykmeldingId.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     get("/sykmelding/{sykmeldingId}/pdf") {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
         if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr))) {
@@ -107,7 +89,7 @@ private fun Route.sykmelding(
                 call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
             }
         }
-    }
+    }.describeHentSykmeldingPdf()
 }
 
 private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: SykmeldingService): Sykmelding? {
@@ -154,15 +136,6 @@ private fun Route.filtrerSykmeldinger(
     sykmeldingService: SykmeldingService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    /*
-     * Tag: Sykmelding
-     * Description: Filtrer sykmeldinger på orgnr (underenhet), fnr og/eller dato sykmeldingen ble mottatt av NAV.
-     * Body: [SykmeldingFilter] Filtreringsparametre.
-     * Response: 200 application/json [Sykmelding] Liste med sykmeldinger.
-     * Response: 400 application/json [ErrorResponse] Ugyldig forespørsel.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     post("/sykmeldinger") {
         try {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -203,7 +176,7 @@ private fun Route.filtrerSykmeldinger(
             sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKMELDINGER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKMELDINGER))
         }
-    }
+    }.describeFiltrerSykmeldinger()
 }
 
 fun Route.sykmeldingTokenX(sykmeldingService: SykmeldingService) {

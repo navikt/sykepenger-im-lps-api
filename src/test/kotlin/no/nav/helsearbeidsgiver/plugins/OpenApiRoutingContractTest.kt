@@ -8,6 +8,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import org.junit.jupiter.api.Test
 
@@ -37,7 +38,13 @@ class OpenApiRoutingContractTest : ApiTest() {
             assertPathOperation("/v1/forespoersel/{navReferanseId}", "get")
             assertPathOperation("/v1/forespoersler", "post")
             assertPathOperation("/v1/sykepengesoeknad/{soeknadId}", "get")
+            assertPathOperation("/v1/sykmelding/{sykmeldingId}", "get")
             assertPathOperation("/v1/sykmelding/{sykmeldingId}/pdf", "get")
+            assertPathOperation("/v1/sykmeldinger", "post")
+
+            withClue("Kun dokumenterte sykmelding-routes skal være med i openapi.json") {
+                paths.containsKey("/v1/sykmelding/{sykmeldingId}.pdf") shouldBe false
+            }
 
             withClue("Ukommenterte tokenx-routes skal ikke med i openapi.json") {
                 paths.keys.any { it.startsWith("/intern/personbruker/sykmelding/") } shouldBe false
@@ -47,6 +54,19 @@ class OpenApiRoutingContractTest : ApiTest() {
             withClue("Health-routes skal ikke med i openapi.json") {
                 paths.containsKey("/health/is-alive") shouldBe false
                 paths.containsKey("/health/is-ready") shouldBe false
+            }
+
+            withClue("mottattAvNav skal dokumenteres som date-time") {
+                val mottattAvNavSchema =
+                    openApi
+                        .getValue("components").jsonObject
+                        .getValue("schemas").jsonObject
+                        .getValue("Sykmelding").jsonObject
+                        .getValue("properties").jsonObject
+                        .getValue("mottattAvNav").jsonObject
+
+                mottattAvNavSchema.getValue("type").jsonPrimitive.content shouldBe "string"
+                mottattAvNavSchema.getValue("format").jsonPrimitive.content shouldBe "date-time"
             }
         }
     }
