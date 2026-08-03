@@ -59,11 +59,16 @@ class OpenApiRoutingContractTest : ApiTest() {
             withClue("mottattAvNav skal dokumenteres som date-time") {
                 val mottattAvNavSchema =
                     openApi
-                        .getValue("components").jsonObject
-                        .getValue("schemas").jsonObject
-                        .getValue("Sykmelding").jsonObject
-                        .getValue("properties").jsonObject
-                        .getValue("mottattAvNav").jsonObject
+                        .getValue("components")
+                        .jsonObject
+                        .getValue("schemas")
+                        .jsonObject
+                        .getValue("Sykmelding")
+                        .jsonObject
+                        .getValue("properties")
+                        .jsonObject
+                        .getValue("mottattAvNav")
+                        .jsonObject
 
                 mottattAvNavSchema.getValue("type").jsonPrimitive.content shouldBe "string"
                 mottattAvNavSchema.getValue("format").jsonPrimitive.content shouldBe "date-time"
