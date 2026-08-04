@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.plugins
 
 import io.ktor.http.ContentType
+import io.ktor.openapi.KotlinxSerializerDefaultFormats
+import io.ktor.openapi.KotlinxSerializerJsonSchemaInference
 import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -26,6 +28,7 @@ import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import kotlinx.serialization.modules.EmptySerializersModule
 import java.util.ArrayDeque
 
 fun Application.configureRouting(
@@ -59,10 +62,22 @@ fun Application.configureRouting(
                     version = "1.0.0",
                     description = "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger",
                 )
-            remotePath = "openapi.json"
+            remotePath = "documentation.yaml"
             source =
                 OpenApiDocSource.Routing(
-                    contentType = ContentType.Application.Json,
+                    contentType = ContentType.Application.Yaml,
+                    schemaInference =
+                        KotlinxSerializerJsonSchemaInference(
+                            module = EmptySerializersModule(),
+                            formats = { descriptor ->
+                                KotlinxSerializerDefaultFormats(descriptor)
+                                    ?: when (descriptor.serialName.removeSuffix("?").substringAfterLast('.')) {
+                                        "LocalDateSerializer" -> "date"
+                                        "LocalDateTimeSerializer" -> "date-time"
+                                        else -> null
+                                    }
+                            },
+                        ),
                     routes = {
                         plugin(RoutingRoot.Plugin)
                             .allRoutes()

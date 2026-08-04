@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalKtorApi::class)
+
 package no.nav.helsearbeidsgiver.inntekt
 
 import io.ktor.http.HttpStatusCode
@@ -5,6 +7,7 @@ import io.ktor.openapi.GenericElement
 import io.ktor.openapi.jsonSchema
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.openapi.describe
+import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 
 fun Route.describeHentInntekt() =
