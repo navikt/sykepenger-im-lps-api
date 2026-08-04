@@ -18,7 +18,10 @@ class OpenApiRoutingContractTest : ApiTest() {
             response.status shouldBe HttpStatusCode.OK
             val openApi = response.bodyAsText()
 
-            fun assertPathOperation(path: String, operation: String) {
+            fun assertPathOperation(
+                path: String,
+                operation: String,
+            ) {
                 withClue("Forventet $operation $path i documentation.yaml") {
                     Regex("""(?m)^\s{2}${Regex.escape(path)}:\n\s{4}${Regex.escape(operation)}:""").containsMatchIn(openApi) shouldBe true
                 }

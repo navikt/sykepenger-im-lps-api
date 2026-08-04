@@ -16,6 +16,7 @@ import io.ktor.server.routing.RoutingRoot
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.openapi.OperationDescribeAttributeKey
 import io.ktor.server.routing.routing
+import kotlinx.serialization.modules.EmptySerializersModule
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.forespoersel.forespoerselV1
@@ -28,7 +29,6 @@ import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import kotlinx.serialization.modules.EmptySerializersModule
 import java.util.ArrayDeque
 
 fun Application.configureRouting(

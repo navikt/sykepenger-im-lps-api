@@ -64,125 +64,125 @@ private fun Route.sendInntektsmelding(
 ) {
     val inntektsmeldingRoute =
         post("/inntektsmelding") {
-        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
-        try {
-            val request = call.receive<InntektsmeldingRequest>()
-            val forespoersel =
-                services.forespoerselService.hentForespoersel(request.navReferanseId)
-                    ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_NAV_REFERANSE_ID))
-
-            val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel.vedtaksperiodeId)
-            if (sisteForespoersel != null && sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
-                val feilmelding =
-                    "Mottatt innsending på gammel forespørsel: ${forespoersel.navReferanseId}, må sendes inn på ${sisteForespoersel.navReferanseId}"
-                MdcUtils.withLogFields(
-                    "hag_avsender_system_navn" to request.avsender.systemNavn,
-                    "hag_avsender_system_versjon" to request.avsender.systemVersjon,
-                    "hag_feilmelding" to feilmelding,
-                ) {
-                    sikkerLogger().warn(feilmelding)
-                    logger().warn(feilmelding)
-                }
-                return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse(FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL, sisteForespoersel.navReferanseId),
-                )
-            }
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
-                    orgnr = forespoersel.orgnr,
-                )
-            ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+            if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
+                call.respond(HttpStatusCode.Forbidden)
                 return@post
             }
-            tellApiRequest()
-            sikkerLogger().info("Mottatt innsending: $request")
-            sikkerLogger().info(
-                "LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [${forespoersel.orgnr}] med systembrukerOrgnr: [$systembrukerOrgnr]",
-            )
+            try {
+                val request = call.receive<InntektsmeldingRequest>()
+                val forespoersel =
+                    services.forespoerselService.hentForespoersel(request.navReferanseId)
+                        ?: return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_NAV_REFERANSE_ID))
 
-            request.valider().takeIf { it.isNotEmpty() }?.let {
-                return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse(feilkode = Feil.UGYLDIG_INNSENDING.name, feilmelding = it.joinToString("; ")),
-                )
-            }
-
-            if (request.avsender.systemNavn == "NAV_PORTAL") {
-                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_AVSENDER_NAV_PORTAL))
-            }
-
-            request.validerMotForespoersel(forespoersel)?.let {
-                MdcUtils.withLogFields(
-                    "hag_avsender_system_navn" to request.avsender.systemNavn,
-                    "hag_avsender_system_versjon" to request.avsender.systemVersjon,
-                    "hag_feilmelding" to it,
-                ) {
-                    sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
-                    logger().warn("Mottatt ugyldig innsending: $it")
+                val sisteForespoersel = services.forespoerselService.hentSisteForespoersel(forespoersel.vedtaksperiodeId)
+                if (sisteForespoersel != null && sisteForespoersel.navReferanseId != forespoersel.navReferanseId) {
+                    val feilmelding =
+                        "Mottatt innsending på gammel forespørsel: ${forespoersel.navReferanseId}, må sendes inn på ${sisteForespoersel.navReferanseId}"
+                    MdcUtils.withLogFields(
+                        "hag_avsender_system_navn" to request.avsender.systemNavn,
+                        "hag_avsender_system_versjon" to request.avsender.systemVersjon,
+                        "hag_feilmelding" to feilmelding,
+                    ) {
+                        sikkerLogger().warn(feilmelding)
+                        logger().warn(feilmelding)
+                    }
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        ErrorResponse(FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL, sisteForespoersel.navReferanseId),
+                    )
                 }
-                return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse(feilkode = Feil.UGYLDIG_INNSENDING.name, feilmelding = it),
+                val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
+                val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+
+                if (!tokenValidationContext().harTilgangTilRessurs(
+                        ressurs = IM_RESSURS,
+                        orgnr = forespoersel.orgnr,
+                    )
+                ) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+                    return@post
+                }
+                tellApiRequest()
+                sikkerLogger().info("Mottatt innsending: $request")
+                sikkerLogger().info(
+                    "LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [${forespoersel.orgnr}] med systembrukerOrgnr: [$systembrukerOrgnr]",
                 )
+
+                request.valider().takeIf { it.isNotEmpty() }?.let {
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        ErrorResponse(feilkode = Feil.UGYLDIG_INNSENDING.name, feilmelding = it.joinToString("; ")),
+                    )
+                }
+
+                if (request.avsender.systemNavn == "NAV_PORTAL") {
+                    return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_AVSENDER_NAV_PORTAL))
+                }
+
+                request.validerMotForespoersel(forespoersel)?.let {
+                    MdcUtils.withLogFields(
+                        "hag_avsender_system_navn" to request.avsender.systemNavn,
+                        "hag_avsender_system_versjon" to request.avsender.systemVersjon,
+                        "hag_feilmelding" to it,
+                    ) {
+                        sikkerLogger().warn("Mottatt ugyldig innsending: $it. Request: $request")
+                        logger().warn("Mottatt ugyldig innsending: $it")
+                    }
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        ErrorResponse(feilkode = Feil.UGYLDIG_INNSENDING.name, feilmelding = it),
+                    )
+                }
+                val sisteInntektsmelding =
+                    services.inntektsmeldingService
+                        .hentNyesteInntektsmeldingByNavReferanseId(request.navReferanseId)
+
+                if (sisteInntektsmelding?.status == InnsendingStatus.MOTTATT) {
+                    return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.FEIL_INNSENDING_STATUS))
+                }
+                val inntektsmelding =
+                    request.tilInntektsmelding(
+                        sluttbrukerOrgnr = Orgnr(forespoersel.orgnr),
+                        lpsOrgnr = Orgnr(lpsOrgnr),
+                        forespoersel = forespoersel,
+                        vedtaksperiodeId = forespoersel.vedtaksperiodeId,
+                    )
+                val eksponertForespoerselId =
+                    services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
+
+                // OBS: Lager innsending med Type.ForespurtEkstern med eksponertForespørselID, slik at denne plukkes opp korrekt i Simba!
+                // Dette betyr at inntektsmelding.navReferanseId ikke alltid er lik Innsending.type.id !!!!
+                val innsending =
+                    request.tilInnsending(
+                        inntektsmelding.id,
+                        eksponertForespoerselId,
+                        (inntektsmelding.type as Type.ForespurtEkstern).copy(id = eksponertForespoerselId),
+                        versjon = VERSJON_1,
+                    )
+
+                if (
+                    sisteInntektsmelding != null && sisteInntektsmelding.status != InnsendingStatus.FEILET &&
+                    innsending.skjema.erDuplikat(
+                        sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
+                    )
+                ) {
+                    return@post call.respond(
+                        HttpStatusCode.Conflict,
+                        ErrorResponse(FeilMedReferanse.DUPLIKAT_INNSENDING, sisteInntektsmelding.id),
+                    )
+                }
+
+                services.opprettImTransaction(inntektsmelding, innsending)
+                call.respond(HttpStatusCode.Created, InnsendingResponse(inntektsmelding.id.toString()))
+            } catch (e: BadRequestException) {
+                call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
+            } catch (_: ContentTransformationException) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
+            } catch (e: Exception) {
+                sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
             }
-            val sisteInntektsmelding =
-                services.inntektsmeldingService
-                    .hentNyesteInntektsmeldingByNavReferanseId(request.navReferanseId)
-
-            if (sisteInntektsmelding?.status == InnsendingStatus.MOTTATT) {
-                return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.FEIL_INNSENDING_STATUS))
-            }
-            val inntektsmelding =
-                request.tilInntektsmelding(
-                    sluttbrukerOrgnr = Orgnr(forespoersel.orgnr),
-                    lpsOrgnr = Orgnr(lpsOrgnr),
-                    forespoersel = forespoersel,
-                    vedtaksperiodeId = forespoersel.vedtaksperiodeId,
-                )
-            val eksponertForespoerselId =
-                services.forespoerselService.hentEksponertForespoerselId(request.navReferanseId)
-
-            // OBS: Lager innsending med Type.ForespurtEkstern med eksponertForespørselID, slik at denne plukkes opp korrekt i Simba!
-            // Dette betyr at inntektsmelding.navReferanseId ikke alltid er lik Innsending.type.id !!!!
-            val innsending =
-                request.tilInnsending(
-                    inntektsmelding.id,
-                    eksponertForespoerselId,
-                    (inntektsmelding.type as Type.ForespurtEkstern).copy(id = eksponertForespoerselId),
-                    versjon = VERSJON_1,
-                )
-
-            if (
-                sisteInntektsmelding != null && sisteInntektsmelding.status != InnsendingStatus.FEILET &&
-                innsending.skjema.erDuplikat(
-                    sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
-                )
-            ) {
-                return@post call.respond(
-                    HttpStatusCode.Conflict,
-                    ErrorResponse(FeilMedReferanse.DUPLIKAT_INNSENDING, sisteInntektsmelding.id),
-                )
-            }
-
-            services.opprettImTransaction(inntektsmelding, innsending)
-            call.respond(HttpStatusCode.Created, InnsendingResponse(inntektsmelding.id.toString()))
-        } catch (e: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
-        } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
-        } catch (e: Exception) {
-            sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
         }
-    }
     inntektsmeldingRoute.describeSendInntektsmelding()
 }
 
@@ -192,42 +192,42 @@ private fun Route.filtrerInntektsmeldinger(
 ) {
     val inntektsmeldingerRoute =
         post("/inntektsmeldinger") {
-        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
-        try {
-            val filter = call.receive<InntektsmeldingFilter>()
-
-            val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
-
-            if (!tokenValidationContext().harTilgangTilRessurs(
-                    ressurs = IM_RESSURS,
-                    orgnr = filter.orgnr,
-                )
-            ) {
-                call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+            if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
+                call.respond(HttpStatusCode.Forbidden)
                 return@post
             }
+            try {
+                val filter = call.receive<InntektsmeldingFilter>()
 
-            val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            tellApiRequest()
-            sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
-            )
-            val inntektsmeldinger = inntektsmeldingService.hentInntektsMelding(filter = filter)
-            tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
-            call.respondWithMaxLimit(inntektsmeldinger)
-            return@post
-        } catch (e: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
-        } catch (_: ContentTransformationException) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
-        } catch (e: Exception) {
-            sikkerLogger().error(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER.feilmelding, e)
-            call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER))
+                val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(erGyldig(it)) }
+
+                if (!tokenValidationContext().harTilgangTilRessurs(
+                        ressurs = IM_RESSURS,
+                        orgnr = filter.orgnr,
+                    )
+                ) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+                    return@post
+                }
+
+                val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
+                tellApiRequest()
+                sikkerLogger().info(
+                    "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+                )
+                val inntektsmeldinger = inntektsmeldingService.hentInntektsMelding(filter = filter)
+                tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING, inntektsmeldinger.size)
+                call.respondWithMaxLimit(inntektsmeldinger)
+                return@post
+            } catch (e: BadRequestException) {
+                call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
+            } catch (_: ContentTransformationException) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
+            } catch (e: Exception) {
+                sikkerLogger().error(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER.feilmelding, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER))
+            }
         }
-    }
     inntektsmeldingerRoute.describeFiltrerInntektsmeldinger()
 }
 
