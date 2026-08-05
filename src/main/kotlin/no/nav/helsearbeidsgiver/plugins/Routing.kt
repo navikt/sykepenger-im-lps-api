@@ -1,9 +1,12 @@
 package no.nav.helsearbeidsgiver.plugins
 
 import io.ktor.http.ContentType
+import io.ktor.openapi.Components
+import io.ktor.openapi.HttpSecurityScheme
 import io.ktor.openapi.KotlinxSerializerDefaultFormats
 import io.ktor.openapi.KotlinxSerializerJsonSchemaInference
 import io.ktor.openapi.OpenApiInfo
+import io.ktor.openapi.ReferenceOr
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.plugin
@@ -29,6 +32,9 @@ import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import java.util.ArrayDeque
 
 fun Application.configureRouting(
@@ -62,31 +68,61 @@ fun Application.configureRouting(
                     version = "1.0.0",
                     description = "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger",
                 )
-            remotePath = "documentation.yaml"
-            source =
-                OpenApiDocSource.Routing(
-                    contentType = ContentType.Application.Yaml,
-                    schemaInference =
-                        KotlinxSerializerJsonSchemaInference(
-                            module = EmptySerializersModule(),
-                            formats = { descriptor ->
-                                KotlinxSerializerDefaultFormats(descriptor)
-                                    ?: when (descriptor.serialName.removeSuffix("?").substringAfterLast('.')) {
-                                        "LocalDateSerializer" -> "date"
-                                        "LocalDateTimeSerializer" -> "date-time"
-                                        else -> null
-                                    }
-                            },
+            components =
+                Components(
+                    securitySchemes =
+                        mapOf(
+                            "bearerAuth" to
+                                ReferenceOr.Value(
+                                    HttpSecurityScheme(
+                                        scheme = "bearer",
+                                        bearerFormat = "JWT",
+                                    ),
+                                ),
                         ),
-                    routes = {
-                        plugin(RoutingRoot.Plugin)
-                            .allRoutes()
-                            .filter { it.attributes.contains(OperationDescribeAttributeKey) }
-                    },
                 )
+            security {
+                requirement("bearerAuth")
+            }
+            remotePath = "documentation.yaml"
+            source = openApiRoutingSource()
         }
     }
 }
+
+private fun openApiRoutingSource(): OpenApiDocSource =
+    OpenApiDocSource.Routing(
+        contentType = ContentType.Application.Yaml,
+        schemaInference =
+            KotlinxSerializerJsonSchemaInference(
+                module = EmptySerializersModule(),
+                formats = { descriptor ->
+                    KotlinxSerializerDefaultFormats(descriptor)
+                        ?: when (descriptor.serialName.removeSuffix("?")) {
+                            LocalDateSerializer.descriptor.serialName -> {
+                                "date"
+                            }
+
+                            LocalDateTimeSerializer.descriptor.serialName -> {
+                                "date-time"
+                            }
+
+                            UuidSerializer.descriptor.serialName -> {
+                                "uuid"
+                            }
+
+                            else -> {
+                                null
+                            }
+                        }
+                },
+            ),
+        routes = {
+            plugin(RoutingRoot.Plugin)
+                .allRoutes()
+                .filter { it.attributes.contains(OperationDescribeAttributeKey) }
+        },
+    )
 
 private fun Route.allRoutes(): Sequence<Route> {
     val stack = ArrayDeque<Route>()
