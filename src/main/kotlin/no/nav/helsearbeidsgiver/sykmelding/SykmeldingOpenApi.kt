@@ -13,7 +13,7 @@ import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 
-fun Route.describeHentSykmelding() =
+internal fun Route.describeHentSykmelding() =
     describe {
         tag("Sykmelding")
         summary = "Hent sykmelding"
@@ -23,6 +23,7 @@ fun Route.describeHentSykmelding() =
             path("sykmeldingId") {
                 description = "Sykmelding-ID (UUID)."
                 required = true
+                schema = JsonSchema(type = JsonType.STRING, format = "uuid")
             }
         }
 
@@ -63,7 +64,7 @@ fun Route.describeHentSykmelding() =
         }
     }
 
-fun Route.describeHentSykmeldingPdf() =
+internal fun Route.describeHentSykmeldingPdf() =
     describe {
         tag("Sykmelding")
         summary = "Hent sykmelding som PDF"
@@ -73,6 +74,7 @@ fun Route.describeHentSykmeldingPdf() =
             path("sykmeldingId") {
                 description = "Sykmelding-ID (UUID)."
                 required = true
+                schema = JsonSchema(type = JsonType.STRING, format = "uuid")
             }
         }
 
@@ -113,7 +115,7 @@ fun Route.describeHentSykmeldingPdf() =
         }
     }
 
-fun Route.describeFiltrerSykmeldinger() =
+internal fun Route.describeFiltrerSykmeldinger() =
     describe {
         tag("Sykmelding")
         summary = "Hent sykmeldinger"

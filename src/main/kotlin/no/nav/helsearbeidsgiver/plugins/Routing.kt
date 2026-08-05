@@ -1,12 +1,9 @@
 package no.nav.helsearbeidsgiver.plugins
 
 import io.ktor.http.ContentType
-import io.ktor.openapi.Components
-import io.ktor.openapi.HttpSecurityScheme
 import io.ktor.openapi.KotlinxSerializerDefaultFormats
 import io.ktor.openapi.KotlinxSerializerJsonSchemaInference
 import io.ktor.openapi.OpenApiInfo
-import io.ktor.openapi.ReferenceOr
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.plugin
@@ -18,6 +15,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingRoot
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.openapi.OperationDescribeAttributeKey
+import io.ktor.server.routing.openapi.registerBearerAuthSecurityScheme
 import io.ktor.server.routing.routing
 import kotlinx.serialization.modules.EmptySerializersModule
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
@@ -68,22 +66,7 @@ fun Application.configureRouting(
                     version = "1.0.0",
                     description = "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger",
                 )
-            components =
-                Components(
-                    securitySchemes =
-                        mapOf(
-                            "bearerAuth" to
-                                ReferenceOr.Value(
-                                    HttpSecurityScheme(
-                                        scheme = "bearer",
-                                        bearerFormat = "JWT",
-                                    ),
-                                ),
-                        ),
-                )
-            security {
-                requirement("bearerAuth")
-            }
+            registerBearerAuthSecurityScheme()
             remotePath = "documentation.yaml"
             source = openApiRoutingSource()
         }

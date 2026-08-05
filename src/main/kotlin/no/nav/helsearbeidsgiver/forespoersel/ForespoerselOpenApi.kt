@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalKtorApi::class)
 
-package no.nav.helsearbeidsgiver.inntektsmelding
+package no.nav.helsearbeidsgiver.forespoersel
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -13,28 +13,29 @@ import io.ktor.server.routing.openapi.describe
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 
-internal fun Route.describeSendInntektsmelding() =
+internal fun Route.describeHentForespoersel() =
     describe {
-        tag("Inntektsmelding")
-        summary = "Send inn inntektsmelding"
-        description = "Send inn inntektsmelding."
+        tag("Forespørsel om inntektsmelding")
+        summary = "Hent forespørsel"
+        description = "Hent forespørsel med navReferanseId."
 
-        requestBody {
-            required = true
-            ContentType.Application.Json {
-                schema = jsonSchema<InntektsmeldingRequest>()
+        parameters {
+            path("navReferanseId") {
+                description = "NAV referanse-ID (UUID)."
+                required = true
+                schema = JsonSchema(type = JsonType.STRING, format = "uuid")
             }
         }
 
         responses {
-            HttpStatusCode.Created {
-                description = "Inntektsmelding mottatt."
+            HttpStatusCode.OK {
+                description = "Forespørsel funnet."
                 ContentType.Application.Json {
-                    schema = jsonSchema<InnsendingResponse>()
+                    schema = jsonSchema<ForespoerselResponse>()
                 }
             }
             HttpStatusCode.BadRequest {
-                description = "Ugyldig inntektsmelding."
+                description = "Ugyldig navReferanseId."
                 ContentType.Application.Json {
                     schema = jsonSchema<ErrorResponse>()
                 }
@@ -46,10 +47,13 @@ internal fun Route.describeSendInntektsmelding() =
                 }
             }
             HttpStatusCode.Forbidden {
-                description = "Inntektsmeldinger er ikke eksponert for virksomheten."
+                description = "Forespørsler er ikke eksponert for virksomheten."
+                ContentType.Application.Json {
+                    schema = jsonSchema<ErrorResponse>()
+                }
             }
-            HttpStatusCode.Conflict {
-                description = "Duplikat innsending."
+            HttpStatusCode.NotFound {
+                description = "Forespørsel ikke funnet."
                 ContentType.Application.Json {
                     schema = jsonSchema<ErrorResponse>()
                 }
@@ -63,23 +67,23 @@ internal fun Route.describeSendInntektsmelding() =
         }
     }
 
-internal fun Route.describeFiltrerInntektsmeldinger() =
+internal fun Route.describeFiltrerForespoersler() =
     describe {
-        tag("Inntektsmelding")
-        summary = "Hent inntektsmeldinger"
+        tag("Forespørsel om inntektsmelding")
+        summary = "Hent forespørsler"
         description =
-            "Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV."
+            "Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV."
 
         requestBody {
             required = true
             ContentType.Application.Json {
-                schema = jsonSchema<InntektsmeldingFilter>()
+                schema = jsonSchema<ForespoerselFilter>()
             }
         }
 
         responses {
             HttpStatusCode.OK {
-                description = "Liste med inntektsmeldinger."
+                description = "Liste med forespørsler."
                 headers {
                     header("X-Warning-limit-reached") {
                         description = "Settes dersom resultatet av en spørring overskrider max antall entiteter (1000)"
@@ -88,7 +92,7 @@ internal fun Route.describeFiltrerInntektsmeldinger() =
                     }
                 }
                 ContentType.Application.Json {
-                    schema = jsonSchema<List<InntektsmeldingResponse>>()
+                    schema = jsonSchema<List<ForespoerselResponse>>()
                 }
             }
             HttpStatusCode.BadRequest {
@@ -104,54 +108,7 @@ internal fun Route.describeFiltrerInntektsmeldinger() =
                 }
             }
             HttpStatusCode.Forbidden {
-                description = "Inntektsmeldinger er ikke eksponert for virksomheten."
-            }
-            HttpStatusCode.InternalServerError {
-                description = "Uventet feil."
-                ContentType.Application.Json {
-                    schema = jsonSchema<ErrorResponse>()
-                }
-            }
-        }
-    }
-
-internal fun Route.describeHentInntektsmelding() =
-    describe {
-        tag("Inntektsmelding")
-        summary = "Hent inntektsmelding"
-        description = "Hent inntektsmelding med id."
-
-        parameters {
-            path("innsendingId") {
-                description = "Innsending-ID (UUID)."
-                required = true
-            }
-        }
-
-        responses {
-            HttpStatusCode.OK {
-                description = "Inntektsmelding funnet."
-                ContentType.Application.Json {
-                    schema = jsonSchema<InntektsmeldingResponse>()
-                }
-            }
-            HttpStatusCode.BadRequest {
-                description = "Ugyldig innsendingId."
-                ContentType.Application.Json {
-                    schema = jsonSchema<ErrorResponse>()
-                }
-            }
-            HttpStatusCode.Unauthorized {
-                description = "Mangler tilgang til ressurs."
-                ContentType.Application.Json {
-                    schema = jsonSchema<ErrorResponse>()
-                }
-            }
-            HttpStatusCode.Forbidden {
-                description = "Inntektsmeldinger er ikke eksponert for virksomheten."
-            }
-            HttpStatusCode.NotFound {
-                description = "Inntektsmelding ikke funnet."
+                description = "Forespørsler er ikke eksponert for virksomheten."
                 ContentType.Application.Json {
                     schema = jsonSchema<ErrorResponse>()
                 }

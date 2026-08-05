@@ -6,6 +6,7 @@
 package no.nav.helsearbeidsgiver.sykmelding.model
 
 import io.ktor.openapi.JsonSchema.Description
+import io.ktor.openapi.JsonSchema.Format
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
@@ -20,6 +21,7 @@ import java.time.LocalDateTime
 @Description("SykmeldingArbeidsgiver")
 data class Sykmelding(
     val loepenr: Long,
+    @Format("uuid")
     val sykmeldingId: String,
     val mottattAvNav: LocalDateTime,
     val sendtTilArbeidsgiver: LocalDateTime,

@@ -17,6 +17,7 @@ val mockkVersion = project.property("mockkVersion") as String
 val pdpClientVersion = project.property("pdpClientVersion") as String
 val postgresqlVersion = project.property("postgresqlVersion") as String
 val swaggerVersion = project.property("swaggerVersion") as String
+val swaggerParserVersion = project.property("swaggerParserVersion") as String
 val testContainerVersion = project.property("testContainerVersion") as String
 val tokenSupportVersion = project.property("tokenSupportVersion") as String
 val unleashVersion = project.property("unleashVersion") as String
@@ -95,6 +96,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
+    testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")

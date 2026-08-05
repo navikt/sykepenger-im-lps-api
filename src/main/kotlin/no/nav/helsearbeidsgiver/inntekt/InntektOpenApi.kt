@@ -10,7 +10,7 @@ import io.ktor.server.routing.openapi.describe
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 
-fun Route.describeHentInntekt() =
+internal fun Route.describeHentInntekt() =
     describe {
         tag("Inntekt")
         summary = "Hent inntekt"
