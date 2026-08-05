@@ -25,7 +25,6 @@ import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSoeknadPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -35,29 +34,23 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SOEKNAD_RESSURS = Env.getProperty("ALTINN_SOEKNAD_RESSURS")
 
-fun Route.soeknadV1(
-    soeknadService: SoeknadService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Route.soeknadV1(soeknadService: SoeknadService) {
     route("/v1") {
-        soeknad(soeknadService, unleashFeatureToggles)
-        filtrerSoeknader(soeknadService, unleashFeatureToggles)
+        soeknad(soeknadService)
+        filtrerSoeknader(soeknadService)
     }
 }
 
-private fun Route.soeknad(
-    soeknadService: SoeknadService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.soeknad(soeknadService: SoeknadService) {
     get("/sykepengesoeknad/{soeknadId}") {
-        val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
+        val soeknad = hentSoeknadMedId(soeknadService)
         if (soeknad != null) {
             call.respond(soeknad)
         }
     }
 
     get("/sykepengesoeknad/{soeknadId}/pdf") {
-        val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
+        val soeknad = hentSoeknadMedId(soeknadService)
         if (soeknad != null) {
             try {
                 val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
@@ -72,16 +65,9 @@ private fun Route.soeknad(
     }
 }
 
-private suspend fun RoutingContext.hentSoeknadMedId(
-    soeknadService: SoeknadService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-): Sykepengesoeknad? {
+private suspend fun RoutingContext.hentSoeknadMedId(soeknadService: SoeknadService): Sykepengesoeknad? {
     try {
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
-            call.respond(HttpStatusCode.Forbidden)
-            return null
-        }
         val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
 
         val soeknadId = call.parameters["soeknadId"]?.toUuidOrNull()
@@ -118,20 +104,11 @@ private suspend fun RoutingContext.hentSoeknadMedId(
     return null
 }
 
-private fun Route.filtrerSoeknader(
-    soeknadService: SoeknadService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
     // Filtrer søknader på orgnr (underenhet), fnr og/eller dato søknaden ble mottatt av NAV.
-
     post("/sykepengesoeknader") {
         try {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-            if (!unleashFeatureToggles.skalEksponereSykepengesoeknader(orgnr = Orgnr(lpsOrgnr))) {
-                call.respond(HttpStatusCode.Forbidden)
-                return@post
-            }
-
             val filter = call.receive<SykepengesoeknadFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }
 
@@ -184,7 +161,10 @@ fun Route.soeknadTokenX(soeknadService: SoeknadService) {
 
                 val soeknad = soeknadService.hentSoeknad(soeknadId)
                 if (soeknad == null) {
-                    call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId))
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        ErrorResponse(FeilMedReferanse.SOEKNAD_IKKE_FUNNET, soeknadId),
+                    )
                     return@get
                 }
 

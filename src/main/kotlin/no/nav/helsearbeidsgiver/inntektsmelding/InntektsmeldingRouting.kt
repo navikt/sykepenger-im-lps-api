@@ -28,7 +28,6 @@ import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.erDuplikat
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.MdcUtils
@@ -47,28 +46,17 @@ private const val VERSJON_1 = 1 // TODO: Skal denne settes / brukes?
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
-fun Route.inntektsmeldingV1(
-    services: Services,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Route.inntektsmeldingV1(services: Services) {
     route("/v1") {
-        sendInntektsmelding(services, unleashFeatureToggles)
-        filtrerInntektsmeldinger(services.inntektsmeldingService, unleashFeatureToggles)
-        hentInntektsmelding(services.inntektsmeldingService, unleashFeatureToggles)
+        sendInntektsmelding(services)
+        filtrerInntektsmeldinger(services.inntektsmeldingService)
+        hentInntektsmelding(services.inntektsmeldingService)
     }
 }
 
-private fun Route.sendInntektsmelding(
-    services: Services,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.sendInntektsmelding(services: Services) {
     // Send inn inntektsmelding
-
     post("/inntektsmelding") {
-        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
         try {
             val request = call.receive<InntektsmeldingRequest>()
             val forespoersel =
@@ -89,7 +77,10 @@ private fun Route.sendInntektsmelding(
                 }
                 return@post call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse(FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL, sisteForespoersel.navReferanseId),
+                    ErrorResponse(
+                        FeilMedReferanse.INNSENDING_PAA_GAMMEL_FORESPOERSEL,
+                        sisteForespoersel.navReferanseId,
+                    ),
                 )
             }
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
@@ -162,7 +153,8 @@ private fun Route.sendInntektsmelding(
                 )
 
             if (
-                sisteInntektsmelding != null && sisteInntektsmelding.status != InnsendingStatus.FEILET &&
+                sisteInntektsmelding != null &&
+                sisteInntektsmelding.status != InnsendingStatus.FEILET &&
                 innsending.skjema.erDuplikat(
                     sisteInntektsmelding.tilSkjemaInntektsmelding(eksponertForespoerselId),
                 )
@@ -186,16 +178,9 @@ private fun Route.sendInntektsmelding(
     }
 }
 
-private fun Route.filtrerInntektsmeldinger(
-    inntektsmeldingService: InntektsmeldingService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
     // Filtrer inntektsmeldinger på orgnr (underenhet), fnr, innsendingId, navReferanseId, status og/eller dato inntektsmeldingen ble mottatt av NAV.
     post("/inntektsmeldinger") {
-        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
         try {
             val filter = call.receive<InntektsmeldingFilter>()
 
@@ -230,16 +215,9 @@ private fun Route.filtrerInntektsmeldinger(
     }
 }
 
-private fun Route.hentInntektsmelding(
-    inntektsmeldingService: InntektsmeldingService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingService) {
     // Hent inntektsmelding med id
     get("/inntektsmelding/{innsendingId}") {
-        if (!unleashFeatureToggles.skalEksponereInntektsmeldinger()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
         try {
             val innsendingId = call.parameters["innsendingId"]?.toUuidOrNull()
             if (innsendingId == null) {

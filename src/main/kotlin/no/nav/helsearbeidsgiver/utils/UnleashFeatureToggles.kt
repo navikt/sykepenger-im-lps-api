@@ -3,10 +3,8 @@ package no.nav.helsearbeidsgiver.utils
 import io.getunleash.DefaultUnleash
 import io.getunleash.FakeUnleash
 import io.getunleash.Unleash
-import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class UnleashFeatureToggles(
     isLocalEnv: Boolean,
@@ -49,19 +47,6 @@ class UnleashFeatureToggles(
     fun skalKonsumereForespoersler(): Boolean =
         unleashClient.isEnabled(
             "konsumer-forespoersler",
-            false,
-        )
-
-    fun skalEksponereSykepengesoeknader(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-soeknad-i-api",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalEksponereInntektsmeldinger(): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-inntektsmeldinger-i-api",
             false,
         )
 

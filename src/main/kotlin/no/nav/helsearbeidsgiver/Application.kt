@@ -20,7 +20,6 @@ import no.nav.helsearbeidsgiver.filimport.TilbakestillForespoerselStatusITest
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.plugins.configureRouting
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -55,7 +54,9 @@ fun startServer() {
 
     if (Env.getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp") {
         sikkerLogger.info("Starter applikasjon i Dev!")
-        TilbakestillForespoerselStatusITest(forespoerselRepository = repositories.forespoerselRepository).startAsync(true)
+        TilbakestillForespoerselStatusITest(forespoerselRepository = repositories.forespoerselRepository).startAsync(
+            true,
+        )
     } else {
         sikkerLogger.info("Starter applikasjon i Prod!")
     }
@@ -64,7 +65,7 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            apiModule(services = services, authClient = authClient, unleashFeatureToggles = unleashFeatureToggles)
+            apiModule(services = services, authClient = authClient)
             configureKafkaConsumers(
                 tolkere = tolkere,
                 unleashFeatureToggles = unleashFeatureToggles,
@@ -77,7 +78,6 @@ fun startServer() {
 fun Application.apiModule(
     services: Services,
     authClient: AuthClient,
-    unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     val logger = logger()
     logger.info("Starter applikasjon!")
@@ -88,5 +88,5 @@ fun Application.apiModule(
     configureAuth(authClient)
 
     logger.info("Setter opp routing...")
-    configureRouting(services, unleashFeatureToggles)
+    configureRouting(services)
 }

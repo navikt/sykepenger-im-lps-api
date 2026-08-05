@@ -47,7 +47,6 @@ class InntektsmeldingRoutingTest : ApiTest() {
     @BeforeEach
     fun setup() {
         clearMocks(repositories.inntektsmeldingRepository)
-        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @AfterAll

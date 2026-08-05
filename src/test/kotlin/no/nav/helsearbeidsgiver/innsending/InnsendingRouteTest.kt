@@ -49,7 +49,6 @@ class InnsendingRouteTest : ApiTest() {
     fun setup() {
         mockkStatic(Services::opprettImTransaction)
         every { services.opprettImTransaction(any(), any()) } just Runs
-        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @Test
@@ -233,7 +232,11 @@ class InnsendingRouteTest : ApiTest() {
     fun `innsending av inntektsmelding med aarsak endring er OK hvis forrige innsending har status feilet`() =
         runTest {
             val endretInntekt = InnsendingMockData.requestBody.inntekt?.copy(beloep = 666.0)
-            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
+            val requestBody =
+                InnsendingMockData.requestBody.copy(
+                    aarsakInnsending = AarsakInnsending.Endring,
+                    inntekt = endretInntekt,
+                )
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
@@ -256,7 +259,11 @@ class InnsendingRouteTest : ApiTest() {
     fun `innsending av inntektsmelding med aarsak endring er OK hvis forespørsel er besvart via Altinn2`() =
         runTest {
             val endretInntekt = InnsendingMockData.requestBody.inntekt?.copy(beloep = 666.0)
-            val requestBody = InnsendingMockData.requestBody.copy(aarsakInnsending = AarsakInnsending.Endring, inntekt = endretInntekt)
+            val requestBody =
+                InnsendingMockData.requestBody.copy(
+                    aarsakInnsending = AarsakInnsending.Endring,
+                    inntekt = endretInntekt,
+                )
             val forespoersel = InnsendingMockData.forespoersel.copy(status = Status.BESVART)
             every { repositories.forespoerselRepository.hentForespoersel(forespoersel.navReferanseId) } returns forespoersel
             every { repositories.forespoerselRepository.hentEksponertForespoerselId(forespoersel.navReferanseId) } returns
@@ -280,7 +287,12 @@ class InnsendingRouteTest : ApiTest() {
             every { repositories.forespoerselRepository.hentForespoersel(requestBody.navReferanseId) } returns forespoersel
             val response = sendInnInntektsmelding(requestBody)
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<ErrorResponse>() shouldBe ErrorResponse(Feil.UGYLDIG_INNSENDING.name, FORESPOERSEL_FORKASTET, null)
+            response.body<ErrorResponse>() shouldBe
+                ErrorResponse(
+                    Feil.UGYLDIG_INNSENDING.name,
+                    FORESPOERSEL_FORKASTET,
+                    null,
+                )
         }
 
     @AfterEach

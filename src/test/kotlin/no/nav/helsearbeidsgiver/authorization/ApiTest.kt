@@ -45,7 +45,7 @@ abstract class ApiTest {
     private val testApplication: TestApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = mockk(), unleashFeatureToggles = unleashFeatureToggles)
+                apiModule(services = services, authClient = mockk())
             }
         }
     val client: HttpClient =
