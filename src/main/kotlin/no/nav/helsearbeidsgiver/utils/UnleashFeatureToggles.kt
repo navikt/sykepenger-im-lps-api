@@ -65,19 +65,6 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalEksponereForespoersler(): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-forespoersler-i-api",
-            false,
-        )
-
-    fun skalEksponereSykmeldinger(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-sykmelding-i-api",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
     fun skalKonsumereStatusISpeil(): Boolean =
         unleashClient.isEnabled(
             "konsumer-status-i-speil",

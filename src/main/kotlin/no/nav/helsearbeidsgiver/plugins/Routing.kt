@@ -34,11 +34,8 @@ fun Application.configureRouting(
                 unleashFeatureToggles = unleashFeatureToggles,
             )
             inntektV1(services)
-            forespoerselV1(
-                forespoerselService = services.forespoerselService,
-                unleashFeatureToggles = unleashFeatureToggles,
-            )
-            sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
+            forespoerselV1(forespoerselService = services.forespoerselService)
+            sykmeldingV1(sykmeldingService = services.sykmeldingService)
             soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
         }
         authenticate("tokenx-config") {
