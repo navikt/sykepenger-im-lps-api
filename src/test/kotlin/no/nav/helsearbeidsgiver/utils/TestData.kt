@@ -837,6 +837,81 @@ object TestData {
         }
     """
 
+    const val STATUS_I_SPLEIS_VEDTAK_MELDING = """
+        {
+  "fødselsnummer": "27479514394",
+  "aktørId": "2762497247068",
+  "organisasjonsnummer": "896929119",
+  "yrkesaktivitetstype": "ARBEIDSTAKER",
+  "fom": "2026-07-01",
+  "tom": "2026-07-27",
+  "skjæringstidspunkt": "2026-07-01",
+  "dokumenter": [
+    {
+      "dokumentId": "a183342a-eb8f-33cc-9f42-c15097827671",
+      "type": "Søknad"
+    },
+    {
+      "dokumentId": "99d4b7f0-c8fd-4a5e-811e-a55d18b4affa",
+      "type": "Sykmelding"
+    },
+    {
+      "dokumentId": "08efa425-5db6-403f-adc2-0c070b9c84d0",
+      "type": "Søknad"
+    },
+    {
+      "dokumentId": "debef524-cc65-40bb-ab2c-6827eaae4931",
+      "type": "Sykmelding"
+    }
+  ],
+  "sykepengegrunnlag": 154999.91999999998,
+  "utbetalingId": "f2fe5c8a-ea6a-4137-ad78-647e084424ec",
+  "vedtakFattetTidspunkt": "2026-08-05T12:31:52.220397371",
+  "sykepengegrunnlagsfakta": {
+    "fastsatt": "EtterHovedregel",
+    "omregnetÅrsinntekt": 154999.92,
+    "innrapportertÅrsinntekt": 186000.0,
+    "avviksprosent": 16.6667,
+    "6G": 819294.0,
+    "tags": [],
+    "arbeidsgivere": [
+      {
+        "arbeidsgiver": "896929119",
+        "omregnetÅrsinntekt": 154999.92
+      }
+    ]
+  },
+  "begrunnelser": [
+    {
+      "type": "Innvilgelse",
+      "begrunnelse": "",
+      "perioder": [
+        {
+          "fom": "2026-07-01",
+          "tom": "2026-07-27"
+        }
+      ]
+    }
+  ],
+  "tags": [
+    "SykepengegrunnlagUnder2G"
+  ],
+  "saksbehandler": {
+    "navn": "J173350",
+    "ident": "J173350"
+  },
+  "beslutter": null,
+  "forsikringsvurderingId": null,
+  "versjon": "1.2.2",
+  "begrensning": "ER_IKKE_6G_BEGRENSET",
+  "inntekt": 12916.660000000002,
+  "grunnlagForSykepengegrunnlag": 154999.92,
+  "grunnlagForSykepengegrunnlagPerArbeidsgiver": {
+    "896929119": 154999.92
+  }
+}
+
+    """
     const val API_INNSENDING_MELDING = """
          {
             "@event_name": "API_INNSENDING_STARTET",
