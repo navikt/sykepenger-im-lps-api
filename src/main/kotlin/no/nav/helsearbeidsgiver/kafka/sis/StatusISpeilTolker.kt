@@ -25,7 +25,12 @@ class StatusISpeilTolker(
             when {
                 "vedtakFattetTidspunkt" in json -> parseVedtakmelding(melding.fromJson(Vedtakmelding.serializer()))
                 "status" in json -> parseBehandlingstatusmelding(melding.fromJson(Behandlingstatusmelding.serializer()))
-                else -> logger.warn("Ukjent meldingsformat, ignorerer melding.") // Bør kanskje heller kaste ex her
+                else -> {
+                    val errorMsg = "Ukjent meldingsformat, kan ikke lese melding."
+                    logger.error(errorMsg)
+                    sikkerLogger.error(errorMsg)
+                    throw SerializationException(errorMsg)
+                }
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på melding, melding=$melding", serializationException)

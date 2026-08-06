@@ -272,6 +272,17 @@ class MeldingTolkerTest {
     }
 
     @Test
+    fun `StatusISpeilTolker lesMelding feiler ved ukjent melding`() {
+        val ugyldigMeldingJson =
+            """{ "test":"testing" }"""
+        assertThrows<SerializationException> {
+            tolkere.statusISpeilTolker.lesMelding(ugyldigMeldingJson)
+        }
+        verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
+        verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
+    }
+
+    @Test
     fun `AvvistInntektsmeldingTolker deserialiserer AvvistInntektmelding-melding fra Simba`() {
         every { service.avvistInntektsmeldingService.oppdaterInnteksmeldingTilFeilet(any()) } just Runs
         val avvistInntektsmeldingJson =
