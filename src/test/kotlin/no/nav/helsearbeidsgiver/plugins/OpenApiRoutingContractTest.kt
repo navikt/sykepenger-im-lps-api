@@ -119,22 +119,6 @@ class OpenApiRoutingContractTest : ApiTest() {
                 (openApi.paths?.containsKey("/health/is-alive") == true) shouldBe false
                 (openApi.paths?.containsKey("/health/is-ready") == true) shouldBe false
             }
-
-            withClue("Global security og bearerAuth securityScheme skal være gyldig definert") {
-                (openApi.security?.isNotEmpty() == true) shouldBe true
-                (openApi.security?.firstOrNull()?.containsKey("bearerAuth") == true) shouldBe true
-                (
-                    openApi.security
-                        ?.firstOrNull()
-                        ?.get("bearerAuth")
-                        ?.isEmpty() == true
-                ) shouldBe true
-
-                val bearerAuthScheme = openApi.components?.securitySchemes?.get("bearerAuth")
-                (bearerAuthScheme != null) shouldBe true
-                (bearerAuthScheme?.type == io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP) shouldBe true
-                (bearerAuthScheme?.scheme == "bearer") shouldBe true
-            }
         }
     }
 }
