@@ -30,7 +30,7 @@ class OpenApiRoutingContractTest : ApiTest() {
                     ParseOptions().apply { isResolve = true },
                 )
             val openApi = parseResult.openAPI
-            withClue("OpenAPI YAML kunne ikke parses") {
+            withClue("OpenAPI YAML kunne ikke parses.") {
                 (openApi != null) shouldBe true
             }
             openApi ?: return@runBlocking
