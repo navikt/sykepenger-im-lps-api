@@ -25,7 +25,6 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselEntitet
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet
 import no.nav.helsearbeidsgiver.utils.LeaderConfig
-import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -53,7 +52,7 @@ abstract class LpsApiIntegrasjontest {
             factory = Netty,
             port = 8080,
             module = {
-                apiModule(services = services, authClient = mockk(relaxed = true), unleashFeatureToggles = mockUnleash)
+                apiModule(services = services, authClient = mockk(relaxed = true))
                 configureKafkaConsumers(tolkers, mockUnleash, leaderConfig = mockLeaderConfig)
             },
         )
@@ -74,10 +73,6 @@ abstract class LpsApiIntegrasjontest {
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         every { mockUnleash.skalKonsumereForespoersler() } returns true
         every { mockUnleash.skalKonsumereInntektsmeldinger() } returns true
-        every { mockUnleash.skalEksponereSykepengesoeknader(TIGERSYS_ORGNR) } returns true
-        every { mockUnleash.skalEksponereForespoersler() } returns true
-        every { mockUnleash.skalEksponereInntektsmeldinger() } returns true
-        every { mockUnleash.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
         every { mockUnleash.skalKonsumereStatusISpeil() } returns true
         db =
             DatabaseConfig(

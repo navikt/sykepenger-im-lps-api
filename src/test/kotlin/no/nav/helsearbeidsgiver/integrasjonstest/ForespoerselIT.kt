@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -59,7 +58,7 @@ class ForespoerselIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, unleashMock)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -78,8 +77,6 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-
-        every { unleashMock.skalEksponereForespoersler() } returns true
 
         services = configureServices(repositories, unleashMock, db, mockk())
 

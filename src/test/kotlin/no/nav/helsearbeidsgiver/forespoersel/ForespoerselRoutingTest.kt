@@ -30,7 +30,6 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -38,11 +37,6 @@ import java.time.LocalDate
 import java.util.UUID
 
 class ForespoerselRoutingTest : ApiTest() {
-    @BeforeEach
-    fun setup() {
-        every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
-    }
-
     @Test
     fun `hent en spesifikk forespørsel`() {
         val navReferanseId = UUID.randomUUID()

@@ -11,7 +11,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -72,7 +71,7 @@ class InnsendingIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, unleashFeatureToggles)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -104,7 +103,6 @@ class InnsendingIT {
                 mottakRepository = repositories.mottakRepository,
                 services = services,
             )
-        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @Test
