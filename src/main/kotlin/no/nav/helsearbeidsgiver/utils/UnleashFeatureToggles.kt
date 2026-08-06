@@ -29,30 +29,30 @@ class UnleashFeatureToggles(
     fun skalKonsumereSykmeldinger(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykmeldinger",
-            false,
+            true,
         )
 
     fun skalKonsumereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykepengesoknader",
-            false,
+            true,
         )
 
     fun skalKonsumereInntektsmeldinger(): Boolean =
         unleashClient.isEnabled(
             "konsumer-inntektsmeldinger",
-            false,
+            true,
         )
 
     fun skalKonsumereForespoersler(): Boolean =
         unleashClient.isEnabled(
             "konsumer-forespoersler",
-            false,
+            true,
         )
 
     fun skalKonsumereStatusISpeil(): Boolean =
         unleashClient.isEnabled(
             "konsumer-status-i-speil",
-            false,
+            true,
         )
 }
