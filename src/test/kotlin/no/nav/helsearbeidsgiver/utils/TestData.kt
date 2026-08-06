@@ -838,35 +838,27 @@ object TestData {
     """
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING = """
-        {
+  {
   "fødselsnummer": "27479514394",
   "aktørId": "2762497247068",
   "organisasjonsnummer": "896929119",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
-  "fom": "2026-07-01",
-  "tom": "2026-07-27",
+  "fom": "2026-07-28",
+  "tom": "2026-08-03",
   "skjæringstidspunkt": "2026-07-01",
   "dokumenter": [
     {
-      "dokumentId": "a183342a-eb8f-33cc-9f42-c15097827671",
+      "dokumentId": "be3ec904-4dd6-3bbd-89a9-945b23b5f1be",
       "type": "Søknad"
     },
     {
-      "dokumentId": "99d4b7f0-c8fd-4a5e-811e-a55d18b4affa",
-      "type": "Sykmelding"
-    },
-    {
-      "dokumentId": "08efa425-5db6-403f-adc2-0c070b9c84d0",
-      "type": "Søknad"
-    },
-    {
-      "dokumentId": "debef524-cc65-40bb-ab2c-6827eaae4931",
+      "dokumentId": "eb90e911-4501-4c3b-a848-3a154ec361ec",
       "type": "Sykmelding"
     }
   ],
   "sykepengegrunnlag": 154999.91999999998,
-  "utbetalingId": "f2fe5c8a-ea6a-4137-ad78-647e084424ec",
-  "vedtakFattetTidspunkt": "2026-08-05T12:31:52.220397371",
+  "utbetalingId": "a722c0fe-66ba-495e-b6c9-02b75f0b6cfe",
+  "vedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
   "sykepengegrunnlagsfakta": {
     "fastsatt": "EtterHovedregel",
     "omregnetÅrsinntekt": 154999.92,
@@ -887,8 +879,8 @@ object TestData {
       "begrunnelse": "",
       "perioder": [
         {
-          "fom": "2026-07-01",
-          "tom": "2026-07-27"
+          "fom": "2026-07-28",
+          "tom": "2026-08-03"
         }
       ]
     }
@@ -900,7 +892,10 @@ object TestData {
     "navn": "J173350",
     "ident": "J173350"
   },
-  "beslutter": null,
+  "beslutter": {
+    "navn": "J173350",
+    "ident": "J173350"
+  },
   "forsikringsvurderingId": null,
   "versjon": "1.2.2",
   "begrensning": "ER_IKKE_6G_BEGRENSET",
@@ -912,6 +907,56 @@ object TestData {
 }
 
     """
+
+    const val STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER = """
+        {
+  "fødselsnummer": "20509316237",
+  "aktørId": "2520195733269",
+  "organisasjonsnummer": "311368095",
+  "yrkesaktivitetstype": "ARBEIDSTAKER",
+  "fom": "2026-05-03",
+  "tom": "2026-05-30",
+  "skjæringstidspunkt": "2026-05-03",
+  "dokumenter": [
+    {
+      "dokumentId": "2aaba784-2f43-4545-bb86-81bdabcbe140",
+      "type": "Søknad"
+    },
+    {
+      "dokumentId": "237354ef-ca00-46cd-b8e1-2e5523952b5b",
+      "type": "Sykmelding"
+    }
+  ],
+  "sykepengegrunnlag": 564000.0,
+  "utbetalingId": "9338a6a1-e3c1-45fc-ab9d-ebfa792591e2",
+  "vedtakFattetTidspunkt": "2026-08-05T15:29:07.150668023",
+  "sykepengegrunnlagsfakta": {
+    "fastsatt": "EtterHovedregel",
+    "omregnetÅrsinntekt": 564000.0,
+    "innrapportertÅrsinntekt": 564000.0,
+    "avviksprosent": 0.0,
+    "6G": 819294.0,
+    "tags": [],
+    "arbeidsgivere": [
+      {
+        "arbeidsgiver": "311368095",
+        "omregnetÅrsinntekt": 564000.0
+      }
+    ]
+  },
+  "begrunnelser": [],
+  "tags": [],
+  "saksbehandler": null,
+  "beslutter": null,
+  "forsikringsvurderingId": null,
+  "versjon": "1.2.2",
+  "begrensning": "ER_IKKE_6G_BEGRENSET",
+  "inntekt": 47000.0,
+  "grunnlagForSykepengegrunnlag": 564000.0,
+  "grunnlagForSykepengegrunnlagPerArbeidsgiver": {
+    "311368095": 564000.0
+  }
+}"""
     const val API_INNSENDING_MELDING = """
          {
             "@event_name": "API_INNSENDING_STARTET",
@@ -974,7 +1019,7 @@ object TestData {
                     "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
                     "orgnr": "315339138",
                     "feil": {
-                        "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN", 
+                        "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN",
                         "feilmelding": "feilmelding"
                     },
                     "feilkode": "INNTEKT_AVVIKER_FRA_A_ORDNINGEN"
