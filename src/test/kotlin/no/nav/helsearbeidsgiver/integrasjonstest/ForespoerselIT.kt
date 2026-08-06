@@ -25,6 +25,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselFilter
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.testcontainer.WithKafkaContainer
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
+@WithKafkaContainer
 @WithPostgresContainer
 class ForespoerselIT {
     private lateinit var db: Database
