@@ -66,7 +66,7 @@ fun Application.configureRouting(
                     version = "1.0.0",
                     description = "API for sykmelding, sykepengesøknad og inntektsmelding for sykepenger",
                 )
-            registerBearerAuthSecurityScheme()
+            registerBearerAuthSecurityScheme("systembruker-config")
             remotePath = "documentation.yaml"
             source = openApiRoutingSource()
         }
