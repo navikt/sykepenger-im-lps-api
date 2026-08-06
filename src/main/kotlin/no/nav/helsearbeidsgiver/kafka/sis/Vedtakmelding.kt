@@ -18,7 +18,7 @@ data class Vedtakmelding(
     @SerialName("fødselsnummer") val foedselsnummer: String,
     @SerialName("aktørId") val aktoerId: String,
     val organisasjonsnummer: String,
-    val yrkesaktivitetstype: String,
+    val yrkesaktivitetstype: String, // ENUM?
     val fom: LocalDate,
     val tom: LocalDate,
     @SerialName("skjæringstidspunkt") val skjaeringstidspunkt: LocalDate,
@@ -27,13 +27,13 @@ data class Vedtakmelding(
     val utbetalingId: UUID,
     val vedtakFattetTidspunkt: LocalDateTime,
     val sykepengegrunnlagsfakta: Sykepengegrunnlagsfakta,
-    val begrunnelser: List<Begrunnelse>,
-    val tags: List<String>,
-    val saksbehandler: Saksbehandler,
+    val begrunnelser: List<Begrunnelse> = emptyList(),
+    val tags: List<String> = emptyList(),
+    val saksbehandler: Saksbehandler? = null,
     val beslutter: Saksbehandler? = null,
     val forsikringsvurderingId: UUID? = null,
     val versjon: String,
-    val begrensning: String,
+    val begrensning: String, // Enum?
     val inntekt: Double,
     val grunnlagForSykepengegrunnlag: Double,
     val grunnlagForSykepengegrunnlagPerArbeidsgiver: Map<String, Double>,
@@ -51,7 +51,7 @@ data class Vedtakmelding(
         @SerialName("innrapportertÅrsinntekt") val innrapportertAarsinntekt: Double,
         val avviksprosent: Double,
         @SerialName("6G") val seksG: Double,
-        val tags: List<String>,
+        val tags: List<String> = emptyList(),
         val arbeidsgivere: List<ArbeidsgiversInntekt>,
     )
 
