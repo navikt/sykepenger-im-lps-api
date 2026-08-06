@@ -39,7 +39,8 @@ class StatusISpeilTolker(
     }
 
     private fun parseVedtakmelding(vedtakmelding: Vedtakmelding) {
-        logger.debug("Leste vedtak: " + vedtakmelding.toString())
+        logger.info("Leste vedtak")
+        sikkerLogger.info("Leste vedtak: " + vedtakmelding.toString())
     }
 
     private fun parseBehandlingstatusmelding(behandlingstatusmelding: Behandlingstatusmelding) {
@@ -47,7 +48,7 @@ class StatusISpeilTolker(
             "Mottok status-i-speil-melding med status {}, vedtaksperiodeId {} og eksterneSøknadIder {}.",
             behandlingstatusmelding.status,
             behandlingstatusmelding.vedtaksperiodeId,
-            behandlingstatusmelding.eksterneSøknadIder
+            behandlingstatusmelding.eksterneSøknadIder,
         )
         if (behandlingstatusmelding.status == Behandlingstatusmelding.Behandlingstatustype.OPPRETTET) {
             if (behandlingstatusmelding.eksterneSøknadIder == null) {
