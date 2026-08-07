@@ -22,33 +22,23 @@ import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
-fun Route.forespoerselV1(
-    forespoerselService: ForespoerselService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Route.forespoerselV1(forespoerselService: ForespoerselService) {
     route("/v1") {
-        forespoersel(forespoerselService, unleashFeatureToggles)
-        filtrerForespoersler(forespoerselService, unleashFeatureToggles)
+        forespoersel(forespoerselService)
+        filtrerForespoersler(forespoerselService)
     }
 }
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
-private fun Route.forespoersel(
-    forespoerselService: ForespoerselService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.forespoersel(forespoerselService: ForespoerselService) {
+    // Hent forespørsel med navReferanseId.
     get("/forespoersel/{navReferanseId}") {
-        if (!unleashFeatureToggles.skalEksponereForespoersler()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
         try {
             val navReferanseId = call.parameters["navReferanseId"]?.toUuidOrNull()
             if (navReferanseId == null) {
@@ -58,7 +48,10 @@ private fun Route.forespoersel(
 
             val forespoersel = forespoerselService.hentForespoersel(navReferanseId)
             if (forespoersel == null) {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.FORESPOERSEL_IKKE_FUNNET, navReferanseId))
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    ErrorResponse(FeilMedReferanse.FORESPOERSEL_IKKE_FUNNET, navReferanseId),
+                )
                 return@get
             }
 
@@ -91,15 +84,9 @@ private fun Route.forespoersel(
     }.describeHentForespoersel()
 }
 
-private fun Route.filtrerForespoersler(
-    forespoerselService: ForespoerselService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
+    // Filtrer forespørsler om inntektsmelding på orgnr (underenhet), fnr, navReferanseId, status og/eller dato forespørselen ble opprettet av NAV.
     post("/forespoersler") {
-        if (!unleashFeatureToggles.skalEksponereForespoersler()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@post
-        }
         try {
             val filter = call.receive<ForespoerselFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }

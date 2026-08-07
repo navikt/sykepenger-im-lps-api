@@ -45,6 +45,8 @@ import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_STATUS_VENTER
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
@@ -254,6 +256,31 @@ class MeldingTolkerTest {
             STATUS_I_SPLEIS_MELDING_STATUS_VENTER.removeJsonWhitespace()
         assertDoesNotThrow {
             tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
+        verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
+        verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding håndterer vedtak`() {
+        val sisVedtakMeldingJson =
+            STATUS_I_SPLEIS_VEDTAK_MELDING.removeJsonWhitespace()
+        val sisVedtakMeldingJson2 =
+            STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson)
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson2)
+        }
+        verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
+        verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding feiler ved ukjent melding`() {
+        val ugyldigMeldingJson =
+            """{ "test":"testing" }"""
+        assertThrows<SerializationException> {
+            tolkere.statusISpeilTolker.lesMelding(ugyldigMeldingJson)
         }
         verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
         verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }

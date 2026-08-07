@@ -54,7 +54,6 @@ class InntektRoutingTest {
             helseSjekkService = mockk(relaxed = true),
             avvistInntektsmeldingService = mockk(relaxed = true),
         )
-    private val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
 
     private val mockOAuth2Server =
         MockOAuth2Server().apply {
@@ -67,7 +66,6 @@ class InntektRoutingTest {
                 apiModule(
                     services = services,
                     authClient = mockk(relaxed = true),
-                    unleashFeatureToggles = unleashFeatureToggles,
                 )
             }
         }

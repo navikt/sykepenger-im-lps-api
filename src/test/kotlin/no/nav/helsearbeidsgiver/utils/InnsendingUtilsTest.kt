@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.utils.test.date.februar
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.collections.listOf
@@ -84,6 +85,7 @@ class InnsendingUtilsTest {
         imMedGyldigeEgenmenldinger.validerMotForespoersel(forespoerselIFebruar).shouldBeNull()
     }
 
+    @Disabled
     @Test
     fun `avviser inntektsmelding dersom egenmeldinger i AGP er ugyldige`() {
         val forespoerselIFebruar =

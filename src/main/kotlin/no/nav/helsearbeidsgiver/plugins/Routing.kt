@@ -29,31 +29,17 @@ import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
-import java.util.ArrayDeque
 
-fun Application.configureRouting(
-    services: Services,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Application.configureRouting(services: Services) {
     routing {
         metrikkRoutes()
         naisRoutes(services.helseSjekkService)
         authenticate("systembruker-config") {
-            inntektsmeldingV1(
-                services = services,
-                unleashFeatureToggles = unleashFeatureToggles,
-            )
-            inntektV1(services)
-            forespoerselV1(
-                forespoerselService = services.forespoerselService,
-                unleashFeatureToggles = unleashFeatureToggles,
-            )
-            sykmeldingV1(sykmeldingService = services.sykmeldingService, unleashFeatureToggles)
-            soeknadV1(soeknadService = services.soeknadService, unleashFeatureToggles)
+            inntektsmeldingV1(services = services)
+            inntektV1(services = services)
+            forespoerselV1(forespoerselService = services.forespoerselService)
+            sykmeldingV1(sykmeldingService = services.sykmeldingService)
+            soeknadV1(soeknadService = services.soeknadService)
         }
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)

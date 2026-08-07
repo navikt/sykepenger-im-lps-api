@@ -28,7 +28,6 @@ import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
 import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
 import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.kapitaliserSykmeldtNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -39,26 +38,15 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 private val SM_RESSURS = Env.getProperty("ALTINN_SM_RESSURS")
 
-fun Route.sykmeldingV1(
-    sykmeldingService: SykmeldingService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+fun Route.sykmeldingV1(sykmeldingService: SykmeldingService) {
     route("/v1") {
-        sykmelding(sykmeldingService, unleashFeatureToggles)
-        filtrerSykmeldinger(sykmeldingService, unleashFeatureToggles)
+        sykmelding(sykmeldingService)
+        filtrerSykmeldinger(sykmeldingService)
     }
 }
 
-private fun Route.sykmelding(
-    sykmeldingService: SykmeldingService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
     get("/sykmelding/{sykmeldingId}") {
-        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
             call.respond(sykmelding)
@@ -73,11 +61,6 @@ private fun Route.sykmelding(
         )
     }
     get("/sykmelding/{sykmeldingId}/pdf") {
-        val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-        if (!unleashFeatureToggles.skalEksponereSykmeldinger(Orgnr(lpsOrgnr))) {
-            call.respond(HttpStatusCode.Forbidden)
-            return@get
-        }
         val sykmelding = hentSykmeldingMedId(sykmeldingService)
         if (sykmelding != null) {
             try {
@@ -132,18 +115,11 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
     return null
 }
 
-private fun Route.filtrerSykmeldinger(
-    sykmeldingService: SykmeldingService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-) {
+private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
+    // Filtrer sykmeldinger på orgnr (underenhet), fnr og/eller dato sykmeldingen ble mottatt av NAV.
     post("/sykmeldinger") {
         try {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
-
-            if (!unleashFeatureToggles.skalEksponereSykmeldinger(orgnr = Orgnr(lpsOrgnr))) {
-                call.respond(HttpStatusCode.Forbidden)
-                return@post
-            }
 
             val filter = call.receive<SykmeldingFilter>()
             val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr().also { require(Orgnr.erGyldig(it)) }

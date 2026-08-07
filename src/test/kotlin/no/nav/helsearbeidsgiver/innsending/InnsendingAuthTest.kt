@@ -37,7 +37,6 @@ class InnsendingAuthTest : ApiTest() {
     fun setup() {
         clearMocks(repositories.inntektsmeldingRepository)
         mockPdpTilganger()
-        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
 
         mockkStatic(Services::opprettImTransaction)
         every { services.opprettImTransaction(any(), any()) } just Runs
