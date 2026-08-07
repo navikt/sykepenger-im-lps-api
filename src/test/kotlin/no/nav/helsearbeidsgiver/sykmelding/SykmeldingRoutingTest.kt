@@ -4,7 +4,6 @@ package no.nav.helsearbeidsgiver.sykmelding
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -44,7 +43,6 @@ import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -53,11 +51,6 @@ import java.util.UUID
 import kotlin.random.Random
 
 class SykmeldingRoutingTest : ApiTest() {
-    @BeforeEach
-    fun setup() {
-        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
-    }
-
     @AfterEach
     fun cleanup() {
         clearMocks(repositories.sykmeldingRepository)
@@ -183,20 +176,6 @@ class SykmeldingRoutingTest : ApiTest() {
             response.status shouldBe HttpStatusCode.Unauthorized
         }
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-    }
-
-    @Test
-    fun `gir 403 Forbidden error om eksponer-sykmelding-i-api er skrudd av`() {
-        val sykmeldingId = UUID.randomUUID()
-
-        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns false
-        runBlocking {
-            val response =
-                client.get("/v1/sykmelding/$sykmeldingId/pdf") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            response.status shouldBe HttpStatusCode.Forbidden
-        }
     }
 
     @Test

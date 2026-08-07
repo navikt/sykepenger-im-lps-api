@@ -28,31 +28,24 @@ class DokumentkoblingService(
     ) {
         val orgnr = Orgnr(sykmeldingMessage.event.arbeidsgiver.orgnummer)
 
-        if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr)) {
-            val sykmeldingKobling =
-                Sykmelding(
-                    sykmeldingId = sykmeldingId,
-                    orgnr = orgnr,
-                    foedselsdato = fullPerson.foedselsdato,
-                    fulltNavn = fullPerson.navn.fulltNavn(),
-                    sykmeldingsperioder =
-                        sykmeldingMessage.sykmelding.sykmeldingsperioder.map {
-                            Periode(
-                                it.fom,
-                                it.tom,
-                            )
-                        },
-                )
-            dokumentkoblingProducer.send(sykmeldingKobling)
-            logger.info(
-                "Sendte melding på helsearbeidsgiver.dokument-kobling for sykmelding med sykmeldingId: $sykmeldingId",
+        val sykmeldingKobling =
+            Sykmelding(
+                sykmeldingId = sykmeldingId,
+                orgnr = orgnr,
+                foedselsdato = fullPerson.foedselsdato,
+                fulltNavn = fullPerson.navn.fulltNavn(),
+                sykmeldingsperioder =
+                    sykmeldingMessage.sykmelding.sykmeldingsperioder.map {
+                        Periode(
+                            it.fom,
+                            it.tom,
+                        )
+                    },
             )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling med " +
-                    "sykmeldingId: $sykmeldingId fordi feature toggle er av.",
-            )
-        }
+        dokumentkoblingProducer.send(sykmeldingKobling)
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for sykmelding med sykmeldingId: $sykmeldingId",
+        )
     }
 
     fun produserSykepengesoeknadKobling(
@@ -60,24 +53,17 @@ class DokumentkoblingService(
         sykmeldingId: UUID,
         orgnr: Orgnr,
     ) {
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr)) {
-            val sykepengesoeknadKobling =
-                Sykepengesoeknad(
-                    soeknadId = soeknadId,
-                    sykmeldingId = sykmeldingId,
-                    orgnr = orgnr,
-                )
-            dokumentkoblingProducer.send(sykepengesoeknadKobling)
-            logger.info(
-                "Sendte melding på helsearbeidsgiver.dokument-kobling for sykepengesøknad med " +
-                    "soeknadId: $soeknadId og sykmeldingId: $sykmeldingId",
+        val sykepengesoeknadKobling =
+            Sykepengesoeknad(
+                soeknadId = soeknadId,
+                sykmeldingId = sykmeldingId,
+                orgnr = orgnr,
             )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for sykepengesøknad med " +
-                    "søknadId: $soeknadId, sykmeldingId: $sykmeldingId, fordi feature toggle er av.",
-            )
-        }
+        dokumentkoblingProducer.send(sykepengesoeknadKobling)
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for sykepengesøknad med " +
+                "soeknadId: $soeknadId og sykmeldingId: $sykmeldingId",
+        )
     }
 
     fun produserVedtaksperiodeSoeknadKobling(
@@ -98,53 +84,41 @@ class DokumentkoblingService(
 
     fun produserForespoerselKobling(forespoersel: ForespoerselDokument) {
         val orgnr = Orgnr(forespoersel.orgnr)
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = orgnr)) {
-            dokumentkoblingProducer.send(
-                ForespoerselSendt(
-                    forespoerselId = forespoersel.forespoerselId,
-                    vedtaksperiodeId = forespoersel.vedtaksperiodeId,
-                    orgnr = orgnr,
-                ),
-            )
+        dokumentkoblingProducer.send(
+            ForespoerselSendt(
+                forespoerselId = forespoersel.forespoerselId,
+                vedtaksperiodeId = forespoersel.vedtaksperiodeId,
+                orgnr = orgnr,
+            ),
+        )
 
-            logger.info(
-                "Sendte melding på helsearbeidsgiver.dokument-kobling for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}.",
-            )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, fordi feature toggle er av.",
-            )
-        }
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for inntektsmeldingsforespørsel med id: ${forespoersel.forespoerselId}, vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}.",
+        )
     }
 
     fun oppdaterDialogMedUtgaattForespoersel(forespoersel: Forespoersel) {
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = Orgnr(forespoersel.orgnr))) {
-            val vedtaksperiodeId =
-                repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId)
-                    ?: run {
-                        // TODO: kan vi finne en bedre måte å håndtere dette på?
-                        logger.warn(
-                            "Fant ingen vedtaksperiodeId for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}. " +
-                                "Kan derfor ikke produsere dialogmelding på helsearbeidsgiver.dokument-kobling.",
-                        )
-                        return
-                    }
-            dokumentkoblingProducer.send(
-                ForespoerselUtgaatt(
-                    forespoerselId = forespoersel.navReferanseId,
-                    vedtaksperiodeId = vedtaksperiodeId,
-                    orgnr = Orgnr(forespoersel.orgnr),
-                ),
-            )
+        val vedtaksperiodeId =
+            repositories.forespoerselRepository.hentVedtaksperiodeId(forespoersel.navReferanseId)
+                ?: run {
+                    // TODO: kan vi finne en bedre måte å håndtere dette på?
+                    logger.warn(
+                        "Fant ingen vedtaksperiodeId for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}. " +
+                            "Kan derfor ikke produsere dialogmelding på helsearbeidsgiver.dokument-kobling.",
+                    )
+                    return
+                }
+        dokumentkoblingProducer.send(
+            ForespoerselUtgaatt(
+                forespoerselId = forespoersel.navReferanseId,
+                vedtaksperiodeId = vedtaksperiodeId,
+                orgnr = Orgnr(forespoersel.orgnr),
+            ),
+        )
 
-            logger.info(
-                "Sendte melding på helsearbeidsgiver.dokument-kobling for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, vedtaksperiodeId: $vedtaksperiodeId.",
-            )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, fordi feature toggle er av.",
-            )
-        }
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for utgått inntektsmeldingsforespørsel med id: ${forespoersel.navReferanseId}, vedtaksperiodeId: $vedtaksperiodeId.",
+        )
     }
 
     private fun Inntektsmelding.Type.manglerForespoersel(): Boolean =
@@ -178,39 +152,27 @@ class DokumentkoblingService(
                 orgnr = inntektsmelding.avsender.orgnr,
                 innsendingType = InnsendingType.from(inntektsmelding.type),
             )
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(inntektsmeldingGodkjent.orgnr.verdi)) {
-            dokumentkoblingProducer.send(
-                inntektsmeldingGodkjent,
-            )
-            logger.info(
-                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Godkjent med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}.",
-            )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding Godkjent med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}",
-            )
-        }
+
+        dokumentkoblingProducer.send(inntektsmeldingGodkjent)
+
+        logger.info(
+            "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Godkjent med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}.",
+        )
     }
 
     fun produserInntektsmeldingAvvistKobling(avvistInntektsmelding: AvvistInntektsmelding) {
-        if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(avvistInntektsmelding.orgnr.verdi)) {
-            val dokumentkoblingImAvvist =
-                InntektsmeldingAvvist(
-                    inntektsmeldingId = avvistInntektsmelding.inntektsmeldingId,
-                    forespoerselId = avvistInntektsmelding.forespoerselId,
-                    vedtaksperiodeId = avvistInntektsmelding.vedtaksperiodeId,
-                    orgnr = avvistInntektsmelding.orgnr,
-                )
-            dokumentkoblingProducer.send(
-                dokumentkoblingImAvvist,
+        val dokumentkoblingImAvvist =
+            InntektsmeldingAvvist(
+                inntektsmeldingId = avvistInntektsmelding.inntektsmeldingId,
+                forespoerselId = avvistInntektsmelding.forespoerselId,
+                vedtaksperiodeId = avvistInntektsmelding.vedtaksperiodeId,
+                orgnr = avvistInntektsmelding.orgnr,
             )
-            logger.info(
-                "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Avvist med innsendingsId: ${dokumentkoblingImAvvist.inntektsmeldingId}, vedtaksperiodeId: ${dokumentkoblingImAvvist.vedtaksperiodeId}.",
-            )
-        } else {
-            logger.info(
-                "Sendte _ikke_ melding på helsearbeidsgiver.dokument-kobling for inntektsmelding Avvist med innsendingsId: ${avvistInntektsmelding.inntektsmeldingId}, vedtaksperiodeId: ${avvistInntektsmelding.vedtaksperiodeId}",
-            )
-        }
+        dokumentkoblingProducer.send(
+            dokumentkoblingImAvvist,
+        )
+        logger.info(
+            "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Avvist med innsendingsId: ${dokumentkoblingImAvvist.inntektsmeldingId}, vedtaksperiodeId: ${dokumentkoblingImAvvist.vedtaksperiodeId}.",
+        )
     }
 }

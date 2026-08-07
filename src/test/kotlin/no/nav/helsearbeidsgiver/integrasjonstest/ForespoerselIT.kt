@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -25,6 +24,7 @@ import no.nav.helsearbeidsgiver.forespoersel.ForespoerselFilter
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselResponse
 import no.nav.helsearbeidsgiver.forespoersel.Status
 import no.nav.helsearbeidsgiver.kafka.forespoersel.ForespoerselTolker
+import no.nav.helsearbeidsgiver.testcontainer.WithKafkaContainer
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -37,6 +37,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
+@WithKafkaContainer
 @WithPostgresContainer
 class ForespoerselIT {
     private lateinit var db: Database
@@ -57,7 +58,7 @@ class ForespoerselIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, unleashMock)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -76,8 +77,6 @@ class ForespoerselIT {
                 System.getProperty("database.password"),
             ).init()
         repositories = configureRepositories(db)
-
-        every { unleashMock.skalEksponereForespoersler() } returns true
 
         services = configureServices(repositories, unleashMock, db, mockk())
 

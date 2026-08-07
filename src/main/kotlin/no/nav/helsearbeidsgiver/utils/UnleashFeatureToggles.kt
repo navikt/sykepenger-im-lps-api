@@ -3,10 +3,8 @@ package no.nav.helsearbeidsgiver.utils
 import io.getunleash.DefaultUnleash
 import io.getunleash.FakeUnleash
 import io.getunleash.Unleash
-import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class UnleashFeatureToggles(
     isLocalEnv: Boolean,
@@ -28,87 +26,33 @@ class UnleashFeatureToggles(
             )
         }
 
-    fun skalOppretteDialogVedMottattSykmelding(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "opprett-dialog-ved-mottatt-sykmelding",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalOppdatereDialogVedMottattSoeknad(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "oppdater-dialog-ved-mottatt-soknad",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "forespor-inntektsmelding-via-dialogporten",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalOppdatereDialogVedMottattInntektsmelding(orgnr: String): Boolean =
-        unleashClient.isEnabled(
-            "oppdater-dialog-ved-mottatt-inntektsmelding",
-            UnleashContext.builder().addProperty("orgnr", orgnr).build(),
-            false,
-        )
-
     fun skalKonsumereSykmeldinger(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykmeldinger",
-            false,
+            true,
         )
 
     fun skalKonsumereSykepengesoeknader(): Boolean =
         unleashClient.isEnabled(
             "konsumer-sykepengesoknader",
-            false,
+            true,
         )
 
     fun skalKonsumereInntektsmeldinger(): Boolean =
         unleashClient.isEnabled(
             "konsumer-inntektsmeldinger",
-            false,
+            true,
         )
 
     fun skalKonsumereForespoersler(): Boolean =
         unleashClient.isEnabled(
             "konsumer-forespoersler",
-            false,
-        )
-
-    fun skalEksponereSykepengesoeknader(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-soeknad-i-api",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalEksponereInntektsmeldinger(): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-inntektsmeldinger-i-api",
-            false,
-        )
-
-    fun skalEksponereForespoersler(): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-forespoersler-i-api",
-            false,
-        )
-
-    fun skalEksponereSykmeldinger(orgnr: Orgnr): Boolean =
-        unleashClient.isEnabled(
-            "eksponer-sykmelding-i-api",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
+            true,
         )
 
     fun skalKonsumereStatusISpeil(): Boolean =
         unleashClient.isEnabled(
             "konsumer-status-i-speil",
-            false,
+            true,
         )
 }

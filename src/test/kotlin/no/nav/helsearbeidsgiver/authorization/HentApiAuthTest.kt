@@ -1,28 +1,20 @@
 package no.nav.helsearbeidsgiver.authorization
 
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
-import no.nav.helsearbeidsgiver.sykmelding.tilSykmeldingDTO
-import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TIGERSYS_ORGNR
-import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
-import no.nav.helsearbeidsgiver.utils.genererSykmeldingPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -44,10 +36,6 @@ abstract class HentApiAuthTest<Dokument, Filter, DokumentDTO> : ApiTest() {
     @BeforeEach
     fun setup() {
         mockPdpTilganger()
-        every { unleashFeatureToggles.skalEksponereSykepengesoeknader(TIGERSYS_ORGNR) } returns true
-        every { unleashFeatureToggles.skalEksponereForespoersler() } returns true
-        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
-        every { unleashFeatureToggles.skalEksponereSykmeldinger(TIGERSYS_ORGNR) } returns true
     }
 
     @AfterAll

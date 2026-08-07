@@ -11,7 +11,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.TestApplication
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -34,6 +33,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
+import no.nav.helsearbeidsgiver.testcontainer.WithKafkaContainer
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
@@ -54,6 +54,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.UUID
 
+@WithKafkaContainer
 @WithPostgresContainer
 class InnsendingIT {
     private lateinit var db: Database
@@ -70,7 +71,7 @@ class InnsendingIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, unleashFeatureToggles)
+                apiModule(services = services, authClient = authClient)
             }
         }
     private val client =
@@ -102,7 +103,6 @@ class InnsendingIT {
                 mottakRepository = repositories.mottakRepository,
                 services = services,
             )
-        every { unleashFeatureToggles.skalEksponereInntektsmeldinger() } returns true
     }
 
     @Test
@@ -168,7 +168,12 @@ class InnsendingIT {
         runTest {
             val navReferanseId2 = UUID.randomUUID()
             lagTestdataForMergeFsp(navReferanseId1 = navReferanseId2)
-            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR, agp = null)
+            val requestBody =
+                mockInntektsmeldingRequest().copy(
+                    navReferanseId = navReferanseId2,
+                    sykmeldtFnr = DEFAULT_FNR,
+                    agp = null,
+                )
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -183,7 +188,8 @@ class InnsendingIT {
         runTest {
             val navReferanseId2 = UUID.randomUUID()
             lagTestdataForMergeFsp(navReferanseId2 = navReferanseId2)
-            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR)
+            val requestBody =
+                mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId2, sykmeldtFnr = DEFAULT_FNR)
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
@@ -199,7 +205,8 @@ class InnsendingIT {
             val navReferanseId1 = UUID.randomUUID()
             val navReferanseId2 = UUID.randomUUID()
             lagTestdataForMergeFsp(navReferanseId1, navReferanseId2)
-            val requestBody = mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId1, sykmeldtFnr = DEFAULT_FNR)
+            val requestBody =
+                mockInntektsmeldingRequest().copy(navReferanseId = navReferanseId1, sykmeldtFnr = DEFAULT_FNR)
             val response =
                 client.post("/v1/inntektsmelding") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))

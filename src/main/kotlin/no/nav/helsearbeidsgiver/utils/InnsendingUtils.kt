@@ -102,6 +102,8 @@ fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): S
                 egenmeldingerFraForespoersel = forespoersel.egenmeldingsperioder,
                 sykmeldingsperioder = forespoersel.sykmeldingsperioder,
             ).orEmpty()
+            // MIDLERTIDIG: Ignorerer denne feilmeldingen til egenmeldingsvalideringen blir mer presis
+            .filter { it != "Egenmelding kan ikke benyttes dagen etter en sykmeldingsperiode." }
 
     return when {
         forespoersel.navReferanseId != navReferanseId -> Feilmelding.UGYLDIG_REFERANSE // sjekker for sikkerhets skyld
