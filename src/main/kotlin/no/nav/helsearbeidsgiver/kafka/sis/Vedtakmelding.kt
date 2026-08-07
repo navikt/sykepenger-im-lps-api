@@ -47,12 +47,12 @@ data class Vedtakmelding(
     @Serializable
     data class Sykepengegrunnlagsfakta(
         val fastsatt: String,
-        @SerialName("omregnetÅrsinntekt") val omregnetAarsinntekt: Double,
-        @SerialName("innrapportertÅrsinntekt") val innrapportertAarsinntekt: Double,
-        val avviksprosent: Double,
+        @SerialName("omregnetÅrsinntekt") val omregnetAarsinntekt: Double? = null, // null for selvstendig?
+        @SerialName("innrapportertÅrsinntekt") val innrapportertAarsinntekt: Double? = null,
+        val avviksprosent: Double? = null,
         @SerialName("6G") val seksG: Double,
         val tags: List<String> = emptyList(),
-        val arbeidsgivere: List<ArbeidsgiversInntekt>,
+        val arbeidsgivere: List<ArbeidsgiversInntekt> = emptyList(),
     )
 
     @Serializable
