@@ -49,33 +49,13 @@ private fun Route.soeknad(
     soeknadService: SoeknadService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    /*
-     * Tag: Sykepengesøknad
-     * Description: Hent sykepengesøknad med soeknadId.
-     * Path: soeknadId Søknad-ID (UUID).
-     * Response: 200 application/json [Sykepengesoeknad] Sykepengesøknad funnet.
-     * Response: 400 application/json [ErrorResponse] Ugyldig soeknadId.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 404 application/json [ErrorResponse] Søknad ikke funnet.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     get("/sykepengesoeknad/{soeknadId}") {
         val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
         if (soeknad != null) {
             call.respond(soeknad)
         }
-    }
+    }.describeHentSoeknad()
 
-    /*
-     * Tag: Sykepengesøknad
-     * Description: Hent sykepengesøknad som PDF.
-     * Path: soeknadId Søknad-ID (UUID).
-     * Response: 200 application/pdf PDF-fil med sykepengesøknad.
-     * Response: 400 application/json [ErrorResponse] Ugyldig soeknadId.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 404 application/json [ErrorResponse] Søknad ikke funnet.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     get("/sykepengesoeknad/{soeknadId}/pdf") {
         val soeknad = hentSoeknadMedId(soeknadService, unleashFeatureToggles)
         if (soeknad != null) {
@@ -89,7 +69,7 @@ private fun Route.soeknad(
                 call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
             }
         }
-    }
+    }.describeHentSoeknadPdf()
 }
 
 private suspend fun RoutingContext.hentSoeknadMedId(
@@ -142,15 +122,6 @@ private fun Route.filtrerSoeknader(
     soeknadService: SoeknadService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    /*
-     * Tag: Sykepengesøknad
-     * Description: Filtrer søknader på orgnr (underenhet), fnr og/eller dato søknaden ble mottatt av NAV.
-     * Body: [SykepengesoeknadFilter] Filtreringsparametre.
-     * Response: 200 application/json [Sykepengesoeknad] Liste med sykepengesøknader.
-     * Response: 400 application/json [ErrorResponse] Ugyldig forespørsel.
-     * Response: 401 application/json [ErrorResponse] Mangler tilgang til ressurs.
-     * Response: 500 application/json [ErrorResponse] Uventet feil.
-     */
     post("/sykepengesoeknader") {
         try {
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
@@ -188,7 +159,7 @@ private fun Route.filtrerSoeknader(
             sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER))
         }
-    }
+    }.describeFiltrerSoeknader()
 }
 
 fun Route.soeknadTokenX(soeknadService: SoeknadService) {
