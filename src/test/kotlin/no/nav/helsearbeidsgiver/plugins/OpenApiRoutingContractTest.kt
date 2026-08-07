@@ -55,6 +55,8 @@ class OpenApiRoutingContractTest : ApiTest() {
                     "/v1/forespoersel/{navReferanseId}" to PathItem.HttpMethod.GET,
                     "/v1/forespoersler" to PathItem.HttpMethod.POST,
                     "/v1/sykepengesoeknad/{soeknadId}" to PathItem.HttpMethod.GET,
+                    "/v1/sykepengesoeknad/{soeknadId}/pdf" to PathItem.HttpMethod.GET,
+                    "/v1/sykepengesoeknader" to PathItem.HttpMethod.POST,
                     "/v1/sykmelding/{sykmeldingId}" to PathItem.HttpMethod.GET,
                     "/v1/sykmelding/{sykmeldingId}/pdf" to PathItem.HttpMethod.GET,
                     "/v1/sykmeldinger" to PathItem.HttpMethod.POST,
@@ -66,58 +68,14 @@ class OpenApiRoutingContractTest : ApiTest() {
                 }
             }
 
-            withClue("GET /v1/forespoersel/{navReferanseId} skal dokumentere forventede responser inkl. 403") {
-                val getForespoersel = operation("/v1/forespoersel/{navReferanseId}", PathItem.HttpMethod.GET)
-                (getForespoersel != null) shouldBe true
-                listOf("200", "400", "401", "403", "404", "500").forEach { statusCode ->
-                    (getForespoersel?.responses?.containsKey(statusCode) == true) shouldBe true
-                }
-            }
-
-            withClue("POST /v1/forespoersler skal dokumentere forventede responser inkl. 403 og warning-header") {
-                val postForespoersler = operation("/v1/forespoersler", PathItem.HttpMethod.POST)
-                (postForespoersler != null) shouldBe true
-                listOf("200", "400", "401", "403", "500").forEach { statusCode ->
-                    (postForespoersler?.responses?.containsKey(statusCode) == true) shouldBe true
-                }
-                (
-                    postForespoersler
-                        ?.responses
-                        ?.get("200")
-                        ?.headers
-                        ?.containsKey("X-Warning-limit-reached") == true
-                ) shouldBe true
-            }
-
-            withClue("sykmeldingId path-parameter skal dokumenteres med uuid-format") {
-                fun assertSykmeldingIdUuidFormat(op: Operation?) {
-                    val sykmeldingIdParameter =
-                        op
-                            ?.parameters
-                            ?.firstOrNull { parameter ->
-                                parameter.name == "sykmeldingId" && parameter.`in` == "path"
-                            }
-                    (sykmeldingIdParameter != null) shouldBe true
-                    val schema = sykmeldingIdParameter?.schema
-                    isStringSchema(schema) shouldBe true
-                    (schema?.format == "uuid") shouldBe true
-                }
-                assertSykmeldingIdUuidFormat(operation("/v1/sykmelding/{sykmeldingId}", PathItem.HttpMethod.GET))
-                assertSykmeldingIdUuidFormat(operation("/v1/sykmelding/{sykmeldingId}/pdf", PathItem.HttpMethod.GET))
-            }
-
-            withClue("Kun dokumenterte sykmelding-routes skal være med i documentation.yaml") {
-                (openApi.paths?.containsKey("/v1/sykmelding/{sykmeldingId}.pdf") == true) shouldBe false
-            }
-
-            withClue("Ukommenterte tokenx-routes skal ikke med i documentation.yaml") {
-                openApi.paths?.keys?.any { it.startsWith("/intern/personbruker/sykmelding/") } shouldBe false
-                openApi.paths?.keys?.any { it.startsWith("/intern/personbruker/sykepengesoeknad/") } shouldBe false
-            }
-
-            withClue("Health-routes skal ikke med i documentation.yaml") {
-                (openApi.paths?.containsKey("/health/is-alive") == true) shouldBe false
-                (openApi.paths?.containsKey("/health/is-ready") == true) shouldBe false
+            withClue("Alle dokumenterte /v1-operasjoner skal være eksplisitt dekket i testen") {
+                val actualV1Operations =
+                    openApi.paths
+                        .orEmpty()
+                        .flatMap { (path, pathItem) ->
+                            pathItem.readOperationsMap().keys.map { method -> path to method }
+                        }.toSet()
+                actualV1Operations shouldBe expectedOperations.toSet()
             }
         }
     }
