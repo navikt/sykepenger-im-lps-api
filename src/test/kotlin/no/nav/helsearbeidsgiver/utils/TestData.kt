@@ -957,6 +957,80 @@ object TestData {
     "311368095": 564000.0
   }
 }"""
+
+    const val STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG = """
+        {
+  "fødselsnummer": "25039616648",
+  "aktørId": "2446860929051",
+  "organisasjonsnummer": "SELVSTENDIG",
+  "yrkesaktivitetstype": "SELVSTENDIG",
+  "fom": "2026-05-01",
+  "tom": "2026-05-31",
+  "skjæringstidspunkt": "2026-05-01",
+  "dokumenter": [
+    {
+      "dokumentId": "bfde99ab-60c1-40da-b32d-a44c71efbe8a",
+      "type": "Søknad"
+    },
+    {
+      "dokumentId": "0349ed92-b905-4adf-b7cc-96523ca9560e",
+      "type": "Sykmelding"
+    }
+  ],
+  "sykepengegrunnlag": 671548.0,
+  "utbetalingId": "8038547a-e62e-470c-a66d-66e74665853c",
+  "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
+  "sykepengegrunnlagsfakta": {
+    "fastsatt": "EtterHovedregel",
+    "6G": 819294.0,
+    "tags": [],
+        "selvstendig": {
+      "beregningsgrunnlag": 671548.0,
+      "pensjonsgivendeInntekter": [
+        {
+          "årstall": 2025,
+          "beløp": 600000.0
+        },
+        {
+          "årstall": 2024,
+          "beløp": 600000.0
+        },
+        {
+          "årstall": 2023,
+          "beløp": 600000.0
+        }
+      ]
+    }
+  },
+  "begrunnelser": [
+    {
+      "type": "Innvilgelse",
+      "begrunnelse": "",
+      "perioder": [
+        {
+          "fom": "2026-05-01",
+          "tom": "2026-05-31"
+        }
+      ]
+    }
+  ],
+  "tags": [],
+  "saksbehandler": {
+    "navn": "F_Z990272 E_Z990272",
+    "ident": "Z990272"
+  },
+  "beslutter": null,
+  "forsikringsvurderingId": "019fd729-1588-7710-9e35-a52a587a90cf",
+  "versjon": "1.2.2",
+  "begrensning": "ER_IKKE_6G_BEGRENSET",
+  "inntekt": 55962.333333333336,
+  "grunnlagForSykepengegrunnlag": 671548.0,
+  "grunnlagForSykepengegrunnlagPerArbeidsgiver": {
+    "SELVSTENDIG": 671548.0
+  }
+}
+
+    """
     const val API_INNSENDING_MELDING = """
          {
             "@event_name": "API_INNSENDING_STARTET",
