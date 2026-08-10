@@ -81,7 +81,7 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_FORESPOERSEL.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_FORESPOERSEL))
         }
-    }
+    }.describeHentForespoersel()
 }
 
 private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService) {
@@ -121,5 +121,5 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
             sikkerLogger().error(Feil.FEIL_VED_HENTING_FORESPOERSLER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_FORESPOERSLER))
         }
-    }
+    }.describeFiltrerForespoersler()
 }

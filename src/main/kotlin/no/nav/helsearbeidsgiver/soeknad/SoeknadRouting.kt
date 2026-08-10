@@ -47,7 +47,7 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
         if (soeknad != null) {
             call.respond(soeknad)
         }
-    }
+    }.describeHentSoeknad()
 
     get("/sykepengesoeknad/{soeknadId}/pdf") {
         val soeknad = hentSoeknadMedId(soeknadService)
@@ -62,7 +62,7 @@ private fun Route.soeknad(soeknadService: SoeknadService) {
                 call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
             }
         }
-    }
+    }.describeHentSoeknadPdf()
 }
 
 private suspend fun RoutingContext.hentSoeknadMedId(soeknadService: SoeknadService): Sykepengesoeknad? {
@@ -138,7 +138,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKEPENGESOEKNADER))
         }
-    }
+    }.describeFiltrerSoeknader()
 }
 
 fun Route.soeknadTokenX(soeknadService: SoeknadService) {

@@ -92,6 +92,7 @@ enum class InnsendingType {
         fun from(type: Inntektsmelding.Type): InnsendingType =
             when (type) {
                 is Inntektsmelding.Type.Forespurt -> FORESPURT
+
                 is Inntektsmelding.Type.Selvbestemt,
                 is Inntektsmelding.Type.Fisker,
                 is Inntektsmelding.Type.UtenArbeidsforhold,

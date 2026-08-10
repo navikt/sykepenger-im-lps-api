@@ -175,7 +175,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             sikkerLogger().error("Feil ved lagring av innsending: {$e}", e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
         }
-    }
+    }.describeSendInntektsmelding()
 }
 
 private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: InntektsmeldingService) {
@@ -212,7 +212,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
             sikkerLogger().error(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_INNTEKTSMELDINGER))
         }
-    }
+    }.describeFiltrerInntektsmeldinger()
 }
 
 private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingService) {
@@ -265,5 +265,5 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             sikkerLogger().error(Feil.FEIL_VED_HENTING_INNTEKTSMELDING.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_INNTEKTSMELDING))
         }
-    }
+    }.describeHentInntektsmelding()
 }

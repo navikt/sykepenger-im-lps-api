@@ -31,13 +31,13 @@ fun Route.inntektV1(services: Services) {
 }
 
 private fun Route.hentInntekt(services: Services) {
-    // Henter inntekter for siste 3 måndere med beregnet gjennomsnittsinntekt GET /v1/inntekt?navReferanseId=UUID&inntektsdato=yyyy-MM-dd
     get("/inntekt") {
         val navReferanseId = call.request.queryParameters["navReferanseId"]?.toUuidOrNull()
         if (navReferanseId == null) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_NAV_REFERANSE_ID))
             return@get
         }
+
         val inntektsdato =
             runCatching {
                 call.request.queryParameters["inntektsdato"]
@@ -87,5 +87,5 @@ private fun Route.hentInntekt(services: Services) {
             sikkerLogger().error("Feil ved henting av inntekt", e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
         }
-    }
+    }.describeHentInntekt()
 }
