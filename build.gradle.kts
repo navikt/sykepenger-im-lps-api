@@ -106,13 +106,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
-ktor {
-    openApi {
-        enabled = true
-        codeInferenceEnabled = false
-        onlyCommented = true
-    }
-}
+
 tasks {
     withType<Test> {
         useJUnitPlatform()
