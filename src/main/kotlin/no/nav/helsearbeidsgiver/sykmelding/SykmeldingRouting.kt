@@ -51,7 +51,8 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
         if (sykmelding != null) {
             call.respond(sykmelding)
         }
-    }
+    }.describeHentSykmelding()
+
     // TODO: Fjern denne når den ikke lenger er nødvendig
     get("/sykmelding/{sykmeldingId}.pdf") {
         call.respondText(
@@ -71,7 +72,7 @@ private fun Route.sykmelding(sykmeldingService: SykmeldingService) {
                 call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
             }
         }
-    }
+    }.describeHentSykmeldingPdf()
 }
 
 private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: SykmeldingService): Sykmelding? {
@@ -151,7 +152,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             sikkerLogger().error(Feil.FEIL_VED_HENTING_SYKMELDINGER.feilmelding, e)
             call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_SYKMELDINGER))
         }
-    }
+    }.describeFiltrerSykmeldinger()
 }
 
 fun Route.sykmeldingTokenX(sykmeldingService: SykmeldingService) {

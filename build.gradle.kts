@@ -17,6 +17,7 @@ val mockkVersion = project.property("mockkVersion") as String
 val pdpClientVersion = project.property("pdpClientVersion") as String
 val postgresqlVersion = project.property("postgresqlVersion") as String
 val swaggerVersion = project.property("swaggerVersion") as String
+val swaggerParserVersion = project.property("swaggerParserVersion") as String
 val testContainerVersion = project.property("testContainerVersion") as String
 val tokenSupportVersion = project.property("tokenSupportVersion") as String
 val unleashVersion = project.property("unleashVersion") as String
@@ -66,6 +67,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-routing-openapi:$ktorVersion")
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
@@ -94,6 +96,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("no.nav.security:mock-oauth2-server:$mockOauth2ServerVersion")
+    testImplementation("io.swagger.parser.v3:swagger-parser:$swaggerParserVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutineVersion")
@@ -103,7 +106,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
-apply(from = "openApiTasks.gradle.kts")
+
 tasks {
     withType<Test> {
         useJUnitPlatform()
