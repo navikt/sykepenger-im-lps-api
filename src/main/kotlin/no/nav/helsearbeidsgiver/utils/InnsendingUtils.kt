@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.utils
 
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Avsender
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.FlereArbeidsforhold
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Sykmeldt
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.AvsenderSystem
@@ -92,7 +93,19 @@ fun InntektsmeldingResponse.tilSkjemaInntektsmelding(eksponertForespoerselId: UU
         inntekt = inntekt,
         naturalytelser = naturalytelser,
         refusjon = refusjon,
+        flereArbeidsforhold = flereArbeidsforhold,
     )
+
+fun Inntektsmelding.Type.flereArbeidsforhold(): FlereArbeidsforhold? =
+    when (this) {
+        is Inntektsmelding.Type.Forespurt -> flereArbeidsforhold
+        is Inntektsmelding.Type.Selvbestemt -> flereArbeidsforhold
+        is Inntektsmelding.Type.Fisker,
+        is Inntektsmelding.Type.ForespurtEkstern,
+        is Inntektsmelding.Type.UtenArbeidsforhold,
+        is Inntektsmelding.Type.Behandlingsdager,
+        -> null
+    }
 
 fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): String? {
     val agpValideringsfeil =

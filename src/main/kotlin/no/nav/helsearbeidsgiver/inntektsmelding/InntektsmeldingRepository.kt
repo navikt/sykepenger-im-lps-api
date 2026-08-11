@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.FlereArbeidsforhold
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -9,6 +8,7 @@ import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.dokument
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
+import no.nav.helsearbeidsgiver.utils.flereArbeidsforhold
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
@@ -155,7 +156,7 @@ class InntektsmeldingRepository(
             inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
-            flereArbeidsforhold = this[skjema].flereArbeidsforhold,
+            flereArbeidsforhold = this[dokument].type.flereArbeidsforhold(),
             sykmeldtFnr = this[fnr],
             aarsakInnsending = this[aarsakInnsending],
             typeInnsending = this[typeInnsending],
@@ -181,16 +182,4 @@ class InntektsmeldingRepository(
             id = this[innsendingId],
         )
 
-    fun Inntektsmelding.Type.flereArbeidsforhold(): FlereArbeidsforhold? =
-        when (this) {
-            is Inntektsmelding.Type.Forespurt -> flereArbeidsforhold
-
-            is Inntektsmelding.Type.Selvbestemt -> flereArbeidsforhold
-
-            is Inntektsmelding.Type.Fisker,
-            is Inntektsmelding.Type.ForespurtEkstern,
-            is Inntektsmelding.Type.UtenArbeidsforhold,
-            is Inntektsmelding.Type.Behandlingsdager,
-            -> null
-        }
 }
