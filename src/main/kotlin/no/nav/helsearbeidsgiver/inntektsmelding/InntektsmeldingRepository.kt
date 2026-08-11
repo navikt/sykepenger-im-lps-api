@@ -181,5 +181,4 @@ class InntektsmeldingRepository(
                 },
             id = this[innsendingId],
         )
-
 }
