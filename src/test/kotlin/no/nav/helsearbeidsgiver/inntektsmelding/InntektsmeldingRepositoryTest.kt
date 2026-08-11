@@ -4,6 +4,9 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsforhold
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.FlereArbeidsforhold
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
@@ -18,6 +21,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.tilSkjema
+import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -77,6 +81,49 @@ class InntektsmeldingRepositoryTest {
         assertEquals(forventetSkjema.refusjon, result.refusjon)
         assertEquals(DEFAULT_ORG, result.arbeidsgiver.orgnr)
         assertEquals(DEFAULT_FNR, result.sykmeldtFnr)
+    }
+
+    @Test
+    fun `opprett should ta med flere arbeidsforhold fra im type`() {
+        val repository = InntektsmeldingRepository(db)
+        val forventetFlereArbeidsforhold =
+            FlereArbeidsforhold(
+                harLikLoenn = false,
+                erSykmeldtFraAlle = false,
+                arbeidsforhold =
+                    listOf(
+                        Arbeidsforhold(
+                            inkludertISykefravaer = true,
+                            yrkesbeskrivelse = "Hovedjobb",
+                            stillingsprosent = 100.0,
+                            inntekt = 500000.0,
+                        ),
+                        Arbeidsforhold(
+                            inkludertISykefravaer = false,
+                            yrkesbeskrivelse = "Ekstrajobb",
+                            stillingsprosent = 20.0,
+                            inntekt = 120000.0,
+                        ),
+                    ),
+            )
+        val inntektsmelding =
+            buildInntektsmelding()
+                .copy(
+                    type =
+                        Inntektsmelding.Type.Forespurt(
+                            id = UUID.randomUUID(),
+                            flereArbeidsforhold = forventetFlereArbeidsforhold,
+                        ),
+                )
+
+        repository.opprettInntektsmelding(im = inntektsmelding)
+
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))[0]
+
+        assertEquals(
+            forventetFlereArbeidsforhold,
+            result.tilSkjemaInntektsmelding(result.navReferanseId).flereArbeidsforhold,
+        )
     }
 
     @Test

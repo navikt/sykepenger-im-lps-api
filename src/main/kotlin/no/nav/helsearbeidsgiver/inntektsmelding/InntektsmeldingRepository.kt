@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.FlereArbeidsforhold
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
@@ -57,6 +58,7 @@ class InntektsmeldingRepository(
                         im.inntekt,
                         im.naturalytelser,
                         im.refusjon,
+                        im.type.flereArbeidsforhold(),
                     )
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
@@ -153,6 +155,7 @@ class InntektsmeldingRepository(
             inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
+            flereArbeidsforhold = this[skjema].flereArbeidsforhold,
             sykmeldtFnr = this[fnr],
             aarsakInnsending = this[aarsakInnsending],
             typeInnsending = this[typeInnsending],
@@ -177,4 +180,17 @@ class InntektsmeldingRepository(
                 },
             id = this[innsendingId],
         )
+
+    fun Inntektsmelding.Type.flereArbeidsforhold(): FlereArbeidsforhold? =
+        when (this) {
+            is Inntektsmelding.Type.Forespurt -> flereArbeidsforhold
+
+            is Inntektsmelding.Type.Selvbestemt -> flereArbeidsforhold
+
+            is Inntektsmelding.Type.Fisker,
+            is Inntektsmelding.Type.ForespurtEkstern,
+            is Inntektsmelding.Type.UtenArbeidsforhold,
+            is Inntektsmelding.Type.Behandlingsdager,
+            -> null
+        }
 }
