@@ -270,10 +270,11 @@ class MeldingTolkerTest {
             STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER.removeJsonWhitespace()
         val sisVedtakMeldingJson3 =
             STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG.removeJsonWhitespace()
+
         assertDoesNotThrow {
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson)
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson2)
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson3)
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson2.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson3.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
         }
         verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
         verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }

@@ -73,12 +73,9 @@ Konfigurasjonsfila `src/test/resources/application.conf` og test-bolken i `build
 
 # OpenApi dokumentasjon
 
-Prosjektet bruker Ktor OpenAPI-plugin i IntelliJ for å generere OpenAPI-dokumentasjon. 
-Siden den genererte filen trenger oppdatering, er det lagt til en Gradle-task som modifiserer denne filen. Kjør
-```shell
-./gradlew modifyOpenApi
-``` 
-for å modifisere OpenAPI-dokumentasjonen.
+Genereres automatisk.
+https://sykepenger-api.ekstern.dev.nav.no/swagger
+
 
 # Henvendelser
 

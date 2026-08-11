@@ -11,7 +11,7 @@ class InntektsmeldingService(
 ) {
     fun hentNyesteInntektsmeldingByNavReferanseId(navReferanseId: UUID): InntektsmeldingResponse? {
         runCatching {
-            sikkerLogger().info("Henter inntektsmeldinger for forespoerelId: $navReferanseId")
+            sikkerLogger().info("Henter inntektsmeldinger for forespoerselId: $navReferanseId")
             inntektsmeldingRepository.hent(navReferanseId).maxByOrNull { it.innsendtTid }
         }.onSuccess {
             sikkerLogger().info("Hentet siste Inntektsmelding for forespoerselId: $navReferanseId")

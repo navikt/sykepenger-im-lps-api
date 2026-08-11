@@ -839,7 +839,7 @@ object TestData {
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING = """
   {
-  "fødselsnummer": "27479514394",
+  "fødselsnummer": "%%%FNR%%%",
   "aktørId": "2762497247068",
   "organisasjonsnummer": "896929119",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
@@ -910,7 +910,7 @@ object TestData {
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER = """
         {
-  "fødselsnummer": "20509316237",
+  "fødselsnummer": "%%%FNR%%%",
   "aktørId": "2520195733269",
   "organisasjonsnummer": "311368095",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
@@ -960,7 +960,7 @@ object TestData {
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG = """
         {
-  "fødselsnummer": "25039616648",
+  "fødselsnummer": "%%%FNR%%%",
   "aktørId": "2446860929051",
   "organisasjonsnummer": "SELVSTENDIG",
   "yrkesaktivitetstype": "SELVSTENDIG",
