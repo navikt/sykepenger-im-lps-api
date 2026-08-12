@@ -86,7 +86,6 @@ class InntektsmeldingRepositoryTest {
     fun `opprett skal ta med flere arbeidsforhold dersom det finnes flere arbeidsforhold i inntektsmeldingen`() {
         val repository = InntektsmeldingRepository(db)
         val inntektsmeldingId = UUID.randomUUID()
-        val forespoerselId = UUID.randomUUID()
         val flereArbeidsforhold =
             FlereArbeidsforhold(
                 harLikLoenn = false,
@@ -108,7 +107,7 @@ class InntektsmeldingRepositoryTest {
                     ),
             )
         val inntektsmeldingJson =
-            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId).copy(
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId).copy(
                 type =
                     Inntektsmelding.Type.Forespurt(
                         id = UUID.randomUUID(),
@@ -120,7 +119,7 @@ class InntektsmeldingRepositoryTest {
             im = inntektsmeldingJson,
         )
         val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))[0]
-
+        assertEquals(inntektsmeldingJson.id, result.id)
         assertEquals(
             flereArbeidsforhold,
             result.flereArbeidsforhold,
