@@ -100,11 +100,7 @@ fun Inntektsmelding.Type.flereArbeidsforhold(): FlereArbeidsforhold? =
     when (this) {
         is Inntektsmelding.Type.Forespurt -> flereArbeidsforhold
         is Inntektsmelding.Type.Selvbestemt -> flereArbeidsforhold
-        is Inntektsmelding.Type.Fisker,
-        is Inntektsmelding.Type.ForespurtEkstern,
-        is Inntektsmelding.Type.UtenArbeidsforhold,
-        is Inntektsmelding.Type.Behandlingsdager,
-        -> null
+        else -> null
     }
 
 fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): String? {

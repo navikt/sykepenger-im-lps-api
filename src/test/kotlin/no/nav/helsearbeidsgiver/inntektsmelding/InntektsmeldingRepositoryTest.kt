@@ -21,7 +21,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.tilSkjema
-import no.nav.helsearbeidsgiver.utils.tilSkjemaInntektsmelding
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -84,9 +83,11 @@ class InntektsmeldingRepositoryTest {
     }
 
     @Test
-    fun `opprett should ta med flere arbeidsforhold fra im type`() {
+    fun `opprett skal ta med flere arbeidsforhold dersom det finnes flere arbeidsforhold i inntektsmeldingen`() {
         val repository = InntektsmeldingRepository(db)
-        val forventetFlereArbeidsforhold =
+        val inntektsmeldingId = UUID.randomUUID()
+        val forespoerselId = UUID.randomUUID()
+        val flereArbeidsforhold =
             FlereArbeidsforhold(
                 harLikLoenn = false,
                 erSykmeldtFraAlle = false,
@@ -95,34 +96,34 @@ class InntektsmeldingRepositoryTest {
                         Arbeidsforhold(
                             inkludertISykefravaer = true,
                             yrkesbeskrivelse = "Hovedjobb",
-                            stillingsprosent = 100.0,
+                            stillingsprosent = 80.0,
                             inntekt = 500000.0,
                         ),
                         Arbeidsforhold(
                             inkludertISykefravaer = false,
                             yrkesbeskrivelse = "Ekstrajobb",
                             stillingsprosent = 20.0,
-                            inntekt = 120000.0,
+                            inntekt = 12000.0,
                         ),
                     ),
             )
-        val inntektsmelding =
-            buildInntektsmelding()
-                .copy(
-                    type =
-                        Inntektsmelding.Type.Forespurt(
-                            id = UUID.randomUUID(),
-                            flereArbeidsforhold = forventetFlereArbeidsforhold,
-                        ),
-                )
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId, forespoerselId = forespoerselId).copy(
+                type =
+                    Inntektsmelding.Type.Forespurt(
+                        id = UUID.randomUUID(),
+                        flereArbeidsforhold = flereArbeidsforhold,
+                    ),
+            )
 
-        repository.opprettInntektsmelding(im = inntektsmelding)
-
+        repository.opprettInntektsmelding(
+            im = inntektsmeldingJson,
+        )
         val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))[0]
 
         assertEquals(
-            forventetFlereArbeidsforhold,
-            result.tilSkjemaInntektsmelding(result.navReferanseId).flereArbeidsforhold,
+            flereArbeidsforhold,
+            result.flereArbeidsforhold,
         )
     }
 
