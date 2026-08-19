@@ -4,6 +4,9 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsforhold
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.FlereArbeidsforhold
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
@@ -77,6 +80,50 @@ class InntektsmeldingRepositoryTest {
         assertEquals(forventetSkjema.refusjon, result.refusjon)
         assertEquals(DEFAULT_ORG, result.arbeidsgiver.orgnr)
         assertEquals(DEFAULT_FNR, result.sykmeldtFnr)
+    }
+
+    @Test
+    fun `opprett skal ta med flere arbeidsforhold dersom det finnes flere arbeidsforhold i inntektsmeldingen`() {
+        val repository = InntektsmeldingRepository(db)
+        val inntektsmeldingId = UUID.randomUUID()
+        val flereArbeidsforhold =
+            FlereArbeidsforhold(
+                harLikLoenn = false,
+                erSykmeldtFraAlle = false,
+                arbeidsforhold =
+                    listOf(
+                        Arbeidsforhold(
+                            inkludertISykefravaer = true,
+                            yrkesbeskrivelse = "Hovedjobb",
+                            stillingsprosent = 80.0,
+                            inntekt = 500000.0,
+                        ),
+                        Arbeidsforhold(
+                            inkludertISykefravaer = false,
+                            yrkesbeskrivelse = "Ekstrajobb",
+                            stillingsprosent = 20.0,
+                            inntekt = 12000.0,
+                        ),
+                    ),
+            )
+        val inntektsmeldingJson =
+            buildInntektsmelding(inntektsmeldingId = inntektsmeldingId).copy(
+                type =
+                    Inntektsmelding.Type.Forespurt(
+                        id = UUID.randomUUID(),
+                        flereArbeidsforhold = flereArbeidsforhold,
+                    ),
+            )
+
+        repository.opprettInntektsmelding(
+            im = inntektsmeldingJson,
+        )
+        val result = repository.hent(filter = InntektsmeldingFilter(orgnr = DEFAULT_ORG))[0]
+        assertEquals(inntektsmeldingJson.id, result.id)
+        assertEquals(
+            flereArbeidsforhold,
+            result.flereArbeidsforhold,
+        )
     }
 
     @Test

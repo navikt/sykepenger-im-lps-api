@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
+import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.dokument
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
@@ -20,6 +21,7 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.skjema
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.status
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.typeInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.versjon
+import no.nav.helsearbeidsgiver.utils.flereArbeidsforhold
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
@@ -57,6 +59,7 @@ class InntektsmeldingRepository(
                         im.inntekt,
                         im.naturalytelser,
                         im.refusjon,
+                        im.type.flereArbeidsforhold(),
                     )
                 it[aarsakInnsending] = im.aarsakInnsending
                 it[typeInnsending] = InnsendingType.from(im.type)
@@ -153,6 +156,7 @@ class InntektsmeldingRepository(
             inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
+            flereArbeidsforhold = this[dokument].type.flereArbeidsforhold(),
             sykmeldtFnr = this[fnr],
             aarsakInnsending = this[aarsakInnsending],
             typeInnsending = this[typeInnsending],
