@@ -45,7 +45,9 @@ import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_STATUS_VENTER
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_UTEN_EVENT_NAME
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING
+import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_ORGNR_ER_SELVSTENDIG_STRENG
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
@@ -241,6 +243,18 @@ class MeldingTolkerTest {
     }
 
     @Test
+    fun `StatusISpeilTolker lesMelding klarer å deserialisere Behandlingstatusmelding uten eventName`() {
+        every { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) } just Runs
+        every { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) } just Runs
+        every { service.dokumentkoblingService.produserVedtaksperiodeSoeknadKobling(any(), any()) } just Runs
+        val sisMeldingJson =
+            STATUS_I_SPLEIS_MELDING_UTEN_EVENT_NAME.removeJsonWhitespace()
+        assertDoesNotThrow {
+            tolkere.statusISpeilTolker.lesMelding(sisMeldingJson)
+        }
+    }
+
+    @Test
     fun `StatusISpeilTolker lesMelding ignorerer Behandlingstatusmelding uten eksternSoknadIder`() {
         val sisMeldingJson =
             STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID.removeJsonWhitespace()
@@ -268,16 +282,31 @@ class MeldingTolkerTest {
             STATUS_I_SPLEIS_VEDTAK_MELDING.removeJsonWhitespace()
         val sisVedtakMeldingJson2 =
             STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER.removeJsonWhitespace()
-        val sisVedtakMeldingJson3 =
-            STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG.removeJsonWhitespace()
 
         assertDoesNotThrow {
             tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
             tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson2.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson3.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
         }
         verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
         verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding feiler når organisasjonsnummer mangler`() {
+        val sisVedtakMeldingJson =
+            STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG.removeJsonWhitespace()
+        assertThrows<SerializationException> {
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
+        }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding feiler når organisasjonsnummer er strengen SELVSTENDIG`() {
+        val sisVedtakMeldingJson =
+            STATUS_I_SPLEIS_VEDTAK_MELDING_ORGNR_ER_SELVSTENDIG_STRENG.removeJsonWhitespace()
+        assertThrows<IllegalArgumentException> {
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
+        }
     }
 
     @Test

@@ -1,13 +1,12 @@
 package no.nav.helsearbeidsgiver.kafka.sis
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.jsonObject
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
-import no.nav.helsearbeidsgiver.utils.json.parseJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
@@ -21,16 +20,10 @@ class StatusISpeilTolker(
 
     override fun lesMelding(melding: String) {
         try {
-            val json = melding.parseJson().jsonObject
-            when {
-                "vedtakFattetTidspunkt" in json -> parseVedtakmelding(melding.fromJson(Vedtakmelding.serializer()))
-                "status" in json -> parseBehandlingstatusmelding(melding.fromJson(Behandlingstatusmelding.serializer()))
-                else -> {
-                    val errorMsg = "Ukjent meldingsformat, kan ikke lese melding."
-                    logger.error(errorMsg)
-                    sikkerLogger.error(errorMsg)
-                    throw SerializationException(errorMsg)
-                }
+            // Vi antar behandlingstatus-melding dersom vi ikke får noe EventName
+            when (melding.fromJson(EventNameWrapper.serializer()).eventName ?: SisEventName.BEHANDLINGSTATUS) {
+                SisEventName.VEDTAK_FATTET -> parseVedtakArbeidsgiverMelding(melding.fromJson(VedtakArbeidsgiverMelding.serializer()))
+                SisEventName.BEHANDLINGSTATUS -> parseBehandlingstatusmelding(melding.fromJson(Behandlingstatusmelding.serializer()))
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på melding, melding=$melding", serializationException)
@@ -43,9 +36,16 @@ class StatusISpeilTolker(
         }
     }
 
-    private fun parseVedtakmelding(vedtakmelding: Vedtakmelding) {
+    private fun parseVedtakArbeidsgiverMelding(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
+        if (vedtakArbeidsgiverMelding.yrkesaktivitetstype != Yrkesaktivitetstype.ARBEIDSTAKER) {
+            logger.warn(
+                "Ignorerer vedtak for vedtaksperiodeId ${vedtakArbeidsgiverMelding.vedtaksperiodeId} " +
+                    "med yrkesaktivitetstype ${vedtakArbeidsgiverMelding.yrkesaktivitetstype}, kun ARBEIDSTAKER støttes.",
+            )
+            return
+        }
         logger.info("Leste vedtak")
-        sikkerLogger.info("Leste vedtak: " + vedtakmelding.toString())
+        sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
     }
 
     private fun parseBehandlingstatusmelding(behandlingstatusmelding: Behandlingstatusmelding) {
@@ -83,3 +83,8 @@ class StatusISpeilTolker(
         }
     }
 }
+
+@Serializable
+private data class EventNameWrapper(
+    val eventName: SisEventName? = null,
+)

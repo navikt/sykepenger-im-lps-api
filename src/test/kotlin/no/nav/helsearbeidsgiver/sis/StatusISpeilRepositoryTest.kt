@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.configureRepositories
 import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
+import no.nav.helsearbeidsgiver.kafka.sis.SisEventName
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
 import org.jetbrains.exposed.sql.Database
@@ -37,6 +38,7 @@ class StatusISpeilRepositoryTest {
         val vedtaksperiodeId = UUID.randomUUID()
         val behandlingstatusmelding =
             Behandlingstatusmelding(
+                eventName = SisEventName.BEHANDLINGSTATUS,
                 vedtaksperiodeId = vedtaksperiodeId,
                 behandlingId = UUID.randomUUID(),
                 tidspunkt = OffsetDateTime.now(),
@@ -53,6 +55,7 @@ class StatusISpeilRepositoryTest {
         val vedtaksperiodeId = UUID.randomUUID()
         val behandlingstatusmelding =
             Behandlingstatusmelding(
+                eventName = SisEventName.BEHANDLINGSTATUS,
                 vedtaksperiodeId = vedtaksperiodeId,
                 behandlingId = UUID.randomUUID(),
                 tidspunkt = OffsetDateTime.now(),
@@ -73,6 +76,7 @@ class StatusISpeilRepositoryTest {
         val vedtaksperiodeId = UUID.randomUUID()
         val behandlingstatusmelding =
             Behandlingstatusmelding(
+                eventName = SisEventName.BEHANDLINGSTATUS,
                 vedtaksperiodeId = vedtaksperiodeId,
                 behandlingId = UUID.randomUUID(),
                 tidspunkt = OffsetDateTime.now(),

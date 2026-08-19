@@ -806,6 +806,20 @@ object TestData {
 
     const val STATUS_I_SPLEIS_MELDING = """
         {
+            "eventName": "behandlingstatus",
+            "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
+            "behandlingId": "5ea3b4ce-988e-4c01-9a35-3a449f11be62",
+            "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
+            "status": "OPPRETTET",
+            "eksterneSøknadIder": [
+                "9e088b5a-16c8-3dcc-91fb-acdd544b8607"
+            ],
+            "versjon": "2.0.2"
+        }
+    """
+
+    const val STATUS_I_SPLEIS_MELDING_UTEN_EVENT_NAME = """
+        {
             "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
             "behandlingId": "5ea3b4ce-988e-4c01-9a35-3a449f11be62",
             "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
@@ -819,6 +833,7 @@ object TestData {
 
     const val STATUS_I_SPLEIS_MELDING_STATUS_VENTER = """
         {
+            "eventName": "behandlingstatus",
             "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
             "behandlingId": "5ea3b4ce-988e-4c01-9a35-3a449f11be62",
             "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
@@ -829,6 +844,7 @@ object TestData {
 
     const val STATUS_I_SPLEIS_MELDING_MANGLER_EKSTERN_SOKNAD_ID = """
         {
+            "eventName": "behandlingstatus",
             "vedtaksperiodeId": "3e377f98-1801-4fd2-8d14-cf95d2b831fa",
             "behandlingId": "5ea3b4ce-988e-4c01-9a35-3a449f11be62",
             "tidspunkt": "2025-06-05T16:15:46.320069203+02:00",
@@ -839,10 +855,11 @@ object TestData {
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING = """
   {
+  "eventName": "vedtak_fattet",
   "fødselsnummer": "%%%FNR%%%",
-  "aktørId": "2762497247068",
   "organisasjonsnummer": "896929119",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
+  "vedtaksperiodeId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
   "fom": "2026-07-28",
   "tom": "2026-08-03",
   "skjæringstidspunkt": "2026-07-01",
@@ -857,63 +874,36 @@ object TestData {
     }
   ],
   "sykepengegrunnlag": 154999.91999999998,
-  "utbetalingId": "a722c0fe-66ba-495e-b6c9-02b75f0b6cfe",
-  "vedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
-  "sykepengegrunnlagsfakta": {
-    "fastsatt": "EtterHovedregel",
-    "omregnetÅrsinntekt": 154999.92,
-    "innrapportertÅrsinntekt": 186000.0,
-    "avviksprosent": 16.6667,
-    "6G": 819294.0,
-    "tags": [],
-    "arbeidsgivere": [
-      {
-        "arbeidsgiver": "896929119",
-        "omregnetÅrsinntekt": 154999.92
-      }
-    ]
-  },
-  "begrunnelser": [
+  "utbetalingsdager": [
     {
-      "type": "Innvilgelse",
-      "begrunnelse": "",
-      "perioder": [
-        {
-          "fom": "2026-07-28",
-          "tom": "2026-08-03"
-        }
-      ]
+      "dato": "2026-07-28",
+      "type": "NavDag",
+      "sykdomsgrad": 100,
+      "dekningsgrad": 100,
+      "beløpTilBruker": 0,
+      "beløpTilArbeidsgiver": 1431,
+      "begrunnelser": []
     }
   ],
-  "tags": [
-    "SykepengegrunnlagUnder2G"
-  ],
-  "saksbehandler": {
-    "navn": "J173350",
-    "ident": "J173350"
-  },
-  "beslutter": {
-    "navn": "J173350",
-    "ident": "J173350"
-  },
-  "forsikringsvurderingId": null,
-  "versjon": "1.2.2",
-  "begrensning": "ER_IKKE_6G_BEGRENSET",
-  "inntekt": 12916.660000000002,
-  "grunnlagForSykepengegrunnlag": 154999.92,
-  "grunnlagForSykepengegrunnlagPerArbeidsgiver": {
-    "896929119": 154999.92
-  }
+  "vedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
+  "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
+  "saksbehandlerIdent": "L1337",
+  "saksbehandlerNavn": "Leif Saksbehandler Saksbehandlersen",
+  "beslutterIdent": "M1337",
+  "beslutterNavn": "Mons Beslutter Besluttersen",
+  "automatiskFattet": false,
+  "harArbeidsgiverØnsketRefusjon": true
 }
 
     """
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER = """
         {
+  "eventName": "vedtak_fattet",
   "fødselsnummer": "%%%FNR%%%",
-  "aktørId": "2520195733269",
   "organisasjonsnummer": "311368095",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
+  "vedtaksperiodeId": "9338a6a1-e3c1-45fc-ab9d-ebfa792591e2",
   "fom": "2026-05-03",
   "tom": "2026-05-30",
   "skjæringstidspunkt": "2026-05-03",
@@ -928,42 +918,34 @@ object TestData {
     }
   ],
   "sykepengegrunnlag": 564000.0,
-  "utbetalingId": "9338a6a1-e3c1-45fc-ab9d-ebfa792591e2",
+  "utbetalingsdager": [
+    {
+      "dato": "2026-05-03",
+      "type": "ArbeidsgiverperiodeDag",
+      "sykdomsgrad": 100,
+      "dekningsgrad": 100,
+      "beløpTilBruker": 0,
+      "beløpTilArbeidsgiver": 0,
+      "begrunnelser": []
+    }
+  ],
   "vedtakFattetTidspunkt": "2026-08-05T15:29:07.150668023",
-  "sykepengegrunnlagsfakta": {
-    "fastsatt": "EtterHovedregel",
-    "omregnetÅrsinntekt": 564000.0,
-    "innrapportertÅrsinntekt": 564000.0,
-    "avviksprosent": 0.0,
-    "6G": 819294.0,
-    "tags": [],
-    "arbeidsgivere": [
-      {
-        "arbeidsgiver": "311368095",
-        "omregnetÅrsinntekt": 564000.0
-      }
-    ]
-  },
-  "begrunnelser": [],
-  "tags": [],
-  "saksbehandler": null,
-  "beslutter": null,
-  "forsikringsvurderingId": null,
-  "versjon": "1.2.2",
-  "begrensning": "ER_IKKE_6G_BEGRENSET",
-  "inntekt": 47000.0,
-  "grunnlagForSykepengegrunnlag": 564000.0,
-  "grunnlagForSykepengegrunnlagPerArbeidsgiver": {
-    "311368095": 564000.0
-  }
+  "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
+  "saksbehandlerIdent": null,
+  "saksbehandlerNavn": null,
+  "beslutterIdent": null,
+  "beslutterNavn": null,
+  "automatiskFattet": true,
+  "harArbeidsgiverØnsketRefusjon": true
 }"""
 
     const val STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG = """
         {
+  "eventName": "vedtak_fattet",
   "fødselsnummer": "%%%FNR%%%",
-  "aktørId": "2446860929051",
-  "organisasjonsnummer": "SELVSTENDIG",
+  "organisasjonsnummer": null,
   "yrkesaktivitetstype": "SELVSTENDIG",
+  "vedtaksperiodeId": "8038547a-e62e-470c-a66d-66e74665853c",
   "fom": "2026-05-01",
   "tom": "2026-05-31",
   "skjæringstidspunkt": "2026-05-01",
@@ -978,56 +960,69 @@ object TestData {
     }
   ],
   "sykepengegrunnlag": 671548.0,
-  "utbetalingId": "8038547a-e62e-470c-a66d-66e74665853c",
-  "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
-  "sykepengegrunnlagsfakta": {
-    "fastsatt": "EtterHovedregel",
-    "6G": 819294.0,
-    "tags": [],
-        "selvstendig": {
-      "beregningsgrunnlag": 671548.0,
-      "pensjonsgivendeInntekter": [
-        {
-          "årstall": 2025,
-          "beløp": 600000.0
-        },
-        {
-          "årstall": 2024,
-          "beløp": 600000.0
-        },
-        {
-          "årstall": 2023,
-          "beløp": 600000.0
-        }
-      ]
-    }
-  },
-  "begrunnelser": [
+  "utbetalingsdager": [
     {
-      "type": "Innvilgelse",
-      "begrunnelse": "",
-      "perioder": [
-        {
-          "fom": "2026-05-01",
-          "tom": "2026-05-31"
-        }
-      ]
+      "dato": "2026-05-01",
+      "type": "NavDag",
+      "sykdomsgrad": 100,
+      "dekningsgrad": 100,
+      "beløpTilBruker": 1431,
+      "beløpTilArbeidsgiver": 0,
+      "begrunnelser": []
     }
   ],
-  "tags": [],
-  "saksbehandler": {
-    "navn": "F_Z990272 E_Z990272",
-    "ident": "Z990272"
-  },
-  "beslutter": null,
-  "forsikringsvurderingId": "019fd729-1588-7710-9e35-a52a587a90cf",
-  "versjon": "1.2.2",
-  "begrensning": "ER_IKKE_6G_BEGRENSET",
-  "inntekt": 55962.333333333336,
-  "grunnlagForSykepengegrunnlag": 671548.0,
-  "grunnlagForSykepengegrunnlagPerArbeidsgiver": {
-    "SELVSTENDIG": 671548.0
-  }
+  "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
+  "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
+  "saksbehandlerIdent": "L1337",
+  "saksbehandlerNavn": "Leif Saksbehandler Saksbehandlersen",
+  "beslutterIdent": null,
+  "beslutterNavn": null,
+  "automatiskFattet": false,
+  "harArbeidsgiverØnsketRefusjon": false
+}
+
+    """
+
+    const val STATUS_I_SPLEIS_VEDTAK_MELDING_ORGNR_ER_SELVSTENDIG_STRENG = """
+        {
+  "eventName": "vedtak_fattet",
+  "fødselsnummer": "%%%FNR%%%",
+  "organisasjonsnummer": "SELVSTENDIG",
+  "yrkesaktivitetstype": "SELVSTENDIG",
+  "vedtaksperiodeId": "8038547a-e62e-470c-a66d-66e74665853c",
+  "fom": "2026-05-01",
+  "tom": "2026-05-31",
+  "skjæringstidspunkt": "2026-05-01",
+  "dokumenter": [
+    {
+      "dokumentId": "bfde99ab-60c1-40da-b32d-a44c71efbe8a",
+      "type": "Søknad"
+    },
+    {
+      "dokumentId": "0349ed92-b905-4adf-b7cc-96523ca9560e",
+      "type": "Sykmelding"
+    }
+  ],
+  "sykepengegrunnlag": 671548.0,
+  "utbetalingsdager": [
+    {
+      "dato": "2026-05-01",
+      "type": "NavDag",
+      "sykdomsgrad": 100,
+      "dekningsgrad": 100,
+      "beløpTilBruker": 1431,
+      "beløpTilArbeidsgiver": 0,
+      "begrunnelser": []
+    }
+  ],
+  "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
+  "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
+  "saksbehandlerIdent": "L1337",
+  "saksbehandlerNavn": "Leif Saksbehandler Saksbehandlersen",
+  "beslutterIdent": null,
+  "beslutterNavn": null,
+  "automatiskFattet": false,
+  "harArbeidsgiverØnsketRefusjon": false
 }
 
     """

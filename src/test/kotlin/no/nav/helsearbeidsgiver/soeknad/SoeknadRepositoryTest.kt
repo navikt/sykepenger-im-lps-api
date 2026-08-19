@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
+import no.nav.helsearbeidsgiver.kafka.sis.SisEventName
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadEntitet.soeknadId
@@ -193,6 +194,7 @@ class SoeknadRepositoryTest {
         val soeknaderMedVedtaksperiodeId = soeknader.take(2)
         statusISpeilRepository.lagreNyeSoeknaderOgStatuser(
             Behandlingstatusmelding(
+                eventName = SisEventName.BEHANDLINGSTATUS,
                 vedtaksperiodeId = vedtaksperiodeId,
                 behandlingId = UUID.randomUUID(),
                 tidspunkt = OffsetDateTime.now(),
