@@ -45,7 +45,6 @@ enum class Yrkesaktivitetstype {
     ARBEIDSLEDIG,
 }
 
-
 @Serializable
 enum class VedtaksUtfall {
     AVSLAG,

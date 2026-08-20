@@ -20,10 +20,9 @@ class StatusISpeilTolker(
 
     override fun lesMelding(melding: String) {
         try {
-            // Vi antar behandlingstatus-melding dersom vi ikke får noe EventName
-            when (melding.fromJson(EventNameWrapper.serializer()).eventName ?: SisEventName.BEHANDLINGSTATUS) {
-                SisEventName.VEDTAK_FATTET -> parseVedtakArbeidsgiverMelding(melding.fromJson(VedtakArbeidsgiverMelding.serializer()))
+            when (parseEventName(melding)) {
                 SisEventName.BEHANDLINGSTATUS -> parseBehandlingstatusmelding(melding.fromJson(Behandlingstatusmelding.serializer()))
+                SisEventName.VEDTAK_FATTET -> parseVedtakArbeidsgiverMelding(melding.fromJson(VedtakArbeidsgiverMelding.serializer()))
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på melding, melding=$melding", serializationException)
@@ -36,17 +35,9 @@ class StatusISpeilTolker(
         }
     }
 
-    private fun parseVedtakArbeidsgiverMelding(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
-        if (vedtakArbeidsgiverMelding.yrkesaktivitetstype != Yrkesaktivitetstype.ARBEIDSTAKER) {
-            logger.warn(
-                "Ignorerer vedtak for vedtaksperiodeId ${vedtakArbeidsgiverMelding.vedtaksperiodeId} " +
-                    "med yrkesaktivitetstype ${vedtakArbeidsgiverMelding.yrkesaktivitetstype}, kun ARBEIDSTAKER støttes.",
-            )
-            return
-        }
-        logger.info("Leste vedtak")
-        sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
-    }
+    private fun parseEventName(melding: String): SisEventName =
+        // Vi antar behandlingstatus-melding dersom vi ikke får noe eventName
+        melding.fromJson(EventNameWrapper.serializer()).eventName ?: SisEventName.BEHANDLINGSTATUS
 
     private fun parseBehandlingstatusmelding(behandlingstatusmelding: Behandlingstatusmelding) {
         logger.debug(
@@ -81,6 +72,18 @@ class StatusISpeilTolker(
                 statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
             }
         }
+    }
+
+    private fun parseVedtakArbeidsgiverMelding(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
+        if (vedtakArbeidsgiverMelding.yrkesaktivitetstype != Yrkesaktivitetstype.ARBEIDSTAKER) {
+            logger.warn(
+                "Ignorerer vedtak for vedtaksperiodeId ${vedtakArbeidsgiverMelding.vedtaksperiodeId} " +
+                    "med yrkesaktivitetstype ${vedtakArbeidsgiverMelding.yrkesaktivitetstype}, kun ARBEIDSTAKER støttes.",
+            )
+            return
+        }
+        logger.info("Leste vedtak")
+        sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
     }
 }
 
