@@ -11,6 +11,7 @@ import java.util.UUID
 
 @Serializable
 data class Behandlingstatusmelding(
+    val eventName: SisEventName = SisEventName.BEHANDLINGSTATUS,
     val vedtaksperiodeId: UUID,
     val behandlingId: UUID,
     val tidspunkt: OffsetDateTime,
