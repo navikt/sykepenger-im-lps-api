@@ -36,7 +36,7 @@ class StatusISpeilTolker(
 
     private fun parseEventName(melding: String): SisEventName =
         // Vi antar behandlingstatus-melding dersom vi ikke får noe eventName
-        melding.fromJson(EventNameWrapper.serializer()).eventName ?: SisEventName.BEHANDLINGSTATUS
+        melding.fromJson(SisEventNameWrapper.serializer()).eventName ?: SisEventName.BEHANDLINGSTATUS
 
     private fun parseBehandlingstatusmelding(melding: String) {
         val behandlingstatusmelding = melding.fromJson(Behandlingstatusmelding.serializer())

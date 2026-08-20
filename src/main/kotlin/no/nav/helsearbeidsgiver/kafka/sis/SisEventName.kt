@@ -13,6 +13,6 @@ enum class SisEventName {
 }
 
 @Serializable
-data class EventNameWrapper(
+data class SisEventNameWrapper(
     val eventName: SisEventName? = null,
 )
