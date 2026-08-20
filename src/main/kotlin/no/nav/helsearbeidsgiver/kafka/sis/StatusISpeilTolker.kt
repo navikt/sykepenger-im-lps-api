@@ -21,8 +21,8 @@ class StatusISpeilTolker(
     override fun lesMelding(melding: String) {
         try {
             when (parseEventName(melding)) {
-                SisEventName.BEHANDLINGSTATUS -> parseBehandlingstatusmelding(melding.fromJson(Behandlingstatusmelding.serializer()))
-                SisEventName.VEDTAK_FATTET -> parseVedtakArbeidsgiverMelding(melding.fromJson(VedtakArbeidsgiverMelding.serializer()))
+                SisEventName.BEHANDLINGSTATUS -> parseBehandlingstatusmelding(melding)
+                SisEventName.VEDTAK_FATTET -> parseVedtakArbeidsgiverMelding(melding)
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på melding, melding=$melding", serializationException)
@@ -39,7 +39,8 @@ class StatusISpeilTolker(
         // Vi antar behandlingstatus-melding dersom vi ikke får noe eventName
         melding.fromJson(EventNameWrapper.serializer()).eventName ?: SisEventName.BEHANDLINGSTATUS
 
-    private fun parseBehandlingstatusmelding(behandlingstatusmelding: Behandlingstatusmelding) {
+    private fun parseBehandlingstatusmelding(melding: String) {
+        val behandlingstatusmelding = melding.fromJson(Behandlingstatusmelding.serializer())
         logger.debug(
             "Mottok status-i-speil-melding med status {}, vedtaksperiodeId {} og eksterneSøknadIder {}.",
             behandlingstatusmelding.status,
@@ -74,7 +75,8 @@ class StatusISpeilTolker(
         }
     }
 
-    private fun parseVedtakArbeidsgiverMelding(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
+    private fun parseVedtakArbeidsgiverMelding(melding: String) {
+        val vedtakArbeidsgiverMelding = melding.fromJson(VedtakArbeidsgiverMelding.serializer())
         if (vedtakArbeidsgiverMelding.yrkesaktivitetstype != Yrkesaktivitetstype.ARBEIDSTAKER) {
             logger.warn(
                 "Ignorerer vedtak for vedtaksperiodeId ${vedtakArbeidsgiverMelding.vedtaksperiodeId} " +
