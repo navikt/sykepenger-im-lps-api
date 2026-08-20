@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.kafka.sis
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
@@ -88,8 +87,3 @@ class StatusISpeilTolker(
         sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
     }
 }
-
-@Serializable
-private data class EventNameWrapper(
-    val eventName: SisEventName? = null,
-)

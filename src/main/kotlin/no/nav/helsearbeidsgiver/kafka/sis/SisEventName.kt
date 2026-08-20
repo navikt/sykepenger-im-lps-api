@@ -11,3 +11,8 @@ enum class SisEventName {
     @SerialName("behandlingstatus")
     BEHANDLINGSTATUS,
 }
+
+@Serializable
+data class EventNameWrapper(
+    val eventName: SisEventName? = null,
+)
