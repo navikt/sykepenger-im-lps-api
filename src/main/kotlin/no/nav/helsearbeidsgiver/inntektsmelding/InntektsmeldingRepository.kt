@@ -8,7 +8,6 @@ import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.aarsakInnsending
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemNavn
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.avsenderSystemVersjon
-import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.dokument
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilkode
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.feilmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingEntitet.fnr
@@ -156,7 +155,7 @@ class InntektsmeldingRepository(
             inntekt = this[skjema].inntekt,
             naturalytelser = this[skjema].naturalytelser,
             refusjon = this[skjema].refusjon,
-            flereArbeidsforhold = this[dokument].type.flereArbeidsforhold(),
+            flereArbeidsforhold = this[skjema].flereArbeidsforhold,
             sykmeldtFnr = this[fnr],
             aarsakInnsending = this[aarsakInnsending],
             typeInnsending = this[typeInnsending],
