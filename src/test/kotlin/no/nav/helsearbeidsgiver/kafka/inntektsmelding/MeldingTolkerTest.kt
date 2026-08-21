@@ -315,6 +315,24 @@ class MeldingTolkerTest {
     }
 
     @Test
+    fun `StatusISpeilTolker lesMelding feiler når organisasjonsnummer mangler`() {
+        val sisVedtakMeldingJson =
+            STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG.removeJsonWhitespace()
+        assertThrows<SerializationException> {
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
+        }
+    }
+
+    @Test
+    fun `StatusISpeilTolker lesMelding feiler når organisasjonsnummer er strengen SELVSTENDIG`() {
+        val sisVedtakMeldingJson =
+            STATUS_I_SPLEIS_VEDTAK_MELDING_ORGNR_ER_SELVSTENDIG_STRENG.removeJsonWhitespace()
+        assertThrows<IllegalArgumentException> {
+            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
+        }
+    }
+
+    @Test
     fun `StatusISpeilTolker lesMelding feiler ved ukjent melding`() {
         val ugyldigMeldingJson =
             """{ "test":"testing" }"""
