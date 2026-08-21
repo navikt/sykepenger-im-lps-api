@@ -236,7 +236,7 @@ fun configureServices(
         )
     val forespoerselService =
         ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
-    val vedtakService = VedtakService(repositories.vedtakRepository)
+    val vedtakService = VedtakService(repositories.vedtakRepository, unleashFeatureToggles)
 
     return Services(
         forespoerselService,
