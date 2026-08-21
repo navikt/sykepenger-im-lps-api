@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
+import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -12,6 +13,9 @@ import no.nav.helsearbeidsgiver.sykmelding.model.Aktivitet
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.test.date.januar
+import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.time.LocalDate
 import java.util.UUID
 
@@ -1127,6 +1131,12 @@ object TestData {
 
     fun soeknadMock(soeknad: String = SYKEPENGESOEKNAD): SykepengeSoeknadKafkaMelding =
         soeknad.fromJson(SykepengeSoeknadKafkaMelding.serializer())
+
+    fun vedtakMock(vedtak: String = STATUS_I_SPLEIS_VEDTAK_MELDING): VedtakArbeidsgiverMelding =
+        vedtak
+            .removeJsonWhitespace()
+            .replace("%%%FNR%%%", Fnr.genererGyldig().toString())
+            .fromJson(VedtakArbeidsgiverMelding.serializer())
 
     fun SykepengeSoeknadKafkaMelding.medId(id: UUID) = this.copy(id = id)
 

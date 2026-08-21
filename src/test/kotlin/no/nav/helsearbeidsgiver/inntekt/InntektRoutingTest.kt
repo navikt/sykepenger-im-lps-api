@@ -23,7 +23,6 @@ import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -53,6 +52,7 @@ class InntektRoutingTest {
             soeknadService = mockk(relaxed = true),
             helseSjekkService = mockk(relaxed = true),
             avvistInntektsmeldingService = mockk(relaxed = true),
+            vedtakService = mockk(relaxed = true),
         )
 
     private val mockOAuth2Server =

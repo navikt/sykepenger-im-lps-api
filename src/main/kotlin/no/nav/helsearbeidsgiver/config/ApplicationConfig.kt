@@ -57,6 +57,8 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
+import no.nav.helsearbeidsgiver.vedtak.VedtakRepository
+import no.nav.helsearbeidsgiver.vedtak.VedtakService
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -81,6 +83,7 @@ data class Repositories(
     val sykmeldingRepository: SykmeldingRepository,
     val soeknadRepository: SoeknadRepository,
     val statusISpeilRepository: StatusISpeilRepository,
+    val vedtakRepository: VedtakRepository,
 )
 
 data class Services(
@@ -94,6 +97,7 @@ data class Services(
     val soeknadService: SoeknadService,
     val helseSjekkService: HelseSjekkService,
     val avvistInntektsmeldingService: AvvistInntektsmeldingService,
+    val vedtakService: VedtakService,
 )
 
 data class Tolkere(
@@ -132,6 +136,7 @@ fun configureTolkere(
             repositories.soeknadRepository,
             repositories.statusISpeilRepository,
             services.dokumentkoblingService,
+            services.vedtakService,
         )
 
     val avvistInntektsmeldingTolker =
@@ -158,6 +163,7 @@ fun configureRepositories(db: Database): Repositories =
         sykmeldingRepository = SykmeldingRepository(db),
         soeknadRepository = SoeknadRepository(db),
         statusISpeilRepository = StatusISpeilRepository(db),
+        vedtakRepository = VedtakRepository(db),
     )
 
 fun configureServices(
@@ -230,6 +236,7 @@ fun configureServices(
         )
     val forespoerselService =
         ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
+    val vedtakService = VedtakService(repositories.vedtakRepository)
 
     return Services(
         forespoerselService,
@@ -242,6 +249,7 @@ fun configureServices(
         soeknadService,
         helseSjekkService,
         avvistInntektsmeldingService,
+        vedtakService,
     )
 }
 
