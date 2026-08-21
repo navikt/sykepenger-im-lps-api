@@ -9,14 +9,12 @@ import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 class DokumentkoblingService(
     val dokumentkoblingProducer: DokumentkoblingProducer,
-    val unleashFeatureToggles: UnleashFeatureToggles,
     val repositories: Repositories,
 ) {
     private val logger = logger()
