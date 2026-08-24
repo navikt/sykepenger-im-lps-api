@@ -49,6 +49,7 @@ suspend fun startKafkaConsumer(
                         "Mottok melding med null som value, ignorerer melding med offset: ${record.offset()}, key: ${record.key()}",
                     )
                 }
+
                 else -> {
                     if (record.timestamp().erInnenforSiste2Aar()) {
                         meldingTolker.lesMelding(value)
