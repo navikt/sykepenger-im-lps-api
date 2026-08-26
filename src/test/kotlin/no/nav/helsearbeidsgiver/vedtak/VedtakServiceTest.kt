@@ -25,7 +25,7 @@ class VedtakServiceTest {
 
         vedtakService.lagreVedtak(vedtakMock())
 
-        verify(exactly = 1) { vedtakRepository.lagreVedtak(any()) }
+        verify(exactly = 1) { vedtakRepository.lagreVedtak(any(), any(), any(), any()) }
     }
 
     @Test
@@ -34,6 +34,6 @@ class VedtakServiceTest {
 
         vedtakService.lagreVedtak(vedtakMock())
 
-        verify(exactly = 0) { vedtakRepository.lagreVedtak(any()) }
+        verify(exactly = 0) { vedtakRepository.lagreVedtak(any(), any(), any(), any()) }
     }
 }

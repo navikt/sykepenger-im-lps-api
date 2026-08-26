@@ -13,12 +13,10 @@ class VedtakService(
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
             vedtakRepository.lagreVedtak(
-                LagreVedtak(
-                    vedtaksperiodeId = vedtakArbeidsgiverMelding.vedtaksperiodeId,
-                    fnr = vedtakArbeidsgiverMelding.foedselsnummer.toString(),
-                    orgnr = vedtakArbeidsgiverMelding.organisasjonsnummer.toString(),
-                    vedtak = vedtakArbeidsgiverMelding,
-                ),
+                vedtaksperiodeId = vedtakArbeidsgiverMelding.vedtaksperiodeId,
+                fnr = vedtakArbeidsgiverMelding.foedselsnummer,
+                orgnr = vedtakArbeidsgiverMelding.organisasjonsnummer,
+                vedtak = vedtakArbeidsgiverMelding,
             )
         } else {
             logger.info(

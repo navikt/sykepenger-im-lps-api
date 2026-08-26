@@ -226,16 +226,10 @@ fun configureServices(
             repositories = repositories,
         )
 
-    val soeknadService =
-        SoeknadService(repositories.soeknadRepository, sykmeldingService, dokumentkoblingService, pdlService)
+    val soeknadService = SoeknadService(repositories.soeknadRepository, sykmeldingService, dokumentkoblingService, pdlService)
     val helseSjekkService = HelseSjekkService(db = database)
-    val avvistInntektsmeldingService =
-        AvvistInntektsmeldingService(
-            repositories.inntektsmeldingRepository,
-            dokumentkoblingService,
-        )
-    val forespoerselService =
-        ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
+    val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dokumentkoblingService)
+    val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
     val vedtakService = VedtakService(repositories.vedtakRepository, unleashFeatureToggles)
 
     return Services(

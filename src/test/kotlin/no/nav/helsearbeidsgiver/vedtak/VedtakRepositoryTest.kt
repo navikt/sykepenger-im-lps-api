@@ -40,12 +40,10 @@ class VedtakRepositoryTest {
         val vedtak = vedtakMock()
 
         vedtakRepository.lagreVedtak(
-            LagreVedtak(
-                vedtaksperiodeId = vedtak.vedtaksperiodeId,
-                fnr = vedtak.foedselsnummer.toString(),
-                orgnr = vedtak.organisasjonsnummer.toString(),
-                vedtak = vedtak,
-            ),
+            vedtaksperiodeId = vedtak.vedtaksperiodeId,
+            fnr = vedtak.foedselsnummer,
+            orgnr = vedtak.organisasjonsnummer,
+            vedtak = vedtak,
         )
 
         val lagredeRader = hentVedtak(vedtak.vedtaksperiodeId)
@@ -63,20 +61,16 @@ class VedtakRepositoryTest {
         val reberegnetVedtak = vedtak.copy(sykepengegrunnlag = vedtak.sykepengegrunnlag + 1000.0)
 
         vedtakRepository.lagreVedtak(
-            LagreVedtak(
-                vedtaksperiodeId = vedtaksperiodeId,
-                fnr = vedtak.foedselsnummer.toString(),
-                orgnr = vedtak.organisasjonsnummer.toString(),
-                vedtak = vedtak,
-            ),
+            vedtaksperiodeId = vedtaksperiodeId,
+            fnr = vedtak.foedselsnummer,
+            orgnr = vedtak.organisasjonsnummer,
+            vedtak = vedtak,
         )
         vedtakRepository.lagreVedtak(
-            LagreVedtak(
-                vedtaksperiodeId = vedtaksperiodeId,
-                fnr = reberegnetVedtak.foedselsnummer.toString(),
-                orgnr = reberegnetVedtak.organisasjonsnummer.toString(),
-                vedtak = reberegnetVedtak,
-            ),
+            vedtaksperiodeId = vedtaksperiodeId,
+            fnr = reberegnetVedtak.foedselsnummer,
+            orgnr = reberegnetVedtak.organisasjonsnummer,
+            vedtak = reberegnetVedtak,
         )
 
         val lagredeRader = hentVedtak(vedtaksperiodeId)
