@@ -17,7 +17,6 @@ import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.buildInntektsmelding
 import no.nav.helsearbeidsgiver.utils.mockAvvistInntektsmelding
 import no.nav.helsearbeidsgiver.utils.mockForespoersel
@@ -31,11 +30,9 @@ import java.util.UUID
 
 class DokumentkoblingServiceTest {
     val mockDokumentkoblingProducer = mockk<DokumentkoblingProducer>()
-    val mockUnleashFeatureToggles = mockk<UnleashFeatureToggles>()
     val dokumentkoblingService =
         DokumentkoblingService(
             dokumentkoblingProducer = mockDokumentkoblingProducer,
-            unleashFeatureToggles = mockUnleashFeatureToggles,
             repositories = mockk(),
         )
     private val sykmeldingId = UUID.randomUUID()

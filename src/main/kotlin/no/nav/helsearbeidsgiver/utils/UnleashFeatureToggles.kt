@@ -55,4 +55,10 @@ class UnleashFeatureToggles(
             "konsumer-status-i-speil",
             true,
         )
+
+    fun skalLagreVedtakArbeidsgiver(): Boolean =
+        unleashClient.isEnabled(
+            "lagre-vedtak-arbeidsgiver",
+            false,
+        )
 }
