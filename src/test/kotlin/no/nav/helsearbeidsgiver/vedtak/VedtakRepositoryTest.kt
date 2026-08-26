@@ -9,26 +9,20 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
 @WithPostgresContainer
 class VedtakRepositoryTest {
-    private lateinit var db: Database
-    private lateinit var vedtakRepository: VedtakRepository
-
-    @BeforeAll
-    fun setup() {
-        db =
-            DatabaseConfig(
-                System.getProperty("database.url"),
-                System.getProperty("database.username"),
-                System.getProperty("database.password"),
-            ).init()
-        vedtakRepository = VedtakRepository(db)
+    private val db: Database by lazy {
+        DatabaseConfig(
+            System.getProperty("database.url"),
+            System.getProperty("database.username"),
+            System.getProperty("database.password"),
+        ).init()
     }
+    private val vedtakRepository: VedtakRepository by lazy { VedtakRepository(db) }
 
     @BeforeEach
     fun cleanDb() {
@@ -55,7 +49,7 @@ class VedtakRepositoryTest {
     }
 
     @Test
-    fun `lagreVedtak skal tillate flere vedtak for samme vedtaksperiodeId, f eks ved reberegning`() {
+    fun `lagreVedtak skal tillate flere vedtak for samme vedtaksperiodeId, feks ved reberegning`() {
         val vedtak = vedtakMock()
         val vedtaksperiodeId = vedtak.vedtaksperiodeId
         val reberegnetVedtak = vedtak.copy(sykepengegrunnlag = vedtak.sykepengegrunnlag + 1000.0)
