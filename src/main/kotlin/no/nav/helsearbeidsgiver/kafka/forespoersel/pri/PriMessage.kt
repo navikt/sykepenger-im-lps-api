@@ -61,8 +61,10 @@ data class ForespoerselDokument(
 
         return when {
             forslag == null -> utledet
+
             // Spleis hensyntar ikke sykmeldtes rapporterte egenmeldinger når de utleder forslaget sitt
             gyldigeEgenmeldinger.isEmpty() -> forslag
+
             else -> minOf(forslag, utledet)
         }
     }
