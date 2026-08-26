@@ -78,10 +78,8 @@ abstract class ApiTest {
                 systembruker = any(),
                 orgnr =
                     match {
-                        (
-                            it == hovedenhetOrgnrMedPdpTilgang || it == underenhetOrgnrMedPdpTilgang &&
-                                it != orgnrUtenPdpTilgang
-                        )
+                        it == hovedenhetOrgnrMedPdpTilgang ||
+                            (it == underenhetOrgnrMedPdpTilgang && it != orgnrUtenPdpTilgang)
                     },
                 ressurs = any(),
             )

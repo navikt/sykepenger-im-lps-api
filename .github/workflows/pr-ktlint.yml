@@ -6,4 +6,4 @@ jobs:
   ktlint:
     uses: navikt/hag-workflows/.github/workflows/ktlint.yml@main
     with:
-      ktlint-version: 1.7.1
+      ktlint-version: 1.8.0

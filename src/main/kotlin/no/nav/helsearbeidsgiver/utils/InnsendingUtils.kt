@@ -115,15 +115,25 @@ fun InntektsmeldingRequest.validerMotForespoersel(forespoersel: Forespoersel): S
             .filter { it != "Egenmelding kan ikke benyttes dagen etter en sykmeldingsperiode." }
 
     return when {
-        forespoersel.navReferanseId != navReferanseId -> Feilmelding.UGYLDIG_REFERANSE // sjekker for sikkerhets skyld
+        // sjekker for sikkerhets skyld
+        forespoersel.navReferanseId != navReferanseId -> Feilmelding.UGYLDIG_REFERANSE
+
         forespoersel.fnr != this.sykmeldtFnr -> Feilmelding.FEIL_FNR
+
         forespoersel.arbeidsgiverperiodePaakrevd && this.agp == null -> Feilmelding.AGP_ER_PAAKREVD
+
         agpValideringsfeil.isNotEmpty() -> "Ugyldig arbeidsgiverperiode. ${agpValideringsfeil.first()}"
+
         forespoersel.inntektPaakrevd && this.inntekt == null -> Feilmelding.INNTEKT_ER_PAAKREVD
+
         !forespoersel.inntektPaakrevd && this.inntekt != null -> Feilmelding.INNTEKT_ER_IKKE_PAAKREVD
+
         forespoersel.status == Status.AKTIV && this.aarsakInnsending == AarsakInnsending.Endring -> Feilmelding.UGYLDIG_AARSAK
+
         forespoersel.status == Status.BESVART && this.aarsakInnsending == AarsakInnsending.Ny -> Feilmelding.UGYLDIG_AARSAK
+
         forespoersel.status == Status.FORKASTET -> Feilmelding.FORESPOERSEL_FORKASTET
+
         else -> null
     }
 }

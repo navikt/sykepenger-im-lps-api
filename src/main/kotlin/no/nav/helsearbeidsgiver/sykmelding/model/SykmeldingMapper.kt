@@ -93,11 +93,12 @@ fun SykmeldingsperiodeAGDTO.tilAktivitet(): Aktivitet =
 
 fun SykmeldingsperiodeAGDTO.AktivitetIkkeMuligAGDTO.tilAktivitetIkkeMulig(): AktivitetIkkeMulig =
     when {
-        arbeidsrelatertArsak == null ->
+        arbeidsrelatertArsak == null -> {
             AktivitetIkkeMulig(
                 manglendeTilretteleggingPaaArbeidsplassen = false,
                 beskrivelse = null,
             )
+        }
 
         else -> {
             AktivitetIkkeMulig(
