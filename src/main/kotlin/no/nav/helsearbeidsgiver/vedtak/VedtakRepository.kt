@@ -18,10 +18,12 @@ class VedtakRepository(
         fnr: Fnr,
         orgnr: Orgnr,
         vedtak: VedtakArbeidsgiverMelding,
-    ) {
+    ): UUID {
+        val vedtakId = UUID.randomUUID()
         try {
             transaction(db) {
                 VedtakEntitet.insert {
+                    it[VedtakEntitet.vedtakId] = vedtakId
                     it[VedtakEntitet.vedtaksperiodeId] = vedtaksperiodeId
                     it[VedtakEntitet.fnr] = fnr.toString()
                     it[VedtakEntitet.orgnr] = orgnr.toString()
@@ -32,5 +34,6 @@ class VedtakRepository(
             sikkerLogger().error("Klarte ikke å lagre vedtak med vedtaksperiodeId $vedtaksperiodeId i databasen", e)
             throw e
         }
+        return vedtakId
     }
 }
