@@ -33,14 +33,15 @@ class VedtakRepositoryTest {
     @Test
     fun `lagreVedtak skal lagre vedtaket med sentrale felter i egne kolonner og hele meldingen som jsonb`() {
         val vedtak = vedtakMock()
+        val forventetVedtakId = UUID.randomUUID()
 
-        val forventetVedtakId =
-            vedtakRepository.lagreVedtak(
-                vedtaksperiodeId = vedtak.vedtaksperiodeId,
-                fnr = vedtak.foedselsnummer,
-                orgnr = vedtak.organisasjonsnummer,
-                vedtak = vedtak,
-            )
+        vedtakRepository.lagreVedtak(
+            vedtakId = forventetVedtakId,
+            vedtaksperiodeId = vedtak.vedtaksperiodeId,
+            fnr = vedtak.foedselsnummer,
+            orgnr = vedtak.organisasjonsnummer,
+            vedtak = vedtak,
+        )
 
         val lagredeRader = hentVedtak(vedtak.vedtaksperiodeId)
 
@@ -56,21 +57,23 @@ class VedtakRepositoryTest {
         val vedtak = vedtakMock()
         val vedtaksperiodeId = vedtak.vedtaksperiodeId
         val reberegnetVedtak = vedtak.copy(sykepengegrunnlag = vedtak.sykepengegrunnlag + 1000.0)
+        val forventetVedtakId = UUID.randomUUID()
+        val forventetReberegnetVedtakId = UUID.randomUUID()
 
-        val forventetVedtakId =
-            vedtakRepository.lagreVedtak(
-                vedtaksperiodeId = vedtaksperiodeId,
-                fnr = vedtak.foedselsnummer,
-                orgnr = vedtak.organisasjonsnummer,
-                vedtak = vedtak,
-            )
-        val forventetReberegnetVedtakId =
-            vedtakRepository.lagreVedtak(
-                vedtaksperiodeId = vedtaksperiodeId,
-                fnr = reberegnetVedtak.foedselsnummer,
-                orgnr = reberegnetVedtak.organisasjonsnummer,
-                vedtak = reberegnetVedtak,
-            )
+        vedtakRepository.lagreVedtak(
+            vedtakId = forventetVedtakId,
+            vedtaksperiodeId = vedtaksperiodeId,
+            fnr = vedtak.foedselsnummer,
+            orgnr = vedtak.organisasjonsnummer,
+            vedtak = vedtak,
+        )
+        vedtakRepository.lagreVedtak(
+            vedtakId = forventetReberegnetVedtakId,
+            vedtaksperiodeId = vedtaksperiodeId,
+            fnr = reberegnetVedtak.foedselsnummer,
+            orgnr = reberegnetVedtak.organisasjonsnummer,
+            vedtak = reberegnetVedtak,
+        )
 
         val lagredeRader = hentVedtak(vedtaksperiodeId)
 

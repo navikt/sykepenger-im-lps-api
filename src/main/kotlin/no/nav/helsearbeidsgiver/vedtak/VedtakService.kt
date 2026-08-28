@@ -18,13 +18,14 @@ class VedtakService(
 
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
-            val vedtakId =
-                vedtakRepository.lagreVedtak(
-                    vedtaksperiodeId = vedtakArbeidsgiverMelding.vedtaksperiodeId,
-                    fnr = vedtakArbeidsgiverMelding.foedselsnummer,
-                    orgnr = vedtakArbeidsgiverMelding.organisasjonsnummer,
-                    vedtak = vedtakArbeidsgiverMelding,
-                )
+            val vedtakId = UUID.randomUUID()
+            vedtakRepository.lagreVedtak(
+                vedtakId = vedtakId,
+                vedtaksperiodeId = vedtakArbeidsgiverMelding.vedtaksperiodeId,
+                fnr = vedtakArbeidsgiverMelding.foedselsnummer,
+                orgnr = vedtakArbeidsgiverMelding.organisasjonsnummer,
+                vedtak = vedtakArbeidsgiverMelding,
+            )
 
             if (vedtakArbeidsgiverMelding.harArbeidsgiverOensketRefusjon) {
                 produserVedtakKobling(vedtakId, vedtakArbeidsgiverMelding)

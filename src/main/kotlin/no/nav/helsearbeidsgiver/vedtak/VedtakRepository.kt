@@ -14,12 +14,12 @@ class VedtakRepository(
     private val db: Database,
 ) {
     fun lagreVedtak(
+        vedtakId: UUID,
         vedtaksperiodeId: UUID,
         fnr: Fnr,
         orgnr: Orgnr,
         vedtak: VedtakArbeidsgiverMelding,
-    ): UUID {
-        val vedtakId = UUID.randomUUID()
+    ) {
         try {
             transaction(db) {
                 VedtakEntitet.insert {
@@ -34,6 +34,5 @@ class VedtakRepository(
             sikkerLogger().error("Klarte ikke å lagre vedtak med vedtaksperiodeId $vedtaksperiodeId i databasen", e)
             throw e
         }
-        return vedtakId
     }
 }
