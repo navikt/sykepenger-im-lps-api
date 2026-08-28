@@ -91,6 +91,9 @@ enum class Utbetalingsdagtype {
     @SerialName("Fridag")
     FRIDAG,
 
+    @SerialName("Feriedag")
+    FERIEDAG,
+
     @SerialName("Arbeidsdag")
     ARBEIDSDAG,
 
