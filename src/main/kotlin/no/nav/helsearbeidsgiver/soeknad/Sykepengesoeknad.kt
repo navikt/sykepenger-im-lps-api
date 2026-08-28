@@ -32,6 +32,7 @@ data class Sykepengesoeknad(
     val arbeidsgiver: SykepengesoeknadArbeidsgiver,
     val soektUtenlandsopphold: Boolean?,
     val korrigerer: UUID?,
+    val korrigertAv: UUID?,
     val soeknadsperioder: List<Soeknadsperiode>,
     val behandlingsdager: List<LocalDate>,
     val fravaer: List<Fravaer>,

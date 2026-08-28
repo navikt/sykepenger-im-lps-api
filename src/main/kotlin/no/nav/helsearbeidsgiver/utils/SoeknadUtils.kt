@@ -21,6 +21,7 @@ fun SykepengeSoeknadKafkaMelding.konverter(loepenr: Long): Sykepengesoeknad =
         behandlingsdager = behandlingsdager ?: emptyList(),
         fravaer = fravar?.map { it.konverter() }.orEmpty(),
         soeknadsperioder = soknadsperioder?.map { it.konverter() }.orEmpty(),
+        korrigertAv = korrigertAv,
     )
 
 fun SykepengeSoeknadKafkaMelding.SoknadsperiodeDTO.konverter(): Sykepengesoeknad.Soeknadsperiode {
