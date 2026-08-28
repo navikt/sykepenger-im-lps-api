@@ -28,9 +28,22 @@ import java.util.UUID
 class SoeknadRepository(
     private val db: Database,
 ) {
-    fun lagreSoeknad(soeknad: LagreSoeknad) {
+    fun lagreSoeknad(soeknad: LagreSoeknad) = lagreSoeknad(soeknad, erstatt = false)
+
+    fun erstattSoeknad(soeknad: LagreSoeknad) = lagreSoeknad(soeknad, erstatt = true)
+
+    private fun lagreSoeknad(
+        soeknad: LagreSoeknad,
+        erstatt: Boolean,
+    ) {
         try {
             transaction(db) {
+                if (erstatt) {
+                    SoeknadEntitet.deleteWhere { soeknadId eq soeknad.soeknadId }
+                }
+
+                markerTidligereSoeknadSomKorrigert(soeknad)
+
                 SoeknadEntitet.insert {
                     it[soeknadId] = soeknad.soeknadId
                     it[sykmeldingId] = soeknad.sykmeldingId
@@ -40,27 +53,31 @@ class SoeknadRepository(
                 }
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å lagre sykepengesøknad  med id ${soeknad.soeknadId} i databasen", e)
+            sikkerLogger().error("Klarte ikke å lagre sykepengesøknad med id ${soeknad.soeknadId} i databasen", e)
             throw e
         }
     }
 
-    fun erstattSoeknad(soeknad: LagreSoeknad) {
-        try {
-            transaction(db) {
-                SoeknadEntitet.deleteWhere { soeknadId eq soeknad.soeknadId }
-                SoeknadEntitet.insert {
-                    it[soeknadId] = soeknad.soeknadId
-                    it[sykmeldingId] = soeknad.sykmeldingId
-                    it[fnr] = soeknad.fnr
-                    it[orgnr] = soeknad.orgnr
-                    it[sykepengesoeknad] = soeknad.sykepengesoeknad
-                }
-            }
-        } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å erstatte sykepengesøknad med id ${soeknad.soeknadId} i databasen", e)
-            throw e
+    private fun markerTidligereSoeknadSomKorrigert(soeknad: LagreSoeknad) {
+        val korrigererId = soeknad.sykepengesoeknad.korrigerer ?: return
+
+        val korrigertSoeknad =
+            SoeknadEntitet
+                .selectAll()
+                .where { soeknadId eq korrigererId }
+                .map { SykepengeSoeknadDto(loepenr = it[SoeknadEntitet.id], sykepengeSoeknadKafkaMelding = it[sykepengesoeknad]) }
+                .singleOrNull() ?: return
+
+        SoeknadEntitet.update(
+            where = { soeknadId eq korrigererId },
+        ) {
+            it[sykepengesoeknad] =
+                korrigertSoeknad.sykepengeSoeknadKafkaMelding.copy(
+                    korrigertAv = soeknad.sykepengesoeknad.id,
+                    status = SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.KORRIGERT,
+                )
         }
+        logger().info("Markerte søknad med id $korrigererId som korrigert")
     }
 
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengeSoeknadDto> =

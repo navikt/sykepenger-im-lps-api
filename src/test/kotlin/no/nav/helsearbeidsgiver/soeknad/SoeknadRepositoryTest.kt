@@ -116,6 +116,46 @@ class SoeknadRepositoryTest {
     }
 
     @Test
+    fun `lagreSoeknad skal markere tidligere søknad som korrigert når korrigerer er satt`() {
+        val tidligereSoeknad = soeknadMock().medId(id = UUID.randomUUID())
+        val nySoeknad =
+            tidligereSoeknad.copy(
+                id = UUID.randomUUID(),
+                korrigerer = tidligereSoeknad.id,
+                korrigertAv = null,
+                status = SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.SENDT,
+            )
+
+        soeknadRepository.lagreSoeknad(tidligereSoeknad.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(nySoeknad.tilLagreSoeknad())
+
+        val lagretTidligere = soeknadRepository.hentSoeknad(tidligereSoeknad.id)
+        lagretTidligere?.sykepengeSoeknadKafkaMelding?.status shouldBe SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.KORRIGERT
+        lagretTidligere?.sykepengeSoeknadKafkaMelding?.korrigertAv shouldBe nySoeknad.id
+
+        val lagretNy = soeknadRepository.hentSoeknad(nySoeknad.id)
+        lagretNy?.sykepengeSoeknadKafkaMelding shouldBe nySoeknad
+    }
+
+    @Test
+    fun `lagreSoeknad skal lagre ny søknad uten å oppdatere når korrigerer er null eller peker til ukjent søknad`() {
+        val soeknadUtenKorrigerer = soeknadMock().medId(id = UUID.randomUUID())
+        val ukjentKorrigererId = UUID.randomUUID()
+        val soeknadMedUkjentKorrigerer =
+            soeknadMock().medId(id = UUID.randomUUID()).copy(
+                korrigerer = ukjentKorrigererId,
+                korrigertAv = null,
+            )
+
+        soeknadRepository.lagreSoeknad(soeknadUtenKorrigerer.tilLagreSoeknad())
+        soeknadRepository.lagreSoeknad(soeknadMedUkjentKorrigerer.tilLagreSoeknad())
+
+        soeknadRepository.hentSoeknad(soeknadUtenKorrigerer.id)?.sykepengeSoeknadKafkaMelding shouldBe soeknadUtenKorrigerer
+        soeknadRepository.hentSoeknad(soeknadMedUkjentKorrigerer.id)?.sykepengeSoeknadKafkaMelding shouldBe soeknadMedUkjentKorrigerer
+        soeknadRepository.hentSoeknad(ukjentKorrigererId)?.sykepengeSoeknadKafkaMelding shouldBe null
+    }
+
+    @Test
     fun `lagreSoeknad skal lagre søknad`() {
         val soeknad = soeknadMock()
 
