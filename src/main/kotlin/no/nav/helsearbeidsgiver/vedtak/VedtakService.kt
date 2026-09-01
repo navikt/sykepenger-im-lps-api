@@ -8,6 +8,12 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
+data class VedtakMedTilgang(
+    val fnr: String,
+    val orgnr: String,
+    val vedtakForPdf: VedtakForPdf,
+)
+
 class VedtakService(
     private val vedtakRepository: VedtakRepository,
     private val unleashFeatureToggles: UnleashFeatureToggles,
@@ -15,6 +21,23 @@ class VedtakService(
     private val dokumentkoblingService: DokumentkoblingService,
 ) {
     private val logger = logger()
+
+    fun hentVedtak(vedtakId: UUID): VedtakMedTilgang? {
+        val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
+        return VedtakMedTilgang(
+            fnr = rad.fnr,
+            orgnr = rad.orgnr,
+            vedtakForPdf =
+                VedtakForPdf(
+                    vedtakId = rad.vedtakId,
+                    fom = rad.vedtak.fom,
+                    tom = rad.vedtak.tom,
+                    sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
+                    vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
+                    vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
+                ),
+        )
+    }
 
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
