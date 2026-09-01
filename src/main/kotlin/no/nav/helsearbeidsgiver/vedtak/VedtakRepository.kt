@@ -14,6 +14,7 @@ class VedtakRepository(
     private val db: Database,
 ) {
     fun lagreVedtak(
+        vedtakId: UUID,
         vedtaksperiodeId: UUID,
         fnr: Fnr,
         orgnr: Orgnr,
@@ -22,6 +23,7 @@ class VedtakRepository(
         try {
             transaction(db) {
                 VedtakEntitet.insert {
+                    it[VedtakEntitet.vedtakId] = vedtakId
                     it[VedtakEntitet.vedtaksperiodeId] = vedtaksperiodeId
                     it[VedtakEntitet.fnr] = fnr.toString()
                     it[VedtakEntitet.orgnr] = orgnr.toString()
