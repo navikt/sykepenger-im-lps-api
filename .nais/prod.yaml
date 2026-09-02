@@ -90,6 +90,8 @@ spec:
             value: "on"
           - name: cloudsql.logical_decoding
             value: "on"
+          - name: pgaudit.log_relation
+            value: "on"
         databases:
           - name: hag-lps
             users:
