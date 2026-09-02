@@ -32,6 +32,7 @@ import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.vedtak.vedtakTokenX
 
 fun Application.configureRouting(services: Services) {
     routing {
@@ -47,6 +48,7 @@ fun Application.configureRouting(services: Services) {
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)
             soeknadTokenX(soeknadService = services.soeknadService)
+            vedtakTokenX(vedtakService = services.vedtakService)
         }
         swaggerUI(path = "swagger") {
             info =
