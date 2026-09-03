@@ -111,7 +111,7 @@ class DokumentkoblingServiceTest {
         dokumentkoblingService.produserVedtakKobling(vedtakId, sykmeldingId, inntektsmeldingId, orgnr)
 
         verifySequence {
-            mockDokumentkoblingProducer.send(any<VedtakKobling>())
+            mockDokumentkoblingProducer.send(any<Vedtak>())
         }
     }
 
