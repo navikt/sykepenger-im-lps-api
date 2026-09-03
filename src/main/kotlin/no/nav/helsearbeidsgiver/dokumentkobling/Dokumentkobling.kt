@@ -77,8 +77,8 @@ data class InntektsmeldingGodkjent(
 ) : Dokumentkobling()
 
 @Serializable
-@SerialName("VedtakKobling")
-data class VedtakKobling(
+@SerialName("Vedtak")
+data class Vedtak(
     val vedtakId: UUID,
     val sykmeldingId: UUID,
     val inntektsmeldingId: UUID,
