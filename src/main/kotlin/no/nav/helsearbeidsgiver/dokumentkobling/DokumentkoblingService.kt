@@ -119,6 +119,26 @@ class DokumentkoblingService(
         )
     }
 
+    fun produserVedtakKobling(
+        vedtakId: UUID,
+        sykmeldingId: UUID,
+        inntektsmeldingId: UUID,
+        orgnr: Orgnr,
+    ) {
+        val vedtakKobling =
+            VedtakKobling(
+                vedtakId = vedtakId,
+                sykmeldingId = sykmeldingId,
+                inntektsmeldingId = inntektsmeldingId,
+                orgnr = orgnr,
+            )
+        dokumentkoblingProducer.send(vedtakKobling)
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for vedtak med " +
+                "vedtakId: $vedtakId, sykmeldingId: $sykmeldingId og inntektsmeldingId: $inntektsmeldingId.",
+        )
+    }
+
     private fun Inntektsmelding.Type.manglerForespoersel(): Boolean =
         when (this) {
             is Inntektsmelding.Type.Forespurt,

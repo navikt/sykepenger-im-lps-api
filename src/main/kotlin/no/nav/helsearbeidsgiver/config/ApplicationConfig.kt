@@ -230,7 +230,13 @@ fun configureServices(
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dokumentkoblingService)
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
-    val vedtakService = VedtakService(repositories.vedtakRepository, unleashFeatureToggles)
+    val vedtakService =
+        VedtakService(
+            repositories.vedtakRepository,
+            unleashFeatureToggles,
+            repositories.inntektsmeldingRepository,
+            dokumentkoblingService,
+        )
 
     return Services(
         forespoerselService,

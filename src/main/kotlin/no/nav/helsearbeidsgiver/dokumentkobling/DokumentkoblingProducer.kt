@@ -37,6 +37,7 @@ class DokumentkoblingProducer(
             is ForespoerselUtgaatt -> dokumentkobling.vedtaksperiodeId
             is InntektsmeldingAvvist -> dokumentkobling.vedtaksperiodeId
             is InntektsmeldingGodkjent -> dokumentkobling.vedtaksperiodeId
+            is VedtakKobling -> dokumentkobling.sykmeldingId
         }
 
     private fun JsonElement.toRecord(key: UUID): ProducerRecord<UUID, JsonElement> = ProducerRecord(topic, key, this)

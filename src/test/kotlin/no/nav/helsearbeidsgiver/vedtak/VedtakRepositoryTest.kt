@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.vedtak
 
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
@@ -32,8 +33,10 @@ class VedtakRepositoryTest {
     @Test
     fun `lagreVedtak skal lagre vedtaket med sentrale felter i egne kolonner og hele meldingen som jsonb`() {
         val vedtak = vedtakMock()
+        val forventetVedtakId = UUID.randomUUID()
 
         vedtakRepository.lagreVedtak(
+            vedtakId = forventetVedtakId,
             vedtaksperiodeId = vedtak.vedtaksperiodeId,
             fnr = vedtak.foedselsnummer,
             orgnr = vedtak.organisasjonsnummer,
@@ -43,6 +46,7 @@ class VedtakRepositoryTest {
         val lagredeRader = hentVedtak(vedtak.vedtaksperiodeId)
 
         lagredeRader shouldHaveSize 1
+        lagredeRader.single()[VedtakEntitet.vedtakId] shouldBe forventetVedtakId
         lagredeRader.single()[VedtakEntitet.fnr] shouldBe vedtak.foedselsnummer.toString()
         lagredeRader.single()[VedtakEntitet.orgnr] shouldBe vedtak.organisasjonsnummer.toString()
         lagredeRader.single()[VedtakEntitet.vedtak] shouldBe vedtak
@@ -53,14 +57,18 @@ class VedtakRepositoryTest {
         val vedtak = vedtakMock()
         val vedtaksperiodeId = vedtak.vedtaksperiodeId
         val reberegnetVedtak = vedtak.copy(sykepengegrunnlag = vedtak.sykepengegrunnlag + 1000.0)
+        val forventetVedtakId = UUID.randomUUID()
+        val forventetReberegnetVedtakId = UUID.randomUUID()
 
         vedtakRepository.lagreVedtak(
+            vedtakId = forventetVedtakId,
             vedtaksperiodeId = vedtaksperiodeId,
             fnr = vedtak.foedselsnummer,
             orgnr = vedtak.organisasjonsnummer,
             vedtak = vedtak,
         )
         vedtakRepository.lagreVedtak(
+            vedtakId = forventetReberegnetVedtakId,
             vedtaksperiodeId = vedtaksperiodeId,
             fnr = reberegnetVedtak.foedselsnummer,
             orgnr = reberegnetVedtak.organisasjonsnummer,
@@ -71,6 +79,8 @@ class VedtakRepositoryTest {
 
         lagredeRader shouldHaveSize 2
         lagredeRader.map { it[VedtakEntitet.vedtak] } shouldBe listOf(vedtak, reberegnetVedtak)
+        lagredeRader.map { it[VedtakEntitet.vedtakId] } shouldBe listOf(forventetVedtakId, forventetReberegnetVedtakId)
+        forventetVedtakId shouldNotBe forventetReberegnetVedtakId
     }
 
     private fun hentVedtak(vedtaksperiodeId: UUID) =

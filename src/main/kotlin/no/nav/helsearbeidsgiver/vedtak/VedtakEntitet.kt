@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.json.jsonb
 
 object VedtakEntitet : Table("vedtak") {
     val id = long("id").autoIncrement()
+    val vedtakId = uuid("vedtak_id")
     val vedtaksperiodeId = uuid("vedtaksperiode_id")
     val fnr = varchar("fnr", length = 11)
     val orgnr = varchar("orgnr", length = 9)
