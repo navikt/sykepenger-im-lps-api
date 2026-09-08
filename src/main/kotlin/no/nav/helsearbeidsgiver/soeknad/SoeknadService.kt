@@ -75,6 +75,7 @@ class SoeknadService(
                     soeknadId = validertSoeknad.soeknadId,
                     sykmeldingId = validertSoeknad.sykmeldingId,
                     orgnr = Orgnr(validertSoeknad.orgnr),
+                    korrigerer = soeknad.korrigerer,
                 )
             } else {
                 logger.info(
