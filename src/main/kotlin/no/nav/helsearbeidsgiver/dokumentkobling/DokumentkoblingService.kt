@@ -125,14 +125,14 @@ class DokumentkoblingService(
         inntektsmeldingId: UUID,
         orgnr: Orgnr,
     ) {
-        val vedtakKobling =
-            VedtakKobling(
+        val vedtak =
+            Vedtak(
                 vedtakId = vedtakId,
                 sykmeldingId = sykmeldingId,
                 inntektsmeldingId = inntektsmeldingId,
                 orgnr = orgnr,
             )
-        dokumentkoblingProducer.send(vedtakKobling)
+        dokumentkoblingProducer.send(vedtak)
         logger.info(
             "Sendte melding på helsearbeidsgiver.dokument-kobling for vedtak med " +
                 "vedtakId: $vedtakId, sykmeldingId: $sykmeldingId og inntektsmeldingId: $inntektsmeldingId.",
