@@ -7,8 +7,16 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
+
+data class VedtakRad(
+    val vedtakId: UUID,
+    val fnr: String,
+    val orgnr: String,
+    val vedtak: VedtakArbeidsgiverMelding,
+)
 
 class VedtakRepository(
     private val db: Database,
@@ -35,4 +43,19 @@ class VedtakRepository(
             throw e
         }
     }
+
+    fun hentVedtak(vedtakId: UUID): VedtakRad? =
+        transaction(db) {
+            VedtakEntitet
+                .selectAll()
+                .where { VedtakEntitet.vedtakId eq vedtakId }
+                .map {
+                    VedtakRad(
+                        vedtakId = it[VedtakEntitet.vedtakId],
+                        fnr = it[VedtakEntitet.fnr],
+                        orgnr = it[VedtakEntitet.orgnr],
+                        vedtak = it[VedtakEntitet.vedtak],
+                    )
+                }.firstOrNull()
+        }
 }

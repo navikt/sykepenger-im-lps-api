@@ -29,11 +29,16 @@ import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingV1
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
+import no.nav.helsearbeidsgiver.vedtak.vedtakTokenX
 
-fun Application.configureRouting(services: Services) {
+fun Application.configureRouting(
+    services: Services,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     routing {
         metrikkRoutes()
         naisRoutes(services.helseSjekkService)
@@ -47,6 +52,7 @@ fun Application.configureRouting(services: Services) {
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)
             soeknadTokenX(soeknadService = services.soeknadService)
+            vedtakTokenX(vedtakService = services.vedtakService, unleashFeatureToggles = unleashFeatureToggles)
         }
         swaggerUI(path = "swagger") {
             info =

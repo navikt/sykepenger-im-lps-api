@@ -16,6 +16,19 @@ class VedtakService(
 ) {
     private val logger = logger()
 
+    fun hentVedtak(vedtakId: UUID): VedtakForPdf? {
+        val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
+        return VedtakForPdf(
+            vedtakId = rad.vedtakId,
+            orgnr = rad.orgnr,
+            fom = rad.vedtak.fom,
+            tom = rad.vedtak.tom,
+            sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
+            vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
+            vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
+        )
+    }
+
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
             val vedtakId = UUID.randomUUID()

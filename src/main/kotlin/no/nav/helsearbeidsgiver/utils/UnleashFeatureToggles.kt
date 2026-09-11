@@ -61,4 +61,10 @@ class UnleashFeatureToggles(
             "lagre-vedtak-arbeidsgiver",
             false,
         )
+
+    fun skalEksponereVedtakPdf(): Boolean =
+        unleashClient.isEnabled(
+            "eksponer-vedtak-pdf",
+            false,
+        )
 }

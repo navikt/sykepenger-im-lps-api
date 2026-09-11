@@ -122,6 +122,8 @@ spec:
       value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/sykmelding/sykmelding"
     - name: PDFGEN_SOEKNAD_URL
       value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/soknad/soknad"
+    - name: PDFGEN_VEDTAK_URL
+      value: "http://helsearbeidsgiver-pdfgen/api/v1/genpdf/vedtak/vedtak"
     - name: INNTEKT_URL
       value: "https://ikomp.prod-fss-pub.nais.io/rs"
     - name: INNTEKT_SCOPE

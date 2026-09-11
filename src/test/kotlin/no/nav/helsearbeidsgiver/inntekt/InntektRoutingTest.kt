@@ -66,6 +66,7 @@ class InntektRoutingTest {
                 apiModule(
                     services = services,
                     authClient = mockk(relaxed = true),
+                    unleashFeatureToggles = mockk(relaxed = true),
                 )
             }
         }
