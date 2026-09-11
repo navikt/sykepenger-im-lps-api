@@ -52,7 +52,7 @@ abstract class LpsApiIntegrasjontest {
             factory = Netty,
             port = 8080,
             module = {
-                apiModule(services = services, authClient = mockk(relaxed = true))
+                apiModule(services = services, authClient = mockk(relaxed = true), unleashFeatureToggles = mockk(relaxed = true))
                 configureKafkaConsumers(tolkers, mockUnleash, leaderConfig = mockLeaderConfig)
             },
         )

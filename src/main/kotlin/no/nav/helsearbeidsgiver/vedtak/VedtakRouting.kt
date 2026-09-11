@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererVedtakPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -20,10 +21,18 @@ import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
-fun Route.vedtakTokenX(vedtakService: VedtakService) {
+fun Route.vedtakTokenX(
+    vedtakService: VedtakService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
     route("/intern/personbruker") {
         get("/vedtak/{vedtakId}/pdf") {
             try {
+                if (!unleashFeatureToggles.skalEksponereVedtakPdf()) {
+                    call.respond(HttpStatusCode.Forbidden)
+                    return@get
+                }
+
                 val tokenContext = tokenValidationContext()
                 val pid = tokenContext.getPidFromTokenX()
 
