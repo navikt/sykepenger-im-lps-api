@@ -71,7 +71,7 @@ class InnsendingIT {
     private val testApplication =
         TestApplication {
             application {
-                apiModule(services = services, authClient = authClient, unleashFeatureToggles = mockk(relaxed = true))
+                apiModule(services = services, authClient = authClient, unleashFeatureToggles = unleashFeatureToggles)
             }
         }
     private val client =
