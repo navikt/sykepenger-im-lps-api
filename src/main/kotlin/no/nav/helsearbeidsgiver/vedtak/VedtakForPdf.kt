@@ -16,6 +16,7 @@ import java.util.UUID
 @Serializable
 data class VedtakForPdf(
     val vedtakId: UUID,
+    val orgnr: String,
     val fom: LocalDate,
     val tom: LocalDate,
     val sykepengegrunnlag: Double,

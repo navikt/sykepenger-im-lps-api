@@ -68,7 +68,7 @@ fun Route.vedtakTokenX(
 
                 sikkerLogger().info("Bruker med PID: $pid henter vedtak PDF: $vedtakId")
 
-                val pdfBytes = genererVedtakPdf(vedtak.vedtakForPdf)
+                val pdfBytes = genererVedtakPdf(vedtak)
                 call.respondMedPDF(bytes = pdfBytes, filnavn = "vedtak-$vedtakId.pdf")
             } catch (e: Exception) {
                 logger().error(Feil.FEIL_VED_HENTING_VEDTAK.feilmelding)

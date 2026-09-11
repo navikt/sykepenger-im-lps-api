@@ -8,12 +8,6 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
-data class VedtakMedTilgang(
-    val fnr: String,
-    val orgnr: String,
-    val vedtakForPdf: VedtakForPdf,
-)
-
 class VedtakService(
     private val vedtakRepository: VedtakRepository,
     private val unleashFeatureToggles: UnleashFeatureToggles,
@@ -22,20 +16,16 @@ class VedtakService(
 ) {
     private val logger = logger()
 
-    fun hentVedtak(vedtakId: UUID): VedtakMedTilgang? {
+    fun hentVedtak(vedtakId: UUID): VedtakForPdf? {
         val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
-        return VedtakMedTilgang(
-            fnr = rad.fnr,
+        return VedtakForPdf(
+            vedtakId = rad.vedtakId,
             orgnr = rad.orgnr,
-            vedtakForPdf =
-                VedtakForPdf(
-                    vedtakId = rad.vedtakId,
-                    fom = rad.vedtak.fom,
-                    tom = rad.vedtak.tom,
-                    sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
-                    vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
-                    vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
-                ),
+            fom = rad.vedtak.fom,
+            tom = rad.vedtak.tom,
+            sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
+            vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
+            vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
         )
     }
 
