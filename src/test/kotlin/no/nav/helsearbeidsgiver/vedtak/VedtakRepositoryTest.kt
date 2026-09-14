@@ -83,6 +83,32 @@ class VedtakRepositoryTest {
         forventetVedtakId shouldNotBe forventetReberegnetVedtakId
     }
 
+    @Test
+    fun `hentVedtak skal hente vedtak med loepenr`() {
+        val vedtak = vedtakMock()
+        val vedtakId = UUID.randomUUID()
+        vedtakRepository.lagreVedtak(
+            vedtakId = vedtakId,
+            vedtaksperiodeId = vedtak.vedtaksperiodeId,
+            fnr = vedtak.foedselsnummer,
+            orgnr = vedtak.organisasjonsnummer,
+            vedtak = vedtak,
+        )
+        val forventetLoepenr =
+            transaction(db) {
+                VedtakEntitet
+                    .selectAll()
+                    .where { VedtakEntitet.vedtakId eq vedtakId }
+                    .single()[VedtakEntitet.id]
+            }
+
+        val lagretVedtak = vedtakRepository.hentVedtak(vedtakId)
+
+        lagretVedtak?.loepenr shouldBe forventetLoepenr
+        lagretVedtak?.vedtakId shouldBe vedtakId
+        lagretVedtak?.vedtak shouldBe vedtak
+    }
+
     private fun hentVedtak(vedtaksperiodeId: UUID) =
         transaction(db) {
             VedtakEntitet

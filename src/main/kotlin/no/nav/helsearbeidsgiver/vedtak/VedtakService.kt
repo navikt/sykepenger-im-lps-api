@@ -16,17 +16,9 @@ class VedtakService(
 ) {
     private val logger = logger()
 
-    fun hentVedtak(vedtakId: UUID): VedtakForPdf? {
+    fun hentVedtak(vedtakId: UUID): VedtakResponse? {
         val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
-        return VedtakForPdf(
-            vedtakId = rad.vedtakId,
-            orgnr = rad.orgnr,
-            fom = rad.vedtak.fom,
-            tom = rad.vedtak.tom,
-            sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
-            vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
-            vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
-        )
+        return rad.tilVedtakResponse()
     }
 
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
@@ -113,4 +105,16 @@ class VedtakService(
             .maxByOrNull { it.innsendtTid }
             ?.id
     }
+
+    private fun VedtakRad.tilVedtakResponse() =
+        VedtakResponse(
+            loepenr = loepenr,
+            vedtakId = vedtakId,
+            orgnr = orgnr,
+            fom = vedtak.fom,
+            tom = vedtak.tom,
+            sykepengegrunnlag = vedtak.sykepengegrunnlag,
+            vedtaksUtfallTilArbeidsgiver = vedtak.vedtaksUtfallTilArbeidsgiver,
+            vedtakFattetTidspunkt = vedtak.vedtakFattetTidspunkt,
+        )
 }

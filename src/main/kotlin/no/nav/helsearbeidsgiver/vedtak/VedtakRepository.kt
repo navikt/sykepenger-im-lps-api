@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
 data class VedtakRad(
+    val loepenr: Long,
     val vedtakId: UUID,
     val fnr: String,
     val orgnr: String,
@@ -51,6 +52,7 @@ class VedtakRepository(
                 .where { VedtakEntitet.vedtakId eq vedtakId }
                 .map {
                     VedtakRad(
+                        loepenr = it[VedtakEntitet.id],
                         vedtakId = it[VedtakEntitet.vedtakId],
                         fnr = it[VedtakEntitet.fnr],
                         orgnr = it[VedtakEntitet.orgnr],

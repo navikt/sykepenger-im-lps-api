@@ -3,10 +3,14 @@ package no.nav.helsearbeidsgiver.vedtak
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getPidFromTokenX
+import no.nav.helsearbeidsgiver.auth.getSystembrukerOrgnr
+import no.nav.helsearbeidsgiver.auth.harTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.personHarTilgangTilRessurs
 import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
@@ -21,6 +25,77 @@ import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
+fun Route.vedtakV1(
+    vedtakService: VedtakService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+) {
+    route("/v1") {
+        get("/vedtak/{vedtakId}") {
+            hentVedtakMedId(vedtakService, unleashFeatureToggles)?.let { call.respond(it) }
+        }
+
+        get("/vedtak/{vedtakId}/pdf") {
+            val vedtak = hentVedtakMedId(vedtakService, unleashFeatureToggles)
+            if (vedtak != null) {
+                try {
+                    val pdfBytes = genererVedtakPdf(vedtak)
+                    call.respondMedPDF(bytes = pdfBytes, filnavn = "vedtak-${vedtak.vedtakId}.pdf")
+                } catch (e: Exception) {
+                    logger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding)
+                    sikkerLogger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding, e)
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
+                }
+            }
+        }
+    }
+}
+
+private suspend fun RoutingContext.hentVedtakMedId(
+    vedtakService: VedtakService,
+    unleashFeatureToggles: UnleashFeatureToggles,
+): VedtakResponse? {
+    try {
+        if (!unleashFeatureToggles.skalEksponereVedtak()) {
+            call.respond(HttpStatusCode.Forbidden)
+            return null
+        }
+
+        val tokenContext = tokenValidationContext()
+        val lpsOrgnr = tokenContext.getConsumerOrgnr()
+        val systembrukerOrgnr = tokenContext.getSystembrukerOrgnr()
+        val vedtakId = call.parameters["vedtakId"]?.toUuidOrNull()
+        if (vedtakId == null) {
+            call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_VEDTAK_ID))
+            return null
+        }
+
+        val vedtak = vedtakService.hentVedtak(vedtakId)
+        if (vedtak == null) {
+            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.VEDTAK_IKKE_FUNNET, vedtakId))
+            return null
+        }
+
+        if (!tokenContext.harTilgangTilRessurs(
+                ressurs = IM_RESSURS,
+                orgnr = vedtak.orgnr,
+            )
+        ) {
+            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+            return null
+        }
+
+        sikkerLogger().info(
+            "LPS: [$lpsOrgnr] henter vedtak med id: [$vedtakId] på vegne av orgnr: $systembrukerOrgnr",
+        )
+        return vedtak
+    } catch (e: Exception) {
+        logger().error(Feil.FEIL_VED_HENTING_VEDTAK.feilmelding)
+        sikkerLogger().error(Feil.FEIL_VED_HENTING_VEDTAK.feilmelding, e)
+        call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_VEDTAK))
+        return null
+    }
+}
+
 fun Route.vedtakTokenX(
     vedtakService: VedtakService,
     unleashFeatureToggles: UnleashFeatureToggles,
@@ -28,7 +103,7 @@ fun Route.vedtakTokenX(
     route("/intern/personbruker") {
         get("/vedtak/{vedtakId}/pdf") {
             try {
-                if (!unleashFeatureToggles.skalEksponereVedtakPdf()) {
+                if (!unleashFeatureToggles.skalEksponereVedtak()) {
                     call.respond(HttpStatusCode.Forbidden)
                     return@get
                 }
