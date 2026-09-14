@@ -1,10 +1,14 @@
 package no.nav.helsearbeidsgiver.vedtak
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.ContentTransformationException
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
@@ -16,6 +20,8 @@ import no.nav.helsearbeidsgiver.auth.tokenValidationContext
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 import no.nav.helsearbeidsgiver.plugins.Feil
 import no.nav.helsearbeidsgiver.plugins.FeilMedReferanse
+import no.nav.helsearbeidsgiver.plugins.respondWithMaxLimit
+import no.nav.helsearbeidsgiver.plugins.serialiseringsErrorResponse
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.genererVedtakPdf
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -45,6 +51,44 @@ fun Route.vedtakV1(
                     sikkerLogger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding, e)
                     call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
                 }
+            }
+        }
+
+        post("/vedtak") {
+            try {
+                if (!unleashFeatureToggles.skalEksponereVedtak()) {
+                    call.respond(HttpStatusCode.Forbidden)
+                    return@post
+                }
+
+                val tokenContext = tokenValidationContext()
+                val lpsOrgnr = tokenContext.getConsumerOrgnr()
+                val systembrukerOrgnr = tokenContext.getSystembrukerOrgnr()
+                val filter = call.receive<VedtakFilter>()
+
+                if (!tokenContext.harTilgangTilRessurs(
+                        ressurs = IM_RESSURS,
+                        orgnr = filter.orgnr,
+                    )
+                ) {
+                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+                    return@post
+                }
+
+                val vedtak = vedtakService.hentVedtak(filter)
+                sikkerLogger().info(
+                    "LPS: [$lpsOrgnr] henter vedtak for orgnr [${filter.orgnr}] " +
+                        "på vegne av orgnr: $systembrukerOrgnr",
+                )
+                call.respondWithMaxLimit(vedtak)
+            } catch (e: BadRequestException) {
+                call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
+            } catch (_: ContentTransformationException) {
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
+            } catch (e: Exception) {
+                logger().error(Feil.FEIL_VED_HENTING_VEDTAK.feilmelding)
+                sikkerLogger().error(Feil.FEIL_VED_HENTING_VEDTAK.feilmelding, e)
+                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_VEDTAK))
             }
         }
     }

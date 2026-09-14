@@ -21,6 +21,11 @@ class VedtakService(
         return rad.tilVedtakResponse()
     }
 
+    fun hentVedtak(filter: VedtakFilter): List<VedtakResponse> =
+        vedtakRepository
+            .hentVedtak(filter)
+            .map { it.tilVedtakResponse() }
+
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
             val vedtakId = UUID.randomUUID()
@@ -106,7 +111,7 @@ class VedtakService(
             ?.id
     }
 
-    private fun VedtakRad.tilVedtakResponse() =
+    private fun VedtakRad.tilVedtakResponse(): VedtakResponse =
         VedtakResponse(
             loepenr = loepenr,
             vedtakId = vedtakId,

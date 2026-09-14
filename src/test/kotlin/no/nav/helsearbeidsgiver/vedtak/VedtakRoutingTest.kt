@@ -4,6 +4,8 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -21,6 +23,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
 import no.nav.helsearbeidsgiver.utils.genererVedtakPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.gyldigTokenxToken
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -178,6 +181,85 @@ class VedtakRoutingTest : ApiTest() {
             }
 
         respons.status shouldBe HttpStatusCode.Unauthorized
+    }
+
+    @Test
+    fun `hent flere vedtak som JSON`() {
+        val filter = VedtakFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
+        val vedtak = listOf(vedtakRad(UUID.randomUUID()), vedtakRad(UUID.randomUUID()))
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { repositories.vedtakRepository.hentVedtak(filter) } returns vedtak
+
+        val respons =
+            runBlocking {
+                client.post("/v1/vedtak") {
+                    contentType(ContentType.Application.Json)
+                    setBody(filter.toJson(serializer = VedtakFilter.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            }
+
+        respons.status shouldBe HttpStatusCode.OK
+        runBlocking {
+            respons.body<List<VedtakResponse>>().map { it.vedtakId } shouldBe vedtak.map { it.vedtakId }
+        }
+    }
+
+    @Test
+    fun `hent flere vedtak skal svare 403 naar feature toggle er av`() {
+        val filter = VedtakFilter(orgnr = DEFAULT_ORG)
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns false
+
+        val respons =
+            runBlocking {
+                client.post("/v1/vedtak") {
+                    contentType(ContentType.Application.Json)
+                    setBody(filter.toJson(serializer = VedtakFilter.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            }
+
+        respons.status shouldBe HttpStatusCode.Forbidden
+    }
+
+    @Test
+    fun `hent flere vedtak skal svare 401 uten tilgang til inntektsmeldingressursen`() {
+        val filter = VedtakFilter(orgnr = DEFAULT_ORG)
+        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every {
+            no.nav.helsearbeidsgiver.config
+                .getPdpService()
+                .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
+        } returns false
+
+        val respons =
+            runBlocking {
+                client.post("/v1/vedtak") {
+                    contentType(ContentType.Application.Json)
+                    setBody(filter.toJson(serializer = VedtakFilter.serializer()))
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            }
+
+        respons.status shouldBe HttpStatusCode.Unauthorized
+        io.mockk.unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+    }
+
+    @Test
+    fun `hent flere vedtak skal svare 400 for ugyldig filter`() {
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+
+        val respons =
+            runBlocking {
+                client.post("/v1/vedtak") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"orgnr":"ugyldig"}""")
+                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+                }
+            }
+
+        respons.status shouldBe HttpStatusCode.BadRequest
     }
 
     private fun vedtakRad(vedtakId: UUID) =
