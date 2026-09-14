@@ -16,7 +16,7 @@ import no.nav.helsearbeidsgiver.soeknad.SykepengesoeknadForPDF
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
-import no.nav.helsearbeidsgiver.vedtak.VedtakForPdf
+import no.nav.helsearbeidsgiver.vedtak.VedtakResponse
 
 object PdfgenHttpClient {
     val httpClient = createHttpClient()
@@ -30,7 +30,7 @@ suspend fun genererSykmeldingPdf(sykmelding: Sykmelding) = hentPdf(sykmelding, P
 
 suspend fun genererSoeknadPdf(soeknad: SykepengesoeknadForPDF) = hentPdf(soeknad, PdfgenHttpClient.PDFGEN_SOEKNAD_URL)
 
-suspend fun genererVedtakPdf(vedtak: VedtakForPdf) = hentPdf(vedtak, PdfgenHttpClient.PDFGEN_VEDTAK_URL)
+suspend fun genererVedtakPdf(vedtak: VedtakResponse) = hentPdf(vedtak, PdfgenHttpClient.PDFGEN_VEDTAK_URL)
 
 private suspend fun hentPdf(
     body: Any?,
