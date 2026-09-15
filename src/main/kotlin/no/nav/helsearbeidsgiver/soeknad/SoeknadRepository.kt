@@ -42,8 +42,6 @@ class SoeknadRepository(
                     SoeknadEntitet.deleteWhere { soeknadId eq soeknad.soeknadId }
                 }
 
-                markerTidligereSoeknadSomKorrigert(soeknad)
-
                 SoeknadEntitet.insert {
                     it[soeknadId] = soeknad.soeknadId
                     it[sykmeldingId] = soeknad.sykmeldingId
@@ -56,28 +54,6 @@ class SoeknadRepository(
             sikkerLogger().error("Klarte ikke å lagre sykepengesøknad med id ${soeknad.soeknadId} i databasen", e)
             throw e
         }
-    }
-
-    private fun markerTidligereSoeknadSomKorrigert(soeknad: LagreSoeknad) {
-        val korrigererId = soeknad.sykepengesoeknad.korrigerer ?: return
-
-        val korrigertSoeknad =
-            SoeknadEntitet
-                .selectAll()
-                .where { soeknadId eq korrigererId }
-                .map { SykepengeSoeknadDto(loepenr = it[SoeknadEntitet.id], sykepengeSoeknadKafkaMelding = it[sykepengesoeknad]) }
-                .singleOrNull() ?: return
-
-        SoeknadEntitet.update(
-            where = { soeknadId eq korrigererId },
-        ) {
-            it[sykepengesoeknad] =
-                korrigertSoeknad.sykepengeSoeknadKafkaMelding.copy(
-                    korrigertAv = soeknad.sykepengesoeknad.id,
-                    status = SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.KORRIGERT,
-                )
-        }
-        logger().info("Markerte søknad med id $korrigererId som korrigert")
     }
 
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<SykepengeSoeknadDto> =
