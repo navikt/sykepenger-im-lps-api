@@ -33,7 +33,7 @@ class SoeknadService(
             ?.let { soeknad ->
                 soeknad.sykepengeSoeknadKafkaMelding
                     .whitelistetForArbeidsgiver()
-                    ?.konverter(soeknad.loepenr)
+                    .konverter(soeknad.loepenr)
             }
 
     fun tilSoeknadForPdf(soeknad: Sykepengesoeknad): SykepengesoeknadForPDF {
@@ -75,6 +75,7 @@ class SoeknadService(
                     soeknadId = validertSoeknad.soeknadId,
                     sykmeldingId = validertSoeknad.sykmeldingId,
                     orgnr = Orgnr(validertSoeknad.orgnr),
+                    korrigerer = soeknad.korrigerer,
                 )
             } else {
                 logger.info(
