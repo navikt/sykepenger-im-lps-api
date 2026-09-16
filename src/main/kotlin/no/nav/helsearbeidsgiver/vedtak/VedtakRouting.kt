@@ -71,7 +71,7 @@ fun Route.vedtakV1(
                         orgnr = filter.orgnr,
                     )
                 ) {
-                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+                    call.respond(HttpStatusCode.Forbidden, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                     return@post
                 }
 
@@ -124,7 +124,7 @@ private suspend fun RoutingContext.hentVedtakMedId(
                 orgnr = vedtak.orgnr,
             )
         ) {
-            call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+            call.respond(HttpStatusCode.Forbidden, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
             return null
         }
 
@@ -181,7 +181,7 @@ fun Route.vedtakTokenX(
                         pid = pid,
                     )
                 ) {
-                    call.respond(HttpStatusCode.Unauthorized, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
+                    call.respond(HttpStatusCode.Forbidden, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
                     return@get
                 }
 

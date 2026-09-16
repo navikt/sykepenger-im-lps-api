@@ -148,7 +148,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent vedtak skal svare 401 uten tilgang til inntektsmeldingressursen`() {
+    fun `hent vedtak skal svare 403 uten tilgang til inntektsmeldingressursen`() {
         val vedtakId = UUID.randomUUID()
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
         every { unleashFeatureToggles.skalEksponereVedtak() } returns true
@@ -166,7 +166,7 @@ class VedtakRoutingTest : ApiTest() {
                 }
             }
 
-        respons.status shouldBe HttpStatusCode.Unauthorized
+        respons.status shouldBe HttpStatusCode.Forbidden
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
 
@@ -224,7 +224,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent flere vedtak skal svare 401 uten tilgang til inntektsmeldingressursen`() {
+    fun `hent flere vedtak skal svare 403 uten tilgang til inntektsmeldingressursen`() {
         val filter = VedtakFilter(orgnr = DEFAULT_ORG)
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
         every { unleashFeatureToggles.skalEksponereVedtak() } returns true
@@ -243,7 +243,7 @@ class VedtakRoutingTest : ApiTest() {
                 }
             }
 
-        respons.status shouldBe HttpStatusCode.Unauthorized
+        respons.status shouldBe HttpStatusCode.Forbidden
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
 

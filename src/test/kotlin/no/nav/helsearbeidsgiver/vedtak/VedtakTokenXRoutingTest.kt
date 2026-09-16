@@ -110,7 +110,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
                 client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.Forbidden
         }
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
