@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
@@ -166,7 +167,7 @@ class VedtakRoutingTest : ApiTest() {
             }
 
         respons.status shouldBe HttpStatusCode.Unauthorized
-        io.mockk.unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
 
     @Test
@@ -243,7 +244,7 @@ class VedtakRoutingTest : ApiTest() {
             }
 
         respons.status shouldBe HttpStatusCode.Unauthorized
-        io.mockk.unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+        unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
 
     @Test

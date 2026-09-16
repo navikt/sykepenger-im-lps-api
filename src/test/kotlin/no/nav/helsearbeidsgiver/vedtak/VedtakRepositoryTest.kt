@@ -4,6 +4,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
 import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
@@ -119,20 +120,20 @@ class VedtakRepositoryTest {
         val vedtak = vedtakMock()
         val orgnr = vedtak.organisasjonsnummer
         val fnr = vedtak.foedselsnummer
-        val vedtakFoerCursor = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
+        val vedtakFoerFraLoepenr = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
         val forventetVedtak = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
         val vedtakMedFeilUtfall = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.AVSLAG)
 
-        val vedtakFoerCursorId = lagreVedtak(vedtakFoerCursor, fnr, orgnr)
+        val vedtakFoerFraLoepenrId = lagreVedtak(vedtakFoerFraLoepenr, fnr, orgnr)
         val forventetVedtakId = lagreVedtak(forventetVedtak, fnr, orgnr)
         lagreVedtak(vedtakMedFeilUtfall, fnr, orgnr)
         lagreVedtak(forventetVedtak, Fnr.genererGyldig(), orgnr)
         lagreVedtak(forventetVedtak, fnr, Orgnr.genererGyldig())
-        val loepenrFoerCursor =
+        val loepenrGrense =
             transaction(db) {
                 VedtakEntitet
                     .selectAll()
-                    .where { VedtakEntitet.vedtakId eq vedtakFoerCursorId }
+                    .where { VedtakEntitet.vedtakId eq vedtakFoerFraLoepenrId }
                     .single()[VedtakEntitet.id]
             }
 
@@ -143,7 +144,7 @@ class VedtakRepositoryTest {
                     fnr = fnr.toString(),
                     fom = LocalDate.now(),
                     tom = LocalDate.now(),
-                    fraLoepenr = loepenrFoerCursor,
+                    fraLoepenr = loepenrGrense,
                     vedtaksUtfall = VedtaksUtfall.INNVILGELSE,
                 ),
             )
@@ -153,7 +154,7 @@ class VedtakRepositoryTest {
     }
 
     private fun lagreVedtak(
-        vedtak: no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding,
+        vedtak: VedtakArbeidsgiverMelding,
         fnr: Fnr,
         orgnr: Orgnr,
     ): UUID =

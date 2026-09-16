@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
@@ -80,7 +81,7 @@ class VedtakRepository(
             query.map(::tilVedtakRad)
         }
 
-    private fun tilVedtakRad(resultatRad: org.jetbrains.exposed.sql.ResultRow) =
+    private fun tilVedtakRad(resultatRad: ResultRow) =
         VedtakRad(
             loepenr = resultatRad[VedtakEntitet.id],
             vedtakId = resultatRad[VedtakEntitet.vedtakId],
