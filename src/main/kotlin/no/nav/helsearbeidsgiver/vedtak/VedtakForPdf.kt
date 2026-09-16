@@ -22,4 +22,6 @@ data class VedtakForPdf(
     val sykepengegrunnlag: Double,
     val vedtaksUtfallTilArbeidsgiver: VedtaksUtfall,
     val vedtakFattetTidspunkt: LocalDateTime,
+    val sykmeldtNavn: String? = null,
+    val virksomhetsnavn: String? = null,
 )

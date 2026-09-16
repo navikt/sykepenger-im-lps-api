@@ -4,7 +4,10 @@ import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
+import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.kapitaliserNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
@@ -13,11 +16,23 @@ class VedtakService(
     private val unleashFeatureToggles: UnleashFeatureToggles,
     private val inntektsmeldingRepository: InntektsmeldingRepository,
     private val dokumentkoblingService: DokumentkoblingService,
+    private val sykmeldingRepository: SykmeldingRepository,
+    private val soeknadRepository: SoeknadRepository,
 ) {
     private val logger = logger()
 
     fun hentVedtak(vedtakId: UUID): VedtakForPdf? {
         val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
+
+        val vedtaksdokumenter = rad.vedtak.dokumenter
+        val vedtaksperiodeId = rad.vedtak.vedtaksperiodeId
+
+        val sykmeldingId = finnSykmeldingId(dokumenter = vedtaksdokumenter, vedtaksperiodeId = vedtaksperiodeId)
+        val sykmeldtNavn = sykmeldingId?.let { hentSykmeldtNavn(sykmeldingId = it, vedtaksperiodeId = vedtaksperiodeId) }
+
+        val soeknadId = finnSoeknadId(dokumenter = vedtaksdokumenter, vedtaksperiodeId = vedtaksperiodeId)
+        val virksomhetsnavn = soeknadId?.let { hentVirksomhetsnavn(soeknadId = it, vedtaksperiodeId = vedtaksperiodeId) }
+
         return VedtakForPdf(
             vedtakId = rad.vedtakId,
             orgnr = rad.orgnr,
@@ -26,6 +41,8 @@ class VedtakService(
             sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
             vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
             vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
+            sykmeldtNavn = sykmeldtNavn,
+            virksomhetsnavn = virksomhetsnavn,
         )
     }
 
@@ -81,6 +98,39 @@ class VedtakService(
         )
     }
 
+    private fun hentSykmeldtNavn(
+        sykmeldingId: UUID,
+        vedtaksperiodeId: UUID,
+    ): String? {
+        val sykmeldtNavn = sykmeldingRepository.hentSykmelding(sykmeldingId)?.sykmeldtNavn
+        if (sykmeldtNavn == null) {
+            logger.error(
+                "Fant ikke sykmelding med sykmeldingId $sykmeldingId for vedtak med vedtaksperiodeId $vedtaksperiodeId, " +
+                    "og klarer derfor ikke hente sykmeldt sitt navn til vedtak-pdf.",
+            )
+        }
+        return sykmeldtNavn?.kapitaliserNavn()
+    }
+
+    private fun hentVirksomhetsnavn(
+        soeknadId: UUID,
+        vedtaksperiodeId: UUID,
+    ): String? {
+        val virksomhetsnavn =
+            soeknadRepository
+                .hentSoeknad(soeknadId)
+                ?.sykepengeSoeknadKafkaMelding
+                ?.arbeidsgiver
+                ?.navn
+        if (virksomhetsnavn == null) {
+            logger.error(
+                "Fant ikke søknad med søknadId $soeknadId for vedtak med vedtaksperiodeId $vedtaksperiodeId, " +
+                    "og klarer derfor ikke hente virksomhetsnavn til vedtak-pdf.",
+            )
+        }
+        return virksomhetsnavn
+    }
+
     private fun finnSykmeldingId(
         dokumenter: List<Dokument>,
         vedtaksperiodeId: UUID,
@@ -88,11 +138,25 @@ class VedtakService(
         val sykmeldinger = dokumenter.filter { it.type == Dokument.Type.Sykmelding }
         if (sykmeldinger.size > 1) {
             logger.warn(
-                "Fant ${sykmeldinger.size} sykmeldinger for vedtak med vedtaksperiodeId $vedtaksperiodeId, " +
-                    "bruker den første i dokumentkoblingen.",
+                "Fant ${sykmeldinger.size} sykmeldinger i vedtakmelding med vedtaksperiodeId $vedtaksperiodeId. " +
+                    "Bruker den første.",
             )
         }
         return sykmeldinger.firstOrNull()?.dokumentId
+    }
+
+    private fun finnSoeknadId(
+        dokumenter: List<Dokument>,
+        vedtaksperiodeId: UUID,
+    ): UUID? {
+        val soeknader = dokumenter.filter { it.type == Dokument.Type.Soeknad }
+        if (soeknader.size > 1) {
+            logger.warn(
+                "Fant ${soeknader.size} søknader i vedtakmelding med vedtaksperiodeId $vedtaksperiodeId, " +
+                    "Bruker den første.",
+            )
+        }
+        return soeknader.firstOrNull()?.dokumentId
     }
 
     private fun finnInntektsmeldingId(
