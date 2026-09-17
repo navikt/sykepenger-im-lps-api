@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.LocalDateTime
 import java.util.UUID
 
 class SoeknadService(
@@ -19,6 +20,10 @@ class SoeknadService(
     val pdlService: PdlService,
 ) {
     private val logger = logger()
+
+    companion object {
+        val START_TID_VISNING_ALLE_SOKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
+    }
 
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<Sykepengesoeknad> =
         soeknadRepository
@@ -122,7 +127,13 @@ class SoeknadService(
             !erEttersendtTilNAV() &&
             this.status == SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.SENDT
 
-    private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
+    // ALLE nye søknader skal vises, men vi kan ikke plutselig begynne å returnere gamle (de er ikke distribuert)
+    private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean =
+        (
+            this.sendtNav != null &&
+                this.sendtNav > START_TID_VISNING_ALLE_SOKNADER
+        ) ||
+            this.sendtArbeidsgiver != null
 
     private fun SykepengeSoeknadKafkaMelding.validerPaakrevdeFelter(): LagreSoeknad =
         LagreSoeknad(

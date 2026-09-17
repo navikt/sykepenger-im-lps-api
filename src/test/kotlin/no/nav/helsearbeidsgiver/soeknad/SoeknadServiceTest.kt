@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.soeknad
 
+import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.Called
@@ -26,6 +27,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -266,11 +268,11 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null`() {
+    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null sendtNav er før 2026-09-18 klokken 12`() {
         val soeknad = soeknadMock()
 
         val soeknadSomSkalLagresMenIkkeVideresendes =
-            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null)
+            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null, sendtNav = LocalDateTime.of(2026, 9, 18, 11, 59))
 
         soeknadService.behandleSoeknad(soeknadSomSkalLagresMenIkkeVideresendes)
 
@@ -280,6 +282,32 @@ class SoeknadServiceTest {
         lagretSoeknad shouldBe soeknadSomSkalLagresMenIkkeVideresendes
 
         verify { dokumentkoblingService wasNot Called }
+    }
+
+    @Test
+    fun `skal videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er etter 2026-09-18 klokken 12`() {
+        every { sykmeldingService.hentInternSykmelding(any()) } returns null
+        val soeknad = soeknadMock().medOrgnr(orgnr)
+        // For nye søknader tar vi ikke hensyn til sendtArbeidsgiver, siden dette feltet kan være feil.
+        val soeknadSomSkalLagresOgVideresendes =
+            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null, sendtNav = LocalDateTime.of(2026, 9, 18, 12, 1))
+
+        soeknadService.behandleSoeknad(soeknadSomSkalLagresOgVideresendes)
+
+        val nySoeknad =
+            transaction(
+                db,
+            ) {
+                SoeknadEntitet
+                    .selectAll()
+                    .orderBy(SoeknadEntitet.id, SortOrder.DESC)
+                    .firstOrNull()
+                    ?.getOrNull(sykepengesoeknad)
+            }
+
+        nySoeknad shouldBe soeknadSomSkalLagresOgVideresendes
+
+        verify(exactly = 1) { dokumentkoblingService.produserSykepengesoeknadKobling(any(), any(), orgnr) }
     }
 
     @Test
