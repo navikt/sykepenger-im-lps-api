@@ -10,7 +10,11 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.whitelistetForArbeidsgiver
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.LocalDateTime
 import java.util.UUID
+
+// Kan fjernes dersom vi sletter gamle søknader helt opp til dette tidspunktet
+private val START_TID_FOR_VISNING_ALLE_SOEKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
 
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
@@ -122,7 +126,13 @@ class SoeknadService(
             !erEttersendtTilNAV() &&
             this.status == SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.SENDT
 
-    private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean = this.sendtArbeidsgiver != null
+    // ALLE nye søknader skal sendes og vises, men vi kan ikke plutselig begynne å returnere gamle (de er ikke distribuert)
+    private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean =
+        (
+            this.sendtNav != null &&
+                this.sendtNav > START_TID_FOR_VISNING_ALLE_SOEKNADER
+        ) ||
+            this.sendtArbeidsgiver != null
 
     private fun SykepengeSoeknadKafkaMelding.validerPaakrevdeFelter(): LagreSoeknad =
         LagreSoeknad(
