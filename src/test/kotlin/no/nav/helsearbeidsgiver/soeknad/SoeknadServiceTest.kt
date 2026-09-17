@@ -268,7 +268,7 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null sendtNav er før 2026-09-18 klokken 12`() {
+    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er før 2026-09-18 klokken 12`() {
         val soeknad = soeknadMock()
 
         val soeknadSomSkalLagresMenIkkeVideresendes =
