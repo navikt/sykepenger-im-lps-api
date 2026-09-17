@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.soeknad
 
-import io.kotest.matchers.ints.exactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.Called
@@ -286,7 +285,6 @@ class SoeknadServiceTest {
 
     @Test
     fun `skal videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er etter 2026-09-18 klokken 12`() {
-        every { sykmeldingService.hentInternSykmelding(any()) } returns null
         val soeknad = soeknadMock().medOrgnr(orgnr)
         // For nye søknader tar vi ikke hensyn til sendtArbeidsgiver, siden dette feltet kan være feil.
         val soeknadSomSkalLagresOgVideresendes =
@@ -295,9 +293,7 @@ class SoeknadServiceTest {
         soeknadService.behandleSoeknad(soeknadSomSkalLagresOgVideresendes)
 
         val nySoeknad =
-            transaction(
-                db,
-            ) {
+            transaction(db) {
                 SoeknadEntitet
                     .selectAll()
                     .orderBy(SoeknadEntitet.id, SortOrder.DESC)
