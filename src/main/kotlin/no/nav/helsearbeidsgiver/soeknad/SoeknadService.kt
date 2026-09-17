@@ -13,6 +13,9 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDateTime
 import java.util.UUID
 
+// Kan fjernes dersom vi sletter gamle søknader helt opp til dette tidspunktet
+val START_TID_FOR_VISNING_ALLE_SOEKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
+
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
     val sykmeldingService: SykmeldingService,
@@ -20,10 +23,6 @@ class SoeknadService(
     val pdlService: PdlService,
 ) {
     private val logger = logger()
-
-    companion object {
-        val START_TID_VISNING_ALLE_SOEKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
-    }
 
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<Sykepengesoeknad> =
         soeknadRepository
@@ -131,7 +130,7 @@ class SoeknadService(
     private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean =
         (
             this.sendtNav != null &&
-                this.sendtNav > START_TID_VISNING_ALLE_SOEKNADER
+                this.sendtNav > START_TID_FOR_VISNING_ALLE_SOEKNADER
         ) ||
             this.sendtArbeidsgiver != null
 
