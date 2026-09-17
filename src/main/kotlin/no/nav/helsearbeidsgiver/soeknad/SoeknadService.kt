@@ -22,7 +22,7 @@ class SoeknadService(
     private val logger = logger()
 
     companion object {
-        val START_TID_VISNING_ALLE_SOKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
+        val START_TID_VISNING_ALLE_SOEKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
     }
 
     fun hentSoeknader(filter: SykepengesoeknadFilter): List<Sykepengesoeknad> =
@@ -127,11 +127,11 @@ class SoeknadService(
             !erEttersendtTilNAV() &&
             this.status == SykepengeSoeknadKafkaMelding.SoknadsstatusDTO.SENDT
 
-    // ALLE nye søknader skal vises, men vi kan ikke plutselig begynne å returnere gamle (de er ikke distribuert)
+    // ALLE nye søknader skal sendes og vises, men vi kan ikke plutselig begynne å returnere gamle (de er ikke distribuert)
     private fun SykepengeSoeknadKafkaMelding.skalSendesTilArbeidsgiver(): Boolean =
         (
             this.sendtNav != null &&
-                this.sendtNav > START_TID_VISNING_ALLE_SOKNADER
+                this.sendtNav > START_TID_VISNING_ALLE_SOEKNADER
         ) ||
             this.sendtArbeidsgiver != null
 
