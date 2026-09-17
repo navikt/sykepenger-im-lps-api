@@ -23,5 +23,5 @@ data class VedtakForPdf(
     val vedtaksUtfallTilArbeidsgiver: VedtaksUtfall,
     val vedtakFattetTidspunkt: LocalDateTime,
     val sykmeldtNavn: String? = null,
-    val virksomhetsnavn: String? = null,
+    val arbeidsgiverNavn: String? = null,
 )

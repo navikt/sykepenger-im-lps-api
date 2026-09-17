@@ -31,7 +31,7 @@ class VedtakService(
         val sykmeldtNavn = sykmeldingId?.let { hentSykmeldtNavn(sykmeldingId = it, vedtaksperiodeId = vedtaksperiodeId) }
 
         val soeknadId = finnSoeknadId(dokumenter = vedtaksdokumenter, vedtaksperiodeId = vedtaksperiodeId)
-        val virksomhetsnavn = soeknadId?.let { hentVirksomhetsnavn(soeknadId = it, vedtaksperiodeId = vedtaksperiodeId) }
+        val arbeidsgiverNavn = soeknadId?.let { hentArbeidsgiverNavn(soeknadId = it, vedtaksperiodeId = vedtaksperiodeId) }
 
         return VedtakForPdf(
             vedtakId = rad.vedtakId,
@@ -42,7 +42,7 @@ class VedtakService(
             vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
             vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
             sykmeldtNavn = sykmeldtNavn,
-            virksomhetsnavn = virksomhetsnavn,
+            arbeidsgiverNavn = arbeidsgiverNavn,
         )
     }
 
@@ -112,23 +112,23 @@ class VedtakService(
         return sykmeldtNavn?.kapitaliserNavn()
     }
 
-    private fun hentVirksomhetsnavn(
+    private fun hentArbeidsgiverNavn(
         soeknadId: UUID,
         vedtaksperiodeId: UUID,
     ): String? {
-        val virksomhetsnavn =
+        val arbeidsgiverNavn =
             soeknadRepository
                 .hentSoeknad(soeknadId)
                 ?.sykepengeSoeknadKafkaMelding
                 ?.arbeidsgiver
                 ?.navn
-        if (virksomhetsnavn == null) {
+        if (arbeidsgiverNavn == null) {
             logger.error(
                 "Fant ikke søknad med søknadId $soeknadId for vedtak med vedtaksperiodeId $vedtaksperiodeId, " +
-                    "og klarer derfor ikke hente virksomhetsnavn til vedtak-pdf.",
+                    "og klarer derfor ikke hente navn på arbeidsgiver til vedtak-pdf.",
             )
         }
-        return virksomhetsnavn
+        return arbeidsgiverNavn
     }
 
     private fun finnSykmeldingId(
