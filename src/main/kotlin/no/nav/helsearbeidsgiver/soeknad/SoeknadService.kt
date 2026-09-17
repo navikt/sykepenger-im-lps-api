@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 // Kan fjernes dersom vi sletter gamle søknader helt opp til dette tidspunktet
-val START_TID_FOR_VISNING_ALLE_SOEKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
+private val START_TID_FOR_VISNING_ALLE_SOEKNADER = LocalDateTime.of(2026, 9, 18, 12, 0)
 
 class SoeknadService(
     val soeknadRepository: SoeknadRepository,
