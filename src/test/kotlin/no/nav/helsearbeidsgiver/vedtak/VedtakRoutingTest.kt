@@ -75,6 +75,8 @@ class VedtakRoutingTest : ApiTest() {
                     sykepengegrunnlag = vedtak.sykepengegrunnlag,
                     vedtaksUtfallTilArbeidsgiver = vedtak.vedtaksUtfallTilArbeidsgiver,
                     vedtakFattetTidspunkt = vedtak.vedtakFattetTidspunkt,
+                    sykmeldtNavn = null,
+                    arbeidsgiverNavn = null,
                 )
         }
     }
