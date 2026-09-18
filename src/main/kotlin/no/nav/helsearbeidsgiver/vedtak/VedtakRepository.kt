@@ -71,7 +71,7 @@ class VedtakRepository(
             filter.fom?.let { query.andWhere { VedtakEntitet.opprettet greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { VedtakEntitet.opprettet lessEq it.tilTidspunktEndOfDay() } }
             filter.fraLoepenr?.let { query.andWhere { VedtakEntitet.id greater it } }
-            filter.vedtaksUtfall?.let {
+            filter.vedtakUtfall?.let {
                 query.andWhere {
                     VedtakEntitet.vedtak.extract<String>("vedtaksUtfallTilArbeidsgiver") eq it.name
                 }

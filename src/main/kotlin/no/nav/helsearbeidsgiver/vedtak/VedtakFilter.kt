@@ -16,7 +16,7 @@ data class VedtakFilter(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val fraLoepenr: Long? = null,
-    val vedtaksUtfall: VedtaksUtfall? = null,
+    val vedtakUtfall: VedtaksUtfall? = null,
 ) {
     init {
         require(erGyldig(orgnr)) { "ikke et gyldig orgnr" }

@@ -145,7 +145,7 @@ class VedtakRepositoryTest {
                     fom = LocalDate.now(),
                     tom = LocalDate.now(),
                     fraLoepenr = loepenrGrense,
-                    vedtaksUtfall = VedtaksUtfall.INNVILGELSE,
+                    vedtakUtfall = VedtaksUtfall.INNVILGELSE,
                 ),
             )
 
