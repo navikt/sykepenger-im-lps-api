@@ -93,7 +93,7 @@ class VedtakService(
         )
     }
 
-    fun hentSykmeldtNavn(
+    private fun hentSykmeldtNavn(
         sykmeldingId: UUID,
         vedtaksperiodeId: UUID,
     ): String? {
@@ -107,7 +107,7 @@ class VedtakService(
         return sykmeldtNavn?.kapitaliserNavn()
     }
 
-    fun hentArbeidsgiverNavn(
+    private fun hentArbeidsgiverNavn(
         soeknadId: UUID,
         vedtaksperiodeId: UUID,
     ): String? {
