@@ -55,6 +55,8 @@ class VedtakRoutingTest : ApiTest() {
                 orgnr = DEFAULT_ORG,
                 vedtak = vedtak,
             )
+        every { repositories.sykmeldingRepository.hentSykmelding(any()) } returns null
+        every { repositories.soeknadRepository.hentSoeknad(any()) } returns null
 
         val respons =
             runBlocking {
