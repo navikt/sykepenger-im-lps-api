@@ -50,12 +50,14 @@ class DokumentkoblingService(
         soeknadId: UUID,
         sykmeldingId: UUID,
         orgnr: Orgnr,
+        korrigerer: UUID? = null,
     ) {
         val sykepengesoeknadKobling =
             Sykepengesoeknad(
                 soeknadId = soeknadId,
                 sykmeldingId = sykmeldingId,
                 orgnr = orgnr,
+                korrigerer = korrigerer,
             )
         dokumentkoblingProducer.send(sykepengesoeknadKobling)
         logger.info(

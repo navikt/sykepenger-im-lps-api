@@ -236,6 +236,8 @@ fun configureServices(
             unleashFeatureToggles,
             repositories.inntektsmeldingRepository,
             dokumentkoblingService,
+            repositories.sykmeldingRepository,
+            repositories.soeknadRepository,
         )
 
     return Services(

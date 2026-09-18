@@ -22,4 +22,6 @@ data class VedtakResponse(
     val sykepengegrunnlag: Double,
     val vedtaksUtfallTilArbeidsgiver: VedtaksUtfall,
     val vedtakFattetTidspunkt: LocalDateTime,
+    val sykmeldtNavn: String? = null,
+    val arbeidsgiverNavn: String? = null,
 )

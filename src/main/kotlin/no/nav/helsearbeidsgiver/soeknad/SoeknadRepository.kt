@@ -28,27 +28,20 @@ import java.util.UUID
 class SoeknadRepository(
     private val db: Database,
 ) {
-    fun lagreSoeknad(soeknad: LagreSoeknad) {
-        try {
-            transaction(db) {
-                SoeknadEntitet.insert {
-                    it[soeknadId] = soeknad.soeknadId
-                    it[sykmeldingId] = soeknad.sykmeldingId
-                    it[fnr] = soeknad.fnr
-                    it[orgnr] = soeknad.orgnr
-                    it[sykepengesoeknad] = soeknad.sykepengesoeknad
-                }
-            }
-        } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å lagre sykepengesøknad  med id ${soeknad.soeknadId} i databasen", e)
-            throw e
-        }
-    }
+    fun lagreSoeknad(soeknad: LagreSoeknad) = lagreSoeknad(soeknad, erstatt = false)
 
-    fun erstattSoeknad(soeknad: LagreSoeknad) {
+    fun erstattSoeknad(soeknad: LagreSoeknad) = lagreSoeknad(soeknad, erstatt = true)
+
+    private fun lagreSoeknad(
+        soeknad: LagreSoeknad,
+        erstatt: Boolean,
+    ) {
         try {
             transaction(db) {
-                SoeknadEntitet.deleteWhere { soeknadId eq soeknad.soeknadId }
+                if (erstatt) {
+                    SoeknadEntitet.deleteWhere { soeknadId eq soeknad.soeknadId }
+                }
+
                 SoeknadEntitet.insert {
                     it[soeknadId] = soeknad.soeknadId
                     it[sykmeldingId] = soeknad.sykmeldingId
@@ -58,7 +51,7 @@ class SoeknadRepository(
                 }
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å erstatte sykepengesøknad med id ${soeknad.soeknadId} i databasen", e)
+            sikkerLogger().error("Klarte ikke å lagre sykepengesøknad med id ${soeknad.soeknadId} i databasen", e)
             throw e
         }
     }

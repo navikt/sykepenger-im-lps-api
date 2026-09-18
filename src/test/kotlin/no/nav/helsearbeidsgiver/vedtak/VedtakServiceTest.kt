@@ -11,6 +11,8 @@ import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.sis.Dokument
+import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
+import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -40,8 +42,17 @@ class VedtakServiceTest {
     private val unleashFeatureToggles = mockk<UnleashFeatureToggles>()
     private val inntektsmeldingRepository = mockk<InntektsmeldingRepository>()
     private val dokumentkoblingService = mockk<DokumentkoblingService>()
+    private val sykmeldingRepository = mockk<SykmeldingRepository>()
+    private val soeknadRepository = mockk<SoeknadRepository>()
     private val vedtakService: VedtakService by lazy {
-        VedtakService(vedtakRepository, unleashFeatureToggles, inntektsmeldingRepository, dokumentkoblingService)
+        VedtakService(
+            vedtakRepository,
+            unleashFeatureToggles,
+            inntektsmeldingRepository,
+            dokumentkoblingService,
+            sykmeldingRepository,
+            soeknadRepository,
+        )
     }
 
     @BeforeEach
