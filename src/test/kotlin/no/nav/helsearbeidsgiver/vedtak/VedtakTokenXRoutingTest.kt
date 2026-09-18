@@ -45,9 +45,10 @@ class VedtakTokenXRoutingTest : ApiTest() {
         val vedtak = vedtakMock()
 
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
             VedtakRad(
+                loepenr = 1,
                 vedtakId = vedtakId,
                 fnr = DEFAULT_FNR,
                 orgnr = DEFAULT_ORG,
@@ -73,7 +74,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
     fun `hent med TokenX person endepunkt skal ikke funke med en maskinporten token`() {
         val vedtakId = UUID.randomUUID()
 
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
         runBlocking {
             val response =
                 client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
@@ -89,7 +90,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
         val vedtak = vedtakMock()
 
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
         every {
             no.nav.helsearbeidsgiver.config
                 .getPdpService()
@@ -98,6 +99,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
 
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
             VedtakRad(
+                loepenr = 1,
                 vedtakId = vedtakId,
                 fnr = DEFAULT_FNR,
                 orgnr = DEFAULT_ORG,
@@ -108,7 +110,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
                 client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.Forbidden
         }
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }
@@ -117,7 +119,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
     fun `hent vedtak PDF skal svare 403 naar feature toggle er av`() {
         val vedtakId = UUID.randomUUID()
 
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns false
+        every { unleashFeatureToggles.skalEksponereVedtak() } returns false
 
         runBlocking {
             val response =
