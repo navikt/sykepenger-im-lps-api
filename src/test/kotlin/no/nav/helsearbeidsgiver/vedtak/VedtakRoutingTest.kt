@@ -47,7 +47,7 @@ class VedtakRoutingTest : ApiTest() {
         val vedtakId = UUID.randomUUID()
         val loepenr = 42L
         val vedtak = vedtakMock()
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
             VedtakRad(
                 loepenr = loepenr,
@@ -89,7 +89,7 @@ class VedtakRoutingTest : ApiTest() {
         val vedtakId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns vedtakRad(vedtakId)
         coEvery { genererVedtakPdf(any()) } returns mockPdfBytes
 
@@ -110,7 +110,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent vedtak skal svare 403 naar feature toggle er av`() {
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns false
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns false
 
         val respons =
             runBlocking {
@@ -124,7 +124,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent vedtak skal svare 400 for ugyldig vedtakId`() {
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
 
         val respons =
             runBlocking {
@@ -139,7 +139,7 @@ class VedtakRoutingTest : ApiTest() {
     @Test
     fun `hent vedtak skal svare 404 naar vedtaket ikke finnes`() {
         val vedtakId = UUID.randomUUID()
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns null
 
         val respons =
@@ -156,7 +156,7 @@ class VedtakRoutingTest : ApiTest() {
     fun `hent vedtak skal svare 403 uten tilgang til inntektsmeldingressursen`() {
         val vedtakId = UUID.randomUUID()
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns vedtakRad(vedtakId)
         every {
             getPdpService()
@@ -176,7 +176,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `systembrukerendepunktet skal avvise TokenX token`() {
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
 
         val respons =
             runBlocking {
@@ -192,7 +192,7 @@ class VedtakRoutingTest : ApiTest() {
     fun `hent flere vedtak som JSON`() {
         val filter = VedtakFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
         val vedtak = listOf(vedtakRad(UUID.randomUUID()), vedtakRad(UUID.randomUUID()))
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
         every { repositories.vedtakRepository.hentVedtak(filter) } returns vedtak
 
         val respons =
@@ -213,7 +213,7 @@ class VedtakRoutingTest : ApiTest() {
     @Test
     fun `hent flere vedtak skal svare 403 naar feature toggle er av`() {
         val filter = VedtakFilter(orgnr = DEFAULT_ORG)
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns false
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns false
 
         val respons =
             runBlocking {
@@ -231,7 +231,7 @@ class VedtakRoutingTest : ApiTest() {
     fun `hent flere vedtak skal svare 403 uten tilgang til inntektsmeldingressursen`() {
         val filter = VedtakFilter(orgnr = DEFAULT_ORG)
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
         every {
             getPdpService()
                 .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
@@ -252,7 +252,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent flere vedtak skal svare 400 for ugyldig filter`() {
-        every { unleashFeatureToggles.skalEksponereVedtak() } returns true
+        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
 
         val respons =
             runBlocking {

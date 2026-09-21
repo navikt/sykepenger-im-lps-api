@@ -37,14 +37,23 @@ fun Route.vedtakV1(
 ) {
     route("/v1") {
         get("/vedtak/{vedtakId}") {
-            val vedtak = hentVedtakMedIdEllerError(vedtakService, unleashFeatureToggles)
+            if (!unleashFeatureToggles.skalEksponereVedtakJson()) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@get
+            }
+
+            val vedtak = hentVedtakMedIdEllerError(vedtakService)
             if (vedtak != null) {
                 call.respond(vedtak)
             }
         }
 
         get("/vedtak/{vedtakId}/pdf") {
-            val vedtak = hentVedtakMedIdEllerError(vedtakService, unleashFeatureToggles)
+            if (!unleashFeatureToggles.skalEksponereVedtakPdf()) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@get
+            }
+            val vedtak = hentVedtakMedIdEllerError(vedtakService)
             if (vedtak != null) {
                 try {
                     val pdfBytes = genererVedtakPdf(vedtak)
@@ -59,7 +68,7 @@ fun Route.vedtakV1(
 
         post("/vedtak") {
             try {
-                if (!unleashFeatureToggles.skalEksponereVedtak()) {
+                if (!unleashFeatureToggles.skalEksponereVedtakJson()) {
                     call.respond(HttpStatusCode.Forbidden)
                     return@post
                 }
@@ -97,16 +106,8 @@ fun Route.vedtakV1(
     }
 }
 
-private suspend fun RoutingContext.hentVedtakMedIdEllerError(
-    vedtakService: VedtakService,
-    unleashFeatureToggles: UnleashFeatureToggles,
-): VedtakResponse? {
+private suspend fun RoutingContext.hentVedtakMedIdEllerError(vedtakService: VedtakService): VedtakResponse? {
     try {
-        if (!unleashFeatureToggles.skalEksponereVedtak()) {
-            call.respond(HttpStatusCode.Forbidden)
-            return null
-        }
-
         val tokenContext = tokenValidationContext()
         val lpsOrgnr = tokenContext.getConsumerOrgnr()
         val systembrukerOrgnr = tokenContext.getSystembrukerOrgnr()
@@ -150,7 +151,7 @@ fun Route.vedtakTokenX(
     route("/intern/personbruker") {
         get("/vedtak/{vedtakId}/pdf") {
             try {
-                if (!unleashFeatureToggles.skalEksponereVedtak()) {
+                if (!unleashFeatureToggles.skalEksponereVedtakPdf()) {
                     call.respond(HttpStatusCode.Forbidden)
                     return@get
                 }
