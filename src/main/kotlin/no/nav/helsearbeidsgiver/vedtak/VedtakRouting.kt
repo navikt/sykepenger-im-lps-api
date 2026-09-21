@@ -37,14 +37,14 @@ fun Route.vedtakV1(
 ) {
     route("/v1") {
         get("/vedtak/{vedtakId}") {
-            val vedtak = hentVedtakMedId(vedtakService, unleashFeatureToggles)
+            val vedtak = hentVedtakMedIdEllerError(vedtakService, unleashFeatureToggles)
             if (vedtak != null) {
                 call.respond(vedtak)
             }
         }
 
         get("/vedtak/{vedtakId}/pdf") {
-            val vedtak = hentVedtakMedId(vedtakService, unleashFeatureToggles)
+            val vedtak = hentVedtakMedIdEllerError(vedtakService, unleashFeatureToggles)
             if (vedtak != null) {
                 try {
                     val pdfBytes = genererVedtakPdf(vedtak)
@@ -97,7 +97,8 @@ fun Route.vedtakV1(
     }
 }
 
-private suspend fun RoutingContext.hentVedtakMedId(
+
+private suspend fun RoutingContext.hentVedtakMedIdEllerError(
     vedtakService: VedtakService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ): VedtakResponse? {
