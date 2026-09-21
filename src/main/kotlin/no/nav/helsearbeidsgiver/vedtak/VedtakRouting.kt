@@ -97,7 +97,6 @@ fun Route.vedtakV1(
     }
 }
 
-
 private suspend fun RoutingContext.hentVedtakMedIdEllerError(
     vedtakService: VedtakService,
     unleashFeatureToggles: UnleashFeatureToggles,
