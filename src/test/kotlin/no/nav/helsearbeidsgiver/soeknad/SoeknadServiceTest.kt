@@ -267,11 +267,11 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er før 2026-09-18 klokken 12`() {
+    fun `skal lagre, men ikke videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er før 2026-09-21 klokken 12`() {
         val soeknad = soeknadMock()
 
         val soeknadSomSkalLagresMenIkkeVideresendes =
-            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null, sendtNav = LocalDateTime.of(2026, 9, 18, 11, 59))
+            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null, sendtNav = LocalDateTime.of(2026, 9, 21, 11, 59))
 
         soeknadService.behandleSoeknad(soeknadSomSkalLagresMenIkkeVideresendes)
 
@@ -284,11 +284,11 @@ class SoeknadServiceTest {
     }
 
     @Test
-    fun `skal videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er etter 2026-09-18 klokken 12`() {
+    fun `skal videresende søknad dersom feltet sendtArbeidsgiver er null og sendtNav er etter 2026-09-21 klokken 12`() {
         val soeknad = soeknadMock().medOrgnr(orgnr)
         // For nye søknader tar vi ikke hensyn til sendtArbeidsgiver, siden dette feltet kan være feil.
         val soeknadSomSkalLagresOgVideresendes =
-            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null, sendtNav = LocalDateTime.of(2026, 9, 18, 12, 1))
+            soeknad.copy(id = UUID.randomUUID(), sendtArbeidsgiver = null, sendtNav = LocalDateTime.of(2026, 9, 21, 12, 1))
 
         soeknadService.behandleSoeknad(soeknadSomSkalLagresOgVideresendes)
 
