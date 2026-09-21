@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.utils
 
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.soeknad.Sykepengesoeknad
+import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import java.time.LocalDateTime
 
 fun SykepengeSoeknadKafkaMelding.konverter(loepenr: Long): Sykepengesoeknad =
@@ -39,10 +40,8 @@ fun SykepengeSoeknadKafkaMelding.SoknadsperiodeDTO.konverter(): Sykepengesoeknad
     )
 }
 
-private fun SykepengeSoeknadKafkaMelding.utledSendtTid(): LocalDateTime {
-    requireNotNull(sendtArbeidsgiver)
-    return sendtArbeidsgiver
-}
+// Begge felter kan ikke være null, gitt at vi allerede har filtrert bort de med skalSendesTilArbeidsgiver()
+private fun SykepengeSoeknadKafkaMelding.utledSendtTid(): LocalDateTime = sendtArbeidsgiver.orDefault { sendtNav!! }
 
 private fun SykepengeSoeknadKafkaMelding.ArbeidsgiverDTO?.konverter(): Sykepengesoeknad.SykepengesoeknadArbeidsgiver {
     requireNotNull(this)
