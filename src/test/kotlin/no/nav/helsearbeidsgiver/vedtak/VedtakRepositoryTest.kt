@@ -116,17 +116,15 @@ class VedtakRepositoryTest {
     }
 
     @Test
-    fun `hentVedtak skal filtrere paa orgnr fnr opprettet loepenr og vedtaksutfall`() {
+    fun `hentVedtak skal filtrere paa orgnr fnr opprettet og loepenr`() {
         val vedtak = vedtakMock()
         val orgnr = vedtak.organisasjonsnummer
         val fnr = vedtak.foedselsnummer
         val vedtakFoerFraLoepenr = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
         val forventetVedtak = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
-        val vedtakMedFeilUtfall = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.AVSLAG)
 
         val vedtakFoerFraLoepenrId = lagreVedtak(vedtakFoerFraLoepenr, fnr, orgnr)
         val forventetVedtakId = lagreVedtak(forventetVedtak, fnr, orgnr)
-        lagreVedtak(vedtakMedFeilUtfall, fnr, orgnr)
         lagreVedtak(forventetVedtak, Fnr.genererGyldig(), orgnr)
         lagreVedtak(forventetVedtak, fnr, Orgnr.genererGyldig())
         val loepenrGrense =
@@ -145,7 +143,6 @@ class VedtakRepositoryTest {
                     fom = LocalDate.now(),
                     tom = LocalDate.now(),
                     fraLoepenr = loepenrGrense,
-                    vedtakUtfall = VedtaksUtfall.INNVILGELSE,
                 ),
             )
 

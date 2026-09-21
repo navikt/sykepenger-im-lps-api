@@ -37,7 +37,10 @@ fun Route.vedtakV1(
 ) {
     route("/v1") {
         get("/vedtak/{vedtakId}") {
-            hentVedtakMedId(vedtakService, unleashFeatureToggles)?.let { call.respond(it) }
+            val vedtak = hentVedtakMedId(vedtakService, unleashFeatureToggles)
+            if (vedtak != null) {
+                call.respond(vedtak)
+            }
         }
 
         get("/vedtak/{vedtakId}/pdf") {
