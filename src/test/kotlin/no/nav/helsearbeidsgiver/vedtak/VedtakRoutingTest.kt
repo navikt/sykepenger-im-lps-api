@@ -18,6 +18,7 @@ import io.mockk.unmockkAll
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
+import no.nav.helsearbeidsgiver.config.getPdpService
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
@@ -158,8 +159,7 @@ class VedtakRoutingTest : ApiTest() {
         every { unleashFeatureToggles.skalEksponereVedtak() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns vedtakRad(vedtakId)
         every {
-            no.nav.helsearbeidsgiver.config
-                .getPdpService()
+            getPdpService()
                 .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
         } returns false
 
@@ -233,8 +233,7 @@ class VedtakRoutingTest : ApiTest() {
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
         every { unleashFeatureToggles.skalEksponereVedtak() } returns true
         every {
-            no.nav.helsearbeidsgiver.config
-                .getPdpService()
+            getPdpService()
                 .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
         } returns false
 
