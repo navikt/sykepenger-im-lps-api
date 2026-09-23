@@ -48,6 +48,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
         every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
             VedtakRad(
+                loepenr = 1,
                 vedtakId = vedtakId,
                 fnr = DEFAULT_FNR,
                 orgnr = DEFAULT_ORG,
@@ -98,6 +99,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
 
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
             VedtakRad(
+                loepenr = 1,
                 vedtakId = vedtakId,
                 fnr = DEFAULT_FNR,
                 orgnr = DEFAULT_ORG,
@@ -108,7 +110,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
                 client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
-            response.status shouldBe HttpStatusCode.Unauthorized
+            response.status shouldBe HttpStatusCode.Forbidden
         }
         unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
     }

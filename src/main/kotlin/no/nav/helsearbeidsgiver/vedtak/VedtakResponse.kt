@@ -12,9 +12,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-// Forenklet utvalg av felter fra VedtakArbeidsgiverMelding, for bruk i PDF-generering i første iterasjon.
 @Serializable
-data class VedtakForPdf(
+data class VedtakResponse(
+    val loepenr: Long,
     val vedtakId: UUID,
     val orgnr: String,
     val fom: LocalDate,

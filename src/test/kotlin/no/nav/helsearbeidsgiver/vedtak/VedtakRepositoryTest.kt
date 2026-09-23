@@ -4,14 +4,20 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
+import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import java.util.UUID
 
 @WithPostgresContainer
@@ -82,6 +88,82 @@ class VedtakRepositoryTest {
         lagredeRader.map { it[VedtakEntitet.vedtakId] } shouldBe listOf(forventetVedtakId, forventetReberegnetVedtakId)
         forventetVedtakId shouldNotBe forventetReberegnetVedtakId
     }
+
+    @Test
+    fun `hentVedtak skal hente vedtak med loepenr`() {
+        val vedtak = vedtakMock()
+        val vedtakId = UUID.randomUUID()
+        vedtakRepository.lagreVedtak(
+            vedtakId = vedtakId,
+            vedtaksperiodeId = vedtak.vedtaksperiodeId,
+            fnr = vedtak.foedselsnummer,
+            orgnr = vedtak.organisasjonsnummer,
+            vedtak = vedtak,
+        )
+        val forventetLoepenr =
+            transaction(db) {
+                VedtakEntitet
+                    .selectAll()
+                    .where { VedtakEntitet.vedtakId eq vedtakId }
+                    .single()[VedtakEntitet.id]
+            }
+
+        val lagretVedtak = vedtakRepository.hentVedtak(vedtakId)
+
+        lagretVedtak?.loepenr shouldBe forventetLoepenr
+        lagretVedtak?.vedtakId shouldBe vedtakId
+        lagretVedtak?.vedtak shouldBe vedtak
+    }
+
+    @Test
+    fun `hentVedtak skal filtrere paa orgnr fnr opprettet og loepenr`() {
+        val vedtak = vedtakMock()
+        val orgnr = vedtak.organisasjonsnummer
+        val fnr = vedtak.foedselsnummer
+        val vedtakFoerFraLoepenr = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
+        val forventetVedtak = vedtak.copy(vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE)
+
+        val vedtakFoerFraLoepenrId = lagreVedtak(vedtakFoerFraLoepenr, fnr, orgnr)
+        val forventetVedtakId = lagreVedtak(forventetVedtak, fnr, orgnr)
+        lagreVedtak(forventetVedtak, Fnr.genererGyldig(), orgnr)
+        lagreVedtak(forventetVedtak, fnr, Orgnr.genererGyldig())
+        val loepenrGrense =
+            transaction(db) {
+                VedtakEntitet
+                    .selectAll()
+                    .where { VedtakEntitet.vedtakId eq vedtakFoerFraLoepenrId }
+                    .single()[VedtakEntitet.id]
+            }
+
+        val resultat =
+            vedtakRepository.hentVedtak(
+                VedtakFilter(
+                    orgnr = orgnr.toString(),
+                    fnr = fnr.toString(),
+                    fom = LocalDate.now(),
+                    tom = LocalDate.now(),
+                    fraLoepenr = loepenrGrense,
+                ),
+            )
+
+        resultat shouldHaveSize 1
+        resultat.single().vedtakId shouldBe forventetVedtakId
+    }
+
+    private fun lagreVedtak(
+        vedtak: VedtakArbeidsgiverMelding,
+        fnr: Fnr,
+        orgnr: Orgnr,
+    ): UUID =
+        UUID.randomUUID().also {
+            vedtakRepository.lagreVedtak(
+                vedtakId = it,
+                vedtaksperiodeId = vedtak.vedtaksperiodeId,
+                fnr = fnr,
+                orgnr = orgnr,
+                vedtak = vedtak,
+            )
+        }
 
     private fun hentVedtak(vedtaksperiodeId: UUID) =
         transaction(db) {

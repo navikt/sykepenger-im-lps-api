@@ -21,7 +21,7 @@ class VedtakService(
 ) {
     private val logger = logger()
 
-    fun hentVedtak(vedtakId: UUID): VedtakForPdf? {
+    fun hentVedtak(vedtakId: UUID): VedtakResponse? {
         val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
 
         val vedtaksdokumenter = rad.vedtak.dokumenter
@@ -33,18 +33,13 @@ class VedtakService(
         val soeknadId = finnSoeknadId(dokumenter = vedtaksdokumenter, vedtaksperiodeId = vedtaksperiodeId)
         val arbeidsgiverNavn = soeknadId?.let { hentArbeidsgiverNavn(soeknadId = it, vedtaksperiodeId = vedtaksperiodeId) }
 
-        return VedtakForPdf(
-            vedtakId = rad.vedtakId,
-            orgnr = rad.orgnr,
-            fom = rad.vedtak.fom,
-            tom = rad.vedtak.tom,
-            sykepengegrunnlag = rad.vedtak.sykepengegrunnlag,
-            vedtaksUtfallTilArbeidsgiver = rad.vedtak.vedtaksUtfallTilArbeidsgiver,
-            vedtakFattetTidspunkt = rad.vedtak.vedtakFattetTidspunkt,
-            sykmeldtNavn = sykmeldtNavn,
-            arbeidsgiverNavn = arbeidsgiverNavn,
-        )
+        return rad.tilVedtakResponse(sykmeldtNavn = sykmeldtNavn, arbeidsgiverNavn = arbeidsgiverNavn)
     }
+
+    fun hentVedtak(filter: VedtakFilter): List<VedtakResponse> =
+        vedtakRepository
+            .hentVedtak(filter)
+            .map { it.tilVedtakResponse(null, null) }
 
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
@@ -177,4 +172,21 @@ class VedtakService(
             .maxByOrNull { it.innsendtTid }
             ?.id
     }
+
+    private fun VedtakRad.tilVedtakResponse(
+        sykmeldtNavn: String?,
+        arbeidsgiverNavn: String?,
+    ): VedtakResponse =
+        VedtakResponse(
+            loepenr = loepenr,
+            vedtakId = vedtakId,
+            orgnr = orgnr,
+            fom = vedtak.fom,
+            tom = vedtak.tom,
+            sykepengegrunnlag = vedtak.sykepengegrunnlag,
+            vedtaksUtfallTilArbeidsgiver = vedtak.vedtaksUtfallTilArbeidsgiver,
+            vedtakFattetTidspunkt = vedtak.vedtakFattetTidspunkt,
+            sykmeldtNavn = sykmeldtNavn,
+            arbeidsgiverNavn = arbeidsgiverNavn,
+        )
 }
