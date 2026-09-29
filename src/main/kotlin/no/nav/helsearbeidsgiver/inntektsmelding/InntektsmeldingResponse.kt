@@ -2,6 +2,8 @@
 
 package no.nav.helsearbeidsgiver.inntektsmelding
 
+import io.ktor.openapi.JsonSchema
+import io.ktor.openapi.JsonSchema.Format
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
@@ -27,6 +29,7 @@ private const val GYLDIGE_FRITEKST_TEGN = "^[.A-Za-zæøåÆØÅ0-9, _-]{2,64}\$
 
 @Serializable
 data class InntektsmeldingResponse(
+    @Format("int64")
     val loepenr: Long,
     val id: UUID,
     val navReferanseId: UUID,

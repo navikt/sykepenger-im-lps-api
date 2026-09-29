@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 
 @Serializable
 data class SykmeldingDTO(
-    @Format("int64")
     val loepenr: Long,
     val id: String,
     val fnr: String,
