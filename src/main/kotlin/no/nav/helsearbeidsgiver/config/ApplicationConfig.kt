@@ -57,6 +57,7 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
+import no.nav.helsearbeidsgiver.vedtak.RefusjonKlient
 import no.nav.helsearbeidsgiver.vedtak.VedtakRepository
 import no.nav.helsearbeidsgiver.vedtak.VedtakService
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
@@ -238,6 +239,7 @@ fun configureServices(
             dokumentkoblingService,
             repositories.sykmeldingRepository,
             repositories.soeknadRepository,
+            RefusjonKlient(getPropertyOrNull("REFUSJON_URL")),
         )
 
     return Services(

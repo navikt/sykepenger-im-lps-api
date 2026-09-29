@@ -44,6 +44,7 @@ class VedtakServiceTest {
     private val dokumentkoblingService = mockk<DokumentkoblingService>()
     private val sykmeldingRepository = mockk<SykmeldingRepository>()
     private val soeknadRepository = mockk<SoeknadRepository>()
+    private val refusjonKlient = mockk<RefusjonKlient>(relaxed = true)
     private val vedtakService: VedtakService by lazy {
         VedtakService(
             vedtakRepository,
@@ -52,6 +53,7 @@ class VedtakServiceTest {
             dokumentkoblingService,
             sykmeldingRepository,
             soeknadRepository,
+            refusjonKlient,
         )
     }
 
@@ -87,6 +89,15 @@ class VedtakServiceTest {
     }
 
     @Test
+    fun `lagreVedtak sender ikke vedtaket til refusjon når featuretoggle er av`() {
+        every { unleashFeatureToggles.skalLagreVedtakArbeidsgiver() } returns false
+
+        vedtakService.lagreVedtak(vedtakMock().copy(harArbeidsgiverOensketRefusjon = true))
+
+        verify(exactly = 0) { refusjonKlient.sendVedtak(any()) }
+    }
+
+    @Test
     fun `lagreVedtak produserer vedtakKobling med sykmelding- og inntektsmeldingId når begge finnes`() {
         every { unleashFeatureToggles.skalLagreVedtakArbeidsgiver() } returns true
         val sykmeldingId = UUID.randomUUID()
@@ -115,6 +126,7 @@ class VedtakServiceTest {
                 orgnr = vedtak.organisasjonsnummer,
             )
         }
+        verify(exactly = 1) { refusjonKlient.sendVedtak(vedtak) }
     }
 
     @Test
@@ -149,6 +161,7 @@ class VedtakServiceTest {
         verify(exactly = 0) {
             dokumentkoblingService.produserVedtakKobling(any(), any(), any(), Orgnr.genererGyldig())
         }
+        verify(exactly = 1) { refusjonKlient.sendVedtak(vedtak) }
     }
 
     @Test
