@@ -2,7 +2,6 @@
 
 package no.nav.helsearbeidsgiver.sykmelding
 
-import io.ktor.openapi.JsonSchema.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
