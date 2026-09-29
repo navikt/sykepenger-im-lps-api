@@ -7,6 +7,8 @@
 
 package no.nav.helsearbeidsgiver.forespoersel
 
+import io.ktor.openapi.JsonSchema
+import io.ktor.openapi.JsonSchema.Format
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Periode
@@ -22,6 +24,7 @@ import java.util.UUID
 
 @Serializable
 data class ForespoerselResponse(
+    @Format("int64")
     val loepenr: Long,
     val navReferanseId: UUID,
     val orgnr: String,

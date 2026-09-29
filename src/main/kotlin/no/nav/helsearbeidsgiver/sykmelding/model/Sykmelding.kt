@@ -20,6 +20,7 @@ import java.time.LocalDateTime
 @Serializable
 @Description("SykmeldingArbeidsgiver")
 data class Sykmelding(
+    @Format("int64")
     val loepenr: Long,
     @Format("uuid")
     val sykmeldingId: String,
