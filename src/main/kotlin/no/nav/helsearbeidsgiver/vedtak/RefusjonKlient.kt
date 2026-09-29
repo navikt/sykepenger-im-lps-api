@@ -10,16 +10,22 @@ import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
-class RefusjonKlient(
-    private val url: String?,
-) {
+interface RefusjonKlient {
+    fun sendVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding)
+}
+
+class IkkeRefusjonsKlient : RefusjonKlient {
+    override fun sendVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {}
+}
+
+class RefusjonKlientImpl(
+    private val url: String,
+) : RefusjonKlient {
     private val httpClient = createHttpClient()
     private val logger = logger()
     private val sikkerLogger = sikkerLogger()
 
-    fun sendVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
-        if (url == null) return
-
+    override fun sendVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         val vedtaksperiodeId = vedtakArbeidsgiverMelding.vedtaksperiodeId
         try {
             runBlocking {
