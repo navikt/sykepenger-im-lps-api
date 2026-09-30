@@ -7,7 +7,6 @@
 
 package no.nav.helsearbeidsgiver.forespoersel
 
-import io.ktor.openapi.JsonSchema
 import io.ktor.openapi.JsonSchema.Format
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -90,6 +89,7 @@ data class ForespoerselFilter(
     val status: Status? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
+    @Format("int64")
     val fraLoepenr: Long? = null,
 ) {
     init {

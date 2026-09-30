@@ -2,6 +2,7 @@
 
 package no.nav.helsearbeidsgiver.soeknad
 
+import io.ktor.openapi.JsonSchema.Format
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -14,6 +15,7 @@ data class SykepengesoeknadFilter( // TODO: Kanskje denne kan de-dupliseres / ge
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
+    @Format("int64")
     val fraLoepenr: Long? = null,
 ) {
     init {
