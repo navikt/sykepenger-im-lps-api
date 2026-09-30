@@ -57,7 +57,7 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
-import no.nav.helsearbeidsgiver.vedtak.IkkeRefusjonsKlient
+import no.nav.helsearbeidsgiver.vedtak.IkkeRefusjonKlient
 import no.nav.helsearbeidsgiver.vedtak.RefusjonKlient
 import no.nav.helsearbeidsgiver.vedtak.RefusjonKlientImpl
 import no.nav.helsearbeidsgiver.vedtak.VedtakRepository
@@ -384,7 +384,7 @@ fun getPdpService(): IPdpService =
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
 
 // Refusjon-integrasjonen skal kun brukes i dev
-private fun lagRefusjonKlient(): RefusjonKlient = if (isDev()) RefusjonKlientImpl(getProperty("REFUSJON_URL")) else IkkeRefusjonsKlient()
+private fun lagRefusjonKlient(): RefusjonKlient = if (isDev()) RefusjonKlientImpl(getProperty("REFUSJON_URL")) else IkkeRefusjonKlient()
 
 private fun isDev(): Boolean = getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp"
 

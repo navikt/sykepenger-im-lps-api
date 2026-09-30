@@ -14,7 +14,7 @@ interface RefusjonKlient {
     fun sendVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding)
 }
 
-class IkkeRefusjonsKlient : RefusjonKlient {
+class IkkeRefusjonKlient : RefusjonKlient {
     override fun sendVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {}
 }
 
