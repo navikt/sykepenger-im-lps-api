@@ -57,6 +57,9 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
+import no.nav.helsearbeidsgiver.vedtak.IkkeRefusjonKlient
+import no.nav.helsearbeidsgiver.vedtak.RefusjonKlient
+import no.nav.helsearbeidsgiver.vedtak.RefusjonKlientImpl
 import no.nav.helsearbeidsgiver.vedtak.VedtakRepository
 import no.nav.helsearbeidsgiver.vedtak.VedtakService
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
@@ -238,6 +241,7 @@ fun configureServices(
             dokumentkoblingService,
             repositories.sykmeldingRepository,
             repositories.soeknadRepository,
+            lagRefusjonKlient(),
         )
 
     return Services(
@@ -378,5 +382,10 @@ fun getPdpService(): IPdpService =
     }
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
+
+// Refusjon-integrasjonen skal kun brukes i dev
+private fun lagRefusjonKlient(): RefusjonKlient = if (isDev()) RefusjonKlientImpl(getProperty("REFUSJON_URL")) else IkkeRefusjonKlient()
+
+private fun isDev(): Boolean = getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp"
 
 private fun isLocal(): Boolean = "local".equals(getPropertyOrNull("application.env"), true)

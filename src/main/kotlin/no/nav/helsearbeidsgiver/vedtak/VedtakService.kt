@@ -18,6 +18,7 @@ class VedtakService(
     private val dokumentkoblingService: DokumentkoblingService,
     private val sykmeldingRepository: SykmeldingRepository,
     private val soeknadRepository: SoeknadRepository,
+    private val refusjonKlient: RefusjonKlient,
 ) {
     private val logger = logger()
 
@@ -51,6 +52,7 @@ class VedtakService(
                 orgnr = vedtakArbeidsgiverMelding.organisasjonsnummer,
                 vedtak = vedtakArbeidsgiverMelding,
             )
+            refusjonKlient.sendVedtak(vedtakArbeidsgiverMelding)
 
             if (vedtakArbeidsgiverMelding.harArbeidsgiverOensketRefusjon) {
                 produserVedtakKobling(vedtakId, vedtakArbeidsgiverMelding)
