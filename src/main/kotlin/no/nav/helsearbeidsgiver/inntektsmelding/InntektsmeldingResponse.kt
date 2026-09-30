@@ -2,7 +2,6 @@
 
 package no.nav.helsearbeidsgiver.inntektsmelding
 
-import io.ktor.openapi.JsonSchema
 import io.ktor.openapi.JsonSchema.Format
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -138,6 +137,7 @@ data class InntektsmeldingFilter(
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
     val status: InnsendingStatus? = null,
+    @Format("int64")
     val fraLoepenr: Long? = null,
 ) {
     init {
