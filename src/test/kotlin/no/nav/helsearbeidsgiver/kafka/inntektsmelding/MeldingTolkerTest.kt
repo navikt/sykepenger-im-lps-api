@@ -29,7 +29,6 @@ import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
@@ -95,7 +94,6 @@ class MeldingTolkerTest {
                 soeknadRepository = mockk<SoeknadRepository>(),
                 statusISpeilRepository = mockk<StatusISpeilRepository>(),
                 vedtakRepository = mockk<VedtakRepository>(),
-                refusjonUtfallRepository = mockk<RefusjonUtfallRepository>(),
             )
 
         service =

@@ -39,7 +39,6 @@ import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingSerializer
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.AvvistInntektsmeldingTolker
 import no.nav.helsearbeidsgiver.kafka.inntektsmelding.InntektsmeldingTolker
-import no.nav.helsearbeidsgiver.kafka.refusjon.RefusjonUtfallTolker
 import no.nav.helsearbeidsgiver.kafka.sis.StatusISpeilTolker
 import no.nav.helsearbeidsgiver.kafka.soeknad.SoeknadTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -49,7 +48,6 @@ import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
@@ -89,7 +87,6 @@ data class Repositories(
     val soeknadRepository: SoeknadRepository,
     val statusISpeilRepository: StatusISpeilRepository,
     val vedtakRepository: VedtakRepository,
-    val refusjonUtfallRepository: RefusjonUtfallRepository,
 )
 
 data class Services(
@@ -113,7 +110,6 @@ data class Tolkere(
     val soeknadTolker: SoeknadTolker,
     val statusISpeilTolker: StatusISpeilTolker,
     val avvistInntektsmeldingTolker: AvvistInntektsmeldingTolker,
-    val refusjonUtfallTolker: RefusjonUtfallTolker,
 )
 
 fun configureTolkere(
@@ -151,8 +147,6 @@ fun configureTolkere(
             avvistInntektsmeldingService = services.avvistInntektsmeldingService,
         )
 
-    val refusjonUtfallTolker = RefusjonUtfallTolker(repositories.refusjonUtfallRepository)
-
     return Tolkere(
         inntektsmeldingTolker,
         forespoerselTolker,
@@ -160,7 +154,6 @@ fun configureTolkere(
         soeknadTolker,
         statusISpeilTolker,
         avvistInntektsmeldingTolker,
-        refusjonUtfallTolker,
     )
 }
 
@@ -174,7 +167,6 @@ fun configureRepositories(db: Database): Repositories =
         soeknadRepository = SoeknadRepository(db),
         statusISpeilRepository = StatusISpeilRepository(db),
         vedtakRepository = VedtakRepository(db),
-        refusjonUtfallRepository = RefusjonUtfallRepository(db),
     )
 
 fun configureServices(
@@ -338,19 +330,6 @@ fun Application.configureKafkaConsumers(
             meldingTolker = tolkere.avvistInntektsmeldingTolker,
             isLeader = leaderConfig::isElectedLeader,
         )
-    }
-
-    // TODO: Fjern if isDev sjekk i fremtiden nå topicet helsearbeidsgiver.refusjon skal brukes i prod
-    if (isDev()) {
-        val refusjonUtfallKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("refusjon-utfall"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.refusjon.topic"),
-                consumer = refusjonUtfallKafkaConsumer,
-                meldingTolker = tolkere.refusjonUtfallTolker,
-                isLeader = leaderConfig::isElectedLeader,
-            )
-        }
     }
 }
 
