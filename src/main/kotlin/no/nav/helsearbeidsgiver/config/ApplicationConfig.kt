@@ -250,6 +250,7 @@ fun configureServices(
             repositories.sykmeldingRepository,
             repositories.soeknadRepository,
             lagRefusjonKlient(),
+            repositories.refusjonUtfallRepository,
         )
 
     return Services(

@@ -4,6 +4,10 @@ import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
+import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRad
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
+import no.nav.helsearbeidsgiver.refusjon.Utfall
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -19,6 +23,7 @@ class VedtakService(
     private val sykmeldingRepository: SykmeldingRepository,
     private val soeknadRepository: SoeknadRepository,
     private val refusjonKlient: RefusjonKlient,
+    private val refusjonUtfallRepository: RefusjonUtfallRepository,
 ) {
     private val logger = logger()
 
@@ -37,10 +42,15 @@ class VedtakService(
         return rad.tilVedtakResponse(sykmeldtNavn = sykmeldtNavn, arbeidsgiverNavn = arbeidsgiverNavn)
     }
 
-    fun hentVedtak(filter: VedtakFilter): List<VedtakResponse> =
-        vedtakRepository
-            .hentVedtak(filter)
-            .map { it.tilVedtakResponse(null, null) }
+    fun hentRefusjonUtfall(refusjonUtfallId: UUID): VedtakResponse? =
+        refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)?.tilVedtakResponse()
+
+    suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? = refusjonKlient.hentRefusjonUtfallPdf(refusjonUtfallId)
+
+    fun hentRefusjonUtfall(filter: VedtakFilter): List<VedtakResponse> =
+        refusjonUtfallRepository
+            .hentRefusjonUtfall(filter)
+            .map { it.tilVedtakResponse() }
 
     fun lagreVedtak(vedtakArbeidsgiverMelding: VedtakArbeidsgiverMelding) {
         if (unleashFeatureToggles.skalLagreVedtakArbeidsgiver()) {
@@ -190,5 +200,24 @@ class VedtakService(
             vedtakFattetTidspunkt = vedtak.vedtakFattetTidspunkt,
             sykmeldtNavn = sykmeldtNavn,
             arbeidsgiverNavn = arbeidsgiverNavn,
+        )
+
+    private fun RefusjonUtfallRad.tilVedtakResponse(): VedtakResponse =
+        VedtakResponse(
+            loepenr = loepenr,
+            vedtakId = refusjonUtfall.refusjonUtfallId,
+            orgnr = refusjonUtfall.orgnr.toString(),
+            fom = refusjonUtfall.fom,
+            tom = refusjonUtfall.tom,
+            sykepengegrunnlag = refusjonUtfall.sykepengegrunnlag,
+            vedtaksUtfallTilArbeidsgiver =
+                when (refusjonUtfall.utfallTilArbeidsgiver) {
+                    Utfall.AVSLAG -> VedtaksUtfall.AVSLAG
+                    Utfall.DELVIS_INNVILGELSE -> VedtaksUtfall.DELVIS_INNVILGELSE
+                    Utfall.INNVILGELSE -> VedtaksUtfall.INNVILGELSE
+                },
+            vedtakFattetTidspunkt = refusjonUtfall.fattetTidspunkt,
+            sykmeldtNavn = refusjonUtfall.sykmeldtNavn,
+            arbeidsgiverNavn = refusjonUtfall.arbeidsgiverNavn,
         )
 }

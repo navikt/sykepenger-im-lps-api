@@ -36,37 +36,42 @@ fun Route.vedtakV1(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/v1") {
-        get("/vedtak/{vedtakId}") {
+        get("/refusjon/{refusjonUtfallId}") {
             if (!unleashFeatureToggles.skalEksponereVedtakJson()) {
                 call.respond(HttpStatusCode.Forbidden)
                 return@get
             }
 
-            val vedtak = hentVedtakMedIdEllerError(vedtakService)
+            val vedtak = hentRefusjonUtfallMedIdEllerError(vedtakService)
             if (vedtak != null) {
                 call.respond(vedtak)
             }
         }
 
-        get("/vedtak/{vedtakId}/pdf") {
+        get("/refusjon/{refusjonUtfallId}/pdf") {
             if (!unleashFeatureToggles.skalEksponereVedtakPdf()) {
                 call.respond(HttpStatusCode.Forbidden)
                 return@get
             }
-            val vedtak = hentVedtakMedIdEllerError(vedtakService)
+            val vedtak = hentRefusjonUtfallMedIdEllerError(vedtakService)
             if (vedtak != null) {
+                val refusjonUtfallId = vedtak.vedtakId
                 try {
-                    val pdfBytes = genererVedtakPdf(vedtak)
-                    call.respondMedPDF(bytes = pdfBytes, filnavn = "vedtak-${vedtak.vedtakId}.pdf")
+                    val pdfBytes = vedtakService.hentRefusjonUtfallPdf(refusjonUtfallId)
+                    if (pdfBytes == null) {
+                        call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.VEDTAK_IKKE_FUNNET, refusjonUtfallId))
+                    } else {
+                        call.respondMedPDF(bytes = pdfBytes, filnavn = "refusjon-$refusjonUtfallId.pdf")
+                    }
                 } catch (e: Exception) {
-                    logger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding)
-                    sikkerLogger().error(Feil.FEIL_VED_PDF_GENERERING.feilmelding, e)
-                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_PDF_GENERERING))
+                    logger().error(Feil.FEIL_VED_HENTING_PDF.feilmelding)
+                    sikkerLogger().error(Feil.FEIL_VED_HENTING_PDF.feilmelding, e)
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_PDF))
                 }
             }
         }
 
-        post("/vedtak") {
+        post("/refusjon") {
             try {
                 if (!unleashFeatureToggles.skalEksponereVedtakJson()) {
                     call.respond(HttpStatusCode.Forbidden)
@@ -87,9 +92,9 @@ fun Route.vedtakV1(
                     return@post
                 }
 
-                val vedtak = vedtakService.hentVedtak(filter)
+                val vedtak = vedtakService.hentRefusjonUtfall(filter)
                 sikkerLogger().info(
-                    "LPS: [$lpsOrgnr] henter vedtak for orgnr [${filter.orgnr}] " +
+                    "LPS: [$lpsOrgnr] henter refusjonsutfall for orgnr [${filter.orgnr}] " +
                         "på vegne av orgnr: $systembrukerOrgnr",
                 )
                 call.respondWithMaxLimit(vedtak)
@@ -106,20 +111,20 @@ fun Route.vedtakV1(
     }
 }
 
-private suspend fun RoutingContext.hentVedtakMedIdEllerError(vedtakService: VedtakService): VedtakResponse? {
+private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(vedtakService: VedtakService): VedtakResponse? {
     try {
         val tokenContext = tokenValidationContext()
         val lpsOrgnr = tokenContext.getConsumerOrgnr()
         val systembrukerOrgnr = tokenContext.getSystembrukerOrgnr()
-        val vedtakId = call.parameters["vedtakId"]?.toUuidOrNull()
-        if (vedtakId == null) {
+        val refusjonUtfallId = call.parameters["refusjonUtfallId"]?.toUuidOrNull()
+        if (refusjonUtfallId == null) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_VEDTAK_ID))
             return null
         }
 
-        val vedtak = vedtakService.hentVedtak(vedtakId)
+        val vedtak = vedtakService.hentRefusjonUtfall(refusjonUtfallId)
         if (vedtak == null) {
-            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.VEDTAK_IKKE_FUNNET, vedtakId))
+            call.respond(HttpStatusCode.NotFound, ErrorResponse(FeilMedReferanse.VEDTAK_IKKE_FUNNET, refusjonUtfallId))
             return null
         }
 
@@ -133,7 +138,7 @@ private suspend fun RoutingContext.hentVedtakMedIdEllerError(vedtakService: Vedt
         }
 
         sikkerLogger().info(
-            "LPS: [$lpsOrgnr] henter vedtak med id: [$vedtakId] på vegne av orgnr: $systembrukerOrgnr",
+            "LPS: [$lpsOrgnr] henter refusjonsutfall med id: [$refusjonUtfallId] på vegne av orgnr: $systembrukerOrgnr",
         )
         return vedtak
     } catch (e: Exception) {

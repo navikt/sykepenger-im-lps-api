@@ -4,6 +4,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import no.nav.helsearbeidsgiver.vedtak.VedtakFilter
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -12,6 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import java.util.UUID
 
 @WithPostgresContainer
@@ -86,6 +90,61 @@ class RefusjonUtfallRepositoryTest {
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
 
         refusjonUtfallRepository.hentRefusjonUtfall(UUID.randomUUID()) shouldBe null
+    }
+
+    @Test
+    fun `hentRefusjonUtfall med filter skal kun hente refusjonsutfall for oppgitt orgnr`() {
+        val refusjonUtfall = refusjonUtfallMock()
+        val annetOrgnr = refusjonUtfallMock().copy(orgnr = Orgnr("810007842"))
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        refusjonUtfallRepository.lagreRefusjonUtfall(annetOrgnr)
+
+        val resultat = refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = refusjonUtfall.orgnr.toString()))
+
+        resultat.map { it.refusjonUtfall } shouldBe listOf(refusjonUtfall)
+    }
+
+    @Test
+    fun `hentRefusjonUtfall med filter skal filtrere paa fnr`() {
+        val refusjonUtfall = refusjonUtfallMock()
+        val annenSykmeldt = refusjonUtfallMock().copy(fnr = Fnr("05449412615"))
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        refusjonUtfallRepository.lagreRefusjonUtfall(annenSykmeldt)
+
+        val resultat =
+            refusjonUtfallRepository.hentRefusjonUtfall(
+                VedtakFilter(orgnr = refusjonUtfall.orgnr.toString(), fnr = refusjonUtfall.fnr.toString()),
+            )
+
+        resultat.map { it.refusjonUtfall } shouldBe listOf(refusjonUtfall)
+    }
+
+    @Test
+    fun `hentRefusjonUtfall med filter skal hente refusjonsutfall etter fraLoepenr sortert paa loepenr`() {
+        val foerste = refusjonUtfallMock()
+        val andre = refusjonUtfallMock()
+        val tredje = refusjonUtfallMock()
+        listOf(foerste, andre, tredje).forEach { refusjonUtfallRepository.lagreRefusjonUtfall(it) }
+        val foersteLoepenr = refusjonUtfallRepository.hentRefusjonUtfall(foerste.refusjonUtfallId)!!.loepenr
+
+        val resultat =
+            refusjonUtfallRepository.hentRefusjonUtfall(
+                VedtakFilter(orgnr = foerste.orgnr.toString(), fraLoepenr = foersteLoepenr),
+            )
+
+        resultat.map { it.refusjonUtfall } shouldBe listOf(andre, tredje)
+    }
+
+    @Test
+    fun `hentRefusjonUtfall med filter skal filtrere paa opprettet-dato med fom og tom`() {
+        val refusjonUtfall = refusjonUtfallMock()
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        val orgnr = refusjonUtfall.orgnr.toString()
+        val idag = LocalDate.now()
+
+        refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = orgnr, fom = idag, tom = idag)) shouldHaveSize 1
+        refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = orgnr, fom = idag.plusDays(1))) shouldHaveSize 0
+        refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = orgnr, tom = idag.minusDays(1))) shouldHaveSize 0
     }
 
     private fun hentRader(refusjonUtfallId: UUID) =
