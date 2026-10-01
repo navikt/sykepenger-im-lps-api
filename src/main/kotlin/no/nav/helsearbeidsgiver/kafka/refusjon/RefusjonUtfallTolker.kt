@@ -24,15 +24,11 @@ class RefusjonUtfallTolker(
                 throw e
             }
 
-        val ider = "refusjonUtfallId ${refusjonUtfall.refusjonUtfallId} og vedtaksperiodeId ${refusjonUtfall.vedtaksperiodeId}"
-        logger.info("Mottok refusjonsutfall med $ider.")
+        val logIdInfo = "refusjonUtfallId ${refusjonUtfall.refusjonUtfallId} og vedtaksperiodeId ${refusjonUtfall.vedtaksperiodeId}"
+        logger.info("Mottok refusjonsutfall med $logIdInfo.")
         sikkerLogger.info("Mottok refusjonsutfall: $refusjonUtfall")
 
-        val bleLagret = refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
-        if (bleLagret) {
-            logger.info("Lagret refusjonsutfall med $ider.")
-        } else {
-            logger.warn("Refusjonsutfall med $ider er allerede lagret, ignorerer duplikat.")
-        }
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        logger.info("Lagret refusjonsutfall med $logIdInfo.")
     }
 }

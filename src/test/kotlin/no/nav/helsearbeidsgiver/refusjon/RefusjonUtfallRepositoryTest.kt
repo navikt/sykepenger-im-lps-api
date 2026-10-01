@@ -4,12 +4,14 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 @WithPostgresContainer
@@ -29,27 +31,27 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `lagreRefusjonUtfall skal lagre refusjonUtfallId, vedtaksperiodeId og orgnr i egne kolonner og hele meldingen som jsonb`() {
+    fun `lagreRefusjonUtfall skal lagre refusjonUtfallId, vedtaksperiodeId, fnr og orgnr i egne kolonner og hele meldingen som jsonb`() {
         val refusjonUtfall = refusjonUtfallMock()
 
-        val bleLagret = refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
 
-        bleLagret shouldBe true
         val lagredeRader = hentRader(refusjonUtfall.refusjonUtfallId)
         lagredeRader shouldHaveSize 1
         lagredeRader.single()[RefusjonUtfallEntitet.refusjonUtfallId] shouldBe refusjonUtfall.refusjonUtfallId
         lagredeRader.single()[RefusjonUtfallEntitet.vedtaksperiodeId] shouldBe refusjonUtfall.vedtaksperiodeId
+        lagredeRader.single()[RefusjonUtfallEntitet.fnr] shouldBe refusjonUtfall.fnr.toString()
         lagredeRader.single()[RefusjonUtfallEntitet.orgnr] shouldBe refusjonUtfall.orgnr.toString()
         lagredeRader.single()[RefusjonUtfallEntitet.refusjonUtfall] shouldBe refusjonUtfall
     }
 
     @Test
-    fun `lagreRefusjonUtfall skal ignorere duplikat med samme refusjonUtfallId`() {
+    fun `lagreRefusjonUtfall skal kaste feil og ikke overskrive ved duplikat refusjonUtfallId`() {
         val refusjonUtfall = refusjonUtfallMock()
         val duplikat = refusjonUtfall.copy(sykepengegrunnlag = refusjonUtfall.sykepengegrunnlag + 1000.0)
 
-        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall) shouldBe true
-        refusjonUtfallRepository.lagreRefusjonUtfall(duplikat) shouldBe false
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        assertThrows<ExposedSQLException> { refusjonUtfallRepository.lagreRefusjonUtfall(duplikat) }
 
         val lagredeRader = hentRader(refusjonUtfall.refusjonUtfallId)
         lagredeRader shouldHaveSize 1
@@ -61,8 +63,8 @@ class RefusjonUtfallRepositoryTest {
         val refusjonUtfall = refusjonUtfallMock()
         val annetRefusjonUtfall = refusjonUtfall.copy(refusjonUtfallId = UUID.randomUUID())
 
-        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall) shouldBe true
-        refusjonUtfallRepository.lagreRefusjonUtfall(annetRefusjonUtfall) shouldBe true
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        refusjonUtfallRepository.lagreRefusjonUtfall(annetRefusjonUtfall)
 
         transaction(db) { RefusjonUtfallEntitet.selectAll().count() } shouldBe 2
     }
