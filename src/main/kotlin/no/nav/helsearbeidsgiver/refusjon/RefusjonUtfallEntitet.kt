@@ -9,8 +9,8 @@ object RefusjonUtfallEntitet : Table("refusjon_utfall") {
     val id = long("id").autoIncrement()
     val refusjonUtfallId = uuid("refusjon_utfall_id")
     val vedtaksperiodeId = uuid("vedtaksperiode_id")
-    val fnr = varchar("fnr", length = 11)
-    val orgnr = varchar("orgnr", length = 9)
+    val fnr = text("fnr")
+    val orgnr = text("orgnr")
     val refusjonUtfall =
         jsonb<RefusjonUtfall>(
             name = "refusjon_utfall",
