@@ -16,7 +16,7 @@ import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class RefusjonKlientTest {
-    private val url = "http://hag-refusjon"
+    private val url = "http://hag-test-refusjon"
     private val refusjonUtfallId = UUID.randomUUID()
 
     @Test
@@ -46,7 +46,7 @@ class RefusjonKlientTest {
         }
 
     @Test
-    fun `hentRefusjonUtfallPdf skal kaste feil naar hag-refusjon svarer med serverfeil`() =
+    fun `hentRefusjonUtfallPdf skal kaste feil når hag-refusjon svarer med serverfeil`() =
         runTest {
             val mockEngine = MockEngine { respond(content = "Feil", status = HttpStatusCode.InternalServerError) }
 

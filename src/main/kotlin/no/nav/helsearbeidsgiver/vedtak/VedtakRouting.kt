@@ -36,6 +36,7 @@ fun Route.vedtakV1(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/v1") {
+        // TODO: Vi må sjekke om LPS klient har tilgang til ressursen for dette endepunktet
         get("/refusjon/{refusjonUtfallId}") {
             if (!unleashFeatureToggles.skalEksponereVedtakJson()) {
                 call.respond(HttpStatusCode.Forbidden)
@@ -48,6 +49,7 @@ fun Route.vedtakV1(
             }
         }
 
+        // TODO: Vi må sjekke om LPS klient har tilgang til ressursen for dette endepunktet
         get("/refusjon/{refusjonUtfallId}/pdf") {
             if (!unleashFeatureToggles.skalEksponereVedtakPdf()) {
                 call.respond(HttpStatusCode.Forbidden)
@@ -66,7 +68,7 @@ fun Route.vedtakV1(
                 } catch (e: Exception) {
                     logger().error(Feil.FEIL_VED_HENTING_PDF.feilmelding)
                     sikkerLogger().error(Feil.FEIL_VED_HENTING_PDF.feilmelding, e)
-                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.FEIL_VED_HENTING_PDF))
+                    call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.EN_FEIL_OPPSTOD))
                 }
             }
         }

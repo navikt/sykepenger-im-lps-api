@@ -120,7 +120,7 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `hentRefusjonUtfall med filter skal hente refusjonsutfall etter fraLoepenr sortert paa loepenr`() {
+    fun `hentRefusjonUtfall med filter skal hente refusjonsutfall etter fraLoepenr sortert på loepenr`() {
         val foerste = refusjonUtfallMock()
         val andre = refusjonUtfallMock()
         val tredje = refusjonUtfallMock()

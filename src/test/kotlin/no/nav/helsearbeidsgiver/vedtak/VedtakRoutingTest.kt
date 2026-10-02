@@ -106,7 +106,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent refusjonsutfall som PDF skal svare 404 naar hag-refusjon ikke finner PDF`() {
+    fun `hent refusjonsutfall som PDF skal svare 404 når hag-refusjon ikke finner PDF`() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
         mockkObject(services.vedtakService)
@@ -125,7 +125,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent refusjonsutfall som PDF skal svare 500 naar henting fra hag-refusjon feiler`() {
+    fun `hent refusjonsutfall som PDF skal svare 500 når henting fra hag-refusjon feiler`() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
         mockkObject(services.vedtakService)
@@ -144,7 +144,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent refusjonsutfall skal svare 403 naar feature toggle er av`() {
+    fun `hent refusjonsutfall skal svare 403 når feature toggle er av`() {
         every { unleashFeatureToggles.skalEksponereVedtakJson() } returns false
 
         val respons =
@@ -172,7 +172,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent refusjonsutfall skal svare 404 naar refusjonsutfallet ikke finnes`() {
+    fun `hent refusjonsutfall skal svare 404 når refusjonsutfallet ikke finnes`() {
         val refusjonUtfallId = UUID.randomUUID()
         every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns null
@@ -247,7 +247,7 @@ class VedtakRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent flere refusjonsutfall skal svare 403 naar feature toggle er av`() {
+    fun `hent flere refusjonsutfall skal svare 403 når feature toggle er av`() {
         val filter = VedtakFilter(orgnr = DEFAULT_ORG)
         every { unleashFeatureToggles.skalEksponereVedtakJson() } returns false
 
