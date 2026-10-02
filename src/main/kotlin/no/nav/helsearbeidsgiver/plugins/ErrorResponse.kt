@@ -70,6 +70,7 @@ enum class Feil(
     MANGLER_BRUKERIDENTIFIKASJON("Mangler brukeridentifikasjon i token"),
 
     FEIL_VED_PDF_GENERERING("Feil ved generering av pdf"),
+    FEIL_VED_HENTING_PDF("Feil ved henting av pdf"),
 
     UGYLDIG_SYKMELDING_ID("Ugyldig sykmeldingId"),
     FEIL_VED_HENTING_SYKMELDING("Feil ved henting av sykmelding"),

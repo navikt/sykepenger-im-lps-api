@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.sis.Dokument
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -54,6 +55,7 @@ class VedtakServiceTest {
             sykmeldingRepository,
             soeknadRepository,
             refusjonKlient,
+            mockk<RefusjonUtfallRepository>(),
         )
     }
 
