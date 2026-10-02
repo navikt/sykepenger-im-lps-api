@@ -1,13 +1,13 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
 import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRad
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
-import no.nav.helsearbeidsgiver.refusjon.Utfall
+import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRad
+import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
+import no.nav.helsearbeidsgiver.refusjonUtfall.Utfall
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -15,7 +15,7 @@ import no.nav.helsearbeidsgiver.utils.kapitaliserNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
-class VedtakService(
+class refusjonUtfallService(
     private val vedtakRepository: VedtakRepository,
     private val unleashFeatureToggles: UnleashFeatureToggles,
     private val inntektsmeldingRepository: InntektsmeldingRepository,
@@ -26,28 +26,12 @@ class VedtakService(
     private val refusjonUtfallRepository: RefusjonUtfallRepository,
 ) {
     private val logger = logger()
-
-    fun hentVedtak(vedtakId: UUID): VedtakResponse? {
-        val rad = vedtakRepository.hentVedtak(vedtakId) ?: return null
-
-        val vedtaksdokumenter = rad.vedtak.dokumenter
-        val vedtaksperiodeId = rad.vedtak.vedtaksperiodeId
-
-        val sykmeldingId = finnSykmeldingId(dokumenter = vedtaksdokumenter, vedtaksperiodeId = vedtaksperiodeId)
-        val sykmeldtNavn = sykmeldingId?.let { hentSykmeldtNavn(sykmeldingId = it, vedtaksperiodeId = vedtaksperiodeId) }
-
-        val soeknadId = finnSoeknadId(dokumenter = vedtaksdokumenter, vedtaksperiodeId = vedtaksperiodeId)
-        val arbeidsgiverNavn = soeknadId?.let { hentArbeidsgiverNavn(soeknadId = it, vedtaksperiodeId = vedtaksperiodeId) }
-
-        return rad.tilVedtakResponse(sykmeldtNavn = sykmeldtNavn, arbeidsgiverNavn = arbeidsgiverNavn)
-    }
-
-    fun hentRefusjonUtfall(refusjonUtfallId: UUID): VedtakResponse? =
+    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfall? =
         refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)?.tilVedtakResponse()
 
     suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? = refusjonKlient.hentRefusjonUtfallPdf(refusjonUtfallId)
 
-    fun hentRefusjonUtfall(filter: VedtakFilter): List<VedtakResponse> =
+    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfall> =
         refusjonUtfallRepository
             .hentRefusjonUtfall(filter)
             .map { it.tilVedtakResponse() }
@@ -188,10 +172,10 @@ class VedtakService(
     private fun VedtakRad.tilVedtakResponse(
         sykmeldtNavn: String?,
         arbeidsgiverNavn: String?,
-    ): VedtakResponse =
-        VedtakResponse(
+    ): RefusjonUtfall =
+        RefusjonUtfall(
             loepenr = loepenr,
-            vedtakId = vedtakId,
+            refusjonUtfallId = vedtakId,
             orgnr = orgnr,
             fom = vedtak.fom,
             tom = vedtak.tom,
@@ -202,10 +186,10 @@ class VedtakService(
             arbeidsgiverNavn = arbeidsgiverNavn,
         )
 
-    private fun RefusjonUtfallRad.tilVedtakResponse(): VedtakResponse =
-        VedtakResponse(
+    private fun RefusjonUtfallRad.tilVedtakResponse(): RefusjonUtfall =
+        RefusjonUtfall(
             loepenr = loepenr,
-            vedtakId = refusjonUtfall.refusjonUtfallId,
+            refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
             orgnr = refusjonUtfall.orgnr.toString(),
             fom = refusjonUtfall.fom,
             tom = refusjonUtfall.tom,

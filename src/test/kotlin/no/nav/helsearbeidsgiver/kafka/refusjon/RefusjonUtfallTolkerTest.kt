@@ -9,9 +9,9 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import kotlinx.serialization.SerializationException
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
-import no.nav.helsearbeidsgiver.refusjon.Utfall
+import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfall
+import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
+import no.nav.helsearbeidsgiver.refusjonUtfall.Utfall
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.BeforeEach

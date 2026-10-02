@@ -52,7 +52,7 @@ class InntektRoutingTest {
             soeknadService = mockk(relaxed = true),
             helseSjekkService = mockk(relaxed = true),
             avvistInntektsmeldingService = mockk(relaxed = true),
-            vedtakService = mockk(relaxed = true),
+            refusjonUtfallService = mockk(relaxed = true),
         )
 
     private val mockOAuth2Server =

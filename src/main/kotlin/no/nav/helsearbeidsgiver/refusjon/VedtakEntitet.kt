@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig

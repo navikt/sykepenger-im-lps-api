@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -22,8 +22,8 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.getPdpService
 import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRad
-import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallMock
+import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRad
+import no.nav.helsearbeidsgiver.refusjonUtfall.refusjonUtfallMock
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -40,7 +40,7 @@ class VedtakRoutingTest : ApiTest() {
     @AfterEach
     fun clearRepositoryMocks() {
         clearMocks(repositories.refusjonUtfallRepository)
-        unmockkObject(services.vedtakService)
+        unmockkObject(services.refusjonUtfallService)
     }
 
     @AfterAll
@@ -52,7 +52,7 @@ class VedtakRoutingTest : ApiTest() {
     fun `hent refusjonsutfall som JSON`() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfall = refusjonUtfallRad.refusjonUtfall
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfallRad
 
         val respons =
@@ -64,10 +64,10 @@ class VedtakRoutingTest : ApiTest() {
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<VedtakResponse>() shouldBe
-                VedtakResponse(
+            respons.body<RefusjonUtfall>() shouldBe
+                RefusjonUtfall(
                     loepenr = refusjonUtfallRad.loepenr,
-                    vedtakId = refusjonUtfall.refusjonUtfallId,
+                    refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
                     orgnr = DEFAULT_ORG,
                     fom = refusjonUtfall.fom,
                     tom = refusjonUtfall.tom,
@@ -85,10 +85,10 @@ class VedtakRoutingTest : ApiTest() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
-        mockkObject(services.vedtakService)
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        mockkObject(services.refusjonUtfallService)
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
-        coEvery { services.vedtakService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns mockPdfBytes
+        coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns mockPdfBytes
 
         val respons =
             runBlocking {
@@ -109,10 +109,10 @@ class VedtakRoutingTest : ApiTest() {
     fun `hent refusjonsutfall som PDF skal svare 404 når hag-refusjon ikke finner PDF`() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
-        mockkObject(services.vedtakService)
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        mockkObject(services.refusjonUtfallService)
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
-        coEvery { services.vedtakService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns null
+        coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns null
 
         val respons =
             runBlocking {
@@ -128,10 +128,10 @@ class VedtakRoutingTest : ApiTest() {
     fun `hent refusjonsutfall som PDF skal svare 500 når henting fra hag-refusjon feiler`() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
-        mockkObject(services.vedtakService)
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        mockkObject(services.refusjonUtfallService)
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
-        coEvery { services.vedtakService.hentRefusjonUtfallPdf(refusjonUtfallId) } throws RuntimeException("hag-refusjon nede")
+        coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } throws RuntimeException("hag-refusjon nede")
 
         val respons =
             runBlocking {
@@ -145,7 +145,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall skal svare 403 når feature toggle er av`() {
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns false
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns false
 
         val respons =
             runBlocking {
@@ -159,7 +159,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall skal svare 400 for ugyldig refusjonUtfallId`() {
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
 
         val respons =
             runBlocking {
@@ -174,7 +174,7 @@ class VedtakRoutingTest : ApiTest() {
     @Test
     fun `hent refusjonsutfall skal svare 404 når refusjonsutfallet ikke finnes`() {
         val refusjonUtfallId = UUID.randomUUID()
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns null
 
         val respons =
@@ -192,7 +192,7 @@ class VedtakRoutingTest : ApiTest() {
         val refusjonUtfallRad = refusjonUtfallRad()
         val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
         every {
             getPdpService()
@@ -212,7 +212,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `systembrukerendepunktet skal avvise TokenX token`() {
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
 
         val respons =
             runBlocking {
@@ -226,36 +226,36 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent flere refusjonsutfall som JSON`() {
-        val filter = VedtakFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
+        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
         val refusjonUtfallRader = listOf(refusjonUtfallRad(loepenr = 1), refusjonUtfallRad(loepenr = 2))
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
         every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(filter) } returns refusjonUtfallRader
 
         val respons =
             runBlocking {
                 client.post("/v1/refusjon") {
                     contentType(ContentType.Application.Json)
-                    setBody(filter.toJson(serializer = VedtakFilter.serializer()))
+                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<List<VedtakResponse>>().map { it.vedtakId } shouldBe refusjonUtfallRader.map { it.refusjonUtfall.refusjonUtfallId }
+            respons.body<List<RefusjonUtfall>>().map { it.refusjonUtfallId } shouldBe refusjonUtfallRader.map { it.refusjonUtfall.refusjonUtfallId }
         }
     }
 
     @Test
     fun `hent flere refusjonsutfall skal svare 403 når feature toggle er av`() {
-        val filter = VedtakFilter(orgnr = DEFAULT_ORG)
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns false
+        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG)
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns false
 
         val respons =
             runBlocking {
                 client.post("/v1/refusjon") {
                     contentType(ContentType.Application.Json)
-                    setBody(filter.toJson(serializer = VedtakFilter.serializer()))
+                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -265,9 +265,9 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent flere refusjonsutfall skal svare 403 uten tilgang til inntektsmeldingressursen`() {
-        val filter = VedtakFilter(orgnr = DEFAULT_ORG)
+        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG)
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
         every {
             getPdpService()
                 .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
@@ -277,7 +277,7 @@ class VedtakRoutingTest : ApiTest() {
             runBlocking {
                 client.post("/v1/refusjon") {
                     contentType(ContentType.Application.Json)
-                    setBody(filter.toJson(serializer = VedtakFilter.serializer()))
+                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -288,7 +288,7 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent flere refusjonsutfall skal svare 400 for ugyldig filter`() {
-        every { unleashFeatureToggles.skalEksponereVedtakJson() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
 
         val respons =
             runBlocking {

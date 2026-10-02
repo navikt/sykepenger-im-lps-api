@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
 import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.json.extract
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
@@ -61,7 +60,7 @@ class VedtakRepository(
                 .firstOrNull()
         }
 
-    fun hentVedtak(filter: VedtakFilter): List<VedtakRad> =
+    fun hentVedtak(filter: RefusjonUtfallFilter): List<VedtakRad> =
         transaction(db) {
             val query =
                 VedtakEntitet

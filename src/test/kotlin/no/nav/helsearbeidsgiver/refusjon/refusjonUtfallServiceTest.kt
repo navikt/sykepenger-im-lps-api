@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -11,7 +11,7 @@ import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.inntektsmelding.InntektsmeldingRepository
 import no.nav.helsearbeidsgiver.kafka.sis.Dokument
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
+import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
@@ -31,7 +31,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @WithPostgresContainer
-class VedtakServiceTest {
+class refusjonUtfallServiceTest {
     private val db: Database by lazy {
         DatabaseConfig(
             System.getProperty("database.url"),
@@ -46,8 +46,8 @@ class VedtakServiceTest {
     private val sykmeldingRepository = mockk<SykmeldingRepository>()
     private val soeknadRepository = mockk<SoeknadRepository>()
     private val refusjonKlient = mockk<RefusjonKlient>(relaxed = true)
-    private val vedtakService: VedtakService by lazy {
-        VedtakService(
+    private val refusjonUtfallService: refusjonUtfallService by lazy {
+        refusjonUtfallService(
             vedtakRepository,
             unleashFeatureToggles,
             inntektsmeldingRepository,
@@ -70,7 +70,7 @@ class VedtakServiceTest {
         every { unleashFeatureToggles.skalLagreVedtakArbeidsgiver() } returns true
         val vedtak = vedtakMock()
 
-        vedtakService.lagreVedtak(vedtak)
+        refusjonUtfallService.lagreVedtak(vedtak)
 
         val lagretVedtak = transaction(db) { VedtakEntitet.selectAll().firstOrNull()?.getOrNull(VedtakEntitet.vedtak) }
         lagretVedtak shouldBe vedtak
@@ -80,7 +80,7 @@ class VedtakServiceTest {
     fun `lagreVedtak lagrer ikke vedtaket når featuretoggle er av`() {
         every { unleashFeatureToggles.skalLagreVedtakArbeidsgiver() } returns false
 
-        vedtakService.lagreVedtak(vedtakMock())
+        refusjonUtfallService.lagreVedtak(vedtakMock())
 
         val lagretVedtak = transaction(db) { VedtakEntitet.selectAll().firstOrNull()?.getOrNull(VedtakEntitet.vedtak) }
         lagretVedtak shouldBe null
@@ -94,7 +94,7 @@ class VedtakServiceTest {
     fun `lagreVedtak sender ikke vedtaket til refusjon når featuretoggle er av`() {
         every { unleashFeatureToggles.skalLagreVedtakArbeidsgiver() } returns false
 
-        vedtakService.lagreVedtak(vedtakMock().copy(harArbeidsgiverOensketRefusjon = true))
+        refusjonUtfallService.lagreVedtak(vedtakMock().copy(harArbeidsgiverOensketRefusjon = true))
 
         verify(exactly = 0) { refusjonKlient.sendVedtak(any()) }
     }
@@ -117,7 +117,7 @@ class VedtakServiceTest {
             dokumentkoblingService.produserVedtakKobling(any(), any(), any(), vedtak.organisasjonsnummer)
         } just Runs
 
-        vedtakService.lagreVedtak(vedtak)
+        refusjonUtfallService.lagreVedtak(vedtak)
 
         val lagretVedtakId = transaction(db) { VedtakEntitet.selectAll().first().getOrNull(VedtakEntitet.vedtakId) }
         verify(exactly = 1) {
@@ -136,7 +136,7 @@ class VedtakServiceTest {
         every { unleashFeatureToggles.skalLagreVedtakArbeidsgiver() } returns true
         val vedtak = vedtakMock().copy(dokumenter = listOf(Dokument(UUID.randomUUID(), Dokument.Type.Sykmelding)))
 
-        vedtakService.lagreVedtak(vedtak)
+        refusjonUtfallService.lagreVedtak(vedtak)
 
         verify(exactly = 0) {
             dokumentkoblingService.produserVedtakKobling(any(), any(), any(), Orgnr.genererGyldig())
@@ -156,7 +156,7 @@ class VedtakServiceTest {
                     ),
             )
 
-        vedtakService.lagreVedtak(vedtak)
+        refusjonUtfallService.lagreVedtak(vedtak)
 
         val lagretVedtak = transaction(db) { VedtakEntitet.selectAll().firstOrNull()?.getOrNull(VedtakEntitet.vedtak) }
         lagretVedtak shouldBe vedtak
@@ -185,7 +185,7 @@ class VedtakServiceTest {
             dokumentkoblingService.produserVedtakKobling(any(), any(), any(), vedtak.organisasjonsnummer)
         } just Runs
 
-        vedtakService.lagreVedtak(vedtak)
+        refusjonUtfallService.lagreVedtak(vedtak)
 
         verify(exactly = 1) {
             dokumentkoblingService.produserVedtakKobling(
@@ -223,7 +223,7 @@ class VedtakServiceTest {
             dokumentkoblingService.produserVedtakKobling(any(), any(), any(), vedtak.organisasjonsnummer)
         } just Runs
 
-        vedtakService.lagreVedtak(vedtak)
+        refusjonUtfallService.lagreVedtak(vedtak)
 
         verify(exactly = 1) {
             dokumentkoblingService.produserVedtakKobling(

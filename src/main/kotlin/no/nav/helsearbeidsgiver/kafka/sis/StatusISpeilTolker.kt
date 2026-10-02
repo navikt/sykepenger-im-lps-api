@@ -8,13 +8,13 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.vedtak.VedtakService
+import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallService
 
 class StatusISpeilTolker(
     private val soeknadRepository: SoeknadRepository,
     private val statusISpeilRepository: StatusISpeilRepository,
     private val dokumentkoblingService: DokumentkoblingService,
-    private val vedtakService: VedtakService,
+    private val refusjonUtfallService: refusjonUtfallService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
@@ -88,6 +88,6 @@ class StatusISpeilTolker(
         logger.info("Leste vedtak")
         sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
 
-        vedtakService.lagreVedtak(vedtakArbeidsgiverMelding)
+        refusjonUtfallService.lagreVedtak(vedtakArbeidsgiverMelding)
     }
 }

@@ -1,16 +1,15 @@
 @file:UseSerializers(LocalDateSerializer::class)
 
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr.Companion.erGyldig
 import java.time.LocalDate
 
 @Serializable
-data class VedtakFilter(
+data class RefusjonUtfallFilter(
     val orgnr: String,
     val fnr: String? = null,
     val fom: LocalDate? = null,
