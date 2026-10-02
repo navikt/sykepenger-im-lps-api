@@ -33,8 +33,8 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
-import no.nav.helsearbeidsgiver.vedtak.vedtakTokenX
-import no.nav.helsearbeidsgiver.vedtak.vedtakV1
+import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallTokenX
+import no.nav.helsearbeidsgiver.refusjon.refusjonV1
 
 fun Application.configureRouting(
     services: Services,
@@ -49,12 +49,12 @@ fun Application.configureRouting(
             forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
             soeknadV1(soeknadService = services.soeknadService)
-            vedtakV1(vedtakService = services.vedtakService, unleashFeatureToggles = unleashFeatureToggles)
+            refusjonV1(refusjonUtfallService = services.refusjonUtfallService, unleashFeatureToggles = unleashFeatureToggles)
         }
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)
             soeknadTokenX(soeknadService = services.soeknadService)
-            vedtakTokenX(vedtakService = services.vedtakService, unleashFeatureToggles = unleashFeatureToggles)
+            refusjonUtfallTokenX(refusjonUtfallService = services.refusjonUtfallService, unleashFeatureToggles = unleashFeatureToggles)
         }
         swaggerUI(path = "swagger") {
             info =

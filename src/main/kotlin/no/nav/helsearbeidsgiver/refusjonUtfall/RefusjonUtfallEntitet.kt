@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.refusjon
+package no.nav.helsearbeidsgiver.refusjonUtfall
 
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import org.jetbrains.exposed.sql.Table

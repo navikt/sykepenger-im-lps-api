@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -137,7 +137,7 @@ class VedtakRepositoryTest {
 
         val resultat =
             vedtakRepository.hentVedtak(
-                VedtakFilter(
+                RefusjonUtfallFilter(
                     orgnr = orgnr.toString(),
                     fnr = fnr.toString(),
                     fom = LocalDate.now(),

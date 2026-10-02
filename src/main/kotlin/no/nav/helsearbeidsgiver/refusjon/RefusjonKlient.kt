@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException

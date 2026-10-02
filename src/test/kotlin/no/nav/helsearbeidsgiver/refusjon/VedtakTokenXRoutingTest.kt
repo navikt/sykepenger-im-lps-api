@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -45,7 +45,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
         val vedtak = vedtakMock()
 
         mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
             VedtakRad(
                 loepenr = 1,
@@ -74,7 +74,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
     fun `hent med TokenX person endepunkt skal ikke funke med en maskinporten token`() {
         val vedtakId = UUID.randomUUID()
 
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         runBlocking {
             val response =
                 client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
@@ -90,7 +90,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
         val vedtak = vedtakMock()
 
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         every {
             no.nav.helsearbeidsgiver.config
                 .getPdpService()
@@ -119,7 +119,7 @@ class VedtakTokenXRoutingTest : ApiTest() {
     fun `hent vedtak PDF skal svare 403 naar feature toggle er av`() {
         val vedtakId = UUID.randomUUID()
 
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns false
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns false
 
         runBlocking {
             val response =

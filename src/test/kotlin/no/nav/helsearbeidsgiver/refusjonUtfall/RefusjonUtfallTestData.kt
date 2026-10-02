@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.refusjon
+package no.nav.helsearbeidsgiver.refusjonUtfall
 
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
