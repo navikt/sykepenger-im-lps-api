@@ -31,7 +31,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @WithPostgresContainer
-class refusjonUtfallServiceTest {
+class RefusjonUtfallServiceTest {
     private val db: Database by lazy {
         DatabaseConfig(
             System.getProperty("database.url"),
@@ -46,8 +46,8 @@ class refusjonUtfallServiceTest {
     private val sykmeldingRepository = mockk<SykmeldingRepository>()
     private val soeknadRepository = mockk<SoeknadRepository>()
     private val refusjonKlient = mockk<RefusjonKlient>(relaxed = true)
-    private val refusjonUtfallService: refusjonUtfallService by lazy {
-        refusjonUtfallService(
+    private val refusjonUtfallService: RefusjonUtfallService by lazy {
+        RefusjonUtfallService(
             vedtakRepository,
             unleashFeatureToggles,
             inntektsmeldingRepository,

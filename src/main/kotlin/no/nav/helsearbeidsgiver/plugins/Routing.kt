@@ -25,6 +25,8 @@ import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.inntekt.inntektV1
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
+import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallTokenX
+import no.nav.helsearbeidsgiver.refusjon.refusjonV1
 import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
@@ -33,8 +35,6 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
-import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallTokenX
-import no.nav.helsearbeidsgiver.refusjon.refusjonV1
 
 fun Application.configureRouting(
     services: Services,

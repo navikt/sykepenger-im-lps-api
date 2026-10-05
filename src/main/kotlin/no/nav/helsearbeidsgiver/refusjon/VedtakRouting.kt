@@ -31,7 +31,7 @@ import no.nav.helsearbeidsgiver.utils.toUuidOrNull
 private val IM_RESSURS = Env.getProperty("ALTINN_IM_RESSURS")
 
 fun Route.refusjonV1(
-    refusjonUtfallService: refusjonUtfallService,
+    refusjonUtfallService: RefusjonUtfallService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/v1") {
@@ -112,7 +112,7 @@ fun Route.refusjonV1(
     }
 }
 
-private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(refusjonUtfallService: refusjonUtfallService): RefusjonUtfall? {
+private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(refusjonUtfallService: RefusjonUtfallService): RefusjonUtfall? {
     try {
         val tokenContext = tokenValidationContext()
         val lpsOrgnr = tokenContext.getConsumerOrgnr()
@@ -151,7 +151,7 @@ private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(refusjonUtf
 }
 
 fun Route.refusjonUtfallTokenX(
-    refusjonUtfallService: refusjonUtfallService,
+    refusjonUtfallService: RefusjonUtfallService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/intern/personbruker") {

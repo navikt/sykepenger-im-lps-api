@@ -92,8 +92,8 @@ enum class Feil(
     FEIL_VED_HENTING_SYKEPENGESOEKNADER("Feil ved henting av sykepengesøknader"),
     UGYLDIG_DATO("Ugyldig dato"),
 
-    UGYLDIG_REFUSJONUTFALL_ID("Ugyldig vedtakId"),
-    HENTING_REFUSJONUTFALL("Feil ved henting av vedtak"),
+    UGYLDIG_REFUSJONUTFALL_ID("Ugyldig refusjonUtfallId"),
+    HENTING_REFUSJONUTFALL("Feil ved henting av refusjonutfall"),
 }
 
 enum class FeilMedReferanse(

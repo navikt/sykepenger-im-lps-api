@@ -49,6 +49,11 @@ import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
+import no.nav.helsearbeidsgiver.refusjon.IkkeRefusjonKlient
+import no.nav.helsearbeidsgiver.refusjon.RefusjonKlient
+import no.nav.helsearbeidsgiver.refusjon.RefusjonKlientImpl
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
+import no.nav.helsearbeidsgiver.refusjon.VedtakRepository
 import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -59,11 +64,6 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
-import no.nav.helsearbeidsgiver.refusjon.IkkeRefusjonKlient
-import no.nav.helsearbeidsgiver.refusjon.RefusjonKlient
-import no.nav.helsearbeidsgiver.refusjon.RefusjonKlientImpl
-import no.nav.helsearbeidsgiver.refusjon.VedtakRepository
-import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallService
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -103,7 +103,7 @@ data class Services(
     val soeknadService: SoeknadService,
     val helseSjekkService: HelseSjekkService,
     val avvistInntektsmeldingService: AvvistInntektsmeldingService,
-    val refusjonUtfallService: refusjonUtfallService,
+    val refusjonUtfallService: RefusjonUtfallService,
 )
 
 data class Tolkere(
@@ -242,7 +242,7 @@ fun configureServices(
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dokumentkoblingService)
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
     val refusjonUtfallService =
-        refusjonUtfallService(
+        RefusjonUtfallService(
             repositories.vedtakRepository,
             unleashFeatureToggles,
             repositories.inntektsmeldingRepository,

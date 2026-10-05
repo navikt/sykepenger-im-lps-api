@@ -242,7 +242,8 @@ class VedtakRoutingTest : ApiTest() {
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<List<RefusjonUtfall>>().map { it.refusjonUtfallId } shouldBe refusjonUtfallRader.map { it.refusjonUtfall.refusjonUtfallId }
+            respons.body<List<RefusjonUtfall>>().map { it.refusjonUtfallId } shouldBe
+                refusjonUtfallRader.map { it.refusjonUtfall.refusjonUtfallId }
         }
     }
 

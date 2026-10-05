@@ -3,18 +3,18 @@ package no.nav.helsearbeidsgiver.kafka.sis
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallService
 
 class StatusISpeilTolker(
     private val soeknadRepository: SoeknadRepository,
     private val statusISpeilRepository: StatusISpeilRepository,
     private val dokumentkoblingService: DokumentkoblingService,
-    private val refusjonUtfallService: refusjonUtfallService,
+    private val refusjonUtfallService: RefusjonUtfallService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()

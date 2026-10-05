@@ -1,10 +1,10 @@
 package no.nav.helsearbeidsgiver.refusjonUtfall
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallFilter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallFilter
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.ResultRow

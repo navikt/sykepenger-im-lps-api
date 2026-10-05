@@ -12,11 +12,11 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.RoutingCall
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.soeknad.SykepengesoeknadForPDF
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.pipe.orDefault
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 
 object PdfgenHttpClient {
     val httpClient = createHttpClient()

@@ -3,10 +3,10 @@ package no.nav.helsearbeidsgiver.refusjonUtfall
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallFilter
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallFilter
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll

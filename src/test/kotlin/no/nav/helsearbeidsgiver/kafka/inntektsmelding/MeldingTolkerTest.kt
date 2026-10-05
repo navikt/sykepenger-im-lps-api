@@ -29,6 +29,8 @@ import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
+import no.nav.helsearbeidsgiver.refusjon.VedtakRepository
 import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
@@ -58,8 +60,6 @@ import no.nav.helsearbeidsgiver.utils.buildJournalfoertInntektsmelding
 import no.nav.helsearbeidsgiver.utils.test.json.removeJsonWhitespace
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
-import no.nav.helsearbeidsgiver.refusjon.VedtakRepository
-import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallService
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -114,7 +114,7 @@ class MeldingTolkerTest {
                 soeknadService = mockk<SoeknadService>(),
                 helseSjekkService = mockk<HelseSjekkService>(relaxed = true),
                 avvistInntektsmeldingService = mockk<AvvistInntektsmeldingService>(),
-                refusjonUtfallService = mockk<refusjonUtfallService>(relaxed = true),
+                refusjonUtfallService = mockk<RefusjonUtfallService>(relaxed = true),
             )
 
         tolkere = configureTolkere(service, repositories)

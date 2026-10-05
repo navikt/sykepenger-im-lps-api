@@ -15,7 +15,7 @@ import no.nav.helsearbeidsgiver.utils.kapitaliserNavn
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
-class refusjonUtfallService(
+class RefusjonUtfallService(
     private val vedtakRepository: VedtakRepository,
     private val unleashFeatureToggles: UnleashFeatureToggles,
     private val inntektsmeldingRepository: InntektsmeldingRepository,
@@ -26,6 +26,7 @@ class refusjonUtfallService(
     private val refusjonUtfallRepository: RefusjonUtfallRepository,
 ) {
     private val logger = logger()
+
     fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfall? =
         refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)?.tilVedtakResponse()
 
