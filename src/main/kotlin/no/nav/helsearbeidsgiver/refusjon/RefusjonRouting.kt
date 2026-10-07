@@ -112,7 +112,9 @@ fun Route.refusjonV1(
     }
 }
 
-private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(refusjonUtfallService: RefusjonUtfallService): RefusjonUtfall? {
+private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(
+    refusjonUtfallService: RefusjonUtfallService,
+): RefusjonUtfallResponse? {
     try {
         val tokenContext = tokenValidationContext()
         val lpsOrgnr = tokenContext.getConsumerOrgnr()

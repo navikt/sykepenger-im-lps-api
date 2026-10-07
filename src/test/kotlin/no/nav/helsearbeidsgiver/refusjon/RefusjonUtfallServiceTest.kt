@@ -42,7 +42,7 @@ class RefusjonUtfallServiceTest {
 
     @Test
     fun `hentRefusjonUtfall henter refusjonsutfall fra repository`() {
-        val refusjonUtfall = refusjonUtfallMock()
+        val refusjonUtfall = refusjonUtfallResponseMock()
         every { refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfall
 
         refusjonUtfallService.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) shouldBe refusjonUtfall

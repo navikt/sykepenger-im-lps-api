@@ -60,7 +60,7 @@ class RefusjonRoutingTest : ApiTest() {
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<RefusjonUtfall>() shouldBe refusjonUtfall
+            respons.body<RefusjonUtfallResponse>() shouldBe refusjonUtfall
         }
     }
 
@@ -226,7 +226,7 @@ class RefusjonRoutingTest : ApiTest() {
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<List<RefusjonUtfall>>() shouldBe refusjonUtfallListe
+            respons.body<List<RefusjonUtfallResponse>>() shouldBe refusjonUtfallListe
         }
     }
 
@@ -286,5 +286,5 @@ class RefusjonRoutingTest : ApiTest() {
         respons.status shouldBe HttpStatusCode.BadRequest
     }
 
-    private fun refusjonUtfall() = refusjonUtfallMock().copy(fnr = Fnr(DEFAULT_FNR), orgnr = Orgnr(DEFAULT_ORG))
+    private fun refusjonUtfall() = refusjonUtfallResponseMock().copy(fnr = Fnr(DEFAULT_FNR), orgnr = Orgnr(DEFAULT_ORG))
 }

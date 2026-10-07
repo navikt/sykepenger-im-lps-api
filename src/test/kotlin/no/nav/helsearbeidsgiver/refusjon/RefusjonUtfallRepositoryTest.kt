@@ -77,7 +77,10 @@ class RefusjonUtfallRepositoryTest {
         val refusjonUtfall = refusjonUtfallMock()
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
 
-        refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) shouldBe refusjonUtfall
+        val loepenr = transaction(db) { RefusjonUtfallEntitet.selectAll().single()[RefusjonUtfallEntitet.id] }
+
+        refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) shouldBe
+            refusjonUtfall.tilRefusjonUtfallResponse(loepenr)
     }
 
     @Test
@@ -96,7 +99,7 @@ class RefusjonUtfallRepositoryTest {
 
         val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = refusjonUtfall.orgnr.toString()))
 
-        resultat shouldBe listOf(refusjonUtfall)
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(refusjonUtfall.refusjonUtfallId)
     }
 
     @Test
@@ -111,7 +114,7 @@ class RefusjonUtfallRepositoryTest {
                 RefusjonUtfallFilter(orgnr = refusjonUtfall.orgnr.toString(), fnr = refusjonUtfall.fnr.toString()),
             )
 
-        resultat shouldBe listOf(refusjonUtfall)
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(refusjonUtfall.refusjonUtfallId)
     }
 
     @Test
@@ -123,7 +126,21 @@ class RefusjonUtfallRepositoryTest {
 
         val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = foerste.orgnr.toString()))
 
-        resultat shouldBe listOf(foerste, andre, tredje)
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(foerste, andre, tredje).map { it.refusjonUtfallId }
+    }
+
+    @Test
+    fun `hentRefusjonUtfall med filter skal kun hente refusjonsutfall etter fraLoepenr`() {
+        val foerste = refusjonUtfallMock()
+        val andre = refusjonUtfallMock()
+        val tredje = refusjonUtfallMock()
+        listOf(foerste, andre, tredje).forEach { refusjonUtfallRepository.lagreRefusjonUtfall(it) }
+        val orgnr = foerste.orgnr.toString()
+        val foersteLoepenr = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr)).first().loepenr
+
+        val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr, fraLoepenr = foersteLoepenr))
+
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(andre, tredje).map { it.refusjonUtfallId }
     }
 
     @Test

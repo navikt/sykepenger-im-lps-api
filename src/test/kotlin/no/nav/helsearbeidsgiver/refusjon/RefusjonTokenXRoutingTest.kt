@@ -46,11 +46,12 @@ class RefusjonTokenXRoutingTest : ApiTest() {
         val refusjonUtfallId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
         val refusjonUtfall =
-            refusjonUtfallMock().copy(
-                refusjonUtfallId = refusjonUtfallId,
-                fnr = Fnr(DEFAULT_FNR),
-                orgnr = Orgnr(DEFAULT_ORG),
-            )
+            refusjonUtfallResponseMock()
+                .copy(
+                    refusjonUtfallId = refusjonUtfallId,
+                    fnr = Fnr(DEFAULT_FNR),
+                    orgnr = Orgnr(DEFAULT_ORG),
+                )
 
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
@@ -86,11 +87,12 @@ class RefusjonTokenXRoutingTest : ApiTest() {
     fun `hent med TokenX person som ikke har tilgang skal ikke funke`() {
         val refusjonUtfallId = UUID.randomUUID()
         val refusjonUtfall =
-            refusjonUtfallMock().copy(
-                refusjonUtfallId = refusjonUtfallId,
-                fnr = Fnr(DEFAULT_FNR),
-                orgnr = Orgnr(DEFAULT_ORG),
-            )
+            refusjonUtfallResponseMock()
+                .copy(
+                    refusjonUtfallId = refusjonUtfallId,
+                    fnr = Fnr(DEFAULT_FNR),
+                    orgnr = Orgnr(DEFAULT_ORG),
+                )
 
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true

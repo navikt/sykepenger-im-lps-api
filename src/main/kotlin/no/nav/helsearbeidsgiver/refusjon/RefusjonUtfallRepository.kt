@@ -37,16 +37,16 @@ class RefusjonUtfallRepository(
         }
     }
 
-    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfall? =
+    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfallResponse? =
         transaction(db) {
             RefusjonUtfallEntitet
                 .selectAll()
                 .where { RefusjonUtfallEntitet.refusjonUtfallId eq refusjonUtfallId }
-                .map { it[RefusjonUtfallEntitet.refusjonUtfall] }
+                .map { it[RefusjonUtfallEntitet.refusjonUtfall].tilRefusjonUtfallResponse(loepenr = it[RefusjonUtfallEntitet.id]) }
                 .firstOrNull()
         }
 
-    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfall> =
+    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfallResponse> =
         transaction(db) {
             val query =
                 RefusjonUtfallEntitet
@@ -55,8 +55,9 @@ class RefusjonUtfallRepository(
             filter.fnr?.let { query.andWhere { RefusjonUtfallEntitet.fnr eq it } }
             filter.fom?.let { query.andWhere { RefusjonUtfallEntitet.opprettet greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { RefusjonUtfallEntitet.opprettet lessEq it.tilTidspunktEndOfDay() } }
+            filter.fraLoepenr?.let { query.andWhere { RefusjonUtfallEntitet.id greater it } }
             query.orderBy(RefusjonUtfallEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1)
-            query.map { it[RefusjonUtfallEntitet.refusjonUtfall] }
+            query.map { it[RefusjonUtfallEntitet.refusjonUtfall].tilRefusjonUtfallResponse(loepenr = it[RefusjonUtfallEntitet.id]) }
         }
 }

@@ -12,9 +12,9 @@ class RefusjonUtfallService(
 ) {
     private val logger = logger()
 
-    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfall? = refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)
+    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfallResponse? = refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)
 
-    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfall> = refusjonUtfallRepository.hentRefusjonUtfall(filter)
+    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfallResponse> = refusjonUtfallRepository.hentRefusjonUtfall(filter)
 
     suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? = refusjonKlient.hentRefusjonUtfallPdf(refusjonUtfallId)
 
