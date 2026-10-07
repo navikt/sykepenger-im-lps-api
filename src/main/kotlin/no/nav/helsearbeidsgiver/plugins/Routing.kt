@@ -25,7 +25,7 @@ import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.inntekt.inntektV1
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
-import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallTokenX
+import no.nav.helsearbeidsgiver.refusjon.refusjonTokenX
 import no.nav.helsearbeidsgiver.refusjon.refusjonV1
 import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
@@ -54,7 +54,7 @@ fun Application.configureRouting(
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)
             soeknadTokenX(soeknadService = services.soeknadService)
-            refusjonUtfallTokenX(refusjonUtfallService = services.refusjonUtfallService, unleashFeatureToggles = unleashFeatureToggles)
+            refusjonTokenX(refusjonUtfallService = services.refusjonUtfallService, unleashFeatureToggles = unleashFeatureToggles)
         }
         swaggerUI(path = "swagger") {
             info =

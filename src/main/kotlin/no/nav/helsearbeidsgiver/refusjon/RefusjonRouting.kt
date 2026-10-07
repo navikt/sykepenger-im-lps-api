@@ -150,7 +150,7 @@ private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(refusjonUtf
     }
 }
 
-fun Route.refusjonUtfallTokenX(
+fun Route.refusjonTokenX(
     refusjonUtfallService: RefusjonUtfallService,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
