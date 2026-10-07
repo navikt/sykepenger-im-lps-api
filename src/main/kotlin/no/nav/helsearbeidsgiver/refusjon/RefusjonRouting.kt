@@ -131,7 +131,7 @@ private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(refusjonUtf
 
         if (!tokenContext.harTilgangTilRessurs(
                 ressurs = IM_RESSURS,
-                orgnr = refusjonUtfall.orgnr,
+                orgnr = refusjonUtfall.orgnr.toString(),
             )
         ) {
             call.respond(HttpStatusCode.Forbidden, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
@@ -187,7 +187,7 @@ fun Route.refusjonUtfallTokenX(
 
                 if (!tokenContext.personHarTilgangTilRessurs(
                         ressurs = IM_RESSURS,
-                        orgnr = refusjon.orgnr,
+                        orgnr = refusjon.orgnr.toString(),
                         pid = pid,
                     )
                 ) {

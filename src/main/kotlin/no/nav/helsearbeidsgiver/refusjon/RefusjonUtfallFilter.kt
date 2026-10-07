@@ -14,12 +14,10 @@ data class RefusjonUtfallFilter(
     val fnr: String? = null,
     val fom: LocalDate? = null,
     val tom: LocalDate? = null,
-    val fraLoepenr: Long? = null,
 ) {
     init {
         require(erGyldig(orgnr)) { "ikke et gyldig orgnr" }
         fom?.year?.let { require(it >= 0) { "fom kan ikke være mindre enn år 0" } }
         tom?.year?.let { require(it <= 9999) { "tom kan ikke være etter år 9999" } }
-        fraLoepenr?.let { require(it >= 0) { "fraLoepenr kan ikke være mindre enn 0" } }
     }
 }

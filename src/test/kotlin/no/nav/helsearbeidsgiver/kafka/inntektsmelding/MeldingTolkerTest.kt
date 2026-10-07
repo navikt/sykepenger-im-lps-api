@@ -29,9 +29,8 @@ import no.nav.helsearbeidsgiver.pdl.FantIkkePersonException
 import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
-import no.nav.helsearbeidsgiver.refusjon.VedtakRepository
-import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
@@ -94,7 +93,6 @@ class MeldingTolkerTest {
                 sykmeldingRepository = mockk<SykmeldingRepository>(),
                 soeknadRepository = mockk<SoeknadRepository>(),
                 statusISpeilRepository = mockk<StatusISpeilRepository>(),
-                vedtakRepository = mockk<VedtakRepository>(),
                 refusjonUtfallRepository = mockk<RefusjonUtfallRepository>(),
             )
 
@@ -295,7 +293,7 @@ class MeldingTolkerTest {
         }
         verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
         verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
-        verify(exactly = 2) { service.refusjonUtfallService.lagreVedtak(any()) }
+        verify(exactly = 2) { service.refusjonUtfallService.sendVedtak(any()) }
     }
 
     @Test

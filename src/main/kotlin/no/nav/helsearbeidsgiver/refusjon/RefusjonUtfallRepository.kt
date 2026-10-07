@@ -1,24 +1,17 @@
-package no.nav.helsearbeidsgiver.refusjonUtfall
+package no.nav.helsearbeidsgiver.refusjon
 
 import no.nav.helsearbeidsgiver.config.MAX_ANTALL_I_RESPONS
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallFilter
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
-
-data class RefusjonUtfallRad(
-    val loepenr: Long,
-    val refusjonUtfall: RefusjonUtfall,
-)
 
 class RefusjonUtfallRepository(
     private val db: Database,
@@ -44,16 +37,16 @@ class RefusjonUtfallRepository(
         }
     }
 
-    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfallRad? =
+    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfall? =
         transaction(db) {
             RefusjonUtfallEntitet
                 .selectAll()
                 .where { RefusjonUtfallEntitet.refusjonUtfallId eq refusjonUtfallId }
-                .map(::tilRefusjonUtfallRad)
+                .map { it[RefusjonUtfallEntitet.refusjonUtfall] }
                 .firstOrNull()
         }
 
-    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfallRad> =
+    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfall> =
         transaction(db) {
             val query =
                 RefusjonUtfallEntitet
@@ -62,15 +55,8 @@ class RefusjonUtfallRepository(
             filter.fnr?.let { query.andWhere { RefusjonUtfallEntitet.fnr eq it } }
             filter.fom?.let { query.andWhere { RefusjonUtfallEntitet.opprettet greaterEq it.tilTidspunktStartOfDay() } }
             filter.tom?.let { query.andWhere { RefusjonUtfallEntitet.opprettet lessEq it.tilTidspunktEndOfDay() } }
-            filter.fraLoepenr?.let { query.andWhere { RefusjonUtfallEntitet.id greater it } }
             query.orderBy(RefusjonUtfallEntitet.id, SortOrder.ASC)
             query.limit(MAX_ANTALL_I_RESPONS + 1)
-            query.map(::tilRefusjonUtfallRad)
+            query.map { it[RefusjonUtfallEntitet.refusjonUtfall] }
         }
-
-    private fun tilRefusjonUtfallRad(resultatRad: ResultRow) =
-        RefusjonUtfallRad(
-            loepenr = resultatRad[RefusjonUtfallEntitet.id],
-            refusjonUtfall = resultatRad[RefusjonUtfallEntitet.refusjonUtfall],
-        )
 }

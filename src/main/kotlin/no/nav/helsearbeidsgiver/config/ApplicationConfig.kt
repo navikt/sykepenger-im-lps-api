@@ -52,9 +52,8 @@ import no.nav.helsearbeidsgiver.pdp.PdpService
 import no.nav.helsearbeidsgiver.refusjon.IkkeRefusjonKlient
 import no.nav.helsearbeidsgiver.refusjon.RefusjonKlient
 import no.nav.helsearbeidsgiver.refusjon.RefusjonKlientImpl
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
-import no.nav.helsearbeidsgiver.refusjon.VedtakRepository
-import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
@@ -88,7 +87,6 @@ data class Repositories(
     val sykmeldingRepository: SykmeldingRepository,
     val soeknadRepository: SoeknadRepository,
     val statusISpeilRepository: StatusISpeilRepository,
-    val vedtakRepository: VedtakRepository,
     val refusjonUtfallRepository: RefusjonUtfallRepository,
 )
 
@@ -173,7 +171,6 @@ fun configureRepositories(db: Database): Repositories =
         sykmeldingRepository = SykmeldingRepository(db),
         soeknadRepository = SoeknadRepository(db),
         statusISpeilRepository = StatusISpeilRepository(db),
-        vedtakRepository = VedtakRepository(db),
         refusjonUtfallRepository = RefusjonUtfallRepository(db),
     )
 
@@ -243,12 +240,7 @@ fun configureServices(
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
     val refusjonUtfallService =
         RefusjonUtfallService(
-            repositories.vedtakRepository,
             unleashFeatureToggles,
-            repositories.inntektsmeldingRepository,
-            dokumentkoblingService,
-            repositories.sykmeldingRepository,
-            repositories.soeknadRepository,
             lagRefusjonKlient(),
             repositories.refusjonUtfallRepository,
         )

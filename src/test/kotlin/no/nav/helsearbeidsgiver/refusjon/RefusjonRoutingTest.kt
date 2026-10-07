@@ -21,9 +21,6 @@ import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.config.getPdpService
-import no.nav.helsearbeidsgiver.kafka.sis.VedtaksUtfall
-import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRad
-import no.nav.helsearbeidsgiver.refusjonUtfall.refusjonUtfallMock
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
@@ -36,7 +33,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class VedtakRoutingTest : ApiTest() {
+class RefusjonRoutingTest : ApiTest() {
     @AfterEach
     fun clearRepositoryMocks() {
         clearMocks(repositories.refusjonUtfallRepository)
@@ -50,10 +47,9 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall som JSON`() {
-        val refusjonUtfallRad = refusjonUtfallRad()
-        val refusjonUtfall = refusjonUtfallRad.refusjonUtfall
+        val refusjonUtfall = refusjonUtfall()
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfallRad
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfall
 
         val respons =
             runBlocking {
@@ -64,30 +60,18 @@ class VedtakRoutingTest : ApiTest() {
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<RefusjonUtfall>() shouldBe
-                RefusjonUtfall(
-                    loepenr = refusjonUtfallRad.loepenr,
-                    refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
-                    orgnr = DEFAULT_ORG,
-                    fom = refusjonUtfall.fom,
-                    tom = refusjonUtfall.tom,
-                    sykepengegrunnlag = refusjonUtfall.sykepengegrunnlag,
-                    vedtaksUtfallTilArbeidsgiver = VedtaksUtfall.INNVILGELSE,
-                    vedtakFattetTidspunkt = refusjonUtfall.fattetTidspunkt,
-                    sykmeldtNavn = refusjonUtfall.sykmeldtNavn,
-                    arbeidsgiverNavn = refusjonUtfall.arbeidsgiverNavn,
-                )
+            respons.body<RefusjonUtfall>() shouldBe refusjonUtfall
         }
     }
 
     @Test
     fun `hent refusjonsutfall som PDF fra hag-refusjon`() {
-        val refusjonUtfallRad = refusjonUtfallRad()
-        val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
+        val refusjonUtfall = refusjonUtfall()
+        val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns mockPdfBytes
 
         val respons =
@@ -107,11 +91,11 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall som PDF skal svare 404 når hag-refusjon ikke finner PDF`() {
-        val refusjonUtfallRad = refusjonUtfallRad()
-        val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
+        val refusjonUtfall = refusjonUtfall()
+        val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns null
 
         val respons =
@@ -126,11 +110,11 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall som PDF skal svare 500 når henting fra hag-refusjon feiler`() {
-        val refusjonUtfallRad = refusjonUtfallRad()
-        val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
+        val refusjonUtfall = refusjonUtfall()
+        val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } throws RuntimeException("hag-refusjon nede")
 
         val respons =
@@ -189,11 +173,11 @@ class VedtakRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall skal svare 403 uten tilgang til inntektsmeldingressursen`() {
-        val refusjonUtfallRad = refusjonUtfallRad()
-        val refusjonUtfallId = refusjonUtfallRad.refusjonUtfall.refusjonUtfallId
+        val refusjonUtfall = refusjonUtfall()
+        val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfallRad
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
         every {
             getPdpService()
                 .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
@@ -227,9 +211,9 @@ class VedtakRoutingTest : ApiTest() {
     @Test
     fun `hent flere refusjonsutfall som JSON`() {
         val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
-        val refusjonUtfallRader = listOf(refusjonUtfallRad(loepenr = 1), refusjonUtfallRad(loepenr = 2))
+        val refusjonUtfallListe = listOf(refusjonUtfall(), refusjonUtfall())
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(filter) } returns refusjonUtfallRader
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(filter) } returns refusjonUtfallListe
 
         val respons =
             runBlocking {
@@ -242,8 +226,7 @@ class VedtakRoutingTest : ApiTest() {
 
         respons.status shouldBe HttpStatusCode.OK
         runBlocking {
-            respons.body<List<RefusjonUtfall>>().map { it.refusjonUtfallId } shouldBe
-                refusjonUtfallRader.map { it.refusjonUtfall.refusjonUtfallId }
+            respons.body<List<RefusjonUtfall>>() shouldBe refusjonUtfallListe
         }
     }
 
@@ -303,9 +286,5 @@ class VedtakRoutingTest : ApiTest() {
         respons.status shouldBe HttpStatusCode.BadRequest
     }
 
-    private fun refusjonUtfallRad(loepenr: Long = 1) =
-        RefusjonUtfallRad(
-            loepenr = loepenr,
-            refusjonUtfall = refusjonUtfallMock().copy(fnr = Fnr(DEFAULT_FNR), orgnr = Orgnr(DEFAULT_ORG)),
-        )
+    private fun refusjonUtfall() = refusjonUtfallMock().copy(fnr = Fnr(DEFAULT_FNR), orgnr = Orgnr(DEFAULT_ORG))
 }

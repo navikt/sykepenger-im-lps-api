@@ -12,7 +12,6 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.RoutingCall
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.soeknad.SykepengesoeknadForPDF
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -23,14 +22,11 @@ object PdfgenHttpClient {
     val PDFGEN_SYKMELDING_URL =
         getPropertyOrNull("PDFGEN_SYKMELDING_URL").orDefault { throw RuntimeException("PDFGEN_SYKMELDING_URL ikke satt") }
     val PDFGEN_SOEKNAD_URL = getPropertyOrNull("PDFGEN_SOEKNAD_URL").orDefault { throw RuntimeException("PDFGEN_SOEKNAD_URL ikke satt") }
-    val PDFGEN_VEDTAK_URL = getPropertyOrNull("PDFGEN_VEDTAK_URL").orDefault { throw RuntimeException("PDFGEN_VEDTAK_URL ikke satt") }
 }
 
 suspend fun genererSykmeldingPdf(sykmelding: Sykmelding) = hentPdf(sykmelding, PdfgenHttpClient.PDFGEN_SYKMELDING_URL)
 
 suspend fun genererSoeknadPdf(soeknad: SykepengesoeknadForPDF) = hentPdf(soeknad, PdfgenHttpClient.PDFGEN_SOEKNAD_URL)
-
-suspend fun genererVedtakPdf(vedtak: RefusjonUtfall) = hentPdf(vedtak, PdfgenHttpClient.PDFGEN_VEDTAK_URL)
 
 private suspend fun hentPdf(
     body: Any?,

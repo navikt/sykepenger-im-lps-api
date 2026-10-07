@@ -2,8 +2,8 @@ package no.nav.helsearbeidsgiver.kafka.refusjon
 
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
-import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfall
-import no.nav.helsearbeidsgiver.refusjonUtfall.RefusjonUtfallRepository
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger

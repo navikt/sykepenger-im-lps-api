@@ -88,6 +88,6 @@ class StatusISpeilTolker(
         logger.info("Leste vedtak")
         sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
 
-        refusjonUtfallService.lagreVedtak(vedtakArbeidsgiverMelding)
+        refusjonUtfallService.sendVedtak(vedtakArbeidsgiverMelding)
     }
 }
