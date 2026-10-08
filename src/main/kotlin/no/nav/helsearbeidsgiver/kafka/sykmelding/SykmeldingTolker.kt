@@ -26,6 +26,10 @@ class SykmeldingTolker(
                 sykmeldingMessage.sykmelding.id.toUuidOrNull()
                     ?: throw IllegalArgumentException("Mottatt sykmeldingId ${sykmeldingMessage.sykmelding.id} er ikke en gyldig UUID.")
 
+            if (sykmeldingMessage.kafkaMetadata.fnr == "58838400173") {
+                return
+            }
+
             val fullPerson = pdlService.hentFullPerson(sykmeldingMessage.kafkaMetadata.fnr, sykmeldingId)
 
             sykmeldingService.lagreSykmelding(sykmeldingMessage, sykmeldingId, fullPerson.navn.fulltNavn())
