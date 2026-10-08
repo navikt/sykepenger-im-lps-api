@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.vedtak
+package no.nav.helsearbeidsgiver.refusjon
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -11,26 +11,29 @@ import io.ktor.http.contentType
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.unmockkObject
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.authorization.ApiTest
 import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
-import no.nav.helsearbeidsgiver.utils.TestData.vedtakMock
-import no.nav.helsearbeidsgiver.utils.genererVedtakPdf
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.gyldigTokenxToken
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class VedtakTokenXRoutingTest : ApiTest() {
+class RefusjonTokenXRoutingTest : ApiTest() {
     @AfterEach
     fun setup() {
-        clearMocks(repositories.vedtakRepository)
+        clearMocks(repositories.refusjonUtfallRepository)
+        unmockkObject(services.refusjonUtfallService)
     }
 
     @AfterAll
@@ -39,32 +42,30 @@ class VedtakTokenXRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent med TokenX person et vedtak med id i PDF format`() {
-        val vedtakId = UUID.randomUUID()
+    fun `hent med TokenX person et refusjonsutfall med id i PDF format`() {
+        val refusjonUtfallId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
-        val vedtak = vedtakMock()
+        val refusjonUtfall =
+            refusjonUtfallResponseMock()
+                .copy(
+                    refusjonUtfallId = refusjonUtfallId,
+                    fnr = Fnr(DEFAULT_FNR),
+                    orgnr = Orgnr(DEFAULT_ORG),
+                )
 
-        mockkStatic("no.nav.helsearbeidsgiver.utils.PdfgenUtilsKt")
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
-        every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
-            VedtakRad(
-                loepenr = 1,
-                vedtakId = vedtakId,
-                fnr = DEFAULT_FNR,
-                orgnr = DEFAULT_ORG,
-                vedtak = vedtak,
-            )
-
-        coEvery { genererVedtakPdf(any()) } returns mockPdfBytes
+        mockkObject(services.refusjonUtfallService)
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
+        coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns mockPdfBytes
 
         runBlocking {
             val response =
-                client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
+                client.get("/intern/personbruker/refusjon/$refusjonUtfallId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.OK
             response.contentType() shouldBe ContentType.Application.Pdf
-            response.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"vedtak-$vedtakId.pdf\""
+            response.headers[HttpHeaders.ContentDisposition] shouldBe "inline; filename=\"refusjon-$refusjonUtfallId.pdf\""
             val pdfBytes = response.body<ByteArray>()
             pdfBytes shouldBe mockPdfBytes
         }
@@ -72,12 +73,10 @@ class VedtakTokenXRoutingTest : ApiTest() {
 
     @Test
     fun `hent med TokenX person endepunkt skal ikke funke med en maskinporten token`() {
-        val vedtakId = UUID.randomUUID()
-
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         runBlocking {
             val response =
-                client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
+                client.get("/intern/personbruker/refusjon/${UUID.randomUUID()}/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -86,28 +85,27 @@ class VedtakTokenXRoutingTest : ApiTest() {
 
     @Test
     fun `hent med TokenX person som ikke har tilgang skal ikke funke`() {
-        val vedtakId = UUID.randomUUID()
-        val vedtak = vedtakMock()
+        val refusjonUtfallId = UUID.randomUUID()
+        val refusjonUtfall =
+            refusjonUtfallResponseMock()
+                .copy(
+                    refusjonUtfallId = refusjonUtfallId,
+                    fnr = Fnr(DEFAULT_FNR),
+                    orgnr = Orgnr(DEFAULT_ORG),
+                )
 
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns true
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
         every {
             no.nav.helsearbeidsgiver.config
                 .getPdpService()
                 .personHarTilgang(fnr = DEFAULT_FNR, any(), any())
         } returns false
 
-        every { repositories.vedtakRepository.hentVedtak(vedtakId) } returns
-            VedtakRad(
-                loepenr = 1,
-                vedtakId = vedtakId,
-                fnr = DEFAULT_FNR,
-                orgnr = DEFAULT_ORG,
-                vedtak = vedtak,
-            )
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
         runBlocking {
             val response =
-                client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
+                client.get("/intern/personbruker/refusjon/$refusjonUtfallId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.Forbidden
@@ -116,14 +114,12 @@ class VedtakTokenXRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent vedtak PDF skal svare 403 naar feature toggle er av`() {
-        val vedtakId = UUID.randomUUID()
-
-        every { unleashFeatureToggles.skalEksponereVedtakPdf() } returns false
+    fun `hent refusjonsutfall PDF skal svare 403 naar feature toggle er av`() {
+        every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns false
 
         runBlocking {
             val response =
-                client.get("/intern/personbruker/vedtak/$vedtakId/pdf") {
+                client.get("/intern/personbruker/refusjon/${UUID.randomUUID()}/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             response.status shouldBe HttpStatusCode.Forbidden

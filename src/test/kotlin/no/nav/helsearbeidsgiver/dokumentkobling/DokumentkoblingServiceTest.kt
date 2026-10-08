@@ -103,19 +103,6 @@ class DokumentkoblingServiceTest {
     }
 
     @Test
-    fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt vedtak`() {
-        val vedtakId = UUID.randomUUID()
-        val inntektsmeldingId = UUID.randomUUID()
-        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
-
-        dokumentkoblingService.produserVedtakKobling(vedtakId, sykmeldingId, inntektsmeldingId, orgnr)
-
-        verifySequence {
-            mockDokumentkoblingProducer.send(any<Vedtak>())
-        }
-    }
-
-    @Test
     fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt forespoersel`() {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
 

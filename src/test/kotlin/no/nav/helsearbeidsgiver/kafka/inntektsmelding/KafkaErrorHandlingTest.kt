@@ -44,7 +44,7 @@ class KafkaErrorHandlingTest {
             soeknadService = mockk(),
             helseSjekkService = mockk(),
             avvistInntektsmeldingService = mockk(),
-            vedtakService = mockk(),
+            refusjonUtfallService = mockk(),
         )
 
     private lateinit var forespoerselTolker: ForespoerselTolker

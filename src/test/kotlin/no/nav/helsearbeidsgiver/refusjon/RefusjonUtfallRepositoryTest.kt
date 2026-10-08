@@ -6,7 +6,6 @@ import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import no.nav.helsearbeidsgiver.vedtak.VedtakFilter
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteAll
@@ -74,15 +73,14 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `hentRefusjonUtfall skal hente refusjonsutfall med loepenr`() {
+    fun `hentRefusjonUtfall skal hente refusjonsutfall med refusjonUtfallId`() {
         val refusjonUtfall = refusjonUtfallMock()
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
-        val forventetLoepenr = hentRader(refusjonUtfall.refusjonUtfallId).single()[RefusjonUtfallEntitet.id]
 
-        val lagretRefusjonUtfall = refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId)
+        val loepenr = transaction(db) { RefusjonUtfallEntitet.selectAll().single()[RefusjonUtfallEntitet.id] }
 
-        lagretRefusjonUtfall?.loepenr shouldBe forventetLoepenr
-        lagretRefusjonUtfall?.refusjonUtfall shouldBe refusjonUtfall
+        refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) shouldBe
+            refusjonUtfall.tilRefusjonUtfallResponse(loepenr)
     }
 
     @Test
@@ -99,9 +97,9 @@ class RefusjonUtfallRepositoryTest {
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         refusjonUtfallRepository.lagreRefusjonUtfall(annetOrgnr)
 
-        val resultat = refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = refusjonUtfall.orgnr.toString()))
+        val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = refusjonUtfall.orgnr.toString()))
 
-        resultat.map { it.refusjonUtfall } shouldBe listOf(refusjonUtfall)
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(refusjonUtfall.refusjonUtfallId)
     }
 
     @Test
@@ -113,26 +111,36 @@ class RefusjonUtfallRepositoryTest {
 
         val resultat =
             refusjonUtfallRepository.hentRefusjonUtfall(
-                VedtakFilter(orgnr = refusjonUtfall.orgnr.toString(), fnr = refusjonUtfall.fnr.toString()),
+                RefusjonUtfallFilter(orgnr = refusjonUtfall.orgnr.toString(), fnr = refusjonUtfall.fnr.toString()),
             )
 
-        resultat.map { it.refusjonUtfall } shouldBe listOf(refusjonUtfall)
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(refusjonUtfall.refusjonUtfallId)
     }
 
     @Test
-    fun `hentRefusjonUtfall med filter skal hente refusjonsutfall etter fraLoepenr sortert på loepenr`() {
+    fun `hentRefusjonUtfall med filter skal returnere refusjonsutfall sortert i rekkefølgen de ble lagret`() {
         val foerste = refusjonUtfallMock()
         val andre = refusjonUtfallMock()
         val tredje = refusjonUtfallMock()
         listOf(foerste, andre, tredje).forEach { refusjonUtfallRepository.lagreRefusjonUtfall(it) }
-        val foersteLoepenr = refusjonUtfallRepository.hentRefusjonUtfall(foerste.refusjonUtfallId)!!.loepenr
 
-        val resultat =
-            refusjonUtfallRepository.hentRefusjonUtfall(
-                VedtakFilter(orgnr = foerste.orgnr.toString(), fraLoepenr = foersteLoepenr),
-            )
+        val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = foerste.orgnr.toString()))
 
-        resultat.map { it.refusjonUtfall } shouldBe listOf(andre, tredje)
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(foerste, andre, tredje).map { it.refusjonUtfallId }
+    }
+
+    @Test
+    fun `hentRefusjonUtfall med filter skal kun hente refusjonsutfall etter fraLoepenr`() {
+        val foerste = refusjonUtfallMock()
+        val andre = refusjonUtfallMock()
+        val tredje = refusjonUtfallMock()
+        listOf(foerste, andre, tredje).forEach { refusjonUtfallRepository.lagreRefusjonUtfall(it) }
+        val orgnr = foerste.orgnr.toString()
+        val foersteLoepenr = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr)).first().loepenr
+
+        val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr, fraLoepenr = foersteLoepenr))
+
+        resultat.map { it.refusjonUtfallId } shouldBe listOf(andre, tredje).map { it.refusjonUtfallId }
     }
 
     @Test
@@ -142,9 +150,9 @@ class RefusjonUtfallRepositoryTest {
         val orgnr = refusjonUtfall.orgnr.toString()
         val idag = LocalDate.now()
 
-        refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = orgnr, fom = idag, tom = idag)) shouldHaveSize 1
-        refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = orgnr, fom = idag.plusDays(1))) shouldHaveSize 0
-        refusjonUtfallRepository.hentRefusjonUtfall(VedtakFilter(orgnr = orgnr, tom = idag.minusDays(1))) shouldHaveSize 0
+        refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr, fom = idag, tom = idag)) shouldHaveSize 1
+        refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr, fom = idag.plusDays(1))) shouldHaveSize 0
+        refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr, tom = idag.minusDays(1))) shouldHaveSize 0
     }
 
     private fun hentRader(refusjonUtfallId: UUID) =

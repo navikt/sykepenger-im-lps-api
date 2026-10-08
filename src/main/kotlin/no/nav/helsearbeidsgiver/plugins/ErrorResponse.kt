@@ -92,8 +92,8 @@ enum class Feil(
     FEIL_VED_HENTING_SYKEPENGESOEKNADER("Feil ved henting av sykepengesøknader"),
     UGYLDIG_DATO("Ugyldig dato"),
 
-    UGYLDIG_VEDTAK_ID("Ugyldig vedtakId"),
-    FEIL_VED_HENTING_VEDTAK("Feil ved henting av vedtak"),
+    UGYLDIG_REFUSJONUTFALL_ID("Ugyldig refusjonUtfallId"),
+    HENTING_REFUSJONUTFALL("Feil ved henting av refusjonutfall"),
 }
 
 enum class FeilMedReferanse(
@@ -105,5 +105,5 @@ enum class FeilMedReferanse(
     INNTEKTSMELDING_IKKE_FUNNET("Inntektsmelding med oppgitt innsendingId ikke funnet, se vedlagt referanseId"),
     DUPLIKAT_INNSENDING("Duplikat innsending, eksisterende innsendingId er vedlagt i referanseId"),
     SOEKNAD_IKKE_FUNNET("Søknad med oppgitt soeknadId ikke funnet, se vedlagt referanseId"),
-    VEDTAK_IKKE_FUNNET("Vedtak med oppgitt vedtakId ikke funnet, se vedlagt referanseId"),
+    REFUSJONUTFALL_IKKE_FUNNET("Refusjonutfall med oppgitt refusjonUtfallId ikke funnet, se vedlagt referanseId"),
 }

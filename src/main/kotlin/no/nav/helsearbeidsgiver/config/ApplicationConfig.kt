@@ -49,7 +49,11 @@ import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
+import no.nav.helsearbeidsgiver.refusjon.IkkeRefusjonKlient
+import no.nav.helsearbeidsgiver.refusjon.RefusjonKlient
+import no.nav.helsearbeidsgiver.refusjon.RefusjonKlientImpl
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
@@ -59,11 +63,6 @@ import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
-import no.nav.helsearbeidsgiver.vedtak.IkkeRefusjonKlient
-import no.nav.helsearbeidsgiver.vedtak.RefusjonKlient
-import no.nav.helsearbeidsgiver.vedtak.RefusjonKlientImpl
-import no.nav.helsearbeidsgiver.vedtak.VedtakRepository
-import no.nav.helsearbeidsgiver.vedtak.VedtakService
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_CONNECT_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_READ_TIMEOUT
 import no.nav.security.token.support.core.configuration.ProxyAwareResourceRetriever.Companion.DEFAULT_HTTP_SIZE_LIMIT
@@ -88,7 +87,6 @@ data class Repositories(
     val sykmeldingRepository: SykmeldingRepository,
     val soeknadRepository: SoeknadRepository,
     val statusISpeilRepository: StatusISpeilRepository,
-    val vedtakRepository: VedtakRepository,
     val refusjonUtfallRepository: RefusjonUtfallRepository,
 )
 
@@ -103,7 +101,7 @@ data class Services(
     val soeknadService: SoeknadService,
     val helseSjekkService: HelseSjekkService,
     val avvistInntektsmeldingService: AvvistInntektsmeldingService,
-    val vedtakService: VedtakService,
+    val refusjonUtfallService: RefusjonUtfallService,
 )
 
 data class Tolkere(
@@ -143,7 +141,7 @@ fun configureTolkere(
             repositories.soeknadRepository,
             repositories.statusISpeilRepository,
             services.dokumentkoblingService,
-            services.vedtakService,
+            services.refusjonUtfallService,
         )
 
     val avvistInntektsmeldingTolker =
@@ -173,7 +171,6 @@ fun configureRepositories(db: Database): Repositories =
         sykmeldingRepository = SykmeldingRepository(db),
         soeknadRepository = SoeknadRepository(db),
         statusISpeilRepository = StatusISpeilRepository(db),
-        vedtakRepository = VedtakRepository(db),
         refusjonUtfallRepository = RefusjonUtfallRepository(db),
     )
 
@@ -241,14 +238,9 @@ fun configureServices(
     val helseSjekkService = HelseSjekkService(db = database)
     val avvistInntektsmeldingService = AvvistInntektsmeldingService(repositories.inntektsmeldingRepository, dokumentkoblingService)
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
-    val vedtakService =
-        VedtakService(
-            repositories.vedtakRepository,
+    val refusjonUtfallService =
+        RefusjonUtfallService(
             unleashFeatureToggles,
-            repositories.inntektsmeldingRepository,
-            dokumentkoblingService,
-            repositories.sykmeldingRepository,
-            repositories.soeknadRepository,
             lagRefusjonKlient(),
             repositories.refusjonUtfallRepository,
         )
@@ -264,7 +256,7 @@ fun configureServices(
         soeknadService,
         helseSjekkService,
         avvistInntektsmeldingService,
-        vedtakService,
+        refusjonUtfallService,
     )
 }
 

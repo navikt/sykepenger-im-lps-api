@@ -62,13 +62,13 @@ class UnleashFeatureToggles(
             false,
         )
 
-    fun skalEksponereVedtakPdf(): Boolean =
+    fun skalEksponereRefusjonUtfallPdf(): Boolean =
         unleashClient.isEnabled(
             "eksponer-vedtak-pdf",
             false,
         )
 
-    fun skalEksponereVedtakJson(): Boolean =
+    fun skalEksponereRefusjonUtfallJson(): Boolean =
         unleashClient.isEnabled(
             "eksponer-vedtak-json",
             false,

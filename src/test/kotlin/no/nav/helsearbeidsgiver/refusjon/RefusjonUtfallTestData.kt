@@ -18,3 +18,5 @@ fun refusjonUtfallMock(): RefusjonUtfall =
         utfallTilArbeidsgiver = Utfall.INNVILGELSE,
         fattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
     )
+
+fun refusjonUtfallResponseMock(): RefusjonUtfallResponse = refusjonUtfallMock().tilRefusjonUtfallResponse(loepenr = 1)
