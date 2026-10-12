@@ -89,6 +89,6 @@ private val REFUSJON_UTFALL_MELDING =
       "sykepengegrunnlag": 154999.92,
       "utfallTilArbeidsgiver": "INNVILGELSE",
       "fattetTidspunkt": "2026-08-05T13:03:25.166498222",
-      "kafkaMelding": $KAFKA_MELDING
+      "arbeidstakerVedtakMelding": $KAFKA_MELDING
     }
     """.trimIndent()
