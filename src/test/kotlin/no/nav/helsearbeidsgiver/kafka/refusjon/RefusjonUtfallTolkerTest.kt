@@ -9,9 +9,13 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
+import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.refusjon.Utfall
+import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +27,8 @@ import java.util.UUID
 
 class RefusjonUtfallTolkerTest {
     private val refusjonUtfallRepository = mockk<RefusjonUtfallRepository>()
-    private val refusjonUtfallTolker = RefusjonUtfallTolker(refusjonUtfallRepository)
+    private val dokumentkoblingService = mockk<DokumentkoblingService>(relaxed = true)
+    private val refusjonUtfallTolker = RefusjonUtfallTolker(refusjonUtfallRepository, dokumentkoblingService)
 
     @BeforeEach
     fun setup() {
@@ -48,7 +53,9 @@ class RefusjonUtfallTolkerTest {
                 sykepengegrunnlag = 154999.92,
                 utfallTilArbeidsgiver = Utfall.INNVILGELSE,
                 fattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
+                kafkaMelding = KAFKA_MELDING.fromJson(VedtakArbeidsgiverMelding.serializer()),
             )
+        verify(exactly = 1) { dokumentkoblingService.produserVedtakKobling(lagretRefusjonUtfall.captured) }
     }
 
     @Test
@@ -68,6 +75,8 @@ class RefusjonUtfallTolkerTest {
     }
 }
 
+private val KAFKA_MELDING = TestData.STATUS_I_SPLEIS_VEDTAK_MELDING.replace("%%%FNR%%%", "10107400090")
+
 private val REFUSJON_UTFALL_MELDING =
     """
     {
@@ -79,6 +88,7 @@ private val REFUSJON_UTFALL_MELDING =
       "tom": "2026-08-03",
       "sykepengegrunnlag": 154999.92,
       "utfallTilArbeidsgiver": "INNVILGELSE",
-      "fattetTidspunkt": "2026-08-05T13:03:25.166498222"
+      "fattetTidspunkt": "2026-08-05T13:03:25.166498222",
+      "kafkaMelding": $KAFKA_MELDING
     }
     """.trimIndent()
