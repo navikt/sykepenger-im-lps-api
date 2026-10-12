@@ -124,3 +124,5 @@ spec:
       value: "api://dev-fss.team-inntekt.ikomp-q2/.default"
     - name: REFUSJON_URL
       value: "http://refusjon"
+    - name: REFUSJON_SCOPE
+      value: "api://dev-gcp.helsearbeidsgiver.refusjon/.default"

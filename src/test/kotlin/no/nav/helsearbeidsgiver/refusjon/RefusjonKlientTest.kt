@@ -18,6 +18,7 @@ import java.util.UUID
 class RefusjonKlientTest {
     private val url = "http://hag-test-refusjon"
     private val refusjonUtfallId = UUID.randomUUID()
+    private val token = "test-token"
 
     @Test
     fun `hentRefusjonUtfallPdf skal hente PDF fra hag-refusjon`() =
@@ -27,6 +28,7 @@ class RefusjonKlientTest {
                 MockEngine { request ->
                     request.method shouldBe HttpMethod.Get
                     request.url.toString() shouldBe "$url/refusjonsutfall/$refusjonUtfallId/pdf"
+                    request.headers[HttpHeaders.Authorization] shouldBe "Bearer $token"
                     respond(
                         content = ByteReadChannel(pdfBytes),
                         status = HttpStatusCode.OK,
@@ -53,5 +55,10 @@ class RefusjonKlientTest {
             assertThrows<ServerResponseException> { refusjonKlient(mockEngine).hentRefusjonUtfallPdf(refusjonUtfallId) }
         }
 
-    private fun refusjonKlient(mockEngine: MockEngine) = RefusjonKlientImpl(url, HttpClient(mockEngine) { expectSuccess = true })
+    private fun refusjonKlient(mockEngine: MockEngine) =
+        RefusjonKlientImpl(
+            url = url,
+            getAccessToken = { token },
+            httpClient = HttpClient(mockEngine) { expectSuccess = true },
+        )
 }

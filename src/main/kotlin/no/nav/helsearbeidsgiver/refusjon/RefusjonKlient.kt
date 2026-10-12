@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.refusjon
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.timeout
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -33,6 +34,7 @@ class IkkeRefusjonKlient : RefusjonKlient {
 
 class RefusjonKlientImpl(
     private val url: String,
+    private val getAccessToken: () -> String,
     private val httpClient: HttpClient = createHttpClient(),
 ) : RefusjonKlient {
     private val logger = logger()
@@ -58,7 +60,10 @@ class RefusjonKlientImpl(
 
     override suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? =
         try {
-            httpClient.get("$url/refusjonsutfall/$refusjonUtfallId/pdf").readRawBytes()
+            httpClient
+                .get("$url/refusjonsutfall/$refusjonUtfallId/pdf") {
+                    bearerAuth(getAccessToken())
+                }.readRawBytes()
         } catch (e: ClientRequestException) {
             if (e.response.status == HttpStatusCode.NotFound) {
                 logger.warn("Fant ikke PDF for refusjonsutfall med refusjonUtfallId $refusjonUtfallId i hag-refusjon.")

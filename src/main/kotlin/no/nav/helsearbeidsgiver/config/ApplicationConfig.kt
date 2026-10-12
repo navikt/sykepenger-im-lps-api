@@ -397,8 +397,15 @@ fun getPdpService(): IPdpService =
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
 
-// Refusjon-integrasjonen skal kun brukes i dev
-private fun lagRefusjonKlient(): RefusjonKlient = if (isDev()) RefusjonKlientImpl(getProperty("REFUSJON_URL")) else IkkeRefusjonKlient()
+private fun lagRefusjonKlient(): RefusjonKlient =
+    if (isDev()) {
+        RefusjonKlientImpl(
+            url = getProperty("REFUSJON_URL"),
+            getAccessToken = configureAuthClient().tokenGetter(AZURE_AD, getProperty("REFUSJON_SCOPE")),
+        )
+    } else {
+        IkkeRefusjonKlient()
+    }
 
 private fun isDev(): Boolean = getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp"
 
