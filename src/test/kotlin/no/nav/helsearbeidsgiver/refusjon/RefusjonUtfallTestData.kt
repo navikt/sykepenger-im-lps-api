@@ -18,7 +18,7 @@ fun refusjonUtfallMock(): RefusjonUtfall =
         sykepengegrunnlag = 154999.92,
         utfallTilArbeidsgiver = Utfall.INNVILGELSE,
         fattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
-        kafkaMelding = TestData.vedtakMock(),
+        arbeidstakerVedtakMelding = TestData.vedtakMock(),
     )
 
 fun refusjonUtfallResponseMock(): RefusjonUtfallResponse = refusjonUtfallMock().tilRefusjonUtfallResponse(loepenr = 1)

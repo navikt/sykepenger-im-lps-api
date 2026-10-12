@@ -28,7 +28,7 @@ data class RefusjonUtfall(
     val fattetTidspunkt: LocalDateTime,
     val sykmeldtNavn: String? = null,
     val arbeidsgiverNavn: String? = null,
-    val kafkaMelding: VedtakArbeidsgiverMelding,
+    val arbeidstakerVedtakMelding: VedtakArbeidsgiverMelding,
 )
 
 @Serializable

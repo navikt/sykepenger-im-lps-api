@@ -163,7 +163,7 @@ class DokumentkoblingService(
     }
 
     fun produserVedtakKobling(refusjonUtfall: RefusjonUtfall) {
-        val melding = refusjonUtfall.kafkaMelding
+        val melding = refusjonUtfall.arbeidstakerVedtakMelding
         val vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId
 
         if (!melding.harArbeidsgiverOensketRefusjon) {

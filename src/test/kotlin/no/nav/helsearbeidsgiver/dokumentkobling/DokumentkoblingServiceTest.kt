@@ -185,8 +185,8 @@ class DokumentkoblingServiceTest {
         val refusjonUtfall = refusjonUtfallMock()
         val refusjonUtfallMedDokumenter =
             refusjonUtfall.copy(
-                kafkaMelding =
-                    refusjonUtfall.kafkaMelding.copy(
+                arbeidstakerVedtakMelding =
+                    refusjonUtfall.arbeidstakerVedtakMelding.copy(
                         harArbeidsgiverOensketRefusjon = true,
                         dokumenter =
                             listOf(
