@@ -397,7 +397,6 @@ fun getPdpService(): IPdpService =
 
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
 
-// Refusjon-integrasjonen skal kun brukes i dev
 private fun lagRefusjonKlient(): RefusjonKlient =
     if (isDev()) {
         RefusjonKlientImpl(
