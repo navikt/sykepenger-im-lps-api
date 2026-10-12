@@ -11,8 +11,10 @@ import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
+import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
+import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallMock
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
 import no.nav.helsearbeidsgiver.utils.TestData
@@ -26,6 +28,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class DokumentkoblingServiceTest {
@@ -172,6 +175,43 @@ class DokumentkoblingServiceTest {
 
         verifySequence {
             mockDokumentkoblingProducer.send(any<InntektsmeldingAvvist>())
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt refusjonsutfall`() {
+        coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
+        val inntektsmeldingId = UUID.randomUUID()
+        val refusjonUtfall = refusjonUtfallMock()
+        val refusjonUtfallMedDokumenter =
+            refusjonUtfall.copy(
+                arbeidstakerVedtakMelding =
+                    refusjonUtfall.arbeidstakerVedtakMelding.copy(
+                        harArbeidsgiverOensketRefusjon = true,
+                        dokumenter =
+                            listOf(
+                                Dokument(sykmeldingId, Dokument.Type.Sykmelding),
+                                Dokument(inntektsmeldingId, Dokument.Type.Inntektsmelding),
+                            ),
+                    ),
+            )
+        every { dokumentkoblingService.repositories.inntektsmeldingRepository.hentMedInnsendingId(inntektsmeldingId) } returns
+            mockk {
+                every { id } returns inntektsmeldingId
+                every { innsendtTid } returns LocalDateTime.now()
+            }
+
+        dokumentkoblingService.produserVedtakKobling(refusjonUtfallMedDokumenter)
+
+        verifySequence {
+            mockDokumentkoblingProducer.send(
+                Vedtak(
+                    vedtakId = refusjonUtfall.refusjonUtfallId,
+                    sykmeldingId = sykmeldingId,
+                    inntektsmeldingId = inntektsmeldingId,
+                    orgnr = refusjonUtfall.orgnr,
+                ),
+            )
         }
     }
 

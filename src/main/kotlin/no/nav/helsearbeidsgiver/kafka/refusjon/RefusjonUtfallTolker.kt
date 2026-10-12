@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.kafka.refusjon
 
 import kotlinx.serialization.SerializationException
+import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
@@ -10,6 +11,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class RefusjonUtfallTolker(
     private val refusjonUtfallRepository: RefusjonUtfallRepository,
+    private val dokumentkoblingService: DokumentkoblingService,
 ) : MeldingTolker {
     private val logger = logger()
     private val sikkerLogger = sikkerLogger()
@@ -28,7 +30,10 @@ class RefusjonUtfallTolker(
         logger.info("Mottok refusjonsutfall med $logIdInfo.")
         sikkerLogger.info("Mottok refusjonsutfall: $refusjonUtfall")
 
+        // TODO: Hvis produserVedtakKobling feiler etter lagring, vil retry feile på duplikat refusjonUtfallId og gi crashloop i consumer.
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         logger.info("Lagret refusjonsutfall med $logIdInfo.")
+
+        dokumentkoblingService.produserVedtakKobling(refusjonUtfall)
     }
 }

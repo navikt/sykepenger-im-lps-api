@@ -149,7 +149,7 @@ fun configureTolkere(
             avvistInntektsmeldingService = services.avvistInntektsmeldingService,
         )
 
-    val refusjonUtfallTolker = RefusjonUtfallTolker(repositories.refusjonUtfallRepository)
+    val refusjonUtfallTolker = RefusjonUtfallTolker(repositories.refusjonUtfallRepository, services.dokumentkoblingService)
 
     return Tolkere(
         inntektsmeldingTolker,

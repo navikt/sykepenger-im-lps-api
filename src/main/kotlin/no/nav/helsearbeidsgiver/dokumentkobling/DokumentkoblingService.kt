@@ -7,7 +7,9 @@ import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
+import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -157,6 +159,49 @@ class DokumentkoblingService(
 
         logger.info(
             "Sendte melding til hag-dialog på helsearbeidsgiver.dokument-kobling for inntektsmelding Godkjent med innsendingsId: ${inntektsmeldingGodkjent.inntektsmeldingId}, vedtaksperiodeId: ${inntektsmeldingGodkjent.vedtaksperiodeId}.",
+        )
+    }
+
+    fun produserVedtakKobling(refusjonUtfall: RefusjonUtfall) {
+        val melding = refusjonUtfall.arbeidstakerVedtakMelding
+        val vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId
+
+        if (!melding.harArbeidsgiverOensketRefusjon) {
+            logger.info(
+                "Sender _ikke_ melding på helsearbeidsgiver.dokument-kobling for refusjonsutfall med vedtaksperiodeId " +
+                    "$vedtaksperiodeId, fordi arbeidsgiver ikke har ønsket refusjon.",
+            )
+            return
+        }
+
+        val sykmeldingId = melding.dokumenter.firstOrNull { it.type == Dokument.Type.Sykmelding }?.dokumentId
+        val inntektsmeldingId =
+            melding.dokumenter
+                .filter { it.type == Dokument.Type.Inntektsmelding }
+                .mapNotNull { repositories.inntektsmeldingRepository.hentMedInnsendingId(it.dokumentId) }
+                .maxByOrNull { it.innsendtTid }
+                ?.id
+
+        if (sykmeldingId == null || inntektsmeldingId == null) {
+            logger.warn(
+                "Mangler sykmeldingId og/eller inntektsmeldingId for refusjonsutfall med vedtaksperiodeId " +
+                    "$vedtaksperiodeId (sykmeldingId=$sykmeldingId, inntektsmeldingId=$inntektsmeldingId), " +
+                    "sender ikke melding på helsearbeidsgiver.dokument-kobling.",
+            )
+            return
+        }
+
+        dokumentkoblingProducer.send(
+            Vedtak(
+                vedtakId = refusjonUtfall.refusjonUtfallId,
+                sykmeldingId = sykmeldingId,
+                inntektsmeldingId = inntektsmeldingId,
+                orgnr = refusjonUtfall.orgnr,
+            ),
+        )
+        logger.info(
+            "Sendte melding på helsearbeidsgiver.dokument-kobling for refusjonsutfall med " +
+                "refusjonUtfallId: ${refusjonUtfall.refusjonUtfallId} og vedtaksperiodeId: $vedtaksperiodeId",
         )
     }
 

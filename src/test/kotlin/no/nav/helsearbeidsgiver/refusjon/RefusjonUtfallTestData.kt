@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.refusjon
 
+import no.nav.helsearbeidsgiver.utils.TestData
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
@@ -17,6 +18,7 @@ fun refusjonUtfallMock(): RefusjonUtfall =
         sykepengegrunnlag = 154999.92,
         utfallTilArbeidsgiver = Utfall.INNVILGELSE,
         fattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
+        arbeidstakerVedtakMelding = TestData.vedtakMock(),
     )
 
 fun refusjonUtfallResponseMock(): RefusjonUtfallResponse = refusjonUtfallMock().tilRefusjonUtfallResponse(loepenr = 1)
