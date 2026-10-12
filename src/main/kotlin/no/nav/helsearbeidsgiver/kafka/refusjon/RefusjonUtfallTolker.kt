@@ -30,6 +30,7 @@ class RefusjonUtfallTolker(
         logger.info("Mottok refusjonsutfall med $logIdInfo.")
         sikkerLogger.info("Mottok refusjonsutfall: $refusjonUtfall")
 
+        // TODO: Hvis produserVedtakKobling feiler etter lagring, vil retry feile på duplikat refusjonUtfallId og gi crashloop i consumer.
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         logger.info("Lagret refusjonsutfall med $logIdInfo.")
 
