@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.refusjon
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -42,6 +43,7 @@ class RefusjonKlientImpl(
         try {
             runBlocking {
                 httpClient.post("$url/arbeidstaker-vedtak") {
+                    timeout { requestTimeoutMillis = 2000 }
                     contentType(ContentType.Application.Json)
                     setBody(vedtakArbeidsgiverMelding)
                 }
