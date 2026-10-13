@@ -77,6 +77,7 @@ data class SykepengeSoeknadKafkaMelding(
         REISETILSKUDD,
         GRADERT_REISETILSKUDD,
         FRISKMELDT_TIL_ARBEIDSFORMIDLING,
+        FISKERE,
     }
 
     @Serializable
