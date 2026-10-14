@@ -127,7 +127,7 @@ class ForespoerselTolker(
                 }
             }
 
-            NotisType.FORESPOERSEL_MANUELT_FORKASTET -> {
+            NotisType.FORESPOERSEL_MANUELT_FORKASTET, NotisType.FORESPOERSEL_LISTE_FOR_PERSON -> {
                 // TODO: bør vi logge noe her?
                 // ikke-håndtert notistype (Manuelt forkastet..)
             }
