@@ -18,10 +18,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.common.header.Headers
+import org.apache.kafka.common.header.internals.RecordHeaders
 import org.apache.kafka.common.record.TimestampType
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant
+import kotlin.collections.mapOf
 import kotlin.time.Duration.Companion.milliseconds
 
 class KafkaCommitOffsetTest {
@@ -42,14 +45,16 @@ class KafkaCommitOffsetTest {
                                 0L,
                                 Instant.now().toEpochMilli(),
                                 TimestampType.CREATE_TIME,
-                                8L,
-                                3,
-                                15,
+                                -1,
+                                -1,
                                 "key",
                                 "mocked message",
+                                RecordHeaders(),
+                                null,
                             ),
                         ),
                 ),
+                mapOf()
             )
 
         every { mockMeldingTolker.lesMelding(any()) } throws Exception("au")
@@ -128,33 +133,36 @@ class KafkaCommitOffsetTest {
             ConsumerRecords(
                 mapOf(
                     topicPartition to
-                        listOf(
-                            ConsumerRecord<String, String>(
-                                "test",
-                                0,
-                                0L,
-                                System.currentTimeMillis(),
-                                TimestampType.CREATE_TIME,
-                                1,
-                                2,
-                                3,
-                                "key",
-                                "ok",
+                            listOf(
+                                ConsumerRecord(
+                                    "test",
+                                    0,
+                                    0L,
+                                    Instant.now().toEpochMilli(),
+                                    TimestampType.CREATE_TIME,
+                                    -1,
+                                    -1,
+                                    "key",
+                                    "ok",
+                                    RecordHeaders(),
+                                    null,
+                                ),
+                                ConsumerRecord(
+                                    "test",
+                                    0,
+                                    0L,
+                                    Instant.now().toEpochMilli(),
+                                    TimestampType.CREATE_TIME,
+                                    -1,
+                                    -1,
+                                    "key",
+                                    "feil",
+                                    RecordHeaders(),
+                                    null,
+                                ),
                             ),
-                            ConsumerRecord<String, String>(
-                                "test",
-                                0,
-                                1L,
-                                System.currentTimeMillis(),
-                                TimestampType.CREATE_TIME,
-                                1,
-                                2,
-                                3,
-                                "key",
-                                "feil",
-                            ),
-                        ),
                 ),
+                mapOf()
             )
         KafkaMonitor.harFeil() shouldBe true
         every { kafkaConsumer.subscribe(listOf("test")) } just runs
