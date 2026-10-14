@@ -40,6 +40,9 @@ class ForespoerselTolker(
         logger.info("Mottatt notis ${obj.notis}")
         val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
         if (forespoerselId == null) {
+            if (melding.contains(NotisType.FORESPOERSEL_LISTE_FOR_PERSON.toString())) {
+                return
+            }
             logger().error("forespoerselId er null!")
             sikkerLogger.error("forespoerselId er null! Melding: $melding")
             throw IllegalArgumentException("forespoerselId er null!")
@@ -124,7 +127,7 @@ class ForespoerselTolker(
                 }
             }
 
-            NotisType.FORESPOERSEL_MANUELT_FORKASTET, NotisType.FORESPOERSEL_LISTE_FOR_PERSON -> {
+            NotisType.FORESPOERSEL_MANUELT_FORKASTET -> {
                 // TODO: bør vi logge noe her?
                 // ikke-håndtert notistype (Manuelt forkastet..)
             }
