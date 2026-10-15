@@ -39,7 +39,7 @@ class ForespoerselTolker(
             }
         logger.info("Mottatt notis ${obj.notis}")
         val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
-        if (forespoerselId == null) {
+        if (forespoerselId == null) { // TODO: forbedre denne
             if (melding.contains(NotisType.FORESPOERSEL_LISTE_FOR_PERSON.toString())) {
                 return
             }

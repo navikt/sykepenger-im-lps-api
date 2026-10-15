@@ -39,17 +39,28 @@ class KafkaCommitOffsetTest {
                     topicPartition to
                         listOf(
                             ConsumerRecord(
-                                /* topic = */ "test",
-                                /* partition = */ 0,
-                                /* offset = */ 0L,
-                                /* timestamp = */ Instant.now().toEpochMilli(),
-                                /* timestampType = */ TimestampType.CREATE_TIME,
-                                /* serializedKeySize = */ -1,
-                                /* serializedValueSize = */ -1,
-                                /* key = */ "key",
-                                /* value = */ "mocked message",
-                                /* headers = */ RecordHeaders(),
-                                /* leaderEpoch = */ null,
+                                // topic =
+                                "test",
+                                // partition =
+                                0,
+                                // offset =
+                                0L,
+                                // timestamp =
+                                Instant.now().toEpochMilli(),
+                                // timestampType =
+                                TimestampType.CREATE_TIME,
+                                // serializedKeySize =
+                                -1,
+                                // serializedValueSize =
+                                -1,
+                                // key =
+                                "key",
+                                // value =
+                                "mocked message",
+                                // headers =
+                                RecordHeaders(),
+                                // leaderEpoch =
+                                null,
                             ),
                         ),
                 ),
@@ -135,30 +146,52 @@ class KafkaCommitOffsetTest {
                     topicPartition to
                         listOf(
                             ConsumerRecord(
-                                /* topic = */ "test",
-                                /* partition = */ 0,
-                                /* offset = */ 0L,
-                                /* timestamp = */ Instant.now().toEpochMilli(),
-                                /* timestampType = */ TimestampType.CREATE_TIME,
-                                /* serializedKeySize = */ -1,
-                                /* serializedValueSize = */ -1,
-                                /* key = */ "key",
-                                /* value = */ "ok",
-                                /* headers = */ RecordHeaders(),
-                                /* leaderEpoch = */ null,
+                                // topic =
+                                "test",
+                                // partition =
+                                0,
+                                // offset =
+                                0L,
+                                // timestamp =
+                                Instant.now().toEpochMilli(),
+                                // timestampType =
+                                TimestampType.CREATE_TIME,
+                                // serializedKeySize =
+                                -1,
+                                // serializedValueSize =
+                                -1,
+                                // key =
+                                "key",
+                                // value =
+                                "ok",
+                                // headers =
+                                RecordHeaders(),
+                                // leaderEpoch =
+                                null,
                             ),
                             ConsumerRecord(
-                                /* topic = */ "test",
-                                /* partition = */ 0,
-                                /* offset = */ 0L,
-                                /* timestamp = */ Instant.now().toEpochMilli(),
-                                /* timestampType = */ TimestampType.CREATE_TIME,
-                                /* serializedKeySize = */ -1,
-                                /* serializedValueSize = */ -1,
-                                /* key = */ "key",
-                                /* value = */ "feil",
-                                /* headers = */ RecordHeaders(),
-                                /* leaderEpoch = */ null,
+                                // topic =
+                                "test",
+                                // partition =
+                                0,
+                                // offset =
+                                0L,
+                                // timestamp =
+                                Instant.now().toEpochMilli(),
+                                // timestampType =
+                                TimestampType.CREATE_TIME,
+                                // serializedKeySize =
+                                -1,
+                                // serializedValueSize =
+                                -1,
+                                // key =
+                                "key",
+                                // value =
+                                "feil",
+                                // headers =
+                                RecordHeaders(),
+                                // leaderEpoch =
+                                null,
                             ),
                         ),
                 ),
