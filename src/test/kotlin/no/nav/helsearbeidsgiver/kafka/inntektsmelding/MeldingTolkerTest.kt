@@ -41,6 +41,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.API_INNSENDING_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.ARBEIDSGIVER_INITIERT_IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.AVVIST_INNTEKTSMELDING_MELDING
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_BESVART
+import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_LISTE_FOR_PERSON
 import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.IM_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.SIMBA_PAYLOAD
@@ -143,6 +144,11 @@ class MeldingTolkerTest {
         assertThrows<SerializationException> {
             tolkere.inntektsmeldingTolker.lesMelding(SIMBA_PAYLOAD)
         }
+    }
+
+    @Test
+    fun `ignorerer melding FORESPOERSEL_LISTE_FOR_PERSON`() {
+        tolkere.forespoerselTolker.lesMelding(FORESPOERSEL_LISTE_FOR_PERSON)
     }
 
     @Test
