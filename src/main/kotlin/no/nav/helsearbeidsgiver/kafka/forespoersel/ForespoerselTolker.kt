@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
@@ -39,14 +40,6 @@ class ForespoerselTolker(
             }
         logger.info("Mottatt notis ${obj.notis}")
         val forespoerselId = obj.forespoerselId ?: obj.forespoersel?.forespoerselId
-        if (forespoerselId == null) { // TODO: forbedre denne
-            if (melding.contains(NotisType.FORESPOERSEL_LISTE_FOR_PERSON.toString())) {
-                return
-            }
-            logger().error("forespoerselId er null!")
-            sikkerLogger.error("forespoerselId er null! Melding: $melding")
-            throw IllegalArgumentException("forespoerselId er null!")
-        }
         when (obj.notis) {
             NotisType.FORESPØRSEL_MOTTATT -> {
                 val forespoersel = obj.forespoersel
@@ -86,19 +79,28 @@ class ForespoerselTolker(
                 }
             }
 
-            NotisType.FORESPOERSEL_BESVART -> {
-                services.forespoerselService.settBesvart(forespoerselId)
-                mottakRepository.opprett(ExposedMottak(melding))
-            }
-
-            NotisType.FORESPOERSEL_BESVART_SIMBA -> {
-                services.forespoerselService.settBesvart(forespoerselId)
-                mottakRepository.opprett(ExposedMottak(melding))
+            NotisType.FORESPOERSEL_BESVART, NotisType.FORESPOERSEL_BESVART_SIMBA -> {
+                forespoerselId
+                    ?.let {
+                        services.forespoerselService.settBesvart(forespoerselId)
+                        mottakRepository.opprett(ExposedMottak(melding))
+                    }.orDefault {
+                        logger.error("forespoerselId er null!")
+                        sikkerLogger.error("forespoerselId er null! Melding: $melding")
+                        throw IllegalArgumentException("forespoerselId er null!")
+                    }
             }
 
             NotisType.FORESPOERSEL_FORKASTET -> {
-                services.forespoerselService.settForkastet(forespoerselId)
-                mottakRepository.opprett(ExposedMottak(melding))
+                forespoerselId
+                    ?.let {
+                        services.forespoerselService.settForkastet(forespoerselId)
+                        mottakRepository.opprett(ExposedMottak(melding))
+                    }.orDefault {
+                        logger.error("forespoerselId er null!")
+                        sikkerLogger.error("forespoerselId er null! Melding: $melding")
+                        throw IllegalArgumentException("forespoerselId er null!")
+                    }
             }
 
             NotisType.FORESPOERSEL_KASTET_TIL_INFOTRYGD -> {
@@ -108,7 +110,7 @@ class ForespoerselTolker(
             }
 
             NotisType.FORESPOERSEL_FOR_VEDTAKSPERIODE_ID -> {
-                logger.info("import fsp: Forespørsel for vedtaksperiodeId mottat")
+                logger.info("import fsp: Forespørsel for vedtaksperiodeId mottatt")
                 obj.forespoersel?.let { forespoersel ->
                     logger.info(
                         "import fsp: Lagrer eller oppdaterer forespørsel med id: ${forespoersel.forespoerselId} for vedtaksperiodeId: ${forespoersel.vedtaksperiodeId}",
