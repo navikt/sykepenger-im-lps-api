@@ -100,9 +100,12 @@ private suspend fun RoutingContext.hentSykmeldingMedId(sykmeldingService: Sykmel
         tellApiRequest()
         val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
         val systembrukerOrgnr = tokenValidationContext().getSystembrukerOrgnr()
-        sikkerLogger().info(
-            "LPS: [$lpsOrgnr] henter sykmelding [$sykmeldingId] for bedrift med systembrukerOrgnr: " +
-                "[$systembrukerOrgnr] og sykmeldingOrgnr: [${sykmelding.arbeidsgiver.orgnr}]",
+        sikkerLogger().debug(
+            "LPS: [{}] henter sykmelding [{}] for bedrift med systembrukerOrgnr: [{}] og sykmeldingOrgnr: [{}]",
+            lpsOrgnr,
+            sykmeldingId,
+            systembrukerOrgnr,
+            sykmelding.arbeidsgiver.orgnr,
         )
         tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKMELDING)
 
@@ -134,7 +137,7 @@ private fun Route.filtrerSykmeldinger(sykmeldingService: SykmeldingService) {
             }
 
             tellApiRequest()
-            sikkerLogger().info(
+            sikkerLogger().debug(
                 "LPS: [$lpsOrgnr] henter sykmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val sykemeldinger = sykmeldingService.hentSykmeldinger(filter)
@@ -188,7 +191,7 @@ fun Route.sykmeldingTokenX(sykmeldingService: SykmeldingService) {
                     return@get
                 }
                 // TODO: Legg til Prometheus metrikk telling
-                sikkerLogger().info("Bruker med PID: $pid henter sykmelding PDF: $sykmeldingId")
+                sikkerLogger().debug("Bruker med PID: {} henter sykmelding PDF: {}", pid, sykmeldingId)
 
                 val pdfBytes = genererSykmeldingPdf(sykmelding.kapitaliserSykmeldtNavn())
                 call.respondMedPDF(bytes = pdfBytes, filnavn = "sykmelding-${sykmelding.sykmeldingId}.pdf")
