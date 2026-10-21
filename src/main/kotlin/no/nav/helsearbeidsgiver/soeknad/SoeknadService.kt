@@ -70,6 +70,7 @@ class SoeknadService(
             } else {
                 soeknadRepository.lagreSoeknad(validertSoeknad)
                 logger.info("Lagret søknad med id: ${soeknad.id}")
+                sikkerLogger().info("Lagret søknad med id: ${soeknad.id}")
             }
 
             if (soeknad.skalSendesTilArbeidsgiver()) {

@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.tilTidspunktEndOfDay
 import no.nav.helsearbeidsgiver.utils.tilTidspunktStartOfDay
 import org.jetbrains.exposed.sql.Database
@@ -50,6 +51,7 @@ class ForespoerselRepository(
             }
         }
         logger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
+        sikkerLogger().info("Forespørsel ${forespoersel.forespoerselId} lagret")
     }
 
     fun hentForespoersel(navReferanseId: UUID): Forespoersel? =
