@@ -26,7 +26,7 @@ object InntektsmeldingEntitet : Table("inntektsmelding") {
     val typeInnsending = enumerationByName("type_innsending", length = 21, InnsendingType::class)
     val avsenderSystemNavn = varchar("avsender_system_navn", length = 64)
     val avsenderSystemVersjon = varchar("avsender_system_versjon", length = 64)
-    val kontaktinformasjon = varchar("kontaktinformasjon", length = 64)
+    val kontaktinformasjon = varchar("kontaktinformasjon", length = 128)
     val navReferanseId = uuid("nav_referanse_id")
     val versjon = integer("versjon")
     val status = enumerationByName("status", 15, InnsendingStatus::class)
