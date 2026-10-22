@@ -94,7 +94,7 @@ fun Route.refusjonV1(
                 }
 
                 val refusjonUtfall = refusjonUtfallService.hentRefusjonUtfall(filter)
-                sikkerLogger().info(
+                sikkerLogger().debug(
                     "LPS: [$lpsOrgnr] henter refusjonsutfall for orgnr [${filter.orgnr}] " +
                         "på vegne av orgnr: $systembrukerOrgnr",
                 )
@@ -140,8 +140,11 @@ private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(
             return null
         }
 
-        sikkerLogger().info(
-            "LPS: [$lpsOrgnr] henter refusjonsutfall med id: [$refusjonUtfallId] på vegne av orgnr: $systembrukerOrgnr",
+        sikkerLogger().debug(
+            "LPS: [{}] henter refusjonsutfall med id: [{}] på vegne av orgnr: {}",
+            lpsOrgnr,
+            refusjonUtfallId,
+            systembrukerOrgnr,
         )
         return refusjonUtfall
     } catch (e: Exception) {
