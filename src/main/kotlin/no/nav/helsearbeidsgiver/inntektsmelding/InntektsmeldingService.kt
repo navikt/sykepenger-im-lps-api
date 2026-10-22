@@ -11,10 +11,10 @@ class InntektsmeldingService(
 ) {
     fun hentNyesteInntektsmeldingByNavReferanseId(navReferanseId: UUID): InntektsmeldingResponse? {
         runCatching {
-            sikkerLogger().info("Henter inntektsmeldinger for forespoerselId: $navReferanseId")
+            sikkerLogger().debug("Henter inntektsmeldinger for forespoerselId: {}", navReferanseId)
             inntektsmeldingRepository.hent(navReferanseId).maxByOrNull { it.innsendtTid }
         }.onSuccess {
-            sikkerLogger().info("Hentet siste Inntektsmelding for forespoerselId: $navReferanseId")
+            sikkerLogger().debug("Hentet siste Inntektsmelding for forespoerselId: {}", navReferanseId)
             return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av siste inntektsmelding for forespoerselId: $navReferanseId", it)
@@ -24,10 +24,10 @@ class InntektsmeldingService(
 
     fun hentInntektsMelding(filter: InntektsmeldingFilter): List<InntektsmeldingResponse> {
         runCatching {
-            sikkerLogger().info("Henter inntektsmeldinger for request: $filter")
+            sikkerLogger().debug("Henter inntektsmeldinger for request: {}", filter)
             inntektsmeldingRepository.hent(filter = filter)
         }.onSuccess {
-            sikkerLogger().info("Hentet ${it.size} inntektsmeldinger for request: $filter")
+            sikkerLogger().debug("Hentet ${it.size} inntektsmeldinger for request: {}", filter)
             return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av inntektsmeldinger for request: $filter", it)
@@ -36,7 +36,7 @@ class InntektsmeldingService(
     }
 
     fun hentInntektsmeldingMedInnsendingId(innsendingId: UUID): InntektsmeldingResponse? {
-        logger().info("Henter inntektsmelding med innsendingId $innsendingId")
+        logger().debug("Henter inntektsmelding med innsendingId {}", innsendingId)
         return inntektsmeldingRepository.hentMedInnsendingId(innsendingId = innsendingId)
     }
 

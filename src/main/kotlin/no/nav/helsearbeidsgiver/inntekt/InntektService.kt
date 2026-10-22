@@ -45,7 +45,7 @@ class InntektService(
         val navConsumerId = "helsearbeidsgiver-im-lps-api"
         val callId = "$navConsumerId-$navReferanseId"
 
-        sikkerLogger().info("Henter inntekt for $fnr i perioden $fom til $tom (callId: $callId).")
+        sikkerLogger().debug("Henter inntekt for {} i perioden {} til {} (callId: {}).", fnr, fom, tom, callId)
 
         return inntektKlient.hentInntektPerOrgnrOgMaaned(
             fnr = fnr,
