@@ -40,7 +40,7 @@ object PdpService :
         ressurs: String,
     ): Boolean =
         runBlocking {
-            sikkerLogger().info("PDP orgnr: $orgnr, systembruker: $systembruker, ressurs: $ressurs")
+            sikkerLogger().debug("PDP orgnr: $orgnr, systembruker: $systembruker, ressurs: $ressurs")
             runCatching {
                 pdpClient.systemHarRettighetForOrganisasjoner(
                     systembrukerId = systembruker,
@@ -56,7 +56,7 @@ object PdpService :
         ressurs: String,
     ): Boolean =
         runBlocking {
-            sikkerLogger().info("PDP orgnr: $orgnr, fnr: $fnr, ressurs: $ressurs")
+            sikkerLogger().debug("PDP orgnr: $orgnr, fnr: $fnr, ressurs: $ressurs")
             runCatching {
                 pdpClient.personHarRettighetForOrganisasjoner(
                     fnr = fnr,

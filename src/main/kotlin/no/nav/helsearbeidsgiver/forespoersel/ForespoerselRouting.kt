@@ -69,9 +69,12 @@ private fun Route.forespoersel(forespoerselService: ForespoerselService) {
 
             tellApiRequest()
 
-            sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter forespørsel med id $navReferanseId for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]" +
-                    " og forespørselOrgnr: [${forespoersel.orgnr}]",
+            sikkerLogger().debug(
+                "LPS: [{}] henter forespørsel med id {} for bedrift med systembrukerOrgnr: [{}] og forespørselOrgnr: [{}]",
+                lpsOrgnr,
+                navReferanseId,
+                systembrukerOrgnr,
+                forespoersel.orgnr,
             )
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.FORESPOERSEL)
 
@@ -104,7 +107,7 @@ private fun Route.filtrerForespoersler(forespoerselService: ForespoerselService)
 
             tellApiRequest()
 
-            sikkerLogger().info(
+            sikkerLogger().debug(
                 "LPS: [$lpsOrgnr] henter forespørsler for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val forespoersler = forespoerselService.filtrerForespoersler(filter).map { it.toResponse() }

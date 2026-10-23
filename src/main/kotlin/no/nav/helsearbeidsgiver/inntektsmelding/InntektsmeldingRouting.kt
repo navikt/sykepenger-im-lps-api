@@ -96,7 +96,7 @@ private fun Route.sendInntektsmelding(services: Services) {
             }
             tellApiRequest()
             sikkerLogger().info("Mottatt innsending: $request")
-            sikkerLogger().info(
+            sikkerLogger().debug(
                 "LPS: [$lpsOrgnr] sender inn skjema på vegne av bedrift: [${forespoersel.orgnr}] med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
 
@@ -197,7 +197,7 @@ private fun Route.filtrerInntektsmeldinger(inntektsmeldingService: Inntektsmeldi
 
             val lpsOrgnr = tokenValidationContext().getConsumerOrgnr()
             tellApiRequest()
-            sikkerLogger().info(
+            sikkerLogger().debug(
                 "LPS: [$lpsOrgnr] henter inntektsmeldinger for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val inntektsmeldinger = inntektsmeldingService.hentInntektsMelding(filter = filter)
@@ -254,9 +254,12 @@ private fun Route.hentInntektsmelding(inntektsmeldingService: InntektsmeldingSer
             tellApiRequest()
             tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.INNTEKTSMELDING)
 
-            sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter inntektsmelding med id $innsendingId for bedrift med " +
-                    "systembrukerOrgnr: [$systembrukerOrgnr] og inntektsmeldingOrgnr: [${inntektsmelding.arbeidsgiver.orgnr}]",
+            sikkerLogger().debug(
+                "LPS: [{}] henter inntektsmelding med id {} for bedrift med systembrukerOrgnr: [{}] og inntektsmeldingOrgnr: [{}]",
+                lpsOrgnr,
+                innsendingId,
+                systembrukerOrgnr,
+                inntektsmelding.arbeidsgiver.orgnr,
             )
 
             call.respond(inntektsmelding)
