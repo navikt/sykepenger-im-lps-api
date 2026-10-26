@@ -3,7 +3,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.openapi.JsonSchema.Format
-import io.ktor.openapi.JsonSchema.Required
+import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
@@ -51,19 +51,9 @@ data class InntektsmeldingResponse(
 
 // Innsending slik APIet sender inn
 @Serializable
-@Required(
-    "navReferanseId",
-    "agp",
-    "inntekt",
-    "refusjon",
-    "naturalytelser",
-    "sykmeldtFnr",
-    "aarsakInnsending",
-    "arbeidsgiverTlf",
-    "avsender",
-)
 data class InntektsmeldingRequest(
     val navReferanseId: UUID,
+    @Required
     val agp: Arbeidsgiverperiode?,
     val inntekt: Inntekt?,
     val refusjon: Refusjon?,
@@ -162,7 +152,9 @@ data class InntektsmeldingFilter(
 }
 
 fun Avsender.valider() {
-    require(this.systemNavn.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN))) { "Ugyldig systemNavn, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
+    require(
+        this.systemNavn.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN)),
+    ) { "Ugyldig systemNavn, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
     require(
         this.systemVersjon.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN)),
     ) { "Ugyldig systemVersjon, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
