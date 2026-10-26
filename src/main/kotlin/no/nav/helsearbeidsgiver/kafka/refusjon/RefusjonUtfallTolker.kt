@@ -33,6 +33,7 @@ class RefusjonUtfallTolker(
         // TODO: Hvis produserVedtakKobling feiler etter lagring, vil retry feile på duplikat refusjonUtfallId og gi crashloop i consumer.
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         logger.info("Lagret refusjonsutfall med $logIdInfo.")
+        sikkerLogger.info("Lagret refusjonsutfall med $logIdInfo.")
 
         dokumentkoblingService.produserVedtakKobling(refusjonUtfall)
     }

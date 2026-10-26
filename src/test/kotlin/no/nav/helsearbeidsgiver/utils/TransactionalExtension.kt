@@ -16,7 +16,7 @@ class TransactionalExtension : InvocationInterceptor {
         extensionContext: ExtensionContext,
     ) {
         transaction {
-            invocation?.proceed()
+            invocation.proceed()
             rollback()
         }
     }

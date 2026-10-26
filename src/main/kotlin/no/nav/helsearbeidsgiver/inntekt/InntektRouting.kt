@@ -77,8 +77,11 @@ private fun Route.hentInntekt(services: Services) {
                         inntektsdato = inntektsdato,
                     )
 
-            sikkerLogger().info(
-                "LPS: [$lpsOrgnr] henter inntekt for navReferanseId [$navReferanseId] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
+            sikkerLogger().debug(
+                "LPS: [{}] henter inntekt for navReferanseId [{}] for bedrift med systembrukerOrgnr: [{}]",
+                lpsOrgnr,
+                navReferanseId,
+                systembrukerOrgnr,
             )
 
             call.respond(inntekter)

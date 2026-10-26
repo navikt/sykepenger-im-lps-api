@@ -14,10 +14,10 @@ class ForespoerselService(
     fun filtrerForespoersler(filter: ForespoerselFilter): List<Forespoersel> {
         val orgnr = filter.orgnr
         runCatching {
-            sikkerLogger().info("Henter forespørsler for bedrift: $orgnr")
+            sikkerLogger().debug("Henter forespørsler for bedrift: $orgnr")
             forespoerselRepository.hentForespoersler(filter)
         }.onSuccess {
-            sikkerLogger().info("Hentet ${it.size} forespørsler for bedrift: $orgnr")
+            sikkerLogger().debug("Hentet ${it.size} forespørsler for bedrift: $orgnr")
             return it
         }.onFailure {
             sikkerLogger().warn("Feil ved henting av forespørsler for bedrift: $orgnr", it)
@@ -190,7 +190,7 @@ class ForespoerselService(
         forespoerselRepository
             .hentEksponertForespoerselId(forespoerselId)
             ?.also {
-                logger().info("Hentet eksponert forespørsel med id: $it for forespørsel med id: $forespoerselId")
+                logger().debug("Hentet eksponert forespørsel med id: {} for forespørsel med id: {}", it, forespoerselId)
             }
             ?: run {
                 logger().error("Forespørsel med id: $forespoerselId finnes ikke")

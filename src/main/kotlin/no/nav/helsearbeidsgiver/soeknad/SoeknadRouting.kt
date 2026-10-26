@@ -92,7 +92,12 @@ private suspend fun RoutingContext.hentSoeknadMedId(soeknadService: SoeknadServi
         }
 
         tellApiRequest()
-        sikkerLogger().info("LPS: [$lpsOrgnr] henter søknad med id: [$soeknadId] på vegne av orgnr: $systembrukerOrgnr")
+        sikkerLogger().debug(
+            "LPS: [{}] henter søknad med id: [{}] på vegne av orgnr: {}",
+            lpsOrgnr,
+            soeknadId,
+            systembrukerOrgnr,
+        )
         tellDokumenterHentet(lpsOrgnr, MetrikkDokumentType.SYKEPENGESOEKNAD)
 
         return soeknad
@@ -123,7 +128,7 @@ private fun Route.filtrerSoeknader(soeknadService: SoeknadService) {
 
             tellApiRequest()
 
-            sikkerLogger().info(
+            sikkerLogger().debug(
                 "LPS: [$lpsOrgnr] henter sykepengesøknader for orgnr [${filter.orgnr}] for bedrift med systembrukerOrgnr: [$systembrukerOrgnr]",
             )
             val soeknader = soeknadService.hentSoeknader(filter = filter)
@@ -178,7 +183,7 @@ fun Route.soeknadTokenX(soeknadService: SoeknadService) {
                     return@get
                 }
 
-                sikkerLogger().info("Bruker med PID: $pid henter sykepengesoeknad PDF: $soeknadId")
+                sikkerLogger().debug("Bruker med PID: {} henter sykepengesoeknad PDF: {}", pid, soeknadId)
 
                 val soeknadForPDF = soeknadService.tilSoeknadForPdf(soeknad)
                 val pdfBytes = genererSoeknadPdf(soeknadForPDF)

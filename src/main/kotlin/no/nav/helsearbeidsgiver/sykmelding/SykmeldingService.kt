@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.sykmelding
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.sykmelding.model.tilSykmelding
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
 class SykmeldingService(
@@ -38,6 +39,7 @@ class SykmeldingService(
                     sykmelding = sykmeldingMessage,
                     sykmeldtNavn = sykmeldtNavn,
                 )
+                sikkerLogger().info("Lagret sykmelding med id: $sykmeldingId")
                 return true
             }
 

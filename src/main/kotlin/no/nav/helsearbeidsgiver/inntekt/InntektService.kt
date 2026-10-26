@@ -30,8 +30,14 @@ class InntektService(
             listOf(fom, middle, tom)
                 .associateWith { inntektPerMaaned[it] }
         val inntektMedGjennomsnittResponse = InntektMedGjennomsnittResponse(inntektPerMaaned = inntekt)
-        sikkerLogger().info(
-            "Hentet inntekt for forespørsel ${forespoersel.navReferanseId} for orgnr ${forespoersel.orgnr} i perioden $fom til $tom: $inntekt, gjennomsnitt: ${inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder}",
+        sikkerLogger().debug(
+            "Hentet inntekt for forespørsel {} for orgnr {} i perioden {} til {}: {}, gjennomsnitt: {}",
+            forespoersel.navReferanseId,
+            forespoersel.orgnr,
+            fom,
+            tom,
+            inntekt,
+            inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder,
         )
         return inntektMedGjennomsnittResponse
     }
@@ -45,7 +51,7 @@ class InntektService(
         val navConsumerId = "helsearbeidsgiver-im-lps-api"
         val callId = "$navConsumerId-$navReferanseId"
 
-        sikkerLogger().info("Henter inntekt for $fnr i perioden $fom til $tom (callId: $callId).")
+        sikkerLogger().debug("Henter inntekt for {} i perioden {} til {} (callId: {}).", fnr, fom, tom, callId)
 
         return inntektKlient.hentInntektPerOrgnrOgMaaned(
             fnr = fnr,
