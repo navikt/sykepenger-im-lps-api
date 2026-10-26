@@ -11,7 +11,27 @@ import io.ktor.openapi.jsonSchema
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.openapi.describe
 import io.ktor.utils.io.ExperimentalKtorApi
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+
+// redusertLoennIAgp er obligatorisk, men tillater null. Ktor utelater nullable felter fra required.
+// Siden modellen ligger i hag-domene, korrigerer vi OpenAPI-skjemaet her uten å endre domenemodellen.
+private fun JsonSchema.medPaakrevdRedusertLoennIAgp(): JsonSchema =
+    copy(
+        properties =
+            properties?.mapValues { (navn, skjema) ->
+                if (navn == InntektsmeldingRequest::agp.name) {
+                    skjema.mapValue {
+                        it.copy(
+                            required = (it.required.orEmpty() + Arbeidsgiverperiode::redusertLoennIAgp.name).distinct(),
+                        )
+                    }
+                } else {
+                    skjema
+                }
+            },
+        items = items?.mapValue { it.medPaakrevdRedusertLoennIAgp() },
+    )
 
 internal fun Route.describeSendInntektsmelding() =
     describe {
@@ -22,7 +42,7 @@ internal fun Route.describeSendInntektsmelding() =
         requestBody {
             required = true
             ContentType.Application.Json {
-                schema = jsonSchema<InntektsmeldingRequest>()
+                schema = jsonSchema<InntektsmeldingRequest>().medPaakrevdRedusertLoennIAgp()
             }
         }
 
@@ -88,7 +108,7 @@ internal fun Route.describeFiltrerInntektsmeldinger() =
                     }
                 }
                 ContentType.Application.Json {
-                    schema = jsonSchema<List<InntektsmeldingResponse>>()
+                    schema = jsonSchema<List<InntektsmeldingResponse>>().medPaakrevdRedusertLoennIAgp()
                 }
             }
             HttpStatusCode.BadRequest {
@@ -132,7 +152,7 @@ internal fun Route.describeHentInntektsmelding() =
             HttpStatusCode.OK {
                 description = "Inntektsmelding funnet."
                 ContentType.Application.Json {
-                    schema = jsonSchema<InntektsmeldingResponse>()
+                    schema = jsonSchema<InntektsmeldingResponse>().medPaakrevdRedusertLoennIAgp()
                 }
             }
             HttpStatusCode.BadRequest {

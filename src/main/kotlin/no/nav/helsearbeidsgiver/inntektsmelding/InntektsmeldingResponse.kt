@@ -3,6 +3,7 @@
 package no.nav.helsearbeidsgiver.inntektsmelding
 
 import io.ktor.openapi.JsonSchema.Format
+import io.ktor.openapi.JsonSchema.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.AarsakInnsending
@@ -50,6 +51,17 @@ data class InntektsmeldingResponse(
 
 // Innsending slik APIet sender inn
 @Serializable
+@Required(
+    "navReferanseId",
+    "agp",
+    "inntekt",
+    "refusjon",
+    "naturalytelser",
+    "sykmeldtFnr",
+    "aarsakInnsending",
+    "arbeidsgiverTlf",
+    "avsender",
+)
 data class InntektsmeldingRequest(
     val navReferanseId: UUID,
     val agp: Arbeidsgiverperiode?,
