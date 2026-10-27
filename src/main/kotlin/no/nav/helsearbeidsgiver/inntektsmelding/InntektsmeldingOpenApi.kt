@@ -33,7 +33,7 @@ private fun JsonSchema.medPaakrevdeInntektsmeldingFelter(): JsonSchema =
                     InntektsmeldingRequest::agp.name -> {
                         skjema.mapValue {
                             it.copy(
-                                description = "Arbeidsgiverperiode kan være null hvis det ikke er forespurt.",
+                                description = "Feltet kan være null hvis det ikke er forespurt.",
                                 required = (it.required.orEmpty() + Arbeidsgiverperiode::redusertLoennIAgp.name).distinct(),
                             )
                         }
@@ -41,13 +41,13 @@ private fun JsonSchema.medPaakrevdeInntektsmeldingFelter(): JsonSchema =
 
                     InntektsmeldingRequest::inntekt.name -> {
                         skjema.mapValue {
-                            it.copy(description = "Inntekt kan være null hvis det ikke er forespurt.")
+                            it.copy(description = "Feltet kan være null hvis det ikke er forespurt.")
                         }
                     }
 
                     InntektsmeldingRequest::refusjon.name -> {
                         skjema.mapValue {
-                            it.copy(description = "Refusjon må være med, men verdien kan være null.")
+                            it.copy(description = "Feltet må være med, men verdien kan være null.")
                         }
                     }
 
