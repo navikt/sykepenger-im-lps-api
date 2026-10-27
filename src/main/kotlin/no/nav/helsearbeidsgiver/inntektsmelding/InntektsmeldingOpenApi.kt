@@ -11,7 +11,53 @@ import io.ktor.openapi.jsonSchema
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.openapi.describe
 import io.ktor.utils.io.ExperimentalKtorApi
+import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
+
+// agp, inntekt, refusjon og redusertLoennIAgp er obligatoriske, men tillater null.
+// Ktor utelater nullable felter fra required. Vi korrigerer skjemaet her for å sikre at de er påkrevd i OpenAPI-spesifikasjonen.
+private fun JsonSchema.medPaakrevdeInntektsmeldingFelter(): JsonSchema =
+    copy(
+        required =
+            (
+                required.orEmpty() +
+                    listOf(
+                        InntektsmeldingRequest::agp.name,
+                        InntektsmeldingRequest::inntekt.name,
+                        InntektsmeldingRequest::refusjon.name,
+                    ).filter { properties?.containsKey(it) == true }
+            ).distinct().takeIf { it.isNotEmpty() },
+        properties =
+            properties?.mapValues { (navn, skjema) ->
+                when (navn) {
+                    InntektsmeldingRequest::agp.name -> {
+                        skjema.mapValue {
+                            it.copy(
+                                description = "Feltet kan være null hvis det ikke er forespurt.",
+                                required = (it.required.orEmpty() + Arbeidsgiverperiode::redusertLoennIAgp.name).distinct(),
+                            )
+                        }
+                    }
+
+                    InntektsmeldingRequest::inntekt.name -> {
+                        skjema.mapValue {
+                            it.copy(description = "Feltet kan være null hvis det ikke er forespurt.")
+                        }
+                    }
+
+                    InntektsmeldingRequest::refusjon.name -> {
+                        skjema.mapValue {
+                            it.copy(description = "Feltet må være med, men verdien kan være null.")
+                        }
+                    }
+
+                    else -> {
+                        skjema
+                    }
+                }
+            },
+        items = items?.mapValue { it.medPaakrevdeInntektsmeldingFelter() },
+    )
 
 internal fun Route.describeSendInntektsmelding() =
     describe {
@@ -22,7 +68,7 @@ internal fun Route.describeSendInntektsmelding() =
         requestBody {
             required = true
             ContentType.Application.Json {
-                schema = jsonSchema<InntektsmeldingRequest>()
+                schema = jsonSchema<InntektsmeldingRequest>().medPaakrevdeInntektsmeldingFelter()
             }
         }
 
@@ -88,7 +134,7 @@ internal fun Route.describeFiltrerInntektsmeldinger() =
                     }
                 }
                 ContentType.Application.Json {
-                    schema = jsonSchema<List<InntektsmeldingResponse>>()
+                    schema = jsonSchema<List<InntektsmeldingResponse>>().medPaakrevdeInntektsmeldingFelter()
                 }
             }
             HttpStatusCode.BadRequest {
@@ -132,7 +178,7 @@ internal fun Route.describeHentInntektsmelding() =
             HttpStatusCode.OK {
                 description = "Inntektsmelding funnet."
                 ContentType.Application.Json {
-                    schema = jsonSchema<InntektsmeldingResponse>()
+                    schema = jsonSchema<InntektsmeldingResponse>().medPaakrevdeInntektsmeldingFelter()
                 }
             }
             HttpStatusCode.BadRequest {
