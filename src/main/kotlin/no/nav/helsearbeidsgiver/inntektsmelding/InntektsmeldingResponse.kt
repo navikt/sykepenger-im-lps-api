@@ -150,9 +150,7 @@ data class InntektsmeldingFilter(
 }
 
 fun Avsender.valider() {
-    require(
-        this.systemNavn.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN)),
-    ) { "Ugyldig systemNavn, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
+    require(this.systemNavn.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN))) { "Ugyldig systemNavn, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
     require(
         this.systemVersjon.trim().matches(Regex(GYLDIGE_FRITEKST_TEGN)),
     ) { "Ugyldig systemVersjon, tillatte tegn er $GYLDIGE_FRITEKST_TEGN" }
