@@ -14,11 +14,19 @@ import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 
-// redusertLoennIAgp er obligatorisk, men tillater null. Ktor utelater nullable felter fra required.
-// Siden modellen ligger i hag-domene, korrigerer vi OpenAPI-skjemaet her uten å endre domenemodellen.
-private fun JsonSchema.medPaakrevdRedusertLoennIAgp(): JsonSchema =
+// agp, inntekt, refusjon og redusertLoennIAgp er obligatoriske, men tillater null.
+// Ktor utelater nullable felter fra required. Vi korrigerer skjemaet her for å sikre at de er påkrevd i OpenAPI-spesifikasjonen.
+private fun JsonSchema.medPaakrevdeInntektsmeldingFelter(): JsonSchema =
     copy(
-        required = (required.orEmpty() + InntektsmeldingRequest::agp.name).distinct(),
+        required =
+            (
+                required.orEmpty() +
+                    listOf(
+                        InntektsmeldingRequest::agp.name,
+                        InntektsmeldingRequest::inntekt.name,
+                        InntektsmeldingRequest::refusjon.name,
+                    ).filter { properties?.containsKey(it) == true }
+            ).distinct().takeIf { it.isNotEmpty() },
         properties =
             properties?.mapValues { (navn, skjema) ->
                 if (navn == InntektsmeldingRequest::agp.name) {
@@ -31,7 +39,7 @@ private fun JsonSchema.medPaakrevdRedusertLoennIAgp(): JsonSchema =
                     skjema
                 }
             },
-        items = items?.mapValue { it.medPaakrevdRedusertLoennIAgp() },
+        items = items?.mapValue { it.medPaakrevdeInntektsmeldingFelter() },
     )
 
 internal fun Route.describeSendInntektsmelding() =
@@ -43,7 +51,7 @@ internal fun Route.describeSendInntektsmelding() =
         requestBody {
             required = true
             ContentType.Application.Json {
-                schema = jsonSchema<InntektsmeldingRequest>().medPaakrevdRedusertLoennIAgp()
+                schema = jsonSchema<InntektsmeldingRequest>().medPaakrevdeInntektsmeldingFelter()
             }
         }
 
@@ -109,7 +117,7 @@ internal fun Route.describeFiltrerInntektsmeldinger() =
                     }
                 }
                 ContentType.Application.Json {
-                    schema = jsonSchema<List<InntektsmeldingResponse>>().medPaakrevdRedusertLoennIAgp()
+                    schema = jsonSchema<List<InntektsmeldingResponse>>().medPaakrevdeInntektsmeldingFelter()
                 }
             }
             HttpStatusCode.BadRequest {
@@ -153,7 +161,7 @@ internal fun Route.describeHentInntektsmelding() =
             HttpStatusCode.OK {
                 description = "Inntektsmelding funnet."
                 ContentType.Application.Json {
-                    schema = jsonSchema<InntektsmeldingResponse>().medPaakrevdRedusertLoennIAgp()
+                    schema = jsonSchema<InntektsmeldingResponse>().medPaakrevdeInntektsmeldingFelter()
                 }
             }
             HttpStatusCode.BadRequest {
