@@ -29,14 +29,31 @@ private fun JsonSchema.medPaakrevdeInntektsmeldingFelter(): JsonSchema =
             ).distinct().takeIf { it.isNotEmpty() },
         properties =
             properties?.mapValues { (navn, skjema) ->
-                if (navn == InntektsmeldingRequest::agp.name) {
-                    skjema.mapValue {
-                        it.copy(
-                            required = (it.required.orEmpty() + Arbeidsgiverperiode::redusertLoennIAgp.name).distinct(),
-                        )
+                when (navn) {
+                    InntektsmeldingRequest::agp.name -> {
+                        skjema.mapValue {
+                            it.copy(
+                                description = "Arbeidsgiverperiode kan være null hvis det ikke er forespurt.",
+                                required = (it.required.orEmpty() + Arbeidsgiverperiode::redusertLoennIAgp.name).distinct(),
+                            )
+                        }
                     }
-                } else {
-                    skjema
+
+                    InntektsmeldingRequest::inntekt.name -> {
+                        skjema.mapValue {
+                            it.copy(description = "Inntekt kan være null hvis det ikke er forespurt.")
+                        }
+                    }
+
+                    InntektsmeldingRequest::refusjon.name -> {
+                        skjema.mapValue {
+                            it.copy(description = "Refusjon må være med, men verdien kan være null.")
+                        }
+                    }
+
+                    else -> {
+                        skjema
+                    }
                 }
             },
         items = items?.mapValue { it.medPaakrevdeInntektsmeldingFelter() },
