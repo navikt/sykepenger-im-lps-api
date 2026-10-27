@@ -18,6 +18,7 @@ import no.nav.helsearbeidsgiver.plugins.ErrorResponse
 // Siden modellen ligger i hag-domene, korrigerer vi OpenAPI-skjemaet her uten å endre domenemodellen.
 private fun JsonSchema.medPaakrevdRedusertLoennIAgp(): JsonSchema =
     copy(
+        required = (required.orEmpty() + InntektsmeldingRequest::agp.name).distinct(),
         properties =
             properties?.mapValues { (navn, skjema) ->
                 if (navn == InntektsmeldingRequest::agp.name) {
