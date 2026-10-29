@@ -886,16 +886,22 @@ object TestData {
   ],
   "sykepengegrunnlag": 154999.91999999998,
   "utbetalingsdager": [
-    {
-      "dato": "2026-07-28",
-      "type": "NavDag",
-      "sykdomsgrad": 100,
-      "dekningsgrad": 100,
-      "beløpTilBruker": 0,
-      "beløpTilArbeidsgiver": 1431,
-      "begrunnelser": []
-    }
-  ],
+        {
+          "dato": "2026-07-28",
+          "type": "NavDag",
+          "sykdomsgrad": 100,
+          "dekningsgrad": 100,
+          "beløpTilBruker": 0,
+          "beløpTilArbeidsgiver": 1431,
+          "forespurtRefusjon": {
+            "beløp": 1431,
+            "avsender": "ARBEIDSGIVER",
+            "sasInntektsmeldingReferanse": null,
+            "hagInntektsmeldingReferanse": "65f84fa6-554e-4200-9466-30fc7e1ffb2e"
+          },
+          "begrunnelser": []
+        }
+      ],
   "vedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
   "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
   "saksbehandlerIdent": "L1337",
@@ -939,6 +945,12 @@ object TestData {
       "dekningsgrad": 100,
       "beløpTilBruker": 0,
       "beløpTilArbeidsgiver": 0,
+      "forespurtRefusjon": {
+        "beløp": 0,
+        "avsender": "ARBEIDSGIVER",
+        "sasInntektsmeldingReferanse": null,
+        "hagInntektsmeldingReferanse": null
+      },
       "begrunnelser": []
     }
   ],
@@ -976,16 +988,22 @@ object TestData {
   ],
   "sykepengegrunnlag": 671548.0,
   "utbetalingsdager": [
-    {
-      "dato": "2026-05-01",
-      "type": "NavDag",
-      "sykdomsgrad": 100,
-      "dekningsgrad": 100,
-      "beløpTilBruker": 1431,
-      "beløpTilArbeidsgiver": 0,
-      "begrunnelser": []
-    }
-  ],
+        {
+          "dato": "2026-07-28",
+          "type": "NavDag",
+          "sykdomsgrad": 100,
+          "dekningsgrad": 100,
+          "beløpTilBruker": 0,
+          "beløpTilArbeidsgiver": 1431,
+          "forespurtRefusjon": {
+            "beløp": 1431,
+            "avsender": "ARBEIDSGIVER",
+            "sasInntektsmeldingReferanse": null,
+            "hagInntektsmeldingReferanse": "65f84fa6-554e-4200-9466-30fc7e1ffb2e"
+          },
+          "begrunnelser": []
+        }
+      ],
   "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
   "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
   "saksbehandlerIdent": "L1337",
@@ -1022,16 +1040,22 @@ object TestData {
   ],
   "sykepengegrunnlag": 671548.0,
   "utbetalingsdager": [
-    {
-      "dato": "2026-05-01",
-      "type": "NavDag",
-      "sykdomsgrad": 100,
-      "dekningsgrad": 100,
-      "beløpTilBruker": 1431,
-      "beløpTilArbeidsgiver": 0,
-      "begrunnelser": []
-    }
-  ],
+        {
+          "dato": "2026-07-28",
+          "type": "NavDag",
+          "sykdomsgrad": 100,
+          "dekningsgrad": 100,
+          "beløpTilBruker": 0,
+          "beløpTilArbeidsgiver": 1431,
+          "forespurtRefusjon": {
+            "beløp": 1431,
+            "avsender": "ARBEIDSGIVER",
+            "sasInntektsmeldingReferanse": null,
+            "hagInntektsmeldingReferanse": "65f84fa6-554e-4200-9466-30fc7e1ffb2e"
+          },
+          "begrunnelser": []
+        }
+      ],
   "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
   "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
   "saksbehandlerIdent": "L1337",
