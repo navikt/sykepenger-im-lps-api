@@ -38,5 +38,5 @@ fun RefusjonUtfall.tilRefusjonUtfallResponse(loepenr: Long): RefusjonUtfallRespo
         tom = tom,
         sykepengegrunnlag = sykepengegrunnlag,
         utfallTilArbeidsgiver = utfallTilArbeidsgiver,
-        fattetTidspunkt = fattetTidspunkt,
+        fattetTidspunkt = arbeidstakervedtakFattetTidspunkt,
     )
