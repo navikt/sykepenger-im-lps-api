@@ -17,7 +17,7 @@ fun refusjonUtfallMock(): RefusjonUtfall =
         tom = LocalDate.of(2026, 8, 3),
         sykepengegrunnlag = 154999.92,
         utfallTilArbeidsgiver = Utfall.INNVILGELSE,
-        fattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
+        arbeidstakervedtakFattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
         arbeidstakerVedtakMelding = TestData.vedtakMock(),
     )
 

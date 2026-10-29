@@ -869,6 +869,8 @@ object TestData {
   "organisasjonsnummer": "896929119",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
   "vedtaksperiodeId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+  "behandlingId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+  "anvendtSeksG": "819294.0", 
   "fom": "2026-07-28",
   "tom": "2026-08-03",
   "skjæringstidspunkt": "2026-07-01",
@@ -884,16 +886,22 @@ object TestData {
   ],
   "sykepengegrunnlag": 154999.91999999998,
   "utbetalingsdager": [
-    {
-      "dato": "2026-07-28",
-      "type": "NavDag",
-      "sykdomsgrad": 100,
-      "dekningsgrad": 100,
-      "beløpTilBruker": 0,
-      "beløpTilArbeidsgiver": 1431,
-      "begrunnelser": []
-    }
-  ],
+        {
+          "dato": "2026-07-28",
+          "type": "NavDag",
+          "sykdomsgrad": 100,
+          "dekningsgrad": 100,
+          "beløpTilBruker": 0,
+          "beløpTilArbeidsgiver": 1431,
+          "forespurtRefusjon": {
+            "beløp": 1431,
+            "avsender": "ARBEIDSGIVER",
+            "sasInntektsmeldingReferanse": null,
+            "hagInntektsmeldingReferanse": "65f84fa6-554e-4200-9466-30fc7e1ffb2e"
+          },
+          "begrunnelser": []
+        }
+      ],
   "vedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
   "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
   "saksbehandlerIdent": "L1337",
@@ -913,6 +921,8 @@ object TestData {
   "organisasjonsnummer": "311368095",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
   "vedtaksperiodeId": "9338a6a1-e3c1-45fc-ab9d-ebfa792591e2",
+  "behandlingId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+  "anvendtSeksG": "819294.0", 
   "fom": "2026-05-03",
   "tom": "2026-05-30",
   "skjæringstidspunkt": "2026-05-03",
@@ -935,6 +945,12 @@ object TestData {
       "dekningsgrad": 100,
       "beløpTilBruker": 0,
       "beløpTilArbeidsgiver": 0,
+      "forespurtRefusjon": {
+        "beløp": 0,
+        "avsender": "ARBEIDSGIVER",
+        "sasInntektsmeldingReferanse": null,
+        "hagInntektsmeldingReferanse": null
+      },
       "begrunnelser": []
     }
   ],
@@ -955,6 +971,8 @@ object TestData {
   "organisasjonsnummer": null,
   "yrkesaktivitetstype": "SELVSTENDIG",
   "vedtaksperiodeId": "8038547a-e62e-470c-a66d-66e74665853c",
+  "behandlingId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+  "anvendtSeksG": "819294.0", 
   "fom": "2026-05-01",
   "tom": "2026-05-31",
   "skjæringstidspunkt": "2026-05-01",
@@ -970,16 +988,22 @@ object TestData {
   ],
   "sykepengegrunnlag": 671548.0,
   "utbetalingsdager": [
-    {
-      "dato": "2026-05-01",
-      "type": "NavDag",
-      "sykdomsgrad": 100,
-      "dekningsgrad": 100,
-      "beløpTilBruker": 1431,
-      "beløpTilArbeidsgiver": 0,
-      "begrunnelser": []
-    }
-  ],
+        {
+          "dato": "2026-07-28",
+          "type": "NavDag",
+          "sykdomsgrad": 100,
+          "dekningsgrad": 100,
+          "beløpTilBruker": 0,
+          "beløpTilArbeidsgiver": 1431,
+          "forespurtRefusjon": {
+            "beløp": 1431,
+            "avsender": "ARBEIDSGIVER",
+            "sasInntektsmeldingReferanse": null,
+            "hagInntektsmeldingReferanse": "65f84fa6-554e-4200-9466-30fc7e1ffb2e"
+          },
+          "begrunnelser": []
+        }
+      ],
   "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
   "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
   "saksbehandlerIdent": "L1337",
@@ -999,6 +1023,8 @@ object TestData {
   "organisasjonsnummer": "SELVSTENDIG",
   "yrkesaktivitetstype": "SELVSTENDIG",
   "vedtaksperiodeId": "8038547a-e62e-470c-a66d-66e74665853c",
+  "behandlingId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+  "anvendtSeksG": "819294.0", 
   "fom": "2026-05-01",
   "tom": "2026-05-31",
   "skjæringstidspunkt": "2026-05-01",
@@ -1014,16 +1040,22 @@ object TestData {
   ],
   "sykepengegrunnlag": 671548.0,
   "utbetalingsdager": [
-    {
-      "dato": "2026-05-01",
-      "type": "NavDag",
-      "sykdomsgrad": 100,
-      "dekningsgrad": 100,
-      "beløpTilBruker": 1431,
-      "beløpTilArbeidsgiver": 0,
-      "begrunnelser": []
-    }
-  ],
+        {
+          "dato": "2026-07-28",
+          "type": "NavDag",
+          "sykdomsgrad": 100,
+          "dekningsgrad": 100,
+          "beløpTilBruker": 0,
+          "beløpTilArbeidsgiver": 1431,
+          "forespurtRefusjon": {
+            "beløp": 1431,
+            "avsender": "ARBEIDSGIVER",
+            "sasInntektsmeldingReferanse": null,
+            "hagInntektsmeldingReferanse": "65f84fa6-554e-4200-9466-30fc7e1ffb2e"
+          },
+          "begrunnelser": []
+        }
+      ],
   "vedtakFattetTidspunkt": "2026-08-06T15:06:33.707883128",
   "vedtaksUtfallTilArbeidsgiver": "INNVILGELSE",
   "saksbehandlerIdent": "L1337",

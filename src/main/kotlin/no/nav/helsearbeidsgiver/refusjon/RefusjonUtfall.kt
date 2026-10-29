@@ -24,10 +24,13 @@ data class RefusjonUtfall(
     val fom: LocalDate,
     val tom: LocalDate,
     val sykepengegrunnlag: Double,
+    // TODO: fixMe
+    @Deprecated("fjernes")
     val utfallTilArbeidsgiver: Utfall,
-    val fattetTidspunkt: LocalDateTime,
+    val arbeidstakervedtakFattetTidspunkt: LocalDateTime,
     val sykmeldtNavn: String? = null,
     val arbeidsgiverNavn: String? = null,
+    // TODO 2: Legg til nye felter fra hag-refusjon
     val arbeidstakerVedtakMelding: VedtakArbeidsgiverMelding,
 )
 
