@@ -869,6 +869,7 @@ object TestData {
   "organisasjonsnummer": "896929119",
   "yrkesaktivitetstype": "ARBEIDSTAKER",
   "vedtaksperiodeId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+  "behandlingId": "9984c94d-e837-461b-aef7-7ef3080df54b",
   "fom": "2026-07-28",
   "tom": "2026-08-03",
   "skjæringstidspunkt": "2026-07-01",
@@ -883,6 +884,7 @@ object TestData {
     }
   ],
   "sykepengegrunnlag": 154999.91999999998,
+  "anvendtSeksG": 819294.0,
   "utbetalingsdager": [
     {
       "dato": "2026-07-28",
@@ -891,6 +893,10 @@ object TestData {
       "dekningsgrad": 100,
       "beløpTilBruker": 0,
       "beløpTilArbeidsgiver": 1431,
+      "forespurtRefusjon": {
+        "beløp": 1431,
+        "avsender": "ARBEIDSGIVER"
+      },
       "begrunnelser": []
     }
   ],
