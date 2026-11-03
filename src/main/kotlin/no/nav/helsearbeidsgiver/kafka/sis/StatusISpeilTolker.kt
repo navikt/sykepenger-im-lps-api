@@ -21,7 +21,7 @@ class StatusISpeilTolker(
         try {
             when (parseEventName(melding)) {
                 SisEventName.BEHANDLINGSTATUS -> parseBehandlingstatusmelding(melding)
-                SisEventName.VEDTAK_FATTET -> Unit
+                SisEventName.VEDTAK_FATTET -> return
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på melding, melding=$melding", serializationException)
