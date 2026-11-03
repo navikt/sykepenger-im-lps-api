@@ -10,7 +10,7 @@ import io.mockk.slot
 import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
+import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidstakerMelding
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.refusjon.Utfall
@@ -54,7 +54,7 @@ class RefusjonUtfallTolkerTest {
                 sykepengegrunnlag = 154999.92,
                 utfallTilArbeidsgiver = Utfall.INNVILGELSE,
                 fattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
-                arbeidstakerVedtakMelding = KAFKA_MELDING.fromJson(VedtakArbeidsgiverMelding.serializer()),
+                arbeidstakerVedtakMelding = KAFKA_MELDING.fromJson(VedtakArbeidstakerMelding.serializer()),
             )
         verify(exactly = 1) { dokumentkoblingService.produserVedtakKobling(lagretRefusjonUtfall.captured) }
     }

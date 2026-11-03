@@ -5,7 +5,7 @@ import no.nav.helsearbeidsgiver.forespoersel.Arbeidsgiverperiode
 import no.nav.helsearbeidsgiver.forespoersel.ForespurtData
 import no.nav.helsearbeidsgiver.forespoersel.Inntekt
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
-import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
+import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidstakerMelding
 import no.nav.helsearbeidsgiver.kafka.soeknad.SykepengeSoeknadKafkaMelding
 import no.nav.helsearbeidsgiver.sykmelding.ArbeidsgiverSykmeldingKafka
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
@@ -1008,11 +1008,11 @@ object TestData {
     fun soeknadMock(soeknad: String = SYKEPENGESOEKNAD): SykepengeSoeknadKafkaMelding =
         soeknad.fromJson(SykepengeSoeknadKafkaMelding.serializer())
 
-    fun vedtakMock(vedtak: String = STATUS_I_SPLEIS_VEDTAK_MELDING): VedtakArbeidsgiverMelding =
+    fun vedtakMock(vedtak: String = STATUS_I_SPLEIS_VEDTAK_MELDING): VedtakArbeidstakerMelding =
         vedtak
             .removeJsonWhitespace()
             .replace("%%%FNR%%%", Fnr.genererGyldig().toString())
-            .fromJson(VedtakArbeidsgiverMelding.serializer())
+            .fromJson(VedtakArbeidstakerMelding.serializer())
 
     fun SykepengeSoeknadKafkaMelding.medId(id: UUID) = this.copy(id = id)
 

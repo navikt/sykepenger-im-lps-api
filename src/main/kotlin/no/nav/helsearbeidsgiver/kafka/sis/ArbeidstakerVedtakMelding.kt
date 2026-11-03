@@ -1,31 +1,34 @@
-@file:UseSerializers(UuidSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
+@file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class)
 
-package no.nav.helsearbeidsgiver.kafka.sis
+package no.nav.helsearbeidsgiver.refusjon
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
-import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Serializable
-data class VedtakArbeidsgiverMelding(
+data class ArbeidstakerVedtakMelding(
     val eventName: SisEventName,
-    @SerialName("fødselsnummer") val foedselsnummer: Fnr,
+    @SerialName("fødselsnummer")
+    val foedselsnummer: Fnr,
     val yrkesaktivitetstype: Yrkesaktivitetstype,
     val organisasjonsnummer: Orgnr,
-    val vedtaksperiodeId: UUID,
+    val vedtaksperiodeId: Uuid,
+    val behandlingId: Uuid,
     val fom: LocalDate,
     val tom: LocalDate,
-    @SerialName("skjæringstidspunkt") val skjaeringstidspunkt: LocalDate,
+    @SerialName("skjæringstidspunkt")
+    val skjaeringstidspunkt: LocalDate,
     val dokumenter: List<Dokument>,
     val sykepengegrunnlag: Double,
+    val anvendtSeksG: Double,
     val utbetalingsdager: List<Utbetalingsdag> = emptyList(),
     val vedtakFattetTidspunkt: LocalDateTime,
     val vedtaksUtfallTilArbeidsgiver: VedtaksUtfall,
@@ -34,8 +37,18 @@ data class VedtakArbeidsgiverMelding(
     val beslutterIdent: String?,
     val beslutterNavn: String?,
     val automatiskFattet: Boolean,
-    @SerialName("harArbeidsgiverØnsketRefusjon") val harArbeidsgiverOensketRefusjon: Boolean,
+    @SerialName("harArbeidsgiverØnsketRefusjon")
+    val harArbeidsgiverOensketRefusjon: Boolean,
 )
+
+@Serializable
+enum class SisEventName {
+    @SerialName("vedtak_fattet")
+    VEDTAK_FATTET,
+
+    @SerialName("behandlingstatus")
+    BEHANDLINGSTATUS,
+}
 
 @Serializable
 enum class Yrkesaktivitetstype {
@@ -54,7 +67,7 @@ enum class VedtaksUtfall {
 
 @Serializable
 data class Dokument(
-    val dokumentId: UUID,
+    val dokumentId: Uuid,
     val type: Type,
 ) {
     @Serializable
@@ -70,9 +83,34 @@ data class Dokument(
 @Serializable
 data class Utbetalingsdag(
     val dato: LocalDate,
+    @Serializable
     val type: Utbetalingsdagtype,
-    @SerialName("beløpTilArbeidsgiver") val beloepTilArbeidsgiver: Int,
+    val sykdomsgrad: Int,
+    val dekningsgrad: Int,
+    @SerialName("beløpTilBruker")
+    val beloepTilBruker: Int,
+    @SerialName("beløpTilArbeidsgiver")
+    val beloepTilArbeidsgiver: Int,
+    val forespurtRefusjon: ForespurtRefusjon,
+    val begrunnelser: List<String>,
 )
+
+@Serializable
+data class ForespurtRefusjon(
+    @SerialName("beløp")
+    val beloep: Int,
+    @Serializable
+    val avsender: Avsender,
+    val sasInntektsmeldingReferanse: Uuid? = null,
+    val hagInntektsmeldingReferanse: Uuid? = null,
+)
+
+@Serializable
+enum class Avsender {
+    ARBEIDSGIVER,
+    SAKSBEHANDLER,
+    UKJENT,
+}
 
 @Serializable
 enum class Utbetalingsdagtype {
