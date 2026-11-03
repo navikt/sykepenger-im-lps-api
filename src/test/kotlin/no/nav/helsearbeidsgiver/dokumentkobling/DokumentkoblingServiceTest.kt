@@ -11,9 +11,9 @@ import io.mockk.verify
 import io.mockk.verifySequence
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
-import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
+import no.nav.helsearbeidsgiver.refusjon.Dokument
 import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallMock
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO

@@ -7,8 +7,8 @@ import no.nav.helsearbeidsgiver.forespoersel.Forespoersel
 import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
-import no.nav.helsearbeidsgiver.kafka.sis.Dokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
+import no.nav.helsearbeidsgiver.refusjon.Dokument
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
