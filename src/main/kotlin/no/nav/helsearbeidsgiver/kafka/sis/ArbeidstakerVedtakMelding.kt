@@ -1,4 +1,4 @@
-@file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class)
+@file:UseSerializers(UuidSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
 
 package no.nav.helsearbeidsgiver.refusjon
 
@@ -7,11 +7,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.uuid.Uuid
+import java.util.UUID
 
 @Serializable
 data class ArbeidstakerVedtakMelding(
@@ -20,8 +21,8 @@ data class ArbeidstakerVedtakMelding(
     val foedselsnummer: Fnr,
     val yrkesaktivitetstype: Yrkesaktivitetstype,
     val organisasjonsnummer: Orgnr,
-    val vedtaksperiodeId: Uuid,
-    val behandlingId: Uuid,
+    val vedtaksperiodeId: UUID,
+    val behandlingId: UUID,
     val fom: LocalDate,
     val tom: LocalDate,
     @SerialName("skjæringstidspunkt")
@@ -67,7 +68,7 @@ enum class VedtaksUtfall {
 
 @Serializable
 data class Dokument(
-    val dokumentId: Uuid,
+    val dokumentId: UUID,
     val type: Type,
 ) {
     @Serializable
@@ -101,8 +102,8 @@ data class ForespurtRefusjon(
     val beloep: Int,
     @Serializable
     val avsender: Avsender,
-    val sasInntektsmeldingReferanse: Uuid? = null,
-    val hagInntektsmeldingReferanse: Uuid? = null,
+    val sasInntektsmeldingReferanse: UUID? = null,
+    val hagInntektsmeldingReferanse: UUID? = null,
 )
 
 @Serializable
