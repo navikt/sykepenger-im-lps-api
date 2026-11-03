@@ -24,7 +24,7 @@ data class RefusjonUtfall(
     val tom: LocalDate,
     val sykepengegrunnlag: Double,
     val utfallTilArbeidsgiver: Utfall,
-    val fattetTidspunkt: LocalDateTime,
+    val arbeidstakervedtakFattetTidspunkt: LocalDateTime,
     val sykmeldtNavn: String? = null,
     val arbeidsgiverNavn: String? = null,
     val arbeidstakerVedtakMelding: ArbeidstakerVedtakMelding,
