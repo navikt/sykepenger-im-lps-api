@@ -50,9 +50,6 @@ import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_MANGLER_E
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_STATUS_VENTER
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_MELDING_UTEN_EVENT_NAME
 import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING
-import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_ORGNR_ER_SELVSTENDIG_STRENG
-import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG
-import no.nav.helsearbeidsgiver.utils.TestData.STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER
 import no.nav.helsearbeidsgiver.utils.TestData.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.utils.TestData.SYKMELDING_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.TRENGER_FORESPOERSEL
@@ -287,37 +284,15 @@ class MeldingTolkerTest {
     }
 
     @Test
-    fun `StatusISpeilTolker lesMelding håndterer vedtak`() {
+    fun `StatusISpeilTolker lesMelding ignorerer vedtak_fattet`() {
         val sisVedtakMeldingJson =
             STATUS_I_SPLEIS_VEDTAK_MELDING.removeJsonWhitespace()
-        val sisVedtakMeldingJson2 =
-            STATUS_I_SPLEIS_VEDTAK_MELDING_UTEN_SAKSBEHANDLER.removeJsonWhitespace()
 
         assertDoesNotThrow {
             tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson2.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
         }
         verify(exactly = 0) { repositories.soeknadRepository.oppdaterSoeknaderMedVedtaksperiodeId(any(), any()) }
         verify(exactly = 0) { repositories.statusISpeilRepository.lagreNyeSoeknaderOgStatuser(any()) }
-        verify(exactly = 2) { service.refusjonUtfallService.sendVedtak(any()) }
-    }
-
-    @Test
-    fun `StatusISpeilTolker lesMelding feiler når organisasjonsnummer mangler`() {
-        val sisVedtakMeldingJson =
-            STATUS_I_SPLEIS_VEDTAK_MELDING_SELVSTENDIG.removeJsonWhitespace()
-        assertThrows<SerializationException> {
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
-        }
-    }
-
-    @Test
-    fun `StatusISpeilTolker lesMelding feiler når organisasjonsnummer er strengen SELVSTENDIG`() {
-        val sisVedtakMeldingJson =
-            STATUS_I_SPLEIS_VEDTAK_MELDING_ORGNR_ER_SELVSTENDIG_STRENG.removeJsonWhitespace()
-        assertThrows<IllegalArgumentException> {
-            tolkere.statusISpeilTolker.lesMelding(sisVedtakMeldingJson.replace("%%%FNR%%%", Fnr.genererGyldig().toString()))
-        }
     }
 
     @Test
