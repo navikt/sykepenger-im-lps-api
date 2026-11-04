@@ -10,7 +10,7 @@ import io.mockk.slot
 import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
+import no.nav.helsearbeidsgiver.refusjon.ArbeidstakerVedtakMelding
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.refusjon.Utfall
@@ -53,8 +53,8 @@ class RefusjonUtfallTolkerTest {
                 tom = LocalDate.of(2026, 8, 3),
                 sykepengegrunnlag = 154999.92,
                 utfallTilArbeidsgiver = Utfall.INNVILGELSE,
-                fattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
-                arbeidstakerVedtakMelding = KAFKA_MELDING.fromJson(VedtakArbeidsgiverMelding.serializer()),
+                arbeidstakervedtakFattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
+                arbeidstakerVedtakMelding = KAFKA_MELDING.fromJson(ArbeidstakerVedtakMelding.serializer()),
             )
         verify(exactly = 1) { dokumentkoblingService.produserVedtakKobling(lagretRefusjonUtfall.captured) }
     }
@@ -91,7 +91,7 @@ private val REFUSJON_UTFALL_MELDING =
       "tom": "2026-08-03",
       "sykepengegrunnlag": 154999.92,
       "utfallTilArbeidsgiver": "INNVILGELSE",
-      "fattetTidspunkt": "2026-08-05T13:03:25.166498222",
+      "arbeidstakervedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
       "arbeidstakerVedtakMelding": $KAFKA_MELDING
     }
     """.trimIndent()

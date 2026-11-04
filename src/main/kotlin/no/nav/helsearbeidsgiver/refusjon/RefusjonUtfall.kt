@@ -4,7 +4,6 @@ package no.nav.helsearbeidsgiver.refusjon
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import no.nav.helsearbeidsgiver.kafka.sis.VedtakArbeidsgiverMelding
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
@@ -25,10 +24,10 @@ data class RefusjonUtfall(
     val tom: LocalDate,
     val sykepengegrunnlag: Double,
     val utfallTilArbeidsgiver: Utfall,
-    val fattetTidspunkt: LocalDateTime,
+    val arbeidstakervedtakFattetTidspunkt: LocalDateTime,
     val sykmeldtNavn: String? = null,
     val arbeidsgiverNavn: String? = null,
-    val arbeidstakerVedtakMelding: VedtakArbeidsgiverMelding,
+    val arbeidstakerVedtakMelding: ArbeidstakerVedtakMelding,
 )
 
 @Serializable

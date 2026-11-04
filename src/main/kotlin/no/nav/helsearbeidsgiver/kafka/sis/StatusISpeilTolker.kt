@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.kafka.sis
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
-import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -14,7 +13,6 @@ class StatusISpeilTolker(
     private val soeknadRepository: SoeknadRepository,
     private val statusISpeilRepository: StatusISpeilRepository,
     private val dokumentkoblingService: DokumentkoblingService,
-    private val refusjonUtfallService: RefusjonUtfallService,
 ) : MeldingTolker {
     private val sikkerLogger = sikkerLogger()
     private val logger = logger()
@@ -23,7 +21,7 @@ class StatusISpeilTolker(
         try {
             when (parseEventName(melding)) {
                 SisEventName.BEHANDLINGSTATUS -> parseBehandlingstatusmelding(melding)
-                SisEventName.VEDTAK_FATTET -> parseVedtakArbeidsgiverMelding(melding)
+                SisEventName.VEDTAK_FATTET -> return
             }
         } catch (serializationException: SerializationException) {
             sikkerLogger.error("Feil format på melding, melding=$melding", serializationException)
@@ -74,20 +72,5 @@ class StatusISpeilTolker(
                 statusISpeilRepository.lagreNyeSoeknaderOgStatuser(behandlingstatusmelding)
             }
         }
-    }
-
-    private fun parseVedtakArbeidsgiverMelding(melding: String) {
-        val vedtakArbeidsgiverMelding = melding.fromJson(VedtakArbeidsgiverMelding.serializer())
-        if (vedtakArbeidsgiverMelding.yrkesaktivitetstype != Yrkesaktivitetstype.ARBEIDSTAKER) {
-            logger.warn(
-                "Ignorerer vedtak for vedtaksperiodeId ${vedtakArbeidsgiverMelding.vedtaksperiodeId} " +
-                    "med yrkesaktivitetstype ${vedtakArbeidsgiverMelding.yrkesaktivitetstype}, kun ARBEIDSTAKER støttes.",
-            )
-            return
-        }
-        logger.info("Leste vedtak")
-        sikkerLogger.info("Leste vedtak: $vedtakArbeidsgiverMelding")
-
-        refusjonUtfallService.sendVedtak(vedtakArbeidsgiverMelding)
     }
 }

@@ -141,7 +141,6 @@ fun configureTolkere(
             repositories.soeknadRepository,
             repositories.statusISpeilRepository,
             services.dokumentkoblingService,
-            services.refusjonUtfallService,
         )
 
     val avvistInntektsmeldingTolker =
@@ -240,7 +239,6 @@ fun configureServices(
     val forespoerselService = ForespoerselService(repositories.forespoerselRepository, dokumentkoblingService)
     val refusjonUtfallService =
         RefusjonUtfallService(
-            unleashFeatureToggles,
             lagRefusjonKlient(),
             repositories.refusjonUtfallRepository,
         )

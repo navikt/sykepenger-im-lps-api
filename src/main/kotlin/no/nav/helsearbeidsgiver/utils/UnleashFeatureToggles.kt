@@ -56,12 +56,6 @@ class UnleashFeatureToggles(
             true,
         )
 
-    fun skalLagreVedtakArbeidsgiver(): Boolean =
-        unleashClient.isEnabled(
-            "lagre-vedtak-arbeidsgiver",
-            false,
-        )
-
     fun skalEksponereRefusjonUtfallPdf(): Boolean =
         unleashClient.isEnabled(
             "eksponer-vedtak-pdf",
