@@ -1,5 +1,7 @@
 package no.nav.helsearbeidsgiver.utils
 
+import no.nav.hag.utils.bakgrunnsjobb.LeaderConfig
+
 fun getTestLeaderConfig(isLeader: Boolean): LeaderConfig =
     if (isLeader) {
         Leader

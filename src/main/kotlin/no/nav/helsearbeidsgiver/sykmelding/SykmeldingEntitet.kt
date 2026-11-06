@@ -1,13 +1,14 @@
 package no.nav.helsearbeidsgiver.sykmelding
 
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.json.jsonb
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.datetime
+import org.jetbrains.exposed.v1.json.jsonb
 
 object SykmeldingEntitet : Table("sykmelding") {
     val id = long("id").autoIncrement()
-    val sykmeldingId = uuid("sykmelding_id")
+    val sykmeldingId = javaUUID("sykmelding_id")
     val fnr = varchar("fnr", length = 11)
     val orgnr = varchar("orgnr", length = 9)
     val sykmeldtNavn = text("sykmeldt_navn")

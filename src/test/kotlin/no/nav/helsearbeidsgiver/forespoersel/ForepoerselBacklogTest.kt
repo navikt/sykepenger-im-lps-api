@@ -9,7 +9,7 @@ import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.PriMessage
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.buildForespoerselOppdatertJson
 import no.nav.helsearbeidsgiver.utils.jsonMapper
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.UUID

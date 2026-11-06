@@ -7,6 +7,8 @@ import io.ktor.server.auth.Authentication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.hag.utils.bakgrunnsjobb.LeaderConfig
 import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.Env.getProperty
 import no.nav.helsearbeidsgiver.Env.getPropertyAsList
@@ -14,7 +16,6 @@ import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.auth.gyldigScope
 import no.nav.helsearbeidsgiver.auth.gyldigSystembrukerOgConsumer
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
-import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.dialogporten.DialogSerializer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingProducer
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
@@ -59,7 +60,6 @@ import no.nav.helsearbeidsgiver.soeknad.SoeknadRepository
 import no.nav.helsearbeidsgiver.soeknad.SoeknadService
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingRepository
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingService
-import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
@@ -74,7 +74,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.common.serialization.UUIDSerializer
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.time.Duration.Companion.minutes
 
 val MAX_ANTALL_I_RESPONS = 1000 // Max antall entiteter som kan returneres i API-kall
@@ -201,9 +201,9 @@ fun configureServices(
         )
 
     val bakgrunnsjobbService =
-        LeaderElectedBakgrunnsjobbService(
+        BakgrunnsjobbService(
             bakgrunnsjobbRepository = repositories.bakgrunnsjobbRepository,
-            leaderConfig,
+            leaderConfig = leaderConfig,
         )
 
     val innsendingService =

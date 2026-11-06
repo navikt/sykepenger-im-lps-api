@@ -8,7 +8,7 @@ import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.mottak.ExposedMottak
 import no.nav.helsearbeidsgiver.mottak.MottakRepository
 import no.nav.helsearbeidsgiver.utils.jsonMapper
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
 
 class InntektsmeldingTolker(
