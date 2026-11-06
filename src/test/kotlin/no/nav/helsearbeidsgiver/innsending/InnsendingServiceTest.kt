@@ -7,13 +7,13 @@ import io.mockk.verify
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbRepository
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.hag.utils.bakgrunnsjobb.LeaderConfig
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
-import no.nav.helsearbeidsgiver.bakgrunnsjobb.LeaderElectedBakgrunnsjobbService
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingKafka.toJson
 import no.nav.helsearbeidsgiver.kafka.innsending.InnsendingProducer
-import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -26,9 +26,9 @@ class InnsendingServiceTest {
     private val bakgrunnsjobbRepository = mockk<BakgrunnsjobbRepository>(relaxed = true)
     private val leaderConfig = mockk<LeaderConfig>()
     private val leaderElectedBakgrunnsjobbService =
-        LeaderElectedBakgrunnsjobbService(
+        BakgrunnsjobbService(
             bakgrunnsjobbRepository,
-            leaderConfig,
+            leaderConfig = leaderConfig,
         )
     private val innsendingService = InnsendingService(innsendingProducer, leaderElectedBakgrunnsjobbService)
 

@@ -25,11 +25,11 @@ import no.nav.helsearbeidsgiver.utils.TestData.soeknadMock
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.deleteAll
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -4,7 +4,7 @@ import no.nav.helsearbeidsgiver.config.Services
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.api.Innsending
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun Services.opprettImTransaction(
     inntektsmelding: Inntektsmelding,

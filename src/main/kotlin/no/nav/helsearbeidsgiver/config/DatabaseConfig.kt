@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.helsearbeidsgiver.Env
 import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.sql.Database as ExposedDatabase
+import org.jetbrains.exposed.v1.jdbc.Database as ExposedDatabase
 
 class DatabaseConfig(
     url: String? = Env.getPropertyOrNull("database.url"),

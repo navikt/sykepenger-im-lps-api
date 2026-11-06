@@ -14,7 +14,7 @@ import io.ktor.server.testing.TestApplication
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
+import no.nav.hag.utils.bakgrunnsjobb.Bakgrunnsjobb
 import no.nav.helsearbeidsgiver.apiModule
 import no.nav.helsearbeidsgiver.bakgrunnsjobb.InnsendingProcessor
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
@@ -47,7 +47,7 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.mockInntektsmeldingRequest
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -157,8 +157,7 @@ class InnsendingIT {
             repositories.bakgrunnsjobbRepository
                 .findByKjoeretidBeforeAndStatusIn(
                     timeout = LocalDateTime.now(),
-                    tilstander = setOf(BakgrunnsjobbStatus.OPPRETTET),
-                    alle = true,
+                    tilstander = setOf(Bakgrunnsjobb.Status.OPPRETTET),
                 ).first()
                 .type shouldBe InnsendingProcessor.JOB_TYPE
         }

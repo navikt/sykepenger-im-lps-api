@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.utils
 
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.InvocationInterceptor
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext

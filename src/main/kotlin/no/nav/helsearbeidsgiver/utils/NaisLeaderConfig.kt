@@ -4,6 +4,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
+import no.nav.hag.utils.bakgrunnsjobb.LeaderConfig
 import no.nav.helsearbeidsgiver.Env.getPropertyOrNull
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -20,9 +21,6 @@ import java.net.InetAddress
   -Du må med andre ord ha minst to pods for å kjøre applikasjonen.
 
  */
-interface LeaderConfig {
-    fun isElectedLeader(): Boolean
-}
 
 object NaisLeaderConfig : LeaderConfig {
     private const val UNKNOWN_LEADER = "UNKNOWN_LEADER"

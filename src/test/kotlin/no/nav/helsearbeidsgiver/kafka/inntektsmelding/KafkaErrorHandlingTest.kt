@@ -18,7 +18,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_FORESPOERSEL_BESVART_MANGLER_FORESPORSEL_ID
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_FORESPOERSEL_MOTTATT
 import no.nav.helsearbeidsgiver.utils.TestData.UGYLDIG_JSON
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
