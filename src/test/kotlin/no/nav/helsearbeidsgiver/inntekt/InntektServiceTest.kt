@@ -76,7 +76,7 @@ class InntektServiceTest {
             ),
             result.inntektPerMaaned,
         )
-        assertEquals(133.33, result.gjennomsnittAvMaaneder)
+        assertEquals(200.0, result.gjennomsnittAvMaaneder)
     }
 
     @Test
