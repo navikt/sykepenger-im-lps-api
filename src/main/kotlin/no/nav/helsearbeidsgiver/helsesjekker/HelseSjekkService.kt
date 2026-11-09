@@ -3,8 +3,8 @@ package no.nav.helsearbeidsgiver.helsesjekker
 import no.nav.helsearbeidsgiver.kafka.KafkaMonitor
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class HelseSjekkService(
     private val db: Database,

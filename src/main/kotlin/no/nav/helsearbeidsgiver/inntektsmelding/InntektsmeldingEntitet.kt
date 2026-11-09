@@ -6,14 +6,15 @@ import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.skjema.SkjemaInntektsm
 import no.nav.helsearbeidsgiver.innsending.InnsendingStatus
 import no.nav.helsearbeidsgiver.innsending.Valideringsfeil
 import no.nav.helsearbeidsgiver.utils.jsonMapper
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.sql.json.json
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.datetime
+import org.jetbrains.exposed.v1.json.json
 import java.time.LocalDateTime
 
 object InntektsmeldingEntitet : Table("inntektsmelding") {
     val id = long("id").autoIncrement()
-    val innsendingId = uuid("innsending_id")
+    val innsendingId = javaUUID("innsending_id")
 
     // Dokument = "Orginal payload inntektsmelding"
     // - brukes ikke i visning / videre behandling
@@ -27,7 +28,7 @@ object InntektsmeldingEntitet : Table("inntektsmelding") {
     val avsenderSystemNavn = varchar("avsender_system_navn", length = 64)
     val avsenderSystemVersjon = varchar("avsender_system_versjon", length = 64)
     val kontaktinformasjon = varchar("kontaktinformasjon", length = 128)
-    val navReferanseId = uuid("nav_referanse_id")
+    val navReferanseId = javaUUID("nav_referanse_id")
     val versjon = integer("versjon")
     val status = enumerationByName("status", 15, InnsendingStatus::class)
     val feilkode = enumerationByName("feilkode", 255, Valideringsfeil.Feilkode::class).nullable()

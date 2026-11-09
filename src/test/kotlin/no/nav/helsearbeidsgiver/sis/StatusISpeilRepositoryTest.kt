@@ -8,7 +8,7 @@ import no.nav.helsearbeidsgiver.kafka.sis.Behandlingstatusmelding
 import no.nav.helsearbeidsgiver.kafka.sis.SisEventName
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.TransactionalExtension
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

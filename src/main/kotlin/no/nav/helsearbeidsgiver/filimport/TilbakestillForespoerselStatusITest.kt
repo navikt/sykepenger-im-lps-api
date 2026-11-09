@@ -2,14 +2,15 @@ package no.nav.helsearbeidsgiver.filimport
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import no.nav.hag.utils.bakgrunnsjobb.LeaderConfig
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.forespoersel.ForespoerselRepository
-import no.nav.helsearbeidsgiver.utils.LeaderConfig
 import no.nav.helsearbeidsgiver.utils.NaisLeaderConfig
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.time.Duration.Companion.milliseconds
 
 private val log = LoggerFactory.getLogger("TilbakestillForespoerselStatusITest")
 private val KJORETIDSPUNKT: LocalTime = LocalTime.of(23, 0)
@@ -23,7 +24,7 @@ class TilbakestillForespoerselStatusITest(
     private val leaderConfig: LeaderConfig = NaisLeaderConfig,
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO),
     delayMillis: Long = 60 * 1000L,
-) : RecurringJob(coroutineScope, delayMillis) {
+) : RecurringJob(delayMillis.milliseconds, coroutineScope) {
     private var sistKjortDato: LocalDate? = null
 
     @Synchronized
