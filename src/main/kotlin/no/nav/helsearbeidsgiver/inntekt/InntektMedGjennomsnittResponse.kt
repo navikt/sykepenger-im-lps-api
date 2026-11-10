@@ -26,10 +26,10 @@ data class InntektMedGjennomsnittResponse(
             inntekt.values
                 .map { BigDecimal.valueOf(it ?: 0.0) }
                 .fold(BigDecimal.ZERO, BigDecimal::add)
-        val harVerdi = inntekt.values.filterNotNull().size
-        if (harVerdi == 0) return 0.0
+        val antallMaanederMedInntekt = inntekt.values.filterNotNull().size
+        if (antallMaanederMedInntekt == 0) return 0.0
         return sum
-            .divide(BigDecimal.valueOf(harVerdi.toLong()), 2, RoundingMode.HALF_UP)
+            .divide(BigDecimal.valueOf(antallMaanederMedInntekt.toLong()), 2, RoundingMode.HALF_UP)
             .toDouble()
     }
 }
