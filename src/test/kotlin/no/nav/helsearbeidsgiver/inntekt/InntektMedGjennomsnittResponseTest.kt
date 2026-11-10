@@ -21,7 +21,7 @@ class InntektMedGjennomsnittResponseTest {
     }
 
     @Test
-    fun `deler pa antall maneder når en verdi er null`() {
+    fun `deler pa riktig antall maneder når en verdi er null`() {
         val inntektMedGjennomsnittResponse =
             InntektMedGjennomsnittResponse(
                 inntektPerMaaned =
@@ -32,7 +32,7 @@ class InntektMedGjennomsnittResponseTest {
                     ),
             )
 
-        assertEquals(133.33, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
+        assertEquals(200.0, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
     }
 
     @Test
@@ -51,7 +51,7 @@ class InntektMedGjennomsnittResponseTest {
     }
 
     @Test
-    fun `deler på faktisk antall maneder når antall er ulikt 3`() {
+    fun `deler på faktisk antall måneder med verdi når antall er ulikt 3`() {
         val inntektMedGjennomsnittResponse =
             InntektMedGjennomsnittResponse(
                 inntektPerMaaned =
@@ -61,7 +61,7 @@ class InntektMedGjennomsnittResponseTest {
                     ),
             )
 
-        assertEquals(50.0, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
+        assertEquals(100.0, inntektMedGjennomsnittResponse.gjennomsnittAvMaaneder)
     }
 
     @Test
