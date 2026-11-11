@@ -22,8 +22,6 @@ data class RefusjonUtfallResponse(
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,
-    val sykepengegrunnlag: Double,
-    val utfallTilArbeidsgiver: Utfall,
     val fattetTidspunkt: LocalDateTime,
 )
 
@@ -36,7 +34,5 @@ fun RefusjonUtfall.tilRefusjonUtfallResponse(loepenr: Long): RefusjonUtfallRespo
         orgnr = orgnr,
         fom = fom,
         tom = tom,
-        sykepengegrunnlag = sykepengegrunnlag,
-        utfallTilArbeidsgiver = utfallTilArbeidsgiver,
         fattetTidspunkt = arbeidstakervedtakFattetTidspunkt,
     )
