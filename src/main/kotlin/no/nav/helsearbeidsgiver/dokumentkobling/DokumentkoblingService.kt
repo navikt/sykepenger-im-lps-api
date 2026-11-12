@@ -163,18 +163,11 @@ class DokumentkoblingService(
     }
 
     fun produserVedtakKobling(refusjonUtfall: RefusjonUtfall) {
-        val melding = refusjonUtfall.arbeidstakerVedtakMelding
         val vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId
 
         val sykmeldingId = refusjonUtfall.sykmeldingId
 
-        val sykmeldingId = melding.dokumenter.firstOrNull { it.type == Dokument.Type.Sykmelding }?.dokumentId
-        val inntektsmeldingId =
-            melding.dokumenter
-                .filter { it.type == Dokument.Type.Inntektsmelding }
-                .mapNotNull { repositories.inntektsmeldingRepository.hentMedInnsendingId(it.dokumentId) }
-                .maxByOrNull { it.innsendtTid }
-                ?.id
+        val inntektsmeldingId = refusjonUtfall.inntektsmeldingIder.firstOrNull()
 
         if (inntektsmeldingId == null) { // TODO: Dette burde nok endres, send likevel
             logger.warn(

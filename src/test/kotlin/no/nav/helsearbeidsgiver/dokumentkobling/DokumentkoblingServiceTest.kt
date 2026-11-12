@@ -13,7 +13,6 @@ import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.domene.inntektsmelding.v1.Inntektsmelding
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
 import no.nav.helsearbeidsgiver.pdl.domene.PersonNavn
-import no.nav.helsearbeidsgiver.refusjon.Dokument
 import no.nav.helsearbeidsgiver.refusjon.refusjonUtfallMock
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.sykmelding.SykmeldingStatusKafkaEventDTO.ArbeidsgiverStatusDTO
@@ -179,39 +178,37 @@ class DokumentkoblingServiceTest {
     }
 
     @Test
-    fun `dokumentkoblingService kaller dokumentkoblingProducer ved mottatt refusjonsutfall`() {
+    fun `dokumentkoblingService velger første IM og kaller dokumentkoblingProducer ved mottatt refusjonsutfall`() {
         coEvery { mockDokumentkoblingProducer.send(any()) } just Runs
-        val inntektsmeldingId = UUID.randomUUID()
-        val refusjonUtfall = refusjonUtfallMock()
-        val refusjonUtfallMedDokumenter =
-            refusjonUtfall.copy(
-                arbeidstakerVedtakMelding =
-                    refusjonUtfall.arbeidstakerVedtakMelding.copy(
-                        harArbeidsgiverOensketRefusjon = true,
-                        dokumenter =
-                            listOf(
-                                Dokument(sykmeldingId, Dokument.Type.Sykmelding),
-                                Dokument(inntektsmeldingId, Dokument.Type.Inntektsmelding),
-                            ),
-                    ),
+        val refusjonUtfallMedInntektsmelding =
+            refusjonUtfallMock().copy(
+                sykmeldingId = sykmeldingId,
             )
-        every { dokumentkoblingService.repositories.inntektsmeldingRepository.hentMedInnsendingId(inntektsmeldingId) } returns
-            mockk {
-                every { id } returns inntektsmeldingId
-                every { innsendtTid } returns LocalDateTime.now()
-            }
 
-        dokumentkoblingService.produserVedtakKobling(refusjonUtfallMedDokumenter)
+        dokumentkoblingService.produserVedtakKobling(refusjonUtfallMedInntektsmelding)
 
         verifySequence {
             mockDokumentkoblingProducer.send(
                 Vedtak(
-                    vedtakId = refusjonUtfall.refusjonUtfallId,
+                    vedtakId = refusjonUtfallMedInntektsmelding.refusjonUtfallId,
                     sykmeldingId = sykmeldingId,
-                    inntektsmeldingId = inntektsmeldingId,
-                    orgnr = refusjonUtfall.orgnr,
+                    inntektsmeldingId = refusjonUtfallMedInntektsmelding.inntektsmeldingIder.first(),
+                    orgnr = refusjonUtfallMedInntektsmelding.orgnr,
                 ),
             )
+        }
+    }
+
+    @Test
+    fun `dokumentkoblingService kaller _IKKE_ dokumentkoblingProducer ved mottatt refusjonsutfall som mangler Inntektsmelding`() {
+        val refusjonUtfall =
+            refusjonUtfallMock().copy(
+                inntektsmeldingIder = emptyList(),
+            )
+        dokumentkoblingService.produserVedtakKobling(refusjonUtfall)
+
+        verify(exactly = 0) {
+            mockDokumentkoblingProducer.send(any())
         }
     }
 

@@ -21,6 +21,7 @@ data class RefusjonUtfall(
     val refusjonUtfallId: UUID,
     val vedtaksperiodeId: UUID,
     val sykmeldingId: UUID,
+    val inntektsmeldingIder: List<UUID>,
     val fnr: Fnr,
     val orgnr: Orgnr,
     val fom: LocalDate,
