@@ -25,7 +25,6 @@ data class RefusjonUtfall(
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,
-    val sykepengegrunnlag: Double,
     val arbeidstakervedtakFattetTidspunkt: LocalDateTime,
     val arbeidstakerVedtakMelding: ArbeidstakerVedtakMelding,
     val beloepUtbetaltTilArbeidsgiver: Int,

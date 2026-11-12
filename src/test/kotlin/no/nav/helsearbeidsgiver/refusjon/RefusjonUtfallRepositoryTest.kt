@@ -52,7 +52,7 @@ class RefusjonUtfallRepositoryTest {
     @Test
     fun `lagreRefusjonUtfall skal kaste feil og ikke overskrive ved duplikat refusjonUtfallId`() {
         val refusjonUtfall = refusjonUtfallMock()
-        val duplikat = refusjonUtfall.copy(sykepengegrunnlag = refusjonUtfall.sykepengegrunnlag + 1000.0)
+        val duplikat = refusjonUtfall.copy(beloepUtbetaltTilArbeidsgiver = refusjonUtfall.beloepUtbetaltTilArbeidsgiver + 1000)
 
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         assertThrows<ExposedSQLException> { refusjonUtfallRepository.lagreRefusjonUtfall(duplikat) }
