@@ -11,6 +11,7 @@ fun refusjonUtfallMock(): RefusjonUtfall =
     RefusjonUtfall(
         refusjonUtfallId = UUID.randomUUID(),
         vedtaksperiodeId = UUID.randomUUID(),
+        sykmeldingId = UUID.randomUUID(),
         fnr = Fnr("10107400090"),
         orgnr = Orgnr("896929119"),
         fom = LocalDate.of(2026, 7, 28),

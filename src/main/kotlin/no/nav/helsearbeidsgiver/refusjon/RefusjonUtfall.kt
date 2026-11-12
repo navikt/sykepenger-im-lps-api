@@ -15,10 +15,12 @@ import java.util.UUID
 
 // Speiler RefusjonUtfall i hag-refusjon (melding på helsearbeidsgiver.refusjon). Feltnavn må holdes like.
 // TODO: Få med SøknadID? Skal vi også lese daggrupper og refusjonskrav? (Venter litt med dette)
+// TODO: fjern arbeidstakerVedtakMelding
 @Serializable
 data class RefusjonUtfall(
     val refusjonUtfallId: UUID,
     val vedtaksperiodeId: UUID,
+    val sykmeldingId: UUID,
     val fnr: Fnr,
     val orgnr: Orgnr,
     val fom: LocalDate,

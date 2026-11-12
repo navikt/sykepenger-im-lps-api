@@ -46,6 +46,7 @@ class RefusjonUtfallTolkerTest {
             RefusjonUtfall(
                 refusjonUtfallId = UUID.fromString("5f1e7a3c-0b2d-4c8e-9a6f-1d2e3f4a5b6c"),
                 vedtaksperiodeId = UUID.fromString("c62594af-f0b8-4fd1-88f2-07e1b15dd906"),
+                sykmeldingId = UUID.fromString("c62594af-f0b8-4fd1-88f2-07e1b15dd902"),
                 fnr = FNR,
                 orgnr = Orgnr("896929119"),
                 fom = LocalDate.of(2026, 7, 28),
@@ -84,6 +85,7 @@ private val REFUSJON_UTFALL_MELDING =
     {
       "refusjonUtfallId": "5f1e7a3c-0b2d-4c8e-9a6f-1d2e3f4a5b6c",
       "vedtaksperiodeId": "c62594af-f0b8-4fd1-88f2-07e1b15dd906",
+      "sykmeldingId": "c62594af-f0b8-4fd1-88f2-07e1b15dd902",
       "fnr": "$FNR",
       "orgnr": "896929119",
       "fom": "2026-07-28",
