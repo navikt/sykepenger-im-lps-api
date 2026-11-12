@@ -92,6 +92,33 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
+    fun `hentRefusjonUtfallMetadata skal hente metadata med refusjonUtfallId`() {
+        val refusjonUtfall = refusjonUtfallMock()
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
+
+        val rad = hentRader(refusjonUtfall.refusjonUtfallId).single()
+
+        val metadata = refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfall.refusjonUtfallId)
+
+        metadata shouldBe
+            RefusjonUtfallMetadata(
+                refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
+                vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId,
+                fnr = refusjonUtfall.fnr,
+                orgnr = refusjonUtfall.orgnr,
+                opprettet = rad[RefusjonUtfallEntitet.opprettet],
+            )
+    }
+
+    @Test
+    fun `hentRefusjonUtfallMetadata skal returnere null naar refusjonsutfallet ikke finnes`() {
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
+
+        refusjonUtfallRepository.hentRefusjonUtfallMetadata(UUID.randomUUID()) shouldBe null
+    }
+
+    @Test
     fun `hentRefusjonUtfall med filter skal kun hente refusjonsutfall for oppgitt orgnr`() {
         val refusjonUtfall = refusjonUtfallMock()
         val annetOrgnr = refusjonUtfallMock().copy(orgnr = Orgnr("810007842"))

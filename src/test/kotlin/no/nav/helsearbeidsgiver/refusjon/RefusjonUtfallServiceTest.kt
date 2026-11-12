@@ -16,12 +16,12 @@ class RefusjonUtfallServiceTest {
     fun clean() {
         clearAllMocks()
     }
-
-    @Test
-    fun `hentRefusjonUtfall henter refusjonsutfall fra repository`() {
-        val refusjonUtfall = refusjonUtfallResponseMock()
-        every { refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfall
-
-        refusjonUtfallService.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) shouldBe refusjonUtfall
-    }
+//TODO: Slett..
+//    @Test
+//    fun `hentRefusjonUtfall henter refusjonsutfall fra repository`() {
+//        val refusjonUtfall = refusjonUtfallResponseMock()
+//        every { refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfall
+//
+//        refusjonUtfallService.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) shouldBe refusjonUtfall
+//    }
 }

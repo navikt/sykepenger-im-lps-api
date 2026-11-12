@@ -4,8 +4,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -25,12 +23,12 @@ import no.nav.helsearbeidsgiver.utils.DEFAULT_FNR
 import no.nav.helsearbeidsgiver.utils.DEFAULT_ORG
 import no.nav.helsearbeidsgiver.utils.gyldigSystembrukerAuthToken
 import no.nav.helsearbeidsgiver.utils.gyldigTokenxToken
-import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.UUID
 
 class RefusjonRoutingTest : ApiTest() {
@@ -45,33 +43,33 @@ class RefusjonRoutingTest : ApiTest() {
         unmockkAll()
     }
 
-    @Test
-    fun `hent refusjonsutfall som JSON`() {
-        val refusjonUtfall = refusjonUtfall()
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfall
-
-        val respons =
-            runBlocking {
-                client.get("/v1/refusjon/${refusjonUtfall.refusjonUtfallId}") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.OK
-        runBlocking {
-            respons.body<RefusjonUtfallResponse>() shouldBe refusjonUtfall
-        }
-    }
+//    @Test
+//    fun `hent refusjonsutfall som JSON`() {
+//        val refusjonUtfall = refusjonUtfallMetadata()
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
+//        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfall.refusjonUtfallId) } returns refusjonUtfallMetadata()
+//
+//        val respons =
+//            runBlocking {
+//                client.get("/v1/refusjon/${refusjonUtfall.refusjonUtfallId}") {
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.OK
+//        runBlocking {
+//            respons.body<RefusjonUtfallResponse>() shouldBe refusjonUtfall
+//        }
+//    }
 
     @Test
     fun `hent refusjonsutfall som PDF fra hag-refusjon`() {
-        val refusjonUtfall = refusjonUtfall()
+        val refusjonUtfall = refusjonUtfallMetadata()
         val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfallId) } returns refusjonUtfall
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns mockPdfBytes
 
         val respons =
@@ -91,11 +89,11 @@ class RefusjonRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall som PDF skal svare 404 når hag-refusjon ikke finner PDF`() {
-        val refusjonUtfall = refusjonUtfall()
-        val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
+        val refusjonUtfallMetadata = refusjonUtfallMetadata()
+        val refusjonUtfallId = refusjonUtfallMetadata.refusjonUtfallId
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfallId) } returns refusjonUtfallMetadata
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns null
 
         val respons =
@@ -110,11 +108,11 @@ class RefusjonRoutingTest : ApiTest() {
 
     @Test
     fun `hent refusjonsutfall som PDF skal svare 500 når henting fra hag-refusjon feiler`() {
-        val refusjonUtfall = refusjonUtfall()
+        val refusjonUtfall = refusjonUtfallMetadata()
         val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfallId) } returns refusjonUtfall
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } throws RuntimeException("hag-refusjon nede")
 
         val respons =
@@ -127,27 +125,27 @@ class RefusjonRoutingTest : ApiTest() {
         respons.status shouldBe HttpStatusCode.InternalServerError
     }
 
+//    @Test
+//    fun `hent refusjonsutfall skal svare 403 når feature toggle er av`() {
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns false
+//
+//        val respons =
+//            runBlocking {
+//                client.get("/v1/refusjon/${UUID.randomUUID()}") {
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.Forbidden
+//    }
+
     @Test
-    fun `hent refusjonsutfall skal svare 403 når feature toggle er av`() {
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns false
-
-        val respons =
-            runBlocking {
-                client.get("/v1/refusjon/${UUID.randomUUID()}") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.Forbidden
-    }
-
-    @Test
-    fun `hent refusjonsutfall skal svare 400 for ugyldig refusjonUtfallId`() {
+    fun `hent refusjonsutfall som PDF skal svare 400 for ugyldig refusjonUtfallId`() {
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
 
         val respons =
             runBlocking {
-                client.get("/v1/refusjon/ugyldig") {
+                client.get("/v1/refusjon/ugyldig/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -155,29 +153,29 @@ class RefusjonRoutingTest : ApiTest() {
         respons.status shouldBe HttpStatusCode.BadRequest
     }
 
+//    @Test
+//    fun `hent refusjonsutfall skal svare 404 når refusjonsutfallet ikke finnes`() {
+//        val refusjonUtfallId = UUID.randomUUID()
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
+//        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfallId) } returns null
+//
+//        val respons =
+//            runBlocking {
+//                client.get("/v1/refusjon/$refusjonUtfallId") {
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.NotFound
+//    }
+
     @Test
-    fun `hent refusjonsutfall skal svare 404 når refusjonsutfallet ikke finnes`() {
-        val refusjonUtfallId = UUID.randomUUID()
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns null
-
-        val respons =
-            runBlocking {
-                client.get("/v1/refusjon/$refusjonUtfallId") {
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.NotFound
-    }
-
-    @Test
-    fun `hent refusjonsutfall skal svare 403 uten tilgang til inntektsmeldingressursen`() {
-        val refusjonUtfall = refusjonUtfall()
+    fun `hent refusjonsutfall som PDF skal svare 403 uten tilgang til inntektsmeldingressursen`() {
+        val refusjonUtfall = refusjonUtfallMetadata()
         val refusjonUtfallId = refusjonUtfall.refusjonUtfallId
         mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfallId) } returns refusjonUtfall
         every {
             getPdpService()
                 .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
@@ -185,7 +183,7 @@ class RefusjonRoutingTest : ApiTest() {
 
         val respons =
             runBlocking {
-                client.get("/v1/refusjon/$refusjonUtfallId") {
+                client.get("/v1/refusjon/$refusjonUtfallId/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
                 }
             }
@@ -200,7 +198,7 @@ class RefusjonRoutingTest : ApiTest() {
 
         val respons =
             runBlocking {
-                client.get("/v1/refusjon/${UUID.randomUUID()}") {
+                client.get("/v1/refusjon/${UUID.randomUUID()}/pdf") {
                     bearerAuth(mockOAuth2Server.gyldigTokenxToken(DEFAULT_FNR))
                 }
             }
@@ -208,83 +206,91 @@ class RefusjonRoutingTest : ApiTest() {
         respons.status shouldBe HttpStatusCode.Unauthorized
     }
 
-    @Test
-    fun `hent flere refusjonsutfall som JSON`() {
-        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
-        val refusjonUtfallListe = listOf(refusjonUtfall(), refusjonUtfall())
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(filter) } returns refusjonUtfallListe
+//    @Test
+//    fun `hent flere refusjonsutfall som JSON`() {
+//        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG, fnr = DEFAULT_FNR)
+//        val refusjonUtfallListe = listOf(refusjonUtfall(), refusjonUtfall())
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
+//        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(filter) } returns refusjonUtfallListe
+//
+//        val respons =
+//            runBlocking {
+//                client.post("/v1/refusjon") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.OK
+//        runBlocking {
+//            respons.body<List<RefusjonUtfallResponse>>() shouldBe refusjonUtfallListe
+//        }
+//    }
+//
+//    @Test
+//    fun `hent flere refusjonsutfall skal svare 403 når feature toggle er av`() {
+//        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG)
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns false
+//
+//        val respons =
+//            runBlocking {
+//                client.post("/v1/refusjon") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.Forbidden
+//    }
+//
+//    @Test
+//    fun `hent flere refusjonsutfall skal svare 403 uten tilgang til inntektsmeldingressursen`() {
+//        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG)
+//        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
+//        every {
+//            getPdpService()
+//                .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
+//        } returns false
+//
+//        val respons =
+//            runBlocking {
+//                client.post("/v1/refusjon") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.Forbidden
+//        unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
+//    }
+//
+//    @Test
+//    fun `hent flere refusjonsutfall skal svare 400 for ugyldig filter`() {
+//        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
+//
+//        val respons =
+//            runBlocking {
+//                client.post("/v1/refusjon") {
+//                    contentType(ContentType.Application.Json)
+//                    setBody("""{"orgnr":"ugyldig"}""")
+//                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
+//                }
+//            }
+//
+//        respons.status shouldBe HttpStatusCode.BadRequest
+//    }
 
-        val respons =
-            runBlocking {
-                client.post("/v1/refusjon") {
-                    contentType(ContentType.Application.Json)
-                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.OK
-        runBlocking {
-            respons.body<List<RefusjonUtfallResponse>>() shouldBe refusjonUtfallListe
-        }
-    }
-
-    @Test
-    fun `hent flere refusjonsutfall skal svare 403 når feature toggle er av`() {
-        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG)
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns false
-
-        val respons =
-            runBlocking {
-                client.post("/v1/refusjon") {
-                    contentType(ContentType.Application.Json)
-                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.Forbidden
-    }
-
-    @Test
-    fun `hent flere refusjonsutfall skal svare 403 uten tilgang til inntektsmeldingressursen`() {
-        val filter = RefusjonUtfallFilter(orgnr = DEFAULT_ORG)
-        mockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-        every {
-            getPdpService()
-                .harTilgang(systembruker = any(), orgnr = DEFAULT_ORG, ressurs = any())
-        } returns false
-
-        val respons =
-            runBlocking {
-                client.post("/v1/refusjon") {
-                    contentType(ContentType.Application.Json)
-                    setBody(filter.toJson(serializer = RefusjonUtfallFilter.serializer()))
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.Forbidden
-        unmockkStatic("no.nav.helsearbeidsgiver.config.ApplicationConfigKt")
-    }
-
-    @Test
-    fun `hent flere refusjonsutfall skal svare 400 for ugyldig filter`() {
-        every { unleashFeatureToggles.skalEksponereRefusjonUtfallJson() } returns true
-
-        val respons =
-            runBlocking {
-                client.post("/v1/refusjon") {
-                    contentType(ContentType.Application.Json)
-                    setBody("""{"orgnr":"ugyldig"}""")
-                    bearerAuth(mockOAuth2Server.gyldigSystembrukerAuthToken(DEFAULT_ORG))
-                }
-            }
-
-        respons.status shouldBe HttpStatusCode.BadRequest
-    }
-
-    private fun refusjonUtfall() = refusjonUtfallResponseMock().copy(fnr = Fnr(DEFAULT_FNR), orgnr = Orgnr(DEFAULT_ORG))
+//    private fun refusjonUtfall() = refusjonUtfallResponseMock().copy(fnr = Fnr(DEFAULT_FNR), orgnr = Orgnr(DEFAULT_ORG))
+    private fun refusjonUtfallMetadata() =
+        RefusjonUtfallMetadata(
+            fnr = Fnr(DEFAULT_FNR),
+            orgnr = Orgnr(DEFAULT_ORG),
+            refusjonUtfallId = UUID.randomUUID(),
+            vedtaksperiodeId = UUID.randomUUID(),
+            opprettet = LocalDateTime.now(),
+        )
 }

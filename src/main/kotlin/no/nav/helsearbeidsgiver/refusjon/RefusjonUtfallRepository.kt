@@ -41,6 +41,15 @@ class RefusjonUtfallRepository(
         }
     }
 
+    fun hentRefusjonUtfallMetadata(refusjonUtfallId: UUID): RefusjonUtfallMetadata? =
+        transaction(db) {
+            RefusjonUtfallMetadataEntitet
+                .selectAll()
+                .where { RefusjonUtfallMetadataEntitet.refusjonUtfallId eq refusjonUtfallId }
+                .map { it.tilMetadata() }
+                .firstOrNull()
+        }
+
     fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfallResponse? =
         transaction(db) {
             RefusjonUtfallEntitet
