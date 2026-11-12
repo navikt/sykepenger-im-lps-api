@@ -16,7 +16,7 @@ class RefusjonUtfallServiceTest {
     fun clean() {
         clearAllMocks()
     }
-//TODO: Slett..
+// TODO: Slett..
 //    @Test
 //    fun `hentRefusjonUtfall henter refusjonsutfall fra repository`() {
 //        val refusjonUtfall = refusjonUtfallResponseMock()

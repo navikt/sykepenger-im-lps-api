@@ -27,6 +27,7 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.UUID
 
 class RefusjonTokenXRoutingTest : ApiTest() {
@@ -46,16 +47,17 @@ class RefusjonTokenXRoutingTest : ApiTest() {
         val refusjonUtfallId = UUID.randomUUID()
         val mockPdfBytes = "Mock PDF innhold".toByteArray()
         val refusjonUtfall =
-            refusjonUtfallResponseMock()
-                .copy(
-                    refusjonUtfallId = refusjonUtfallId,
-                    fnr = Fnr(DEFAULT_FNR),
-                    orgnr = Orgnr(DEFAULT_ORG),
-                )
+            RefusjonUtfallMetadata(
+                refusjonUtfallId = refusjonUtfallId,
+                fnr = Fnr(DEFAULT_FNR),
+                orgnr = Orgnr(DEFAULT_ORG),
+                vedtaksperiodeId = UUID.randomUUID(),
+                opprettet = LocalDateTime.now(),
+            )
 
         mockkObject(services.refusjonUtfallService)
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns true
-        every { repositories.refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId) } returns refusjonUtfall
+        every { repositories.refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfallId) } returns refusjonUtfall
         coEvery { services.refusjonUtfallService.hentRefusjonUtfallPdf(refusjonUtfallId) } returns mockPdfBytes
 
         runBlocking {

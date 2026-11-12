@@ -13,10 +13,8 @@ class RefusjonUtfallService(
     suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? = refusjonKlient.hentRefusjonUtfallPdf(refusjonUtfallId)
 
     // Vil feile på gamle payloads!
-    /*
-    fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfallResponse? = refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)
 
-    fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfallResponse> = refusjonUtfallRepository.hentRefusjonUtfall(filter)
+    // fun hentRefusjonUtfall(refusjonUtfallId: UUID): RefusjonUtfallResponse? = refusjonUtfallRepository.hentRefusjonUtfall(refusjonUtfallId)
 
-     */
+    // fun hentRefusjonUtfall(filter: RefusjonUtfallFilter): List<RefusjonUtfallResponse> = refusjonUtfallRepository.hentRefusjonUtfall(filter)
 }
