@@ -166,13 +166,7 @@ class DokumentkoblingService(
         val melding = refusjonUtfall.arbeidstakerVedtakMelding
         val vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId
 
-        if (!melding.harArbeidsgiverOensketRefusjon) {
-            logger.info(
-                "Sender _ikke_ melding på helsearbeidsgiver.dokument-kobling for refusjonsutfall med vedtaksperiodeId " +
-                    "$vedtaksperiodeId, fordi arbeidsgiver ikke har ønsket refusjon.",
-            )
-            return
-        }
+        val sykmeldingId = refusjonUtfall.sykmeldingId
 
         val sykmeldingId = melding.dokumenter.firstOrNull { it.type == Dokument.Type.Sykmelding }?.dokumentId
         val inntektsmeldingId =
@@ -182,9 +176,9 @@ class DokumentkoblingService(
                 .maxByOrNull { it.innsendtTid }
                 ?.id
 
-        if (sykmeldingId == null || inntektsmeldingId == null) {
+        if (inntektsmeldingId == null) { // TODO: Dette burde nok endres, send likevel
             logger.warn(
-                "Mangler sykmeldingId og/eller inntektsmeldingId for refusjonsutfall med vedtaksperiodeId " +
+                "Mangler inntektsmeldingId for refusjonsutfall med vedtaksperiodeId " +
                     "$vedtaksperiodeId (sykmeldingId=$sykmeldingId, inntektsmeldingId=$inntektsmeldingId), " +
                     "sender ikke melding på helsearbeidsgiver.dokument-kobling.",
             )
