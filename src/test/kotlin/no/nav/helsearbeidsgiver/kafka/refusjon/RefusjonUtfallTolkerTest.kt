@@ -10,11 +10,8 @@ import io.mockk.slot
 import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
-import no.nav.helsearbeidsgiver.refusjon.ArbeidstakerVedtakMelding
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
-import no.nav.helsearbeidsgiver.utils.TestData
-import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -53,7 +50,6 @@ class RefusjonUtfallTolkerTest {
                 fom = LocalDate.of(2026, 7, 28),
                 tom = LocalDate.of(2026, 8, 3),
                 arbeidstakervedtakFattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
-                arbeidstakerVedtakMelding = KAFKA_MELDING.fromJson(ArbeidstakerVedtakMelding.serializer()),
                 beloepUtbetaltTilArbeidsgiver = 154999,
             )
         verify(exactly = 1) { dokumentkoblingService.produserVedtakKobling(lagretRefusjonUtfall.captured) }
@@ -78,8 +74,6 @@ class RefusjonUtfallTolkerTest {
 
 private val FNR = Fnr.genererGyldig()
 
-private val KAFKA_MELDING = TestData.STATUS_I_SPLEIS_VEDTAK_MELDING.replace("%%%FNR%%%", FNR.verdi)
-
 private val REFUSJON_UTFALL_MELDING =
     """
     {
@@ -93,7 +87,6 @@ private val REFUSJON_UTFALL_MELDING =
       "tom": "2026-08-03",
       "sykepengegrunnlag": 154999.92,
       "arbeidstakervedtakFattetTidspunkt": "2026-08-05T13:03:25.166498222",
-      "arbeidstakerVedtakMelding": $KAFKA_MELDING,
       "beloepUtbetaltTilArbeidsgiver": 154999
     }
     """.trimIndent()
