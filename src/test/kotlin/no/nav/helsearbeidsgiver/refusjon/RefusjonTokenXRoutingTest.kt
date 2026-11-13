@@ -116,7 +116,7 @@ class RefusjonTokenXRoutingTest : ApiTest() {
     }
 
     @Test
-    fun `hent refusjonsutfall PDF skal svare 403 naar feature toggle er av`() {
+    fun `hent refusjonsutfall PDF skal svare 403 når feature toggle er av`() {
         every { unleashFeatureToggles.skalEksponereRefusjonUtfallPdf() } returns false
 
         runBlocking {
