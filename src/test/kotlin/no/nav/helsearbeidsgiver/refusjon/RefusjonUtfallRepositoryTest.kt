@@ -52,7 +52,7 @@ class RefusjonUtfallRepositoryTest {
     @Test
     fun `lagreRefusjonUtfall skal kaste feil og ikke overskrive ved duplikat refusjonUtfallId`() {
         val refusjonUtfall = refusjonUtfallMock()
-        val duplikat = refusjonUtfall.copy(sykepengegrunnlag = refusjonUtfall.sykepengegrunnlag + 1000.0)
+        val duplikat = refusjonUtfall.copy(beloepUtbetaltTilArbeidsgiver = refusjonUtfall.beloepUtbetaltTilArbeidsgiver + 1000)
 
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         assertThrows<ExposedSQLException> { refusjonUtfallRepository.lagreRefusjonUtfall(duplikat) }
@@ -89,6 +89,33 @@ class RefusjonUtfallRepositoryTest {
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
 
         refusjonUtfallRepository.hentRefusjonUtfall(UUID.randomUUID()) shouldBe null
+    }
+
+    @Test
+    fun `hentRefusjonUtfallMetadata skal hente metadata med refusjonUtfallId`() {
+        val refusjonUtfall = refusjonUtfallMock()
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
+
+        val rad = hentRader(refusjonUtfall.refusjonUtfallId).single()
+
+        val metadata = refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfall.refusjonUtfallId)
+
+        metadata shouldBe
+            RefusjonUtfallMetadata(
+                refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
+                vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId,
+                fnr = refusjonUtfall.fnr,
+                orgnr = refusjonUtfall.orgnr,
+                opprettet = rad[RefusjonUtfallEntitet.opprettet],
+            )
+    }
+
+    @Test
+    fun `hentRefusjonUtfallMetadata skal returnere null når refusjonsutfallet ikke finnes`() {
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
+
+        refusjonUtfallRepository.hentRefusjonUtfallMetadata(UUID.randomUUID()) shouldBe null
     }
 
     @Test

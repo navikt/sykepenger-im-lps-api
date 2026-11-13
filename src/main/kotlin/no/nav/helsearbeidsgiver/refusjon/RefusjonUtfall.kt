@@ -14,25 +14,17 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 // Speiler RefusjonUtfall i hag-refusjon (melding på helsearbeidsgiver.refusjon). Feltnavn må holdes like.
+// TODO: Få med SøknadID? Skal vi også lese daggrupper og refusjonskrav? (Venter litt med dette)
 @Serializable
 data class RefusjonUtfall(
     val refusjonUtfallId: UUID,
     val vedtaksperiodeId: UUID,
+    val sykmeldingId: UUID,
+    val inntektsmeldingIder: List<UUID>,
     val fnr: Fnr,
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,
-    val sykepengegrunnlag: Double,
-    val utfallTilArbeidsgiver: Utfall,
     val arbeidstakervedtakFattetTidspunkt: LocalDateTime,
-    val sykmeldtNavn: String? = null,
-    val arbeidsgiverNavn: String? = null,
-    val arbeidstakerVedtakMelding: ArbeidstakerVedtakMelding,
+    val beloepUtbetaltTilArbeidsgiver: Int,
 )
-
-@Serializable
-enum class Utfall {
-    AVSLAG,
-    DELVIS_INNVILGELSE,
-    INNVILGELSE,
-}

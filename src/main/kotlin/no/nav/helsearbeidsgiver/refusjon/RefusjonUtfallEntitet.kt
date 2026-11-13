@@ -20,3 +20,12 @@ object RefusjonUtfallEntitet : Table("refusjon_utfall") {
         )
     val opprettet = datetime("opprettet")
 }
+
+// Henter fra database uten å parse json-payload
+object RefusjonUtfallMetadataEntitet : Table("refusjon_utfall") {
+    val refusjonUtfallId = javaUUID("refusjon_utfall_id")
+    val vedtaksperiodeId = javaUUID("vedtaksperiode_id")
+    val fnr = text("fnr")
+    val orgnr = text("orgnr")
+    val opprettet = datetime("opprettet")
+}

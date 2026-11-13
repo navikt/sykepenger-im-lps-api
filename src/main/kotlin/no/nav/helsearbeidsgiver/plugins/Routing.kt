@@ -26,7 +26,6 @@ import no.nav.helsearbeidsgiver.inntekt.inntektV1
 import no.nav.helsearbeidsgiver.inntektsmelding.inntektsmeldingV1
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.refusjon.refusjonTokenX
-import no.nav.helsearbeidsgiver.refusjon.refusjonV1
 import no.nav.helsearbeidsgiver.soeknad.soeknadTokenX
 import no.nav.helsearbeidsgiver.soeknad.soeknadV1
 import no.nav.helsearbeidsgiver.sykmelding.sykmeldingTokenX
@@ -49,7 +48,6 @@ fun Application.configureRouting(
             forespoerselV1(forespoerselService = services.forespoerselService)
             sykmeldingV1(sykmeldingService = services.sykmeldingService)
             soeknadV1(soeknadService = services.soeknadService)
-            refusjonV1(refusjonUtfallService = services.refusjonUtfallService, unleashFeatureToggles = unleashFeatureToggles)
         }
         authenticate("tokenx-config") {
             sykmeldingTokenX(sykmeldingService = services.sykmeldingService)

@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -22,8 +23,6 @@ data class RefusjonUtfallResponse(
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,
-    val sykepengegrunnlag: Double,
-    val utfallTilArbeidsgiver: Utfall,
     val fattetTidspunkt: LocalDateTime,
 )
 
@@ -36,7 +35,22 @@ fun RefusjonUtfall.tilRefusjonUtfallResponse(loepenr: Long): RefusjonUtfallRespo
         orgnr = orgnr,
         fom = fom,
         tom = tom,
-        sykepengegrunnlag = sykepengegrunnlag,
-        utfallTilArbeidsgiver = utfallTilArbeidsgiver,
         fattetTidspunkt = arbeidstakervedtakFattetTidspunkt,
+    )
+
+data class RefusjonUtfallMetadata(
+    val refusjonUtfallId: UUID,
+    val vedtaksperiodeId: UUID,
+    val fnr: Fnr,
+    val orgnr: Orgnr,
+    val opprettet: LocalDateTime,
+)
+
+fun ResultRow.tilMetadata(): RefusjonUtfallMetadata =
+    RefusjonUtfallMetadata(
+        refusjonUtfallId = this[RefusjonUtfallMetadataEntitet.refusjonUtfallId],
+        vedtaksperiodeId = this[RefusjonUtfallMetadataEntitet.vedtaksperiodeId],
+        fnr = Fnr(this[RefusjonUtfallMetadataEntitet.fnr]),
+        orgnr = Orgnr(this[RefusjonUtfallMetadataEntitet.orgnr]),
+        opprettet = this[RefusjonUtfallMetadataEntitet.opprettet],
     )

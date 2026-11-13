@@ -8,7 +8,6 @@ import no.nav.helsearbeidsgiver.inntektsmelding.AvvistInntektsmelding
 import no.nav.helsearbeidsgiver.inntektsmelding.InnsendingType
 import no.nav.helsearbeidsgiver.kafka.forespoersel.pri.ForespoerselDokument
 import no.nav.helsearbeidsgiver.pdl.domene.FullPerson
-import no.nav.helsearbeidsgiver.refusjon.Dokument
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
 import no.nav.helsearbeidsgiver.sykmelding.SendSykmeldingAivenKafkaMessage
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -163,28 +162,15 @@ class DokumentkoblingService(
     }
 
     fun produserVedtakKobling(refusjonUtfall: RefusjonUtfall) {
-        val melding = refusjonUtfall.arbeidstakerVedtakMelding
         val vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId
 
-        if (!melding.harArbeidsgiverOensketRefusjon) {
-            logger.info(
-                "Sender _ikke_ melding på helsearbeidsgiver.dokument-kobling for refusjonsutfall med vedtaksperiodeId " +
-                    "$vedtaksperiodeId, fordi arbeidsgiver ikke har ønsket refusjon.",
-            )
-            return
-        }
+        val sykmeldingId = refusjonUtfall.sykmeldingId
 
-        val sykmeldingId = melding.dokumenter.firstOrNull { it.type == Dokument.Type.Sykmelding }?.dokumentId
-        val inntektsmeldingId =
-            melding.dokumenter
-                .filter { it.type == Dokument.Type.Inntektsmelding }
-                .mapNotNull { repositories.inntektsmeldingRepository.hentMedInnsendingId(it.dokumentId) }
-                .maxByOrNull { it.innsendtTid }
-                ?.id
+        val inntektsmeldingId = refusjonUtfall.inntektsmeldingIder.firstOrNull()
 
-        if (sykmeldingId == null || inntektsmeldingId == null) {
+        if (inntektsmeldingId == null) { // TODO: Dette burde kanskje endres, send likevel?
             logger.warn(
-                "Mangler sykmeldingId og/eller inntektsmeldingId for refusjonsutfall med vedtaksperiodeId " +
+                "Mangler inntektsmeldingId for refusjonsutfall med vedtaksperiodeId " +
                     "$vedtaksperiodeId (sykmeldingId=$sykmeldingId, inntektsmeldingId=$inntektsmeldingId), " +
                     "sender ikke melding på helsearbeidsgiver.dokument-kobling.",
             )
