@@ -6,6 +6,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import kotlinx.coroutines.CancellationException
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.auth.getConsumerOrgnr
 import no.nav.helsearbeidsgiver.auth.getPidFromTokenX
@@ -29,20 +30,7 @@ fun Route.refusjonV1(
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     route("/v1") {
-        // TODO: Vi må sjekke om LPS klient har tilgang til ressursen for dette endepunktet
         // TODO: Tilbyr ikke som JSON foreløpig
-//        get("/refusjon/{refusjonUtfallId}") {
-//            if (!unleashFeatureToggles.skalEksponereRefusjonUtfallJson()) {
-//                call.respond(HttpStatusCode.Forbidden)
-//                return@get
-//            }
-//
-//            val refusjonUtfall = hentRefusjonUtfallMedIdEllerError(refusjonUtfallService)
-//            if (refusjonUtfall != null) {
-//                call.respond(refusjonUtfall)
-//            }
-//        }
-
         // TODO: Vi må sjekke om LPS klient har tilgang til ressursen for dette endepunktet
         get("/refusjon/{refusjonUtfallId}/pdf") {
             if (!unleashFeatureToggles.skalEksponereRefusjonUtfallPdf()) {
@@ -59,6 +47,8 @@ fun Route.refusjonV1(
                     } else {
                         call.respondMedPDF(bytes = pdfBytes, filnavn = "refusjon-$refusjonUtfallId.pdf")
                     }
+                } catch (e: CancellationException) {
+                    throw e // har ikke noe å si, utfallet blir likt, så bare kast igjen
                 } catch (e: Exception) {
                     logger().error(Feil.FEIL_VED_HENTING_PDF.feilmelding)
                     sikkerLogger().error(Feil.FEIL_VED_HENTING_PDF.feilmelding, e)
@@ -66,46 +56,6 @@ fun Route.refusjonV1(
                 }
             }
         }
-
-//        post("/refusjon") {
-//            try {
-//                if (!unleashFeatureToggles.skalEksponereRefusjonUtfallJson()) {
-//                    call.respond(HttpStatusCode.Forbidden)
-//                    return@post
-//                }
-//
-//                val tokenContext = tokenValidationContext()
-//                val lpsOrgnr = tokenContext.getConsumerOrgnr()
-//                val systembrukerOrgnr = tokenContext.getSystembrukerOrgnr()
-//                val filter = call.receive<RefusjonUtfallFilter>()
-//
-//                if (!tokenContext.harTilgangTilRessurs(
-//                        ressurs = IM_RESSURS,
-//                        orgnr = filter.orgnr,
-//                    )
-//                ) {
-//                    call.respond(HttpStatusCode.Forbidden, ErrorResponse(Feil.IKKE_TILGANG_TIL_RESSURS))
-//                    return@post
-//                }
-//
-//                val refusjonUtfall = refusjonUtfallService.hentRefusjonUtfall(filter)
-//                sikkerLogger().debug(
-//                    "LPS: [$lpsOrgnr] henter refusjonsutfall for orgnr [${filter.orgnr}] " +
-//                        "på vegne av orgnr: $systembrukerOrgnr",
-//                )
-//                call.respondWithMaxLimit(refusjonUtfall)
-//            } catch (e: BadRequestException) {
-//                call.respond(HttpStatusCode.BadRequest, serialiseringsErrorResponse(e))
-//            } catch (_: ContentTransformationException) {
-//                call.respond(HttpStatusCode.BadRequest, ErrorResponse(Feil.UGYLDIG_REQUEST_BODY))
-//            } catch (e: Exception) {
-//                logger().error(Feil.HENTING_REFUSJONUTFALL.feilmelding)
-//                sikkerLogger().error(Feil.HENTING_REFUSJONUTFALL.feilmelding, e)
-//                call.respond(HttpStatusCode.InternalServerError, ErrorResponse(Feil.HENTING_REFUSJONUTFALL))
-//            }
-//        }
-//
-//
     }
 }
 
@@ -144,6 +94,8 @@ private suspend fun RoutingContext.hentRefusjonUtfallMedIdEllerError(
             systembrukerOrgnr,
         )
         return refusjonUtfall
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         logger().error(Feil.HENTING_REFUSJONUTFALL.feilmelding)
         sikkerLogger().error(Feil.HENTING_REFUSJONUTFALL.feilmelding, e)
@@ -205,6 +157,8 @@ fun Route.refusjonTokenX(
                     return@get
                 }
                 call.respondMedPDF(bytes = pdfBytes, filnavn = "refusjon-$refusjonUtfallId.pdf")
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 logger().error(Feil.HENTING_REFUSJONUTFALL.feilmelding)
                 sikkerLogger().error(Feil.HENTING_REFUSJONUTFALL.feilmelding, e)
