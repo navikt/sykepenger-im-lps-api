@@ -112,7 +112,7 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `hentRefusjonUtfallMetadata skal returnere null naar refusjonsutfallet ikke finnes`() {
+    fun `hentRefusjonUtfallMetadata skal returnere null når refusjonsutfallet ikke finnes`() {
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfallMock())
 
         refusjonUtfallRepository.hentRefusjonUtfallMetadata(UUID.randomUUID()) shouldBe null
