@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.utils.TestData.aktivitetMock
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingMock
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingModelMock
 import no.nav.helsearbeidsgiver.utils.TestData.sykmeldingsperiodeMock
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -22,7 +23,11 @@ class SykmeldingMapperTest {
         val sykmeldingKafkaMessage = sykmeldingMock()
         val sykmeldingDTO = sykmeldingKafkaMessage.tilSykmeldingDTO(1L)
 
-        val sykmeldingApiRespons = sykmeldingModelMock()
+        val sykmeldingApiRespons =
+            sykmeldingModelMock().copy(
+                sykmeldt =
+                    Sykmeldt(fnr = Fnr(sykmeldingDTO.fnr), navn = sykmeldingDTO.sykmeldtNavn),
+            )
 
         sykmeldingDTO.tilSykmelding() shouldBe sykmeldingApiRespons
     }

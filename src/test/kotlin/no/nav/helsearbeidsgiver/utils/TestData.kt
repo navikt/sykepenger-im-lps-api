@@ -12,21 +12,24 @@ import no.nav.helsearbeidsgiver.sykmelding.model.Aktivitet
 import no.nav.helsearbeidsgiver.sykmelding.model.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.test.date.januar
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import java.time.LocalDate
 import java.util.UUID
 
 object TestData {
-    const val FORESPOERSEL_MOTTATT = """
+    val FORESPOERSEL_MOTTATT =
+        """
     {
     "notis": "FORESPØRSEL_MOTTATT",
     "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
     "orgnr": "810007982",
-    "fnr": "01447842099",
+    "fnr": "%%%FNR%%%",
     "skal_ha_paaminnelse": true,
     "forespoersel": {
         "type": "KOMPLETT",
         "orgnr": "810007982",
-        "fnr": "01447842099",
+        "fnr": "%%%FNR%%%",
         "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
         "vedtaksperiodeId": "70aeba59-ebe1-4e26-bf48-23765e037078",
         "egenmeldingsperioder": [],
@@ -61,7 +64,7 @@ object TestData {
         "erBesvart": false
     }
 }
-        """
+        """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
     const val FORESPOERSEL_BESVART =
         """
@@ -77,17 +80,17 @@ object TestData {
             "forespoersel_liste": []
         }
     """
-    const val IM_MOTTATT =
+    val IM_MOTTATT =
         """
-        {"journalpostId":"671166144","inntektsmelding":{"id":"01f37507-24fa-4266-9f70-42b97f9eb527","type":{"type":"Forespurt","id":"034f161b-d43b-4e06-9563-3fe5fbd15442"},"sykmeldt":{"fnr":"01447842099","navn":"KONKURRANSEDYKTIG HANDLINGSROM"},"avsender":{"orgnr":"810007982","orgNavn":"ANSTENDIG PIGGSVIN SYKEHJEM","navn":"BERØMT FLYTTELASS","tlf":"11223344"},"sykmeldingsperioder":[{"fom":"2024-08-01","tom":"2024-08-31"}],"agp":{"perioder":[{"fom":"2024-08-01","tom":"2024-08-16"}],"egenmeldinger":[],"redusertLoennIAgp":null},"inntekt":{"beloep":24667.33,"inntektsdato":"2024-08-01","endringAarsaker":[]},"naturalytelser":[],"refusjon":null,"aarsakInnsending":"Ny","mottatt":"2024-11-07T15:12:52.207740699+01:00","vedtaksperiodeId":"d90503a1-c15a-41ca-9cb8-cbc729d63893"},"bestemmendeFravaersdag":"2024-08-01","selvbestemt":false}
-        """
+        {"journalpostId":"671166144","inntektsmelding":{"id":"01f37507-24fa-4266-9f70-42b97f9eb527","type":{"type":"Forespurt","id":"034f161b-d43b-4e06-9563-3fe5fbd15442"},"sykmeldt":{"fnr":"%%%FNR%%%","navn":"KONKURRANSEDYKTIG HANDLINGSROM"},"avsender":{"orgnr":"810007982","orgNavn":"ANSTENDIG PIGGSVIN SYKEHJEM","navn":"BERØMT FLYTTELASS","tlf":"11223344"},"sykmeldingsperioder":[{"fom":"2024-08-01","tom":"2024-08-31"}],"agp":{"perioder":[{"fom":"2024-08-01","tom":"2024-08-16"}],"egenmeldinger":[],"redusertLoennIAgp":null},"inntekt":{"beloep":24667.33,"inntektsdato":"2024-08-01","endringAarsaker":[]},"naturalytelser":[],"refusjon":null,"aarsakInnsending":"Ny","mottatt":"2024-11-07T15:12:52.207740699+01:00","vedtaksperiodeId":"d90503a1-c15a-41ca-9cb8-cbc729d63893"},"bestemmendeFravaersdag":"2024-08-01","selvbestemt":false}
+        """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
-    const val ARBEIDSGIVER_INITIERT_IM_MOTTATT =
+    val ARBEIDSGIVER_INITIERT_IM_MOTTATT =
         """
-        {"journalpostId":"671166582","inntektsmelding":{"id":"2f7685d0-fe65-48c6-96b9-7b5189358ab1","type":{"type":"Selvbestemt","id":"24428a05-6826-4a01-a6be-30fb15816a6e"},"sykmeldt":{"fnr":"10107400090","navn":"BERØMT FLYTTELASS"},"avsender":{"orgnr":"810007842","orgNavn":"ANSTENDIG PIGGSVIN BARNEHAGE","navn":"BERØMT FLYTTELASS","tlf":"12345678"},"sykmeldingsperioder":[{"fom":"2024-08-01","tom":"2024-08-08"}],"agp":{"perioder":[{"fom":"2024-08-01","tom":"2024-08-08"}],"egenmeldinger":[],"redusertLoennIAgp":{"beloep":23456.0,"begrunnelse":"ArbeidOpphoert"}},"inntekt":{"beloep":54000.0,"inntektsdato":"2024-08-01","endringAarsaker":[]},"naturalytelser":[],"refusjon":null,"aarsakInnsending":"Ny","mottatt":"2024-11-12T14:04:07.557238646+01:00","vedtaksperiodeId":"dc2b6464-d606-4c2d-8bb1-c5ce8d811077"},"bestemmendeFravaersdag":null,"selvbestemt":true}
-        """
+        {"journalpostId":"671166582","inntektsmelding":{"id":"2f7685d0-fe65-48c6-96b9-7b5189358ab1","type":{"type":"Selvbestemt","id":"24428a05-6826-4a01-a6be-30fb15816a6e"},"sykmeldt":{"fnr":"%%%FNR%%%","navn":"BERØMT FLYTTELASS"},"avsender":{"orgnr":"810007842","orgNavn":"ANSTENDIG PIGGSVIN BARNEHAGE","navn":"BERØMT FLYTTELASS","tlf":"12345678"},"sykmeldingsperioder":[{"fom":"2024-08-01","tom":"2024-08-08"}],"agp":{"perioder":[{"fom":"2024-08-01","tom":"2024-08-08"}],"egenmeldinger":[],"redusertLoennIAgp":{"beloep":23456.0,"begrunnelse":"ArbeidOpphoert"}},"inntekt":{"beloep":54000.0,"inntektsdato":"2024-08-01","endringAarsaker":[]},"naturalytelser":[],"refusjon":null,"aarsakInnsending":"Ny","mottatt":"2024-11-12T14:04:07.557238646+01:00","vedtaksperiodeId":"dc2b6464-d606-4c2d-8bb1-c5ce8d811077"},"bestemmendeFravaersdag":null,"selvbestemt":true}
+        """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
-    const val SYKMELDING_MOTTATT =
+    val SYKMELDING_MOTTATT =
         """
         {
             "sykmelding": {
@@ -133,7 +136,7 @@ object TestData {
             "kafkaMetadata": {
                 "sykmeldingId": "b5f66f7a-d1a9-483c-a9d1-e4d45a7bba4d",
                 "timestamp": "2020-04-30T13:57:48.444372Z",
-                "fnr": "01447842099",
+                "fnr": "%%%FNR%%%",
                 "source": "macgyver-syfoservice"
             },
             "event": {
@@ -167,9 +170,9 @@ object TestData {
                 ]
             }
         }
-        """
+        """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
-    const val SYKMELDING_API_RESPONSE =
+    val SYKMELDING_API_RESPONSE =
         """
         {
             "loepenr": 1,
@@ -177,7 +180,7 @@ object TestData {
             "mottattAvNav": "2020-03-14T23:00",
             "sendtTilArbeidsgiver": "2020-03-15T23:00",
             "sykmeldt": {
-                "fnr": "01447842099",
+                "fnr": "%%%FNR%%%",
                 "navn": "Ola Nordmann"
             },
             "egenmeldingsdager": [
@@ -220,7 +223,7 @@ object TestData {
                 "orgnr": "315587336"
             }
         }
-        """
+        """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
     const val SIMBA_PAYLOAD =
         """
@@ -237,21 +240,21 @@ object TestData {
         }
         """
 
-    const val UGYLDIG_FORESPOERSEL_MOTTATT =
+    val UGYLDIG_FORESPOERSEL_MOTTATT =
         """ 
         {
             "notis": "FORESPØRSEL_MOTTATT",
             "forespoerselId": "c8d75a15-dce3-4db2-8b48-fc4d9a1cfd5c",
             "orgnr": "810007982",
-            "fnr": "01447842099",
+            "fnr": "%%%FNR%%%",
             "skal_ha_paaminnelse": true,
             "forespoersel": {
                 "type": "KOMPLETT",
             }
         }
-        """
+        """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
-    const val TRENGER_FORESPOERSEL =
+    val TRENGER_FORESPOERSEL =
         """
         {
             "@behov": "TRENGER_FORESPØRSEL",
@@ -260,7 +263,7 @@ object TestData {
                 "resultat": {
                     "type": "KOMPLETT",
                     "orgnr": "810007842",
-                    "fnr": "10107400090",
+                    "fnr": "%%%FNR%%%",
                     "forespoerselId": "d1ca7cce-d236-47e9-b0eb-37dc95511e4e",
                     "vedtaksperiodeId": "d8d2a8d2-8c64-42b6-b23d-0c688ca8cb17",
                     "egenmeldingsperioder": [],
@@ -305,14 +308,15 @@ object TestData {
                 }
             }
         }
-    """
+    """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
-    const val SYKEPENGESOEKNAD = """
+    val SYKEPENGESOEKNAD =
+        """
         {
             "id": "9e088b5a-16c8-3dcc-91fb-acdd544b8607",
             "type": "ARBEIDSTAKERE",
             "status": "SENDT",
-            "fnr": "05449412615",
+            "fnr": "%%%FNR%%%",
             "sykmeldingId": "5be7a6f1-90e2-4e4c-9718-1e4491bf8111",
             "arbeidsgiver": {
                 "navn": "Jordisk Kunst Katt Kryddermål",
@@ -807,7 +811,7 @@ object TestData {
             "inntektUnderveis": null,
             "ignorerArbeidssokerregister": null
         }
-    """
+    """.replace("%%%FNR%%%", Fnr.genererGyldig().verdi)
 
     const val STATUS_I_SPLEIS_MELDING = """
         {

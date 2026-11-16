@@ -27,7 +27,6 @@ import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class DokumentkoblingServiceTest {
