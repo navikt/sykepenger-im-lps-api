@@ -211,7 +211,7 @@ class ApplicationTest : LpsApiIntegrasjontest() {
                     token = mockOAuth2Server.gyldigSystembrukerAuthToken("315587336"),
                 )
             val sykepengesoeknad = response.body<Sykepengesoeknad>()
-            sykepengesoeknad.sykmeldingId shouldBe "5be7a6f1-90e2-4e4c-9718-1e4491bf8111"
+            sykepengesoeknad.sykmeldingId.toString() shouldBe "5be7a6f1-90e2-4e4c-9718-1e4491bf8111"
             sykepengesoeknad.arbeidsgiver.orgnr shouldBe "315587336"
         }
     }
