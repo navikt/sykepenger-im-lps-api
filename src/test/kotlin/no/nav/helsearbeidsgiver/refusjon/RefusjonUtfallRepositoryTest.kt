@@ -7,12 +7,14 @@ import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.util.UUID
 
@@ -48,12 +50,12 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `lagreRefusjonUtfall skal ikke kaste feil og ikke overskrive ved duplikat refusjonUtfallId`() {
+    fun `lagreRefusjonUtfall skal kaste feil og ikke overskrive ved duplikat refusjonUtfallId`() {
         val refusjonUtfall = refusjonUtfallMock()
         val duplikat = refusjonUtfall.copy(beloepUtbetaltTilArbeidsgiver = refusjonUtfall.beloepUtbetaltTilArbeidsgiver + 1000)
 
-        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall) shouldBe true
-        refusjonUtfallRepository.lagreRefusjonUtfall(duplikat) shouldBe false
+        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        assertThrows<ExposedSQLException> { refusjonUtfallRepository.lagreRefusjonUtfall(duplikat) }
 
         val lagredeRader = hentRader(refusjonUtfall.refusjonUtfallId)
         lagredeRader shouldHaveSize 1

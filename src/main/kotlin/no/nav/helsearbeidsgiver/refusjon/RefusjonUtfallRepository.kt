@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.andWhere
-import org.jetbrains.exposed.v1.jdbc.insertIgnore
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.UUID
@@ -20,17 +20,16 @@ import java.util.UUID
 class RefusjonUtfallRepository(
     private val db: Database,
 ) {
-    fun lagreRefusjonUtfall(refusjonUtfall: RefusjonUtfall): Boolean =
+    fun lagreRefusjonUtfall(refusjonUtfall: RefusjonUtfall) {
         try {
             transaction(db) {
-                RefusjonUtfallEntitet
-                    .insertIgnore {
-                        it[RefusjonUtfallEntitet.refusjonUtfallId] = refusjonUtfall.refusjonUtfallId
-                        it[RefusjonUtfallEntitet.vedtaksperiodeId] = refusjonUtfall.vedtaksperiodeId
-                        it[RefusjonUtfallEntitet.fnr] = refusjonUtfall.fnr.toString()
-                        it[RefusjonUtfallEntitet.orgnr] = refusjonUtfall.orgnr.toString()
-                        it[RefusjonUtfallEntitet.refusjonUtfall] = refusjonUtfall
-                    }.insertedCount > 0
+                RefusjonUtfallEntitet.insert {
+                    it[RefusjonUtfallEntitet.refusjonUtfallId] = refusjonUtfall.refusjonUtfallId
+                    it[RefusjonUtfallEntitet.vedtaksperiodeId] = refusjonUtfall.vedtaksperiodeId
+                    it[RefusjonUtfallEntitet.fnr] = refusjonUtfall.fnr.toString()
+                    it[RefusjonUtfallEntitet.orgnr] = refusjonUtfall.orgnr.toString()
+                    it[RefusjonUtfallEntitet.refusjonUtfall] = refusjonUtfall
+                }
             }
         } catch (e: ExposedSQLException) {
             sikkerLogger().error(
@@ -40,6 +39,7 @@ class RefusjonUtfallRepository(
             )
             throw e
         }
+    }
 
     fun hentRefusjonUtfallMetadata(refusjonUtfallId: UUID): RefusjonUtfallMetadata? =
         transaction(db) {

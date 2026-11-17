@@ -21,25 +21,33 @@ class RefusjonUtfallTolker(
             try {
                 melding.fromJson(RefusjonUtfall.serializer())
             } catch (e: SerializationException) {
-                logger.error("Klarte ikke å lese refusjonsutfall-melding, feil format.")
-                sikkerLogger.error("Klarte ikke å lese refusjonsutfall-melding, feil format. melding=$melding", e)
+                "Klarte ikke å lese refusjonsutfall-melding, feil format.".also {
+                    logger.error(it)
+                    sikkerLogger.error("$it melding=$melding", e)
+                }
                 throw e
             }
 
         val logIdInfo = "refusjonUtfallId ${refusjonUtfall.refusjonUtfallId} og vedtaksperiodeId ${refusjonUtfall.vedtaksperiodeId}"
-        logger.info("Mottok refusjonsutfall med $logIdInfo.")
-        sikkerLogger.info("Mottok refusjonsutfall: $refusjonUtfall")
+        "Mottok refusjonsutfall med $logIdInfo.".also {
+            logger.info(it)
+            sikkerLogger.info(it)
+        }
 
-        val nyttUtfall = refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
-        if (nyttUtfall) {
-            "Lagret refusjonsutfall med $logIdInfo.".also {
-                logger.info(it)
-                sikkerLogger.info(it)
+        when (refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfall.refusjonUtfallId)) {
+            null -> {
+                refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+                "Lagret refusjonsutfall med $logIdInfo.".also {
+                    logger.info(it)
+                    sikkerLogger.info(it)
+                }
             }
-        } else {
-            "Refusjonsutfall med $logIdInfo er allerede lagret, sender kobling på nytt.".also {
-                logger.info(it)
-                sikkerLogger.info(it)
+
+            else -> {
+                "Refusjonsutfall med $logIdInfo finnes fra før og vil derfor ikke lagres på nytt.".also {
+                    logger.warn(it)
+                    sikkerLogger.warn(it)
+                }
             }
         }
 
