@@ -54,6 +54,7 @@ spec:
         - host: ikomp.prod-fss-pub.nais.io
       rules:
         - application: helsearbeidsgiver-pdfgen
+        - application: refusjon
         - application: logging
           namespace: nais-system
     inbound:
@@ -126,4 +127,8 @@ spec:
       value: "https://ikomp.prod-fss-pub.nais.io/rs"
     - name: INNTEKT_SCOPE
       value: "api://prod-fss.team-inntekt.ikomp/.default"
+    - name: REFUSJON_URL
+      value: "http://refusjon"
+    - name: REFUSJON_SCOPE
+      value: "api://prod-gcp.helsearbeidsgiver.refusjon/.default"
 

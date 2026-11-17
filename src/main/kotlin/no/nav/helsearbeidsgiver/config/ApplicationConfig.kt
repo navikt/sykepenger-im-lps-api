@@ -50,9 +50,7 @@ import no.nav.helsearbeidsgiver.pdl.PdlService
 import no.nav.helsearbeidsgiver.pdp.IPdpService
 import no.nav.helsearbeidsgiver.pdp.LocalhostPdpService
 import no.nav.helsearbeidsgiver.pdp.PdpService
-import no.nav.helsearbeidsgiver.refusjon.IkkeRefusjonKlient
 import no.nav.helsearbeidsgiver.refusjon.RefusjonKlient
-import no.nav.helsearbeidsgiver.refusjon.RefusjonKlientImpl
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallService
 import no.nav.helsearbeidsgiver.sis.StatusISpeilRepository
@@ -331,17 +329,14 @@ fun Application.configureKafkaConsumers(
         )
     }
 
-    // TODO: Fjern if isDev sjekk i fremtiden nå topicet helsearbeidsgiver.refusjon skal brukes i prod
-    if (isDev()) {
-        val refusjonUtfallKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("refusjon-utfall"))
-        launch(Dispatchers.Default) {
-            startKafkaConsumer(
-                topic = getProperty("kafkaConsumer.refusjon.topic"),
-                consumer = refusjonUtfallKafkaConsumer,
-                meldingTolker = tolkere.refusjonUtfallTolker,
-                isLeader = leaderConfig::isElectedLeader,
-            )
-        }
+    val refusjonUtfallKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("refusjon-utfall"))
+    launch(Dispatchers.Default) {
+        startKafkaConsumer(
+            topic = getProperty("kafkaConsumer.refusjon.topic"),
+            consumer = refusjonUtfallKafkaConsumer,
+            meldingTolker = tolkere.refusjonUtfallTolker,
+            isLeader = leaderConfig::isElectedLeader,
+        )
     }
 }
 
@@ -396,15 +391,9 @@ fun getPdpService(): IPdpService =
 fun configureAuthClient() = if (isLocal()) NoOpAuthClient() else DefaultAuthClient()
 
 private fun lagRefusjonKlient(): RefusjonKlient =
-    if (isDev()) {
-        RefusjonKlientImpl(
-            url = getProperty("REFUSJON_URL"),
-            getAccessToken = configureAuthClient().tokenGetter(AZURE_AD, getProperty("REFUSJON_SCOPE")),
-        )
-    } else {
-        IkkeRefusjonKlient()
-    }
-
-private fun isDev(): Boolean = getPropertyOrNull("NAIS_CLUSTER_NAME") == "dev-gcp"
+    RefusjonKlient(
+        url = getProperty("REFUSJON_URL"),
+        getAccessToken = configureAuthClient().tokenGetter(AZURE_AD, getProperty("REFUSJON_SCOPE")),
+    )
 
 private fun isLocal(): Boolean = "local".equals(getPropertyOrNull("application.env"), true)

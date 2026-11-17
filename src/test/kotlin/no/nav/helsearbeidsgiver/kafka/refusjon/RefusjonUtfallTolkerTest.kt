@@ -2,9 +2,9 @@ package no.nav.helsearbeidsgiver.kafka.refusjon
 
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.andThenJust
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -35,7 +35,7 @@ class RefusjonUtfallTolkerTest {
     @Test
     fun `lesMelding skal lagre refusjonsutfall fra melding produsert av hag-refusjon`() {
         val lagretRefusjonUtfall = slot<RefusjonUtfall>()
-        every { refusjonUtfallRepository.lagreRefusjonUtfall(capture(lagretRefusjonUtfall)) } just Runs
+        every { refusjonUtfallRepository.lagreRefusjonUtfall(capture(lagretRefusjonUtfall)) } returns true
 
         refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING)
 
@@ -52,7 +52,7 @@ class RefusjonUtfallTolkerTest {
                 arbeidstakervedtakFattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
                 beloepUtbetaltTilArbeidsgiver = 154999,
             )
-        verify(exactly = 1) { dokumentkoblingService.produserVedtakKobling(lagretRefusjonUtfall.captured) }
+        verify(exactly = 1) { dokumentkoblingService.produserRefusjonKobling(lagretRefusjonUtfall.captured) }
     }
 
     @Test
@@ -69,6 +69,27 @@ class RefusjonUtfallTolkerTest {
         every { refusjonUtfallRepository.lagreRefusjonUtfall(any()) } throws RuntimeException("database nede")
 
         assertThrows<RuntimeException> { refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING) }
+    }
+
+    @Test
+    fun `lesMelding skal sende refusjonskobling paa nytt naar refusjonsutfallet allerede er lagret`() {
+        every { refusjonUtfallRepository.lagreRefusjonUtfall(any()) } returns false
+
+        refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING)
+
+        verify(exactly = 1) { dokumentkoblingService.produserRefusjonKobling(any()) }
+    }
+
+    @Test
+    fun `lesMelding skal kunne prosessere samme melding paa nytt etter at sending av refusjonskobling feilet`() {
+        every { refusjonUtfallRepository.lagreRefusjonUtfall(any()) } returnsMany listOf(true, false)
+        every { dokumentkoblingService.produserRefusjonKobling(any()) } throws RuntimeException("kafka nede") andThenJust Runs
+
+        assertThrows<RuntimeException> { refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING) }
+        refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING)
+
+        verify(exactly = 2) { refusjonUtfallRepository.lagreRefusjonUtfall(any()) }
+        verify(exactly = 2) { dokumentkoblingService.produserRefusjonKobling(any()) }
     }
 }
 

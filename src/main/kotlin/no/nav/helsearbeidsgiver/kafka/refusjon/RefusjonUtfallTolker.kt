@@ -30,11 +30,19 @@ class RefusjonUtfallTolker(
         logger.info("Mottok refusjonsutfall med $logIdInfo.")
         sikkerLogger.info("Mottok refusjonsutfall: $refusjonUtfall")
 
-        // TODO: Hvis produserVedtakKobling feiler etter lagring, vil retry feile på duplikat refusjonUtfallId og gi crashloop i consumer.
-        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
-        logger.info("Lagret refusjonsutfall med $logIdInfo.")
-        sikkerLogger.info("Lagret refusjonsutfall med $logIdInfo.")
+        val nyttUtfall = refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+        if (nyttUtfall) {
+            "Lagret refusjonsutfall med $logIdInfo.".also {
+                logger.info(it)
+                sikkerLogger.info(it)
+            }
+        } else {
+            "Refusjonsutfall med $logIdInfo er allerede lagret, sender kobling på nytt.".also {
+                logger.info(it)
+                sikkerLogger.info(it)
+            }
+        }
 
-        dokumentkoblingService.produserVedtakKobling(refusjonUtfall)
+        dokumentkoblingService.produserRefusjonKobling(refusjonUtfall)
     }
 }

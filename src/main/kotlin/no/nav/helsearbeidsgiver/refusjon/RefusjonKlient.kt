@@ -10,24 +10,14 @@ import no.nav.helsearbeidsgiver.utils.createHttpClient
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
-interface RefusjonKlient {
-    /** @return PDF-en for refusjonsutfallet, eller null dersom hag-refusjon ikke finner den. */
-    suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray?
-}
-
-class IkkeRefusjonKlient : RefusjonKlient {
-    override suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? =
-        throw UnsupportedOperationException("Henting av PDF fra hag-refusjon er kun tilgjengelig i dev.")
-}
-
-class RefusjonKlientImpl(
+class RefusjonKlient(
     private val url: String,
     private val getAccessToken: () -> String,
     private val httpClient: HttpClient = createHttpClient(),
-) : RefusjonKlient {
+) {
     private val logger = logger()
 
-    override suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? =
+    suspend fun hentRefusjonUtfallPdf(refusjonUtfallId: UUID): ByteArray? =
         try {
             httpClient
                 .get("$url/refusjonsutfall/$refusjonUtfallId/pdf") {
