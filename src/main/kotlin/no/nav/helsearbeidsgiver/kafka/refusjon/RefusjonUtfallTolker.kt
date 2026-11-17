@@ -21,20 +21,36 @@ class RefusjonUtfallTolker(
             try {
                 melding.fromJson(RefusjonUtfall.serializer())
             } catch (e: SerializationException) {
-                logger.error("Klarte ikke å lese refusjonsutfall-melding, feil format.")
-                sikkerLogger.error("Klarte ikke å lese refusjonsutfall-melding, feil format. melding=$melding", e)
+                "Klarte ikke å lese refusjonsutfall-melding, feil format.".also {
+                    logger.error(it)
+                    sikkerLogger.error("$it melding=$melding", e)
+                }
                 throw e
             }
 
         val logIdInfo = "refusjonUtfallId ${refusjonUtfall.refusjonUtfallId} og vedtaksperiodeId ${refusjonUtfall.vedtaksperiodeId}"
-        logger.info("Mottok refusjonsutfall med $logIdInfo.")
-        sikkerLogger.info("Mottok refusjonsutfall: $refusjonUtfall")
+        "Mottok refusjonsutfall med $logIdInfo.".also {
+            logger.info(it)
+            sikkerLogger.info(it)
+        }
 
-        // TODO: Hvis produserVedtakKobling feiler etter lagring, vil retry feile på duplikat refusjonUtfallId og gi crashloop i consumer.
-        refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
-        logger.info("Lagret refusjonsutfall med $logIdInfo.")
-        sikkerLogger.info("Lagret refusjonsutfall med $logIdInfo.")
+        when (refusjonUtfallRepository.hentRefusjonUtfallMetadata(refusjonUtfall.refusjonUtfallId)) {
+            null -> {
+                refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
+                "Lagret refusjonsutfall med $logIdInfo.".also {
+                    logger.info(it)
+                    sikkerLogger.info(it)
+                }
+            }
 
-        dokumentkoblingService.produserVedtakKobling(refusjonUtfall)
+            else -> {
+                "Refusjonsutfall med $logIdInfo finnes fra før og vil derfor ikke lagres på nytt.".also {
+                    logger.warn(it)
+                    sikkerLogger.warn(it)
+                }
+            }
+        }
+
+        dokumentkoblingService.produserRefusjonKobling(refusjonUtfall)
     }
 }

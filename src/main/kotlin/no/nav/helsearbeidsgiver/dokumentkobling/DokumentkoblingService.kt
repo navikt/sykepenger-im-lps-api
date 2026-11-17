@@ -161,7 +161,7 @@ class DokumentkoblingService(
         )
     }
 
-    fun produserVedtakKobling(refusjonUtfall: RefusjonUtfall) {
+    fun produserRefusjonKobling(refusjonUtfall: RefusjonUtfall) {
         val vedtaksperiodeId = refusjonUtfall.vedtaksperiodeId
 
         val sykmeldingId = refusjonUtfall.sykmeldingId
@@ -178,8 +178,8 @@ class DokumentkoblingService(
         }
 
         dokumentkoblingProducer.send(
-            Vedtak(
-                vedtakId = refusjonUtfall.refusjonUtfallId,
+            Refusjon(
+                refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
                 sykmeldingId = sykmeldingId,
                 inntektsmeldingId = inntektsmeldingId,
                 orgnr = refusjonUtfall.orgnr,

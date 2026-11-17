@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.kafka.refusjon
 
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
+import io.mockk.andThenJust
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
@@ -11,6 +12,7 @@ import io.mockk.verify
 import kotlinx.serialization.SerializationException
 import no.nav.helsearbeidsgiver.dokumentkobling.DokumentkoblingService
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfall
+import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallMetadata
 import no.nav.helsearbeidsgiver.refusjon.RefusjonUtfallRepository
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
@@ -30,6 +32,7 @@ class RefusjonUtfallTolkerTest {
     @BeforeEach
     fun setup() {
         clearAllMocks()
+        every { refusjonUtfallRepository.hentRefusjonUtfallMetadata(any()) } returns null
     }
 
     @Test
@@ -52,7 +55,7 @@ class RefusjonUtfallTolkerTest {
                 arbeidstakervedtakFattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
                 beloepUtbetaltTilArbeidsgiver = 154999,
             )
-        verify(exactly = 1) { dokumentkoblingService.produserVedtakKobling(lagretRefusjonUtfall.captured) }
+        verify(exactly = 1) { dokumentkoblingService.produserRefusjonKobling(lagretRefusjonUtfall.captured) }
     }
 
     @Test
@@ -69,6 +72,29 @@ class RefusjonUtfallTolkerTest {
         every { refusjonUtfallRepository.lagreRefusjonUtfall(any()) } throws RuntimeException("database nede")
 
         assertThrows<RuntimeException> { refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING) }
+    }
+
+    @Test
+    fun `lesMelding skal ikke lagre på nytt, men sende refusjonskobling, naar refusjonsutfallet allerede er lagret`() {
+        every { refusjonUtfallRepository.hentRefusjonUtfallMetadata(any()) } returns mockk<RefusjonUtfallMetadata>()
+
+        refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING)
+
+        verify(exactly = 0) { refusjonUtfallRepository.lagreRefusjonUtfall(any()) }
+        verify(exactly = 1) { dokumentkoblingService.produserRefusjonKobling(any()) }
+    }
+
+    @Test
+    fun `lesMelding skal kunne prosessere samme melding på nytt etter at sending av refusjonskobling feilet`() {
+        every { refusjonUtfallRepository.hentRefusjonUtfallMetadata(any()) } returns null andThen mockk<RefusjonUtfallMetadata>()
+        every { refusjonUtfallRepository.lagreRefusjonUtfall(any()) } just Runs
+        every { dokumentkoblingService.produserRefusjonKobling(any()) } throws RuntimeException("kafka nede") andThenJust Runs
+
+        assertThrows<RuntimeException> { refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING) }
+        refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING)
+
+        verify(exactly = 1) { refusjonUtfallRepository.lagreRefusjonUtfall(any()) }
+        verify(exactly = 2) { dokumentkoblingService.produserRefusjonKobling(any()) }
     }
 }
 
