@@ -75,7 +75,7 @@ class RefusjonUtfallTolkerTest {
     }
 
     @Test
-    fun `lesMelding skal ikke lagre paa nytt, men sende refusjonskobling, naar refusjonsutfallet allerede er lagret`() {
+    fun `lesMelding skal ikke lagre på nytt, men sende refusjonskobling, naar refusjonsutfallet allerede er lagret`() {
         every { refusjonUtfallRepository.hentRefusjonUtfallMetadata(any()) } returns mockk<RefusjonUtfallMetadata>()
 
         refusjonUtfallTolker.lesMelding(REFUSJON_UTFALL_MELDING)
@@ -85,7 +85,7 @@ class RefusjonUtfallTolkerTest {
     }
 
     @Test
-    fun `lesMelding skal kunne prosessere samme melding paa nytt etter at sending av refusjonskobling feilet`() {
+    fun `lesMelding skal kunne prosessere samme melding på nytt etter at sending av refusjonskobling feilet`() {
         every { refusjonUtfallRepository.hentRefusjonUtfallMetadata(any()) } returns null andThen mockk<RefusjonUtfallMetadata>()
         every { refusjonUtfallRepository.lagreRefusjonUtfall(any()) } just Runs
         every { dokumentkoblingService.produserRefusjonKobling(any()) } throws RuntimeException("kafka nede") andThenJust Runs
