@@ -184,12 +184,12 @@ class DokumentkoblingServiceTest {
                 sykmeldingId = sykmeldingId,
             )
 
-        dokumentkoblingService.produserVedtakKobling(refusjonUtfallMedInntektsmelding)
+        dokumentkoblingService.produserRefusjonKobling(refusjonUtfallMedInntektsmelding)
 
         verifySequence {
             mockDokumentkoblingProducer.send(
-                Vedtak(
-                    vedtakId = refusjonUtfallMedInntektsmelding.refusjonUtfallId,
+                Refusjon(
+                    refusjonUtfallId = refusjonUtfallMedInntektsmelding.refusjonUtfallId,
                     sykmeldingId = sykmeldingId,
                     inntektsmeldingId = refusjonUtfallMedInntektsmelding.inntektsmeldingIder.first(),
                     orgnr = refusjonUtfallMedInntektsmelding.orgnr,
@@ -204,7 +204,7 @@ class DokumentkoblingServiceTest {
             refusjonUtfallMock().copy(
                 inntektsmeldingIder = emptyList(),
             )
-        dokumentkoblingService.produserVedtakKobling(refusjonUtfall)
+        dokumentkoblingService.produserRefusjonKobling(refusjonUtfall)
 
         verify(exactly = 0) {
             mockDokumentkoblingProducer.send(any())

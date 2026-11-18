@@ -132,7 +132,7 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `hentRefusjonUtfall med filter skal filtrere paa fnr`() {
+    fun `hentRefusjonUtfall med filter skal filtrere på fnr`() {
         val refusjonUtfall = refusjonUtfallMock()
         val annenSykmeldt = refusjonUtfallMock().copy(fnr = Fnr.genererGyldig())
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
@@ -173,7 +173,7 @@ class RefusjonUtfallRepositoryTest {
     }
 
     @Test
-    fun `hentRefusjonUtfall med filter skal filtrere paa opprettet-dato med fom og tom`() {
+    fun `hentRefusjonUtfall med filter skal filtrere på opprettet-dato med fom og tom`() {
         val refusjonUtfall = refusjonUtfallMock()
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         val orgnr = refusjonUtfall.orgnr.toString()

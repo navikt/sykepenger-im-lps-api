@@ -56,7 +56,7 @@ class RefusjonKlientTest {
         }
 
     private fun refusjonKlient(mockEngine: MockEngine) =
-        RefusjonKlientImpl(
+        RefusjonKlient(
             url = url,
             getAccessToken = { token },
             httpClient = HttpClient(mockEngine) { expectSuccess = true },
