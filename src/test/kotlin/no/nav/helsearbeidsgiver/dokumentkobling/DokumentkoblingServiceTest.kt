@@ -193,6 +193,8 @@ class DokumentkoblingServiceTest {
                     sykmeldingId = sykmeldingId,
                     inntektsmeldingId = refusjonUtfallMedInntektsmelding.inntektsmeldingIder.first(),
                     orgnr = refusjonUtfallMedInntektsmelding.orgnr,
+                    fom = refusjonUtfallMedInntektsmelding.fom,
+                    tom = refusjonUtfallMedInntektsmelding.tom,
                 ),
             )
         }
