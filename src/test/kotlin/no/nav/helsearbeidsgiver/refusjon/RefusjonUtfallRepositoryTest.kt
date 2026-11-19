@@ -4,6 +4,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.config.DatabaseConfig
 import no.nav.helsearbeidsgiver.testcontainer.WithPostgresContainer
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.v1.core.eq
@@ -133,7 +134,7 @@ class RefusjonUtfallRepositoryTest {
     @Test
     fun `hentRefusjonUtfall med filter skal filtrere på fnr`() {
         val refusjonUtfall = refusjonUtfallMock()
-        val annenSykmeldt = refusjonUtfallMock().copy(fnr = Fnr("05449412615"))
+        val annenSykmeldt = refusjonUtfallMock().copy(fnr = Fnr.genererGyldig())
         refusjonUtfallRepository.lagreRefusjonUtfall(refusjonUtfall)
         refusjonUtfallRepository.lagreRefusjonUtfall(annenSykmeldt)
 
@@ -148,8 +149,8 @@ class RefusjonUtfallRepositoryTest {
     @Test
     fun `hentRefusjonUtfall med filter skal returnere refusjonsutfall sortert i rekkefølgen de ble lagret`() {
         val foerste = refusjonUtfallMock()
-        val andre = refusjonUtfallMock()
-        val tredje = refusjonUtfallMock()
+        val andre = refusjonUtfallMock().copy(orgnr = foerste.orgnr)
+        val tredje = refusjonUtfallMock().copy(orgnr = foerste.orgnr)
         listOf(foerste, andre, tredje).forEach { refusjonUtfallRepository.lagreRefusjonUtfall(it) }
 
         val resultat = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = foerste.orgnr.toString()))
@@ -160,8 +161,8 @@ class RefusjonUtfallRepositoryTest {
     @Test
     fun `hentRefusjonUtfall med filter skal kun hente refusjonsutfall etter fraLoepenr`() {
         val foerste = refusjonUtfallMock()
-        val andre = refusjonUtfallMock()
-        val tredje = refusjonUtfallMock()
+        val andre = refusjonUtfallMock().copy(orgnr = foerste.orgnr)
+        val tredje = refusjonUtfallMock().copy(orgnr = foerste.orgnr)
         listOf(foerste, andre, tredje).forEach { refusjonUtfallRepository.lagreRefusjonUtfall(it) }
         val orgnr = foerste.orgnr.toString()
         val foersteLoepenr = refusjonUtfallRepository.hentRefusjonUtfall(RefusjonUtfallFilter(orgnr = orgnr)).first().loepenr

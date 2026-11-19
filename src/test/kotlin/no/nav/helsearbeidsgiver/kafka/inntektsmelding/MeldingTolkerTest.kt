@@ -227,8 +227,8 @@ class MeldingTolkerTest {
     fun `SoeknadTolker lesMelding kaster exception om fnr er null`() {
         val mockJsonMedArbeidsgiverNull =
             SYKEPENGESOEKNAD.removeJsonWhitespace().replace(
-                """"fnr":"05449412615"""",
-                """"fnr":null""",
+                regex = Regex(""""fnr":"\d{11}""""),
+                replacement = """"fnr":null""",
             )
 
         assertThrows<SerializationException> {

@@ -1,6 +1,6 @@
 package no.nav.helsearbeidsgiver.refusjon
 
-import no.nav.helsearbeidsgiver.utils.TestData
+import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
@@ -13,8 +13,8 @@ fun refusjonUtfallMock(): RefusjonUtfall =
         vedtaksperiodeId = UUID.randomUUID(),
         sykmeldingId = UUID.randomUUID(),
         inntektsmeldingIder = listOf(UUID.randomUUID(), UUID.randomUUID()),
-        fnr = Fnr("10107400090"),
-        orgnr = Orgnr("896929119"),
+        fnr = Fnr.genererGyldig(),
+        orgnr = Orgnr.genererGyldig(),
         fom = LocalDate.of(2026, 7, 28),
         tom = LocalDate.of(2026, 8, 3),
         arbeidstakervedtakFattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
