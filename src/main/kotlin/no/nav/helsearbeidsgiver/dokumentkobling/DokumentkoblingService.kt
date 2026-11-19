@@ -183,6 +183,8 @@ class DokumentkoblingService(
                 sykmeldingId = sykmeldingId,
                 inntektsmeldingId = inntektsmeldingId,
                 orgnr = refusjonUtfall.orgnr,
+                fom = refusjonUtfall.fom,
+                tom = refusjonUtfall.tom,
             ),
         )
         logger.info(
