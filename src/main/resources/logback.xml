@@ -16,7 +16,7 @@
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
     <logger name="no.nav" level="DEBUG"/>
-    <logger name="tjenestekall" level="INFO" additivity="false">
+    <logger name="tjenestekall" level="DEBUG" additivity="false">
         <appender-ref ref="team-logs" />
     </logger>
 </configuration>
