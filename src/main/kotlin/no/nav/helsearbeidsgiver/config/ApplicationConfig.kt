@@ -264,7 +264,7 @@ fun Application.configureKafkaConsumers(
     leaderConfig: LeaderConfig,
 ) {
     val inntektsmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             getProperty("kafkaConsumer.inntektsmelding.topic"),
             inntektsmeldingKafkaConsumer,
@@ -275,7 +275,7 @@ fun Application.configureKafkaConsumers(
     }
 
     val forespoerselKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("fsp"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             getProperty("kafkaConsumer.forespoersel.topic"),
             forespoerselKafkaConsumer,
@@ -286,7 +286,7 @@ fun Application.configureKafkaConsumers(
     }
 
     val sykmeldingKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("sm"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             topic = getProperty("kafkaConsumer.sykmelding.topic"),
             consumer = sykmeldingKafkaConsumer,
@@ -297,7 +297,7 @@ fun Application.configureKafkaConsumers(
     }
 
     val soeknadKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("so"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             topic = getProperty("kafkaConsumer.soeknad.topic"),
             consumer = soeknadKafkaConsumer,
@@ -308,7 +308,7 @@ fun Application.configureKafkaConsumers(
     }
 
     val statusISpeilKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerMultiPollerConfig("sis"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             topic = getProperty("kafkaConsumer.sis.topic"),
             consumer = statusISpeilKafkaConsumer,
@@ -320,7 +320,7 @@ fun Application.configureKafkaConsumers(
 
     val avvistInntektsmeldingKafkaConsumer =
         KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("im-avvist"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             topic = getProperty("kafkaConsumer.innsending.topic"),
             consumer = avvistInntektsmeldingKafkaConsumer,
@@ -330,7 +330,7 @@ fun Application.configureKafkaConsumers(
     }
 
     val refusjonUtfallKafkaConsumer = KafkaConsumer<String, String>(createKafkaConsumerSinglePollerConfig("refusjon-utfall"))
-    launch(Dispatchers.Default) {
+    launch(Dispatchers.IO) {
         startKafkaConsumer(
             topic = getProperty("kafkaConsumer.refusjon.topic"),
             consumer = refusjonUtfallKafkaConsumer,

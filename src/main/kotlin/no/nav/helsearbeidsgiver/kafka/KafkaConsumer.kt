@@ -1,7 +1,9 @@
 package no.nav.helsearbeidsgiver.kafka
 
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -73,6 +75,8 @@ suspend fun startKafkaConsumer(
             throw e
         }
     }
+    logger.info("Konsumering av $topic er stoppet - lukker consumer")
+    consumer.close()
 }
 
 fun <K, V> KafkaConsumer<K, V>.toggleConsumer(
@@ -99,7 +103,7 @@ fun <K, V> KafkaConsumer<K, V>.asFlow(
     timeout: Duration = Duration.ofMillis(100),
 ): Flow<ConsumerRecord<K, V>> =
     flow {
-        while (true) {
+        while (currentCoroutineContext().isActive) {
             toggleSjekk()
             poll(timeout).forEach { emit(it) }
         }
