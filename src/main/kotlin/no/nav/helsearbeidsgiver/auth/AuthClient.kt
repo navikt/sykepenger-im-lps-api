@@ -18,7 +18,7 @@ interface AuthClient {
         target: String,
     ): () -> String
 
-    suspend fun altinnExchange(maskinportenTokenGetter: String): String
+    suspend fun altinnExchange(maskinportenToken: String): String
 }
 
 class NoOpAuthClient : AuthClient {
@@ -27,7 +27,7 @@ class NoOpAuthClient : AuthClient {
         target: String,
     ): () -> String = { "dummy-token" }
 
-    override suspend fun altinnExchange(maskinportenTokenGetter: String): String = "dummy-token"
+    override suspend fun altinnExchange(maskinportenToken: String): String = "dummy-token"
 }
 
 class DefaultAuthClient : AuthClient {
@@ -100,13 +100,13 @@ class DefaultAuthClient : AuthClient {
                     },
             ).body()
 
-    override suspend fun altinnExchange(token: String): String {
+    override suspend fun altinnExchange(maskinportenToken: String): String {
         val tokenAltinn3ExchangeEndpoint =
             "${Env.getProperty("ALTINN_3_BASE_URL")}/authentication/api/v1/exchange/maskinporten"
 
         return httpClient
             .get(tokenAltinn3ExchangeEndpoint) {
-                bearerAuth(token)
+                bearerAuth(maskinportenToken)
             }.bodyAsText()
             .replace("\"", "")
     }
