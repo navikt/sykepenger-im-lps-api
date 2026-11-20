@@ -72,16 +72,20 @@ class KafkaTestExtension :
                     )
                 }
             }.let(AdminClient::create)
-            .createTopics(
-                listOf(
-                    NewTopic("helsearbeidsgiver.inntektsmelding", 1, 1.toShort()),
-                    NewTopic("helsearbeidsgiver.pri", 1, 1.toShort()),
-                    NewTopic("teamsykmelding.syfo-sendt-sykmelding", 1, 1.toShort()),
-                    NewTopic("helsearbeidsgiver.api-innsending", 1, 1.toShort()),
-                    NewTopic("flex.sykepengesoknad", 1, 1.toShort()),
-                    NewTopic("tbd.sis", 1, 1.toShort()),
-                ),
-            )
+            .use { adminClient ->
+                adminClient
+                    .createTopics(
+                        listOf(
+                            NewTopic("helsearbeidsgiver.inntektsmelding", 1, 1.toShort()),
+                            NewTopic("helsearbeidsgiver.pri", 1, 1.toShort()),
+                            NewTopic("teamsykmelding.syfo-sendt-sykmelding", 1, 1.toShort()),
+                            NewTopic("helsearbeidsgiver.api-innsending", 1, 1.toShort()),
+                            NewTopic("flex.sykepengesoknad", 1, 1.toShort()),
+                            NewTopic("tbd.sis", 1, 1.toShort()),
+                        ),
+                    ).all()
+                    .get()
+            }
         System.setProperty("KAFKA_BOOTSTRAP_SERVERS", kafkaContainer.bootstrapServers)
     }
 

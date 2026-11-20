@@ -56,10 +56,7 @@ abstract class LpsApiIntegrasjontest {
                 configureKafkaConsumers(tolkers, mockUnleash, leaderConfig = mockLeaderConfig)
             },
         )
-    val mockOAuth2Server =
-        MockOAuth2Server().apply {
-            start(port = 33445)
-        }
+    val mockOAuth2Server = MockOAuth2Server()
     val client =
         HttpClient {
             install(ContentNegotiation) {
@@ -69,6 +66,7 @@ abstract class LpsApiIntegrasjontest {
 
     @BeforeAll
     fun setup() {
+        mockOAuth2Server.start(port = 33445)
         every { mockLeaderConfig.isElectedLeader() } returns false
         every { mockUnleash.skalKonsumereSykepengesoeknader() } returns true
         every { mockUnleash.skalKonsumereForespoersler() } returns true
