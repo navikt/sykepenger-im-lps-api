@@ -168,15 +168,6 @@ class DokumentkoblingService(
 
         val inntektsmeldingId = refusjonUtfall.inntektsmeldingIder.firstOrNull()
 
-        if (inntektsmeldingId == null) { // TODO: Dette burde kanskje endres, send likevel?
-            logger.warn(
-                "Mangler inntektsmeldingId for refusjonsutfall med vedtaksperiodeId " +
-                    "$vedtaksperiodeId (sykmeldingId=$sykmeldingId, inntektsmeldingId=$inntektsmeldingId), " +
-                    "sender ikke melding på helsearbeidsgiver.dokument-kobling.",
-            )
-            return
-        }
-
         dokumentkoblingProducer.send(
             Refusjon(
                 refusjonUtfallId = refusjonUtfall.refusjonUtfallId,

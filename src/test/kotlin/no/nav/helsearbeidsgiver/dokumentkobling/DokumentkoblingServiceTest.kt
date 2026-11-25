@@ -201,15 +201,25 @@ class DokumentkoblingServiceTest {
     }
 
     @Test
-    fun `dokumentkoblingService kaller _IKKE_ dokumentkoblingProducer ved mottatt refusjonsutfall som mangler Inntektsmelding`() {
+    fun `dokumentkoblingService sender refusjonskobling også når inntektsmelding mangler`() {
+        every { mockDokumentkoblingProducer.send(any()) } just Runs
         val refusjonUtfall =
             refusjonUtfallMock().copy(
                 inntektsmeldingIder = emptyList(),
             )
         dokumentkoblingService.produserRefusjonKobling(refusjonUtfall)
 
-        verify(exactly = 0) {
-            mockDokumentkoblingProducer.send(any())
+        verifySequence {
+            mockDokumentkoblingProducer.send(
+                Refusjon(
+                    refusjonUtfallId = refusjonUtfall.refusjonUtfallId,
+                    sykmeldingId = refusjonUtfall.sykmeldingId,
+                    inntektsmeldingId = null,
+                    orgnr = refusjonUtfall.orgnr,
+                    fom = refusjonUtfall.fom,
+                    tom = refusjonUtfall.tom,
+                ),
+            )
         }
     }
 
