@@ -54,6 +54,7 @@ class RefusjonUtfallTolkerTest {
                 tom = LocalDate.of(2026, 8, 3),
                 arbeidstakervedtakFattetTidspunkt = LocalDateTime.parse("2026-08-05T13:03:25.166498222"),
                 beloepUtbetaltTilArbeidsgiver = 154999,
+                erRevurdering = false,
             )
         verify(exactly = 1) { dokumentkoblingService.produserRefusjonKobling(lagretRefusjonUtfall.captured) }
     }

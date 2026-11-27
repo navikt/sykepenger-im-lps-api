@@ -182,6 +182,7 @@ class DokumentkoblingServiceTest {
         val refusjonUtfallMedInntektsmelding =
             refusjonUtfallMock().copy(
                 sykmeldingId = sykmeldingId,
+                erRevurdering = true,
             )
 
         dokumentkoblingService.produserRefusjonKobling(refusjonUtfallMedInntektsmelding)
@@ -195,6 +196,7 @@ class DokumentkoblingServiceTest {
                     orgnr = refusjonUtfallMedInntektsmelding.orgnr,
                     fom = refusjonUtfallMedInntektsmelding.fom,
                     tom = refusjonUtfallMedInntektsmelding.tom,
+                    erRevurdering = true,
                 ),
             )
         }
@@ -218,6 +220,7 @@ class DokumentkoblingServiceTest {
                     orgnr = refusjonUtfall.orgnr,
                     fom = refusjonUtfall.fom,
                     tom = refusjonUtfall.tom,
+                    erRevurdering = false,
                 ),
             )
         }

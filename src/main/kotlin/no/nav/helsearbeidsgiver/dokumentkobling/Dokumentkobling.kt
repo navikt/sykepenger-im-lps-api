@@ -86,4 +86,5 @@ data class Refusjon(
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,
+    val erRevurdering: Boolean,
 ) : Dokumentkobling()

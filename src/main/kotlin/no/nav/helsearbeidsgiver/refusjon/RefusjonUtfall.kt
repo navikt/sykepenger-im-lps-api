@@ -27,4 +27,5 @@ data class RefusjonUtfall(
     val tom: LocalDate,
     val arbeidstakervedtakFattetTidspunkt: LocalDateTime,
     val beloepUtbetaltTilArbeidsgiver: Int,
+    val erRevurdering: Boolean = false,
 )
