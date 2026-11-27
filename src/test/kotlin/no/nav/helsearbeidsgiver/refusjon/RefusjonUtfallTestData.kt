@@ -19,6 +19,7 @@ fun refusjonUtfallMock(): RefusjonUtfall =
         tom = LocalDate.of(2026, 8, 3),
         arbeidstakervedtakFattetTidspunkt = LocalDateTime.of(2026, 8, 5, 13, 3, 25),
         beloepUtbetaltTilArbeidsgiver = 10_000,
+        erRevurdering = false,
     )
 
 fun refusjonUtfallResponseMock(): RefusjonUtfallResponse = refusjonUtfallMock().tilRefusjonUtfallResponse(loepenr = 1)

@@ -176,6 +176,7 @@ class DokumentkoblingService(
                 orgnr = refusjonUtfall.orgnr,
                 fom = refusjonUtfall.fom,
                 tom = refusjonUtfall.tom,
+                erRevurdering = refusjonUtfall.erRevurdering,
             ),
         )
         logger.info(
